@@ -4,7 +4,9 @@
 !/data/1000
 
 /public/img/prob/*
-/public/img/avatar
+
+/public/img/avatar/*
+!/public/img/avatar/=default=
 
 ~*
 
@@ -12,4 +14,3 @@
 *.log
 
 !.gitignore
-!/public/img/avatar/=default=
