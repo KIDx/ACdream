@@ -1,0 +1,13 @@
+<!--<html>-->
+<fieldset>
+  <div <% if (problem) { %>id="addproblem" pid="<%= problem.problemID %>"<% } %>>
+  	<legend>管理<% if (problem) { %> <a href="/problem?pid=<%= problem.problemID %>">problem <%= problem.problemID %></a><% } %></legend>
+  </div>
+  <% if (problem) { %>
+  	<%- partial('editproblem', {p:problem,u:user,partial:partial,f:files,imgs:imgs,tips:tips}) %>
+  <% } else { %>
+  <form class="form-horizontal" method="post">
+  	<button type="submit" class="btn btn-large">快速新建题目</button>
+  </form>
+  <% } %>
+</fieldset>

@@ -1,0 +1,129 @@
+<!--<html>-->
+<% var _id = [0, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]; %>
+<% var tc = ['', '', '']; %>
+<fieldset>
+  <div>
+    <legend id="statistic" pid="<%= pid %>" <% if (sort_key >= 0) { %>sort="<%= sort_key %>"<% } %>>
+      统计 <a href="/problem?pid=<%= pid %>">Problem <%= pid %></a>
+    </legend>
+  </div>
+  <table width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td style="width:31%;vertical-align:top;">
+        <div class="tablebg">
+          <div class="theader">Problem Statistic</div>
+          <div class="tablediv">
+            <table class="table table-cf tdcenter tdmini" id="static">
+              <thead>
+                <tr>
+                  <th>Verdict</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+              <% _id.forEach(function(p, i){ %>
+              <% var c = ''; %>
+              <% if (i == 0 || i % 2 == 1) { %>
+              <% c = 'odd'; %>
+              <% } else { %>
+              <% c = 'even'; %>
+              <% } %>
+              <% var v = 0; %>
+              <% if (N[p]) { %>
+              <% v = N[p]; %>
+              <% } %>
+                <% if (i == 1) { %><tr><th colspan="2"><div id="chart" style="height:400px;"></div></th></tr><% } %>
+                <tr class="<%= c %>">
+                  <td>
+                    <% if (i == 0) { %>Total Submissions<% } else { %><%= Res(p) %><% } %>
+                  </td>
+                  <td>
+                    <a href="/status?pid=<%= pid %><% if (_id[i] > 0) { %>&result=<%= _id[i] %><% } %>">
+                      <%= v %>
+                    </a>
+                  </td>
+                </tr>
+              <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </td>
+      <td width="2%"></td>
+      <td style="vertical-align:top;">
+        <div class="tablebg">
+          <div id="pager">
+            <%- partial('pager', {page:page, n:n}) %>
+            <div class="fr input-prepend" id="filter">
+              <span class="add-on">Lang.</span>
+              <select class="input-small" id="lang">
+                <option value="" <% if (!lang) { %>selected<% } %>>All</option>
+                <% for (var i = 1; i < langs.length; i++) { %>
+                <option value="<%= i %>" <% if (lang == i) { %>selected<% } %>>
+                  <%= langs[i] %>
+                </option>
+                <% } %>
+              </select>
+            </div>
+          </div>
+          <div class="tablediv">
+            <table class="table table-cf tdcenter sort" id="statistic">
+              <thead>
+                <tr>
+                  <th width="6%">Rank</th>
+                  <th width="20%">Author</th>
+                  <th title="sorted by exec time.">
+                    <a class="sort <% if (!sort_key) { %>current<% } %>" href="javascript:;">
+                      Exe. Time
+                    </a>
+                  </th>
+                  <th title="sorted by exec memory.">
+                    <a class="sort <% if (sort_key == 1) { %>current<% } %>" href="javascript:;">
+                      Exe. Memory
+                    </a>
+                  </th>
+                  <th title="sorted by code length.">
+                    <a class="sort <% if (sort_key == 2) { %>current<% } %>" href="javascript:;">
+                      Code Len.
+                    </a>
+                  </th>
+                  <th>Lang.</th>
+                  <th width="22%">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+              <% if (!sols || sols.length == 0) { %>
+                <tr class="odd">
+                  <td class="error-text center" colspan="7">No Status are matched.</td>
+                </tr>
+              <% } else { %>
+                <% sols.forEach(function(p, i){ %>
+                <% var c; %>
+                <% if (i % 2 == 1) { %>
+                <% c = 'even'; %>
+                <% } else { %>
+                <% c = 'odd'; %>
+                <% } %>
+                <tr class="<%= c %>">
+                  <td><%= (page-1)*pageNum + i + 1 %></td>
+                  <td>
+                    <a title="<%= UT[p._id] %>" class="user user-<%= UC[p._id] %>" href="/user/<%= p._id %>">
+                      <%= p._id %>
+                    </a>
+                  </td>
+                  <td><%= p.time %> MS</td>
+                  <td><%= p.memory %> KB</td>
+                  <td><%= p.length %> B</td>
+                  <td><a href="/sourcecode/<%= p.runID %>"><%= langs[p.language] %></a></td>
+                  <td><%= getDate(p.inDate) %></td>
+                </tr>
+                <% }); %>
+              <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+</fieldset>

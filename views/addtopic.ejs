@@ -1,0 +1,55 @@
+<!--<html>-->
+<% var type = 'Add'; %>
+<% if (topic) { type = 'Edit'; } %>
+<fieldset>
+	<div>
+		<legend id="addtopic" <% if (topic) { %>tid="<%= topic.id %>"<% } %>>
+			<%= type %> Topic
+		</legend>
+	</div>
+	<div class="alert alert-info" style="padding:30px;display:none;">
+		<h1 align="center"><%= type %> Topic</h1>
+	</div>
+	<div class="form-horizontal">
+		<div class="mc">
+			<div class="control-group">
+				<label class="control-label" for="Title">标题：</label>
+				<div class="controls">
+					<input <% if (topic) { %>value="<%= topic.title %>"<% } %> type="text" id="Title" class="input-xxlarge" placeholder="请在此输入标题" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="Title"><span class="user user-red">注意：</span></label>
+				<div class="controls" style="padding-top:5px;">
+					<span class="user user-green">要多使用表情左边的<span class="user user-red">插入代码功能</span>哦~</span>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">内容：</label>
+				<div class="controls" style="width:800px;">
+					<textarea id="content">
+						<% if (topic) { %><%- topic.content %><% } %>
+					</textarea>
+				</div>
+			</div>
+			<% if (!topic) { %>
+			<div class="control-group">
+				<label class="control-label" for="vcode">验证码：</label>
+				<div class="controls">
+					<input type="text" class="input-mini" id="vcode" />
+					<div title="点击换一张" class="help-inline img topic_img vcode" id="vcimg"><%- vcode %></div>
+				</div>
+			</div>
+			<% } %>
+			<div class="control-group">
+				<div class="controls">
+					<a class="uibtn" href="javascript:;" id="submit">发布</a>
+					<span class="error-text" id="err"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="form-actions">
+		<span class="user user-gray">Made by KIDx. 2013/11/15</span>
+	</div>
+</fieldset>

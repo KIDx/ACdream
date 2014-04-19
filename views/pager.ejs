@@ -1,0 +1,27 @@
+<!--<html>-->
+<div id="list" class="pagination pagination-small fl">
+  <ul>
+  <% var cp = 5, i = page - 2; if (i <= 0) i = 1; %>
+    <li <% if (page == 1) { %>class="disabled"<% } %>>
+      <a id="1" href="javascript:;">&lt;&lt;</a>
+    </li>
+  <% if (i > 1) { %>
+    <li class="disabled"><a href="javascript:;">...</a></li>
+  <% } %>
+  <% while (i < page) { %>
+    <li><a id="<%= i %>" href="javascript:;"><%= i %></a></li>
+    <% ++i; --cp; %>
+  <% } %>
+    <li class="active"><a href="javascript:;"><%= i %></a></li>
+  <% while (i < n && cp > 1) { %>
+    <% ++i; --cp; %>
+    <li><a id="<%= i %>" href="javascript:;"><%= i %></a></li>
+  <% } %>
+  <% if (i < n) { %>
+    <li class="disabled"><a href="javascript:;">...</a></li>
+  <% } %>
+    <li <% if (n == 0 || page == n) { %>class="disabled"<% } %>>
+      <a id="<%= n %>" href="javascript:;">&gt;&gt;</a>
+    </li>
+  </ul>
+</div>

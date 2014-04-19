@@ -1,0 +1,122 @@
+<!--<html>-->
+<% var _id = [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]; %>
+<fieldset>
+  <div><legend>状态</legend></div>
+  <div class="tablebg" >
+    <div id="pager">
+      <%- partial('pager', {page:page, n:n}) %>
+      <div class="fr" id="filter">
+        <div class="input-prepend">
+          <span class="add-on">Name</span>
+          <input type="text" id="name" placeholder=" userName" <% if (name) { %>value="<%= name %>"<% } %>/>
+        </div>
+        <div class="input-prepend">
+          <span class="add-on">prob#</span>
+          <input type="text" id="pid" placeholder=" problemID" <% if (pid) { %>value="<%= pid %>"<% } %> />
+        </div>
+        <div class="input-prepend">
+          <span class="add-on">lang</span>
+          <select id="lang" style="width:60px">
+            <option value="" <% if (!lang) { %>selected<% } %>>All</option>
+            <% for (var i = 1; i < langs.length; i++) { %>
+            <option value="<%= i %>" <% if (lang == i) { %>selected<% } %>>
+              <%= langs[i] %>
+            </option>
+            <% } %>
+          </select>
+        </div>
+        <div class="input-prepend">
+          <span class="add-on">Verdict</span>
+          <select id="result" style="width:180px">
+            <option value="" <% if (!result) { %>selected<% } %>>All</option>
+            <% _id.forEach(function(p) { %>
+            <option class="<%= Col(p) %>" value="<%= p %>" <% if (result == p) { %>selected<% } %>>
+              <%= Res(p) %>
+            </option>
+            <% }); %>
+          </select>
+        </div>
+        <div>
+          <a href="javascript:;" class="uibtn uibtn-mini" id="fil">Filter</a>
+        </div>
+        <div>
+          <a href="javascript:;" class="uibtn uibtn-mini" id="reset">Reset</a>
+        </div>
+      </div>
+    </div>
+    <div id="tablediv">
+      <table class="table table-cf" id="statustable">
+        <thead>
+          <tr>
+            <th style="width:7%;">RunID</th>
+            <th style="width:14%;">User</th>
+            <th style="width:10%;">Problem</th>
+            <th>Verdict</th>
+            <th style="width:9%;">Time</th>
+            <th style="width:9%;">Memory</th>
+            <th style="width:8%;">Lang</th>
+            <th style="width:8%;">Length</th>
+            <th style="width:15%;">Submit Time</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% if (!sols || sols.length == 0) { %>
+          <tr class="odd">
+            <td class="error-text center" colspan="9">No Status are matched.</td>
+          </tr>
+        <% } else { %>
+          <% sols.forEach(function(p, i){ %>
+            <% var c, v, vc = '', time, memory, len; %>
+            <% if (user && user.name == p.userName) { %>
+            <% c = 'highlight'; %>
+            <% } else if (i % 2 == 1) { %>
+            <% c = 'even'; %>
+            <% } else { %>
+            <% c = 'odd'; %>
+            <% } %>
+            <% if (p.result < 2) { %>
+            <% vc = 'unknow'; %>
+            <% } %>
+            <% if (p.cID != -1 && (!user || (p.userName != user.name && user.name != 'admin'))) { %>
+            <% time = memory = len = '<span class="user user-gray">---</span>'; %>
+            <% } else { %>
+            <% time = p.time+' MS'; memory = p.memory+' KB'; len = p.code.length+' B'; %>
+            <% } %>
+            <% if (p.result == 0) { %>
+            <% time = '<img src="img/pending.gif" style="width:16px;height:16px;" />'; %>
+            <% } else if (p.result == 1) { %>
+            <% time = '<img src="img/running.gif" style="width:16px;height:16px;" />'; %>
+            <% } %>
+            <% if (p.result == 8 && user && (user.name == p.userName || user.name == 'admin')) { %>
+            <% v = '<a href="javascript:;" title="more information" rid="'+p.runID+'" class="CE special-text">Compilation Error</a>'; %>
+            <% } else { %>
+            <% v = R[i]; %>
+            <% } %>
+          <tr class="<%= c %>">
+            <td><%= p.runID %></td>
+            <td>
+              <a class="user user-<%= UC[p.userName] %>" title="<%= UT[p.userName] %> <%= p.userName %>" href="/user/<%= p.userName %>">
+                <%= p.userName %>
+              </a>
+            </td>
+            <td>
+              <a href="/problem?pid=<%= p.problemID %>"><%= p.problemID %></a>
+            </td>
+            <td class="bold <%= vc %> <%= C[i] %>" <% if (p.result < 2) { %>rid="<%= p.runID %>"<% } %>>
+              <%- v %>
+            </td>
+            <td><%- time %></td>
+            <td><%- memory %></td>
+            <td>
+              <a href="/sourcecode/<%= p.runID %>"><%= langs[p.language] %></a>
+            </td>
+            <td><%- len %></td>
+            <td><%= getDate(p.inDate) %></td>
+          </tr>
+          <% }); %>
+        <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</fieldset>

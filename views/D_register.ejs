@@ -1,0 +1,52 @@
+<!--<html>-->
+<div class="jqmSubmit" id="regdialog" style="width:460px;height:480px;top:12%;">
+  <div class="jqDrag jqtop">Register</div>
+  <div class="jqcontent" style="width:460px;height:390px;padding-left:10px;">
+    <div class="group" style="min-width:460px;">
+      <div style="width:230px;">
+        <div>
+          <label for="reg_username">User Name *</label>
+          <input maxlength="50" type="text" id="reg_username">
+        </div>
+        <div>
+          <label for="reg_password">Password *</label>
+          <input maxlength="50" type="password" id="reg_password">
+        </div>
+        <div>
+          <label for="password_repeat">Repeat *</label>
+          <input maxlength="50" type="password" id="password_repeat">
+        </div>
+        <div>
+          <label for="reg_nick">Nick Name *</label>
+          <input maxlength="50" type="text" id="reg_nick">
+        </div>
+        <div>
+          <label for="reg_school">School</label>
+          <input maxlength="50" type="text" id="reg_school">
+        </div>
+        <div>
+          <label for="reg_email">Email</label>
+          <input maxlength="50" type="text" id="reg_email">
+        </div>
+      </div>
+      <div>
+        <label for="signature">Signature</label>
+        <textarea maxlength="300" style="width:190px;height:250px;resize:none;" id="signature"></textarea>
+      </div>
+    </div>
+    <div style="padding-top:20px;width:410px;height:35px;" class="group">
+      <div class="input-prepend">
+        <span class="add-on">验证码 *</span>
+        <input maxlength="4" type="text" style="width:120px;" id="reg_vcode">
+      </div>
+      <div id="vcode" title="点击换一张" class="img topic_img vcode"></div>
+    </div>
+    <small id="reg_error" class="error-text"></small>
+  </div>
+  <div class="jqfoot">
+    <a class="uibtn" id="reg_submit" href="javascript:;">Submit</a>
+    <a class="uibtn regclose" href="javascript:;">Cancel</a>
+  </div>
+  <div class="jqResize"></div>
+  <i class="regclose jqclose"></i>
+</div>

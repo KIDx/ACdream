@@ -1,0 +1,126 @@
+<!--<html>-->
+<% var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", ProbNum = 1; %>
+<% var str, time, cday, chour, cmin, name, tp; %>
+<% if (contest && clone == 0) { str = getDate(contest.startTime).split(' '); cday = parseInt(contest.len/1440, 10); chour = parseInt(contest.len%1440/60, 10); cmin = contest.len%1440%60; } %>
+<% if (str && str[1]) time = str[1].split(':'); %>
+
+<% if (contest && clone == 0) { name = 'Edit'; } else { name = 'Add'; } %>
+
+<% if (clone == 1) { tp = 1; } else if (contest) { tp = contest.type; } else { tp = type; }%>
+
+<% var cname = 'Contest'; %>
+<% if (tp == 3) cname = 'Exam'; %>
+
+<% var probs; %>
+<% if (contest) { %>
+<% probs = contest.probs; %>
+<% } else { %>
+<% probs = [['', '']]; %>
+<% } %>
+
+<fieldset>
+  <div>
+    <legend id="addcontest" <% if (contest && clone == 0) { %>cid="<%= contest.contestID %>"<% } %> type="<%= tp %>">
+      <%= name %> <%= cname %>
+    </legend>
+  </div>
+  <div class="alert alert-info" style="padding:30px;display:none;">
+    <h1 align="center"><%= name %> <%= cname %></h1>
+  </div>
+  <div class="form-horizontal" id="form">
+    <div class="row-fluid" style="min-height:460px;">
+      <div class="span6">
+        <table class="table table-bordered thright" style="background:#f9f9f9;">
+          <tr>
+            <th>Title: </th>
+            <td><input id="Title" type="text" class="input-xlarge"<% if (contest && clone == 0) { %>value="<%= contest.title %>"<% } %>></td>
+          </tr>
+          <tr>
+            <th>Begin Time: </th>
+            <td>
+              <input id="datepicker" type="text" class="input-small" value="<% if (str) { %><%= str[0] %><% } %>" />
+              <input id="hour" maxlength="2" type="text" class="input-mini" value="<% if (time && time[0]) { %><%= time[0] %><% } else { %>0<% } %>" /> : 
+              <input id="min" maxlength="2" type="text" class="input-mini" value="<% if (time && time[1]) { %><%= time[1] %><% } else { %>0<% } %>" /> : 00
+            </td>
+          </tr>
+          <tr>
+            <th>Length: </th>
+            <td>
+              <input id="dd" maxlength="2" type="text" class="input-mini" value="<% if (cday) { %><%= cday %><% } else { %>0<% } %>"> 天 
+              <input id="hh" maxlength="2" type="text" class="input-mini" value="<% if (chour) { %><%= chour %><% } else { %>5<% } %>"> : 
+              <input id="mm" maxlength="2" type="text" class="input-mini" value="<% if (cmin) { %><%= cmin %><% } else { %>0<% } %>"> : 00
+            </td>
+          </tr>
+          <% if ((!contest && type != 2) || (contest && (clone == 1 || contest.type != 2))) { %>
+          <tr>
+            <th>Password: </th>
+            <td>
+              <input id="psw" type="password" class="input-large" <% if (contest && contest.password && clone == 0) { %>value="<%= contest.password %>"<% } %>><br/>
+              <span class="text-info">&nbsp;Leave blank to make it Public.</span>
+            </td>
+          </tr>
+          <% } else { %>
+          <tr>
+            <th></th>
+            <td>
+              <div class="my-radio">
+                <input id="private" type="radio" value="1" name="psw" <% if(contest && contest.password) { %>checked<% } %>>
+                <label for="private" class="user-green" title="Codeforce的注册模式">private</label>
+                <input id="public" type="radio" value="" name="psw" <% if(!contest || !contest.password) { %>checked<% } %>>
+                <label for="public" class="user-blue" title="校内注册模式(需要填报名表)">public</label>
+              </div>
+            </td>
+          </tr>
+          <% } %>
+          <tr>
+            <th>Description: </th>
+            <td>
+              <textarea id="desc" type="text" rows="5" class="input-xlarge"><% if (contest && clone == 0) { %><%= contest.description %><% } %></textarea>
+            </td>
+          </tr>
+          <tr>
+            <th>Announcement: </th>
+            <td>
+              <textarea id="anc" type="text" rows="4" class="input-xlarge"><% if (contest && clone == 0) { %><%= contest.msg %><% } %></textarea>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="span6">
+      <% if (!edit) { %>
+        <div class="alert alert-error">由于该contest已存在提交，有些部分不可编辑</div>
+      <% } %>
+        <table id="addprob" class="table table-condensed tdcenter">
+          <tr>
+            <th style="width:5%;">
+              <% if (edit) { %><a id="add" title="add" href="javascript:;" class="user user-green add"><% } %>
+              </a>
+            </th>
+            <th style="width:20%;">ProbNum</th>
+            <th style="width:30%;">Alias</th>
+            <th style="width:5%;"></th>
+            <th style="text-align:left;">Title</th>
+          </tr>
+        <% probs.forEach(function(p, i) { %>
+          <tr>
+            <td>
+              <% if (edit) { %><a title="delete" href="javascript:;" class="mc user user-red delete"></a><% } %>
+            </td>
+            <td><input type="text" class="probnum input-mini" value="<%= p[0] %>" <% if (!edit) { %>disabled<% } %> /></td>
+            <td><input type="text" class="alias input-medium" value="<%= p[1] ? p[1] : '' %>" /></td>
+            <td class="bold p_index"><%= F[i] %></td>
+            <td class="<% if (p[0]) { %>success-text<% } else { %>error-text<% } %> title" style="text-align:left;">
+              <% if (p[0]) { %><%= P[p[0]].title %><% } %>
+            </td>
+          </tr>
+        <% }); %>
+        </table>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a style="margin-left:50%;" class="uibtn" href="javascript:;" id="submit">Submit</a>
+      <% if (contest && clone == 0) { %><a class="uibtn" href="/onecontest/<%= contest.contestID %>">back</a><% } %>
+      <span id="err" class="error-text"></span>
+    </div>
+  </div>
+</fieldset>

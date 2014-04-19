@@ -1,0 +1,107 @@
+<!--<html>-->
+
+<% var img = '/img/avatar/%3Ddefault%3D/1.jpeg'; %>
+<% if (u.imgType) { img = '/img/avatar/'+u.name+'/1.'+u.imgType; } %>
+
+<fieldset>
+  <div><legend id="user" name="<%= u.name %>">用户</legend></div>
+  <div style="position:relative;">
+    <div class="menu-list">
+      <ul>
+        <li><a href="/user/<%= u.name %>"><%= u.name %></a></li>
+        <% if (user && user.name == u.name) { %>
+        <li><a href="/avatar">设置头像</a></li>
+        <% } %>
+        <li><a href="/status?name=<%= u.name %>">submissions</a></li>
+      </ul>
+    </div>
+    <div class="roundbox">
+      <div class="img avatar"><img alt="avatar" src="<%= img %>" /></div>
+      <h3>
+        <% var N = UT(u.rating); %>
+        <span class="user user-<%= UC(u.rating) %>" title="<%= N %> <%= u.name %>">
+          <%= N+' '+u.name %>
+        </span>
+      </h3>
+      <% if (user && user.name == 'admin') { %>
+      <div style="margin:10px 0;">
+        <a style="margin:0;" href="javascript:;" class="uibtn" id="addprob">
+          <% if(u.addprob == 1) { %>回收<% } else { %>赋予<% } %> <%= u.name %> 加题权限
+        </a>
+        <% if (u.name == 'admin') { %>
+          <a style="margin:0 10px;" href="javascript:;" class="uibtn" id="recal">
+            重新统计所有用户提交数和AC数
+          </a>
+        <% } %>
+        <a style="margin:0;" href="javascript:;" class="uibtn" id="restore">
+          将 <%= u.name %> 的密码恢复默认
+        </a>
+      </div>
+      <% } %>
+      <div><span class="user-gray" title="nick name"><%= u.nick %></span></div>
+      <ul class="user-info">
+      <% if(u.signature) { %>
+        <li style="word-break:break-all;"><img class="icon" src="/img/sig.png"/>Signature: <%= u.signature %></li>
+      <% } %>
+      <% if (user && user.name == u.name) { %>
+        <li><img class="icon" src="/img/settings.png"/><a id="set" href="javascript:;">Change settings</a></li>
+      <% } %>
+      <% if (u.name != 'admin') { %>
+        <li><img class="icon" src="/img/rank.png"/>Rank: <span class="user user-green"><%= u.rank %></span></li>
+      <% } %>
+        <li><img class="icon" src="/img/yes.png"/>Solved: <span class="user user-green"><%= u.solved %></span></li>
+        <li><img class="icon" src="/img/submit.png"/>Submissions: <span class="user user-green"><%= u.submit %></span></li>
+      <% if(u.email) { %>
+        <li><img class="icon" src="/img/mail.png"/>Email: <%= u.email %></li>
+      <% } %>
+      <% if(u.school) { %>
+        <li><img class="icon" src="/img/school.png"/>School: <%= u.school %></li>
+      <% } %>
+        <li><img class="icon" src="/stylesheets/img/add.png"/>AddProblem: <% if(u.addprob) { %><span class="user user-green">YES</span><% } else { %><span class="error-text">NO</span><% } %></li>
+        <li>Last Visit: <%= getTime(u.visTime) %></li>
+        <li>Registered: <%= getTime(u.regTime) %></li>
+      </ul>
+    </div>
+    <div class="topic_box">
+      <div class="header">
+        List of <span class="success-text">solved</span> problems
+      </div>
+      <div class="inner_topic prob_list">
+      <% if (A.length == 0) { %>
+        <span class="error-text">No problems has been solved :(</span>
+      <% } %>
+      <% for (var i = 0; i < A.length; i++) { %>
+        <a href="/problem?pid=<%= A[i] %>"><%= A[i] %></a>
+      <% } %>
+      </div>
+    </div>
+    <div class="topic_box">
+      <div class="header">
+        List of <span class="error-text">unsolved</span> problems
+      </div>
+      <div class="inner_topic prob_list">
+      <% if (B.length == 0) { %>
+        <p class="success-text">No unsolved problems :)</p>
+      <% } %>
+      <% for (var i = 0; i < B.length; i++) { %>
+        <a href="/problem?pid=<%= B[i] %>"><%= B[i] %></a>
+      <% } %>
+      </div>
+    </div>
+    <% if (u.name == 'admin') { %>
+    <div class="topic_box">
+      <div class="header">
+        List of <span class="error-text">hidden</span> problems
+      </div>
+      <div class="inner_topic prob_list">
+      <% if (H.length == 0) { %>
+        <p class="success-text">No hidden problems :)</p>
+      <% } %>
+      <% for (var i = 0; i < H.length; i++) { %>
+        <a href="/problem?pid=<%= H[i].problemID %>"><%= H[i].problemID %></a>
+      <% } %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</fieldset>

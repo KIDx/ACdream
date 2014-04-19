@@ -1,0 +1,11 @@
+/node_modules/
+/data/
+/public/img/prob
+/public/img/avatar
+
+~*
+
+*.log
+
+!.gitignore
+!/public/img/avatar/=default=

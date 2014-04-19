@@ -1,0 +1,25 @@
+<!--<html>-->
+<div class="jqmSubmit" id="dialog_sm" style="height:595px;width:510px;top:6%;">
+  <div class="jqDrag jqtop">Submit your code here</div>
+  <div class="jqcontent" style="height:500px;width:510px;">
+    <div style="width:500px;overflow:hidden;margin-bottom:5px;">
+      <div style="width:290px;float:left;">
+        Problem:
+        <span class="user-green" id="pid"></span>
+      </div>
+      <div style="width:200px;float:right;">
+        Language:
+        <%- partial('lang', {langs: langs, clazz: null}) %>
+      </div>
+    </div>
+    <span class="error-text" id="error"></span>
+    <div style="padding-top:5px;">Source Code</div>
+    <textarea style="width:450px;height:370px;margin:10px 10px 0 10px;" class="jqtext"></textarea>
+  </div>
+  <div class="jqfoot" align="right">
+    <a class="uibtn" href="javascript:;" id="jqcodesubmit">Submit</a>
+    <a class="uibtn submitclose" href="javascript:;">Cancel</a>
+  </div>
+  <div class="jqResize"></div>
+  <i class="submitclose jqclose"></i>
+</div>

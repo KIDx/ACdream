@@ -1,0 +1,106 @@
+<!--<html>-->
+<% var now = (new Date()).getTime(), oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action']; %>
+<% var get = function(x) { return (new Date(x)).getTime(); } %>
+<fieldset>
+	<div><legend>主页</legend></div>
+	<div class="row-fluid">
+		<div class="span6 publish_box">
+			<div class="publish_header">
+				<a href="/topic" title="更多" class="fr more"></a>
+				<div>公告</div>
+			</div>
+			<div class="inner_topic">
+				<ul class="publish_list">
+					<% for (var i = 0; i < 5; i++) { %>
+					<li>
+						<img class="icon" src="/img/arrow.png"/>
+					<% if (i < A.length) { %>
+						<span class="fr user-gray"><%= getTime(A[i].inDate) %></span>
+						<a href="/topic/<%= A[i].id %>"><%= A[i].title %></a>
+						<% if (now - get(A[i].inDate) < 86400000) { %>
+						<img class="top" src="/img/new.gif" />
+						<% } %>
+					<% } else { %>
+						<span class="user-gray">暂无</span>
+					<% } %>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+		<div class="span6 publish_box">
+			<div class="publish_header">
+				<a href="/contest/2" title="更多" class="fr more"></a>
+				<div>最近比赛</div>
+			</div>
+			<div class="inner_topic">
+				<ul class="publish_list">
+					<% for (var i = 0; i < 5; i++) { %>
+					<li>
+						<img class="icon" src="/img/arrow.png"/>
+					<% if (i < B.length) { %>
+						<% var pass = now - B[i].startTime; %>
+						<% if (pass < 0) { %>
+						<span class="fr text-info">即将开始，敬请期待</span>
+						<a href="/onecontest/<%= B[i].contestID %>"><%= B[i].title %></a>
+						<img class="top" src="/img/new.gif" />
+						<% } else if (pass < B[i].len*60000) { %>
+						<span class="fr user-red">火热进行中</span>
+						<a href="/onecontest/<%= B[i].contestID %>"><%= B[i].title %></a>
+						<img class="top" src="/img/hot.gif" />
+						<% } else { %>
+						<span class="fr user-gray">已结束</span>
+						<a href="/onecontest/<%= B[i].contestID %>"><%= B[i].title %></a>
+						<% } %>
+					<% } else { %>
+						<span class="user-gray">暂无</span>
+					<% } %>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="span6 publish_box">
+			<div class="publish_header">
+				<a href="/topic" title="更多" class="fr more"></a>
+				<div>最新话题</div>
+			</div>
+			<div class="inner_topic">
+				<ul class="publish_list">
+					<% for (var i = 0; i < 5; i++) { %>
+					<li>
+						<img class="icon" src="/img/arrow.png"/>
+					<% if (i < C.length) { %>
+						<span class="fr user-gray"><%= getTime(C[i].inDate) %></span>
+						<a href="/topic/<%= C[i].id %>"><%= C[i].title %></a>
+						<% if ((new Date()).getTime() - (new Date(C[i].inDate)).getTime() < 86400000) { %>
+						<img class="top" src="/img/new.gif" />
+						<% } %>
+					<% } else { %>
+						<span class="user-gray">暂无</span>
+					<% } %>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+		<div class="span6 publish_box">
+			<div class="publish_header">
+				<a href="/topic/101" title="更多" class="fr more"></a>
+				<div>推荐 Online Judge</div>
+			</div>
+			<div class="inner_topic">
+				<ul class="publish_list">
+					<% for (var i = 0; i < 5; i++) { %>
+					<li>
+						<img class="icon" src="/img/arrow.png"/>
+						<a target="_blank" href="<%= url[i] %>"><%= oj[i] %></a>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+	</div>
+</fieldset>

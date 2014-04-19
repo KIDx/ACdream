@@ -1,0 +1,10 @@
+.btn,
+.uibtn {
+  border: 1px solid #AAA;
+}
+
+.bread > li,
+.mainbread > li {
+  zoom: 1;
+  display: inline;
+}

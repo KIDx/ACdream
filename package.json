@@ -1,0 +1,35 @@
+{
+  "name": "ACdreamOnlineJudge",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node app"
+  },
+  "description": "OnlineJudge System Of ACM",
+  "keywords": ["ACdream", "OnlineJudge", "OJ", "ACM", "ICPC", "Contest", "online judge", "Programming"],
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/KIDx/ACdream"
+  },
+  "dependencies": {
+    "express": "4.x",
+    "compression": "*",
+    "morgan": "*",
+    "body-parser": "*",
+    "multer": "*",
+    "cookie-parser": "*",
+    "method-override": "*",
+    "static-favicon": "*",
+    "express-session": "*",
+
+    "connect": "*",
+    "mongodb": "*",
+    "connect-mongo": "*",
+    "mongoose": "*",
+    "ejs": "*",
+    "express-partials": "*",
+    "canvas": "*",
+    "socket.io": "*",
+    "gm": "*",
+    "csv": "*"
+  }
+}

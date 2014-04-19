@@ -1,0 +1,28 @@
+<!--<html>-->
+<fieldset>
+  <div class="form-horizontal">
+    <div><legend>代码提交</legend></div>
+    <div class="control-group">
+      <label class="control-label" for="pid">Problem:</label>
+      <div class="controls">
+        <input type="search" class="input-mini" id="pid" value="<%= id %>" >
+        <span class="help-inline error-text" id="error"></span>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="lang">Language:</label>
+      <div class="controls">
+        <%- partial('lang', {langs: langs, clazz: null}) %>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="code">Source Code:</label>
+      <div class="controls">
+        <textarea rows="25" class="span7" id="code"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a id="submit" class="uibtn" href="javascript:;">submit</a>
+    </div>
+  </div>
+<fieldset>

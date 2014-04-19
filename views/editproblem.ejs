@@ -1,0 +1,147 @@
+<!--<html>-->
+  <div style="float:right;width:55%;">
+    <div class="roundbox upload row-fluid">
+      <div class="span5 uploaddiv">
+        <span class="success-text">上传图片：</span><br/>
+        <span class="uibtn upload-btn">
+          <span>选择并上传图片</span>
+          <input type="file" id="image" name="info" data-url="/imgUpload?pid=<%= p.problemID %>" />
+        </span>
+        <span id="submit-info" class="upload-info">未选择文件</span><br/>
+        <span id="imgerr" class="error-text">&nbsp;</span>
+        <div class="ibox user-gray">(支持jpeg, jpg, png格式)<br/>目前已保存了<span id="imgnum"><%= imgs.length %></span>个张图片 </div>
+        <div class="limitbox" id="imgdiv">
+        <% imgs.forEach(function(p){ %>
+          <div class="cb" fname="<%= p %>">
+            <div class="ibox"><%= p %></div>
+            <div class="ibox"><a class="imgdel" href="javascript:;">删除</a></div>
+          </div>
+        <% }); %>
+        </div>
+      </div>
+      <div class="span7">
+        <span class="success-text">
+        注意：图片大小不得超过1M！<br/>使用方法：在下面编辑器中点击图象，源文件路径："/img/prob/<%= p.problemID %>/"+"文件名"
+        </span>
+      </div>
+    </div>
+    <div class="roundbox upload row-fluid">
+      <div class="span5 uploaddiv">
+        <span class="success-text">上传数据：</span><br/>
+        <span class="uibtn upload-btn">
+          <span>选择并上传数据</span>
+          <input type="file" id="data" name="data" data-url="/dataUpload?pid=<%= p.problemID %>" multiple/>
+        </span>
+        <span id="upload-info" class="upload-info">未选择文件</span><br/>
+        <span class="error-text" id="dataerr">&nbsp;</span>
+        <div class="ibox user-gray">目前已保存了<span id="datanum"><%= f.length %></span>个数据文件</div>
+        <div class="limitbox" id="datadiv">
+        <% f.forEach(function(p){ %>
+          <div class="cb" fname="<%= p %>">
+            <div class="ibox"><%= p %></div>
+            <div class="ibox"><a class="del" href="javascript:;">删除</a></div>
+          </div>
+        <% }); %>
+        </div>
+      </div>
+      <div class="span7">
+        <span class="success-text">
+          注意：<br/>
+          1. 大于50m的文件将会被忽略<br/>
+          2. 若数据有错请点击删除<br/>
+          3. 可以上传任何格式文件，但是评测机只认识格式为".in", ".out"的数据文件<br/>
+          <span class="error-text">4. 请务必统一使用："1.in, 1.out, 2.in, 2.out..."命名方式<br/>5. 每个数据文件尽量不要超过100组测试</span>
+        </span>
+      </div>
+    </div>
+  </div>
+<form class="form-horizontal" method="post">
+  <div class="roundbox" style="margin-top:10px;width:40%;">
+    <h4><span class="error-text">加题者注意：</span></h4>
+    <h5>1、<span class="error-text">变量、重要范围</span>必须使用斜体表示，前台CSS样式会突出它们！</h5>
+    <h5>2、<span class="success-text">重要数字，重要句子请加粗凸显！</span></h5>
+    <h5>3、<span class="success-text">建议先检查你要出的题是否已存在于题库！</span></h5>
+    <h4>PS：<span class="error-text">若数据是原创的，务必找多几份代码进行验证</span></h4>
+  </div>
+  <div>
+      <h4>Use Special Judge ?</h4>
+      <div class="my-radio">
+        <input id="spj" type="radio" name="isSpj" value="1" <% if (p.spj) { %>checked<% } %>/>
+        <label for="spj">YES</label>
+        <input id="nospj" type="radio" name="isSpj" value="0" <% if (!p.spj) { %>checked<% } %>/>
+        <label for="nospj">NO</label>
+      </div>
+  </div>
+  <div>
+      <h4>Use TC Mode ?</h4>
+      <div class="my-radio">
+        <input id="tc" type="radio" name="TC" value="1" <% if (p.TC) { %>checked<% } %>/>
+        <label for="tc">YES</label>
+        <input id="notc" type="radio" name="TC" value="0" <% if (!p.TC) { %>checked<% } %>/>
+        <label for="notc">NO</label>
+      </div>
+  </div>
+<% if(u.name == 'admin' || p.manager == u.name) { %>
+  <div>
+      <h4>Hide ?</h4>
+      <div class="my-radio">
+        <input id="hide" type="radio" name="hide" value="1" <% if (p.hide) { %>checked<% } %>/>
+        <label for="hide">YES</label>
+        <input id="nohide" type="radio" name="hide" value="0" <% if (!p.hide) { %>checked<% } %>/>
+        <label for="nohide">NO</label>
+      </div>
+  </div>
+<% } %>
+  <div id="simpleInput">
+    <div>
+      <h4>How Easy ?</h4>
+      <select name="easy" style="width:400px;">
+        <%- partial('easy', {easy: p.easy, tips: tips}) %>
+      </select>
+    </div>
+    <div>
+      <h4>Title</h4>
+      <input type="text" name="Title" value="<%= p.title %>"/>
+    </div>
+    <div>
+      <h4>Time limit</h4>
+      <input type="text" class="input-small" name="Timelimit" value="<%= p.timeLimit %>"/> MS
+    </div>
+    <div>
+      <h4>Memory limit</h4>
+      <input type="text" class="input-small" name="Memorylimit" value="<%= p.memoryLimit %>"/> KB
+    </div>
+  </div>
+  <div>
+    <h4>Problem Description</h4>
+    <textarea name="Description"><%- p.description %></textarea>
+  </div>
+  <div>
+    <h4>Input</h4>
+    <textarea name="Input"><%- p.input %></textarea>
+  </div>
+  <div>
+    <h4>Output</h4>
+    <textarea name="Output"><%- p.output %></textarea>
+  </div>
+  <div>
+    <h4>Sample Input</h4>
+    <textarea rows="10" style="width:80%;" name="sInput"><%= p.sampleInput %></textarea>
+  </div>
+  <div>
+    <h4>Sample Output</h4>
+    <textarea rows="10" style="width:80%;" name="sOutput"><%= p.sampleOutput %></textarea>
+  </div>
+  <div>
+    <h4>Hint</h4>
+    <textarea name="Hint"><%- p.hint %></textarea>
+  </div>
+  <div>
+    <h4>Source</h4>
+    <input type="text" class="input-xlarge" name="Source" value="<%= p.source %>"/>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-large">submit</button>
+  </div>
+  <input style="display:none;" type="text" name="pid" value="<%= p.problemID %>"/>
+</form>
