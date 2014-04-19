@@ -3,7 +3,7 @@
 /data/*
 !/data/1000
 
-/public/img/prob
+/public/img/prob/*
 /public/img/avatar
 
 ~*
