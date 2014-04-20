@@ -262,13 +262,16 @@
       <div class="tab-pane" id="ranktab" style="margin:0px 10px;">
       <% if (watch) { %>
         <% if (contest.type == 2) { %>
-        <div class="form-inline" style="margin-bottom:10px;">
+        <div class="form-inline">
+          <button class="btn" id="calrating">统计rating</button>
+        </div>
+        <div class="form-inline">
           <input class="input-medium" type="text" id="userstr" placeholder="用户名" title="用户名" />
           <button class="btn" id="user-add">添加一名参赛者</button>
           <span class="error-text" id="adderr"></span>
         </div>
         <% } %>
-        <div class="form-inline" style="margin-bottom:10px;">
+        <div class="form-inline">
           <input class="input-xxlarge" type="text" id="starstr" placeholder="用户名" title="用户名"/>
           <select class="input-medium" id="type">
             <option value="1">给他们打星</option>
@@ -278,7 +281,7 @@
           <small class="user-gray">PS: 多个用户请用空格隔开</small>
           <span class="error-text" id="starerr"></span>
         </div>
-        <div class="form-inline" style="margin-bottom:10px;">
+        <div class="form-inline">
           <input class="input-xxlarge" type="text" id="msg_data" placeholder="在此填写消息内容" title="在此填写消息内容"/>
           <button class="btn" id="broadcast">广播消息</button>
           <span class="error-text" id="msg_err"></span>

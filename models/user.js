@@ -31,6 +31,8 @@ var userObj = new Schema({
   submit: Number,
   solved: Number,
   rating: Number,
+  ratedRecord: Object,
+  lastRatedContest: Number,
 
   addprob: Boolean,
   imgType: String
@@ -50,7 +52,8 @@ User.prototype.save = function(callback) {
   user.signature = this.signature;
   user.submit = 0;
   user.solved = 0;
-  addprob = false;
+  user.rating = 1500;
+  user.addprob = false;
   user.save(function(err){
     if (err) {
       OE('User.save failed!');

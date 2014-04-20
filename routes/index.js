@@ -1344,6 +1344,77 @@ exports.recal = function(req, res) {
   });
 };
 
+exports.calRating = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.end('1');
+  }
+  if (req.session.user.name != 'admin') {
+    req.session.msg = 'Failed! You have no permission to Calculate Ratings.';
+    return res.end('2');
+  }
+  var cid = parseInt(req.body.cid, 10);
+  Contest.watch(cid, function(err, contest){
+    if (err) {
+      OE(err);
+      return res.end('3');
+    }
+    if (!contest) {
+      return res.end();   //not allow
+    }
+    contest.stars.push('admin');
+    Solution.distinct('userName', {
+      cID: cid,
+      userName: {$nin: contest.stars},
+      inDate: {$gte: contest.startTime, $lte: contest.startTime+contest.len*60000}
+    }, function(err, names){
+      if (err) {
+        OE(err);
+        return res.end('3');
+      }
+      ContestRank.getAll({'_id.cid': cid, '_id.name': {$in: names}}, function(err, R){
+        if (err) {
+          OE(err);
+          return res.end('3');
+        }
+        var act = {};
+        console.log(R.length);
+        if (R && R.length) {
+          R.forEach(function(p, i){
+            act[p._id.name] = R.length - i - 1;
+          });
+        }
+        User.find({name: {$in: names}}, function(err, U){
+          if (err) {
+            OE(err);
+            return res.end('3');
+          }
+          U.forEach(function(pi, i){
+            var old = pi.lastRatedContest ? pi.rating : 1500;
+            var exp = 0;
+            U.forEach(function(pj, j){
+              if (j != i) {
+                exp += 1.0/(1.0 + Math.pow(10.0, ((pj.lastRatedContest ? pj.rating : 1500)-old)/400.0));
+              }
+            });
+            var K;
+            if (old <= 2100) {
+              K = 4;
+            } else if (old <= 2400) {
+              K = 2;
+            } else {
+              K = 1;
+            }
+            console.log(pi.name+' '+old+' '+(old + K * (act[pi.name] - exp)));
+          });
+          return res.end();
+        });
+      });
+    });
+  });
+};
+
 exports.index = function(req, res){
   Topic.topFive({top: true, cid: -1}, function(err, A){
     if (err) {

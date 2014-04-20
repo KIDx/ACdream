@@ -57,6 +57,15 @@ Rank.get = function(Q, page, callback) {
   });
 };
 
+Rank.getAll = function(Q, callback) {
+  ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, '_id.name':1}).exec(function(err, docs){
+    if (err) {
+      OE('Rank.get failed!');
+    }
+    return callback(err, docs);
+  });
+};
+
 Rank.count = function(Q, callback) {
   ranks.count(Q, function(err, count){
     if (err) {

@@ -149,6 +149,8 @@ app.post('/delImg', routes.delImg);
 app.post('/getCE', routes.getCE);
 //重新统计所有用户提交数和AC数
 app.post('/recal', routes.recal);
+//统计比赛rating
+app.post('/calRating', routes.calRating);
 //切换指定用户打星状态
 app.post('/toggleStar', routes.toggleStar);
 //切换话题置顶状态

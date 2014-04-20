@@ -1019,3 +1019,25 @@ $(document).ready(function(){
 		});
 	}
 });
+
+//calculate ratings
+var $cal = $('#calrating');
+
+$(document).ready(function(){
+	$cal.click(function(){
+		if ($cal.hasClass('disabled')) {
+			return false;
+		}
+		$cal.addClass('disabled').text('正在计算中...');
+		$.post('/calRating', {cid: cid}, function(err){
+			if (!err) {
+				ShowMessage('统计完成！');
+			} else if (err == '1' || err == '2') {
+				window.location.reload(true);
+			} else if (err == '3') {
+				ShowMessage('系统错误！');
+			}
+			$cal.text('统计rating').removeClass('disabled');
+		});
+	});
+});

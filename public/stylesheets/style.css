@@ -1217,6 +1217,10 @@ div#ranktab div.tablebg table td {
     padding: .5em 0;
 }
 
+div#ranktab div.form-inline {
+    margin-bottom: 10px;
+}
+
 span.u-info {
     font-size: 12px;
     display: block;
