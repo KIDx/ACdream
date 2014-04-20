@@ -52,7 +52,6 @@ User.prototype.save = function(callback) {
   user.signature = this.signature;
   user.submit = 0;
   user.solved = 0;
-  user.rating = 1500;
   user.addprob = false;
   user.save(function(err){
     if (err) {
