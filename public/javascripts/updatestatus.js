@@ -30,7 +30,7 @@ function updateStatus($p) {
 					setTimeout(function(){
 						if (flg[$p.attr('rid')])
 							updateStatus($p);
-					}, 250);
+					}, 1000);
 				}
 			}
 			if (sol.result > 1) {
