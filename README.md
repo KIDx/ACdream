@@ -21,8 +21,10 @@ $ sudo apt-get install nodejs
 http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
 
 ### 数据库初始化
+```
 $ cd ACdream
 $ mongorestore -h localhost -d gzhu_db --directoryperdb gzhu_db -drop
+```
 
 ### 安装依赖模块
 ```

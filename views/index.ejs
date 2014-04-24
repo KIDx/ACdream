@@ -1,5 +1,5 @@
 <!--<html>-->
-<% var now = (new Date()).getTime(), oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action']; %>
+<% var now = (new Date()).getTime(), oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action']; blog = ['KID (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action'];   %>
 <% var get = function(x) { return (new Date(x)).getTime(); } %>
 <fieldset>
 	<div><legend>主页</legend></div>
@@ -103,4 +103,48 @@
 			</div>
 		</div>
 	</div>
+
+
+
+<div class="row-fluid">
+		<div class="span6 publish_box">
+			<div class="publish_header">
+				<a href="/ranklist" title="更多" class="fr more"></a>
+				<div>ACdream英雄版</div>
+			</div>
+			<div class="inner_topic">
+				<ul class="publish_list">
+					<% for (var i = 0; i < 5; i++) { %>
+					<li>
+						<img class="icon" src="/img/arrow.png"/>
+					<% if (i < D.length) { %>
+						<span class="fr user-gray"><%= D[i].rating %></span>
+						<a href="/user/<%= D[i].name %>"><%= D[i].name %></a>
+					<% } else { %>
+						<span class="user-gray">暂无</span>
+					<% } %>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+		<div class="span6 publish_box">
+			<div class="publish_header">
+				
+				<div>ACMer‘s Blog</div>
+			</div>
+			<div class="inner_topic">
+				<ul class="publish_list">
+					<% for (var i = 0; i < 5; i++) { %>
+					<li>
+						<img class="icon" src="/img/arrow.png"/>
+						<a target="_blank" href="<%= url[i] %>"><%= blog[i] %></a>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+
 </fieldset>

@@ -102,6 +102,15 @@ User.get = function(Q, page, callback) {
   });
 };
 
+User.topFive = function(Q, callback) {
+  users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1}).limit(5).exec(function(err, docs){
+    if (err) {
+      OE('User.topFive failed!');
+    }
+    return callback(err, docs);
+  });
+};
+
 User.count = function(Q, callback) {
   users.count(Q, function(err, count){
     if (err) {
