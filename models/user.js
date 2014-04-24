@@ -93,7 +93,7 @@ User.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    users.find(Q).sort({solved:-1,submit:1,name:1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('User.get failed!');
       }
@@ -116,7 +116,7 @@ User.update = function(Q, H, callback) {
     if (err) {
       OE('User.update failed!');
     }
-    return callback(err);
+    return callback ? callback(err) : null;
   });
 };
 

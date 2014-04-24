@@ -27,9 +27,9 @@
             <th style="width:150px;">User</th>
             <th style="width:150px;">Nickname</th>
             <th>Signature</th>
+            <th style="width:70px;">Rating</th>
             <th style="width:70px;">Solved</th>
             <th style="width:70px;">Submit</th>
-            <th style="width:70px;">AC_Ratio</th>
           </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@
           </tr>
         <% } else { %>
         <% users.forEach(function(p, i){ %>
-        <% var c, h = '', res = '0.00'; %>
+        <% var c, h = ''; %>
         <% if (i % 2 == 1) { %>
         <% c = 'even'; %>
         <% } else { %>
@@ -48,7 +48,6 @@
         <% if (user && user.name == p.name) { %>
         <% h = ' highlight'; %>
         <% } %>
-        <% if (p.submit > 0) res = (p.solved/p.submit*100).toFixed(2); %>
           <tr class="<%= c %><%= h %>">
             <td><%= (page-1)*pageNum+i+1 %></td>
             <td>
@@ -67,6 +66,9 @@
               <% } %>
             </td>
             <td>
+              <%= p.rating %>
+            </td>
+            <td>
               <a href="/status?name=<%= p.name %>&result=2">
                 <%= p.solved %>
               </a>
@@ -76,7 +78,6 @@
                 <%= p.submit %>
               </a>
             </td>
-            <td><%= res %>%</td>
           </tr>
         <% }); %>
         <% } %>

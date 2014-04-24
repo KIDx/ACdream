@@ -18,9 +18,9 @@
     <div class="roundbox">
       <div class="img avatar"><img alt="avatar" src="<%= img %>" /></div>
       <h3>
-        <% var N = UT(u.rating); %>
-        <span class="user user-<%= UC(u.rating) %>" title="<%= N %> <%= u.name %>">
-          <%= N+' '+u.name %>
+        <% var ut = UT(u.rating), uc = UC(u.rating); %>
+        <span class="user user-<%= uc %>" title="<%= ut %> <%= u.name %>">
+          <%= ut+' '+u.name %>
         </span>
       </h3>
       <% if (user && user.name == 'admin') { %>
@@ -48,6 +48,9 @@
       <% } %>
       <% if (u.name != 'admin') { %>
         <li><img class="icon" src="/img/rank.png"/>Rank: <span class="user user-green"><%= u.rank %></span></li>
+      <% } %>
+      <% if (u.lastRatedContest) { %>
+        <li><img class="icon" src="/img/rating.png"/>Rating: <span class="user user-<%= uc %>"><%= u.rating %></span></li>
       <% } %>
         <li><img class="icon" src="/img/yes.png"/>Solved: <span class="user user-green"><%= u.solved %></span></li>
         <li><img class="icon" src="/img/submit.png"/>Submissions: <span class="user user-green"><%= u.submit %></span></li>

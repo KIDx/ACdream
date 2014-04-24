@@ -1406,7 +1406,17 @@ exports.calRating = function(req, res) {
             } else {
               K = 1;
             }
-            console.log(pi.name+' '+old+' '+(old + K * (act[pi.name] - exp)));
+            var newRating = old + K*(act[pi.name]-exp);
+            var set = {};
+            if (!pi.lastRatedContest || cid > pi.lastRatedContest) {
+              set.lastRatedContest = cid;
+              set.rating = newRating;
+            }
+            set['ratedRecord.'+cid] = {
+              rating: newRating,
+              inDate: contest.startTime
+            };
+            User.update({name: pi.name}, {$set: set});
           });
           return res.end();
         });
