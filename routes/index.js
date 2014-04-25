@@ -9,17 +9,17 @@
  6    : contest
  8    : problem
  9    : onecontest
- 10   : submit
- 11   : sourcecode
- 12   : avatar
- 17   : topic
- 18   : onetopic
+ 10  : submit
+ 11  : sourcecode
+ 12  : avatar
+ 17  : topic
+ 18  : onetopic
  1000/1001: addproblem
  1002 : addcontest
  1004 : addtopic
 
 ~addcontest~
- !cid     : add a new contest
+ !cid   : add a new contest
  cid < 0  : clone a contest(clone a contest to DIY Contest)
  cid > 0  : edit a contest
 
@@ -33,39 +33,39 @@
 */
 
 var crypto = require('crypto')
-,   fs = require('fs')
-,   csv = require('csv')
-,   gm = require('gm')
-,   imageMagick = gm.subClass({ imageMagick : true })
-,   exec = require('child_process').exec
-,   IDs = require('../models/ids.js')
-,   ContestRank = require('../models/contestrank.js')
-,   User = require('../models/user.js')
-,   Solution = require('../models/solution.js')
-,   Problem = require('../models/problem.js')
-,   Contest = require('../models/contest.js')
-,   Topic = require('../models/topic.js')
-,   Comment = require('../models/comment.js')
-,   tCan = require('../models/can.js');
+,  fs = require('fs')
+,  csv = require('csv')
+,  gm = require('gm')
+,  imageMagick = gm.subClass({ imageMagick : true })
+,  exec = require('child_process').exec
+,  IDs = require('../models/ids.js')
+,  ContestRank = require('../models/contestrank.js')
+,  User = require('../models/user.js')
+,  Solution = require('../models/solution.js')
+,  Problem = require('../models/problem.js')
+,  Contest = require('../models/contest.js')
+,  Topic = require('../models/topic.js')
+,  Comment = require('../models/comment.js')
+,  tCan = require('../models/can.js');
 
 var settings = require('../settings')
-,   ranklist_pageNum = settings.ranklist_pageNum
-,   stats_pageNum = settings.stats_pageNum
-,   contestRank_pageNum = settings.contestRank_pageNum
-,   Tag = settings.T
-,   ProTil = settings.P
-,   Col = settings.C
-,   Res = settings.R
-,   UserCol = settings.UC
-,   UserTitle = settings.UT
-,   OE = settings.outputErr
-,   addZero = settings.addZero
-,   getDate = settings.getDate
-,   easy_tips = settings.easy_tips
-,   languages = settings.languages;
+,  ranklist_pageNum = settings.ranklist_pageNum
+,  stats_pageNum = settings.stats_pageNum
+,  contestRank_pageNum = settings.contestRank_pageNum
+,  Tag = settings.T
+,  ProTil = settings.P
+,  Col = settings.C
+,  Res = settings.R
+,  UserCol = settings.UC
+,  UserTitle = settings.UT
+,  OE = settings.outputErr
+,  addZero = settings.addZero
+,  getDate = settings.getDate
+,  easy_tips = settings.easy_tips
+,  languages = settings.languages;
 
 var data_path = settings.data_path
-,   root_path = settings.root_path;
+,  root_path = settings.root_path;
 
 function nan(n) {
   return n != n;
@@ -176,7 +176,7 @@ function getTime(n) {
   n = parseInt(n, 10);
   if (!n) return '';
   var date = new Date(n)
-  ,   RP = addZero(date.getMonth()+1)+'-'+addZero(date.getDate())+' '+addZero(date.getHours())+':'+addZero(date.getMinutes());
+  ,  RP = addZero(date.getMonth()+1)+'-'+addZero(date.getDate())+' '+addZero(date.getHours())+':'+addZero(date.getMinutes());
   n = (new Date()).getTime() - n
   var y = (new Date()).getFullYear() - date.getFullYear();
   if (y > 0) {
@@ -221,7 +221,7 @@ exports.updateStatus = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var id = parseInt(req.body.rid, 10);
   if (!id) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Solution.watch({runID:id}, function(err, sol){
     if (err) {
@@ -253,10 +253,10 @@ exports.updateStatus = function(req, res) {
     Contest.watch(sol.cID, function(err, contest){
       if (err) {
         OE(err);
-        return res.end();   //not refresh!
+        return res.end();  //not refresh!
       }
       if (!contest) {
-        return res.end();   //not allow
+        return res.end();  //not allow
       }
       if (name == contest.userName ||
         (new Date()).getTime() - contest.startTime > contest.len*60000) {
@@ -271,7 +271,7 @@ exports.getOverview = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
   Solution.mapReduce({
     map: function(){
@@ -294,7 +294,7 @@ exports.getOverview = function(req, res) {
   }, function(err, results){
     if (err) {
       OE(err);
-      return res.end();   //not refresh!
+      return res.end();  //not refresh!
     }
     if (req.session.user) {
       Solution.aggregate([
@@ -303,7 +303,7 @@ exports.getOverview = function(req, res) {
       ], function(err, sols){
         if (err) {
           OE(err);
-          return res.end();   //not refresh!
+          return res.end();  //not refresh!
         }
         return res.json([results, sols]);
       });
@@ -317,22 +317,22 @@ exports.getStatus = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();     //not allow!
+    return res.end();   //not allow!
   }
   Contest.watch(cid, function(err, contest){
     if (err) {
       OE(err);
-      return res.end();   //not refresh!
+      return res.end();  //not refresh!
     }
     if (!contest) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     var Q = {cID: cid}, page, pid, result, lang;
     page = parseInt(req.body.page, 10);
     if (!page) {
       page = 1;
     } else if (page < 0) {
-      return res.end();   //not allow!
+      return res.end();  //not allow!
     }
 
     if (req.body.name) {
@@ -367,10 +367,10 @@ exports.getStatus = function(req, res) {
     Solution.get(Q, page, function(err, solutions, n) {
       if (err) {
         OE(err);
-        return res.end();     //not refresh!
+        return res.end();   //not refresh!
       }
       if (n < 0) {
-        return res.end();     //not allow
+        return res.end();   //not allow
       }
       var sols = new Array(), names = new Array(), has = {};
       if (solutions) {
@@ -381,7 +381,7 @@ exports.getStatus = function(req, res) {
             T = p.time; M = p.memory; L = p.length;
           }
           sols.push({
-            runID     : p.runID,
+            runID   : p.runID,
             userName  : p.userName,
             problemID : p.problemID,
             result    : p.result,
@@ -400,7 +400,7 @@ exports.getStatus = function(req, res) {
       User.find({name: {$in: names}}, function(err, users){
         if (err) {
           OE(err);
-          return res.end();      //not refresh
+          return res.end();   //not refresh
         }
         var rt = {};
         if (users) {
@@ -428,7 +428,7 @@ exports.getRanklist = function(req, res) {
   }
   var now = (new Date()).getTime();
   Contest.findOneAndUpdate({
-    contestID   : cid,
+    contestID  : cid,
     updateTime  : { $lt: now-10000 }    //距离上次聚合>=10秒, 聚合一次排名
   }, {
     $set: { updateTime: now }
@@ -452,8 +452,8 @@ exports.getRanklist = function(req, res) {
           return res.json([null, {}, {}, n, {}, 0]);
         }
         var has = {}, names = new Array(), stars = new Array()
-        ,   rt = {}, I = {}, Users = new Array()
-        ,   V = users[0].value, T = users[0]._id.name;
+        ,  rt = {}, I = {}, Users = new Array()
+        ,  V = users[0].value, T = users[0]._id.name;
         if (con.stars) {
           con.stars.forEach(function(p){
             has[p] = true;
@@ -625,22 +625,22 @@ exports.getTopic = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();     //not allow
+    return res.end();   //not allow
   }
   Contest.watch(cid, function(err, contest){
     if (err) {
       OE(err);
-      return res.end();   //not refresh
+      return res.end();  //not refresh
     }
     if (!contest) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     var page;
     page = parseInt(req.body.page, 10);
     if (!page) {
       page = 1;
     } else if (page < 0) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     Topic.get({cid: cid}, page, function(err, topics, n){
       if (err) {
@@ -659,7 +659,7 @@ exports.getTopic = function(req, res) {
       User.find({name: {$in: names}}, function(err, users){
         if (err) {
           OE(err);
-          return res.end();   //not refresh
+          return res.end();  //not refresh
         }
         if (users) {
           users.forEach(function(p){
@@ -679,11 +679,11 @@ exports.addDiscuss = function(req, res) {
     return res.end('2');    //refresh
   }
   var title = clearSpace(req.body.title)
-  ,   content = clearSpace(req.body.content)
-  ,   name = req.session.user.name
-  ,   cid = parseInt(req.body.cid, 10);
+  ,  content = clearSpace(req.body.content)
+  ,  name = req.session.user.name
+  ,  cid = parseInt(req.body.cid, 10);
   if (!title || !content || !name || ! cid) {
-    return res.end();       //not allow
+    return res.end();    //not allow
   }
   Contest.watch(cid, function(err, con){
     if (err) {
@@ -701,9 +701,9 @@ exports.addDiscuss = function(req, res) {
       }
       (new Topic({
         id      : id,
-        title   : title,
+        title  : title,
         content : content,
-        cid     : cid,
+        cid   : cid,
         user    : req.session.user.name,
         inDate  : (new Date()).getTime()
       })).save(function(err){
@@ -722,9 +722,9 @@ exports.getCE = function(req, res) {
   if (!req.session.user)
     return res.end('Please login first!');
   var rid = parseInt(req.body.rid, 10)
-  ,   name = req.session.user.name;
+  ,  name = req.session.user.name;
   if (!rid) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Solution.watch({runID: rid}, function(err, solution){
     if (err) {
@@ -753,7 +753,7 @@ exports.changeAddprob = function(req, res) {
   }
   var name = clearSpace(req.body.name);
   if (!name) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   User.watch(name, function(err, user){
     if (err) {
@@ -786,7 +786,7 @@ exports.restorePsw = function(req, res) {
   }
   var name = String(req.body.name);
   if (!name)
-    return res.end();   //not allow
+    return res.end();  //not allow
   User.update({name: name}, {$set: {password: crypto.createHash('md5').update('123456').digest('base64')}}, function(err){
     if (err) {
       OE(err);
@@ -810,19 +810,19 @@ exports.changeInfo = function(req, res) {
   }
 
   var name = clearSpace(req.body.name)
-  ,   nick = clearSpace(req.body.nick)
-  ,   oldpsw = req.body.oldpassword
-  ,   psw = req.body.password
-  ,   school = clearSpace(req.body.school)
-  ,   email = clearSpace(req.body.email)
-  ,   sig = clearSpace(req.body.signature);
+  ,  nick = clearSpace(req.body.nick)
+  ,  oldpsw = req.body.oldpassword
+  ,  psw = req.body.password
+  ,  school = clearSpace(req.body.school)
+  ,  email = clearSpace(req.body.email)
+  ,  sig = clearSpace(req.body.signature);
   if (!name || !nick || !oldpsw ||
       school.length > 50 || email.length > 50 || sig.length > 200) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
 
   var md5 = crypto.createHash('md5')
-  ,   oldpassword = md5.update(oldpsw).digest('base64');
+  ,  oldpassword = md5.update(oldpsw).digest('base64');
 
   User.watch(name, function(err, user){
     if (err) {
@@ -831,7 +831,7 @@ exports.changeInfo = function(req, res) {
       return res.end();
     }
     if (!user) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     if (oldpassword != user.password) {
       return res.end('1');
@@ -839,7 +839,7 @@ exports.changeInfo = function(req, res) {
     var H = {
       nick    : nick,
       school  : school,
-      email   : email,
+      email  : email,
       signature : sig
     };
     if (psw) {
@@ -862,7 +862,7 @@ exports.getProblem = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var pid = parseInt(req.body.pid, 10);
   if (!pid) {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
   var name = '';
   if (req.session.user) {
@@ -897,7 +897,7 @@ exports.getProblem = function(req, res) {
         return res.end();
       }
       var lm = parseInt(req.body.lastmodified, 10);
-      if (lm && lm == problem.lastmodified) {   //problem cache is ok.
+      if (lm && lm == problem.lastmodified) {  //problem cache is ok.
         return res.end();
       }
       return res.json({
@@ -926,12 +926,12 @@ exports.editTag = function(req, res) {
     return res.end();
   }
   var pid = parseInt(req.body.pid, 10)
-  ,   tag = parseInt(req.body.tag, 10);
+  ,  tag = parseInt(req.body.tag, 10);
   if (!pid || !tag) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var name = req.session.user.name
-  ,   RP = function(){
+  ,  RP = function(){
     var Q;
     if (req.body.add) {
       Q = {$addToSet: {tags:tag}};
@@ -959,7 +959,7 @@ exports.editTag = function(req, res) {
       return res.end();
     }
     if (!problem) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     if (req.body.add && problem.tags.length >= 5) {
       req.session.msg = 'The number of tags should not larger than 5!';
@@ -985,19 +985,19 @@ exports.editTag = function(req, res) {
 exports.doReg = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var name = clearSpace(req.body.username)
-  ,   nick = clearSpace(req.body.nick)
-  ,   password = req.body.password
-  ,   vcode = clearSpace(req.body.vcode)
-  ,   school = clearSpace(req.body.school)
-  ,   email = clearSpace(req.body.email)
-  ,   sig = clearSpace(req.body.signature);
+  ,  nick = clearSpace(req.body.nick)
+  ,  password = req.body.password
+  ,  vcode = clearSpace(req.body.vcode)
+  ,  school = clearSpace(req.body.school)
+  ,  email = clearSpace(req.body.email)
+  ,  sig = clearSpace(req.body.signature);
   if (!name || !nick || !password || !vcode ||
       school.length > 50 || email.length > 50 || sig.length > 200) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
 
   if (!isUsername(name)) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   if (vcode.toLowerCase() != req.session.verifycode) {
     return res.end('1');
@@ -1012,14 +1012,14 @@ exports.doReg = function(req, res) {
       return res.end('2');
     }
     var md5 = crypto.createHash('md5')
-    ,   psw = md5.update(password).digest('base64');
+    ,  psw = md5.update(password).digest('base64');
     (new User({
       name      : name,
       password  : psw,
-      regTime   : (new Date()).getTime(),
+      regTime  : (new Date()).getTime(),
       nick      : nick,
       school    : school,
-      email     : email,
+      email   : email,
       signature : sig
     })).save(function(err, user) {
       if (err) {
@@ -1036,13 +1036,13 @@ exports.doReg = function(req, res) {
 exports.doLogin = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var name = String(req.body.username)
-  ,   psw = String(req.body.password);
+  ,  psw = String(req.body.password);
   if (!name || !psw) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   //生成密码散列值
   var md5 = crypto.createHash('md5')
-  ,   password = md5.update(psw).digest('base64');
+  ,  password = md5.update(psw).digest('base64');
   User.watch(name, function(err, user) {
     if (err) {
       OE(err);
@@ -1070,11 +1070,11 @@ exports.doLogin = function(req, res) {
 exports.loginContest = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.body.psw) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var cid = parseInt(req.body.cid, 10);
   if(!cid) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Contest.watch(cid, function(err, contest){
     if (err) {
@@ -1103,7 +1103,7 @@ exports.createVerifycode = function(req, res) {
 exports.upload = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.info) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var path = req.files.info.path;
   var sz = req.files.info.size;
@@ -1128,7 +1128,7 @@ exports.upload = function(req, res) {
         }
         var pid = parseInt(req.query.pid, 10);
         if (!pid) {
-          return res.end();   //not allow!
+          return res.end();  //not allow!
         }
         Problem.watch(pid, function(err, problem){
           if (err) {
@@ -1194,7 +1194,7 @@ exports.rejudge = function(req, res) {
   }
   var pid = parseInt(req.body.pid, 10);
   if (!pid) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Problem.watch(pid, function(err, problem) {
     if (err) {
@@ -1361,13 +1361,17 @@ exports.calRating = function(req, res) {
       return res.end('3');
     }
     if (!contest) {
-      return res.end();   //not allow
+      return res.end();     //not allow
+    }
+    var endTime = contest.startTime+contest.len*60000;
+    if ((new Date()).getTime() <= endTime) {
+      return res.end('4');  //can not calculate rating because the contest is not finished.
     }
     contest.stars.push('admin');
     Solution.distinct('userName', {
       cID: cid,
       userName: {$nin: contest.stars},
-      inDate: {$gte: contest.startTime, $lte: contest.startTime+contest.len*60000}
+      inDate: {$gte: contest.startTime, $lte: endTime}
     }, function(err, names){
       if (err) {
         OE(err);
@@ -1379,7 +1383,6 @@ exports.calRating = function(req, res) {
           return res.end('3');
         }
         var act = {};
-        console.log(R.length);
         if (R && R.length) {
           R.forEach(function(p, i){
             act[p._id.name] = R.length - i - 1;
@@ -1406,17 +1409,18 @@ exports.calRating = function(req, res) {
             } else {
               K = 1;
             }
-            var newRating = old + K*(act[pi.name]-exp);
-            var set = {};
-            if (!pi.lastRatedContest || cid > pi.lastRatedContest) {
-              set.lastRatedContest = cid;
-              set.rating = newRating;
+            var newRating = Math.round(old + K*(act[pi.name]-exp));
+            if (!pi.lastRatedContest || cid >= pi.lastRatedContest) {
+              User.update({name: pi.name}, {
+                $set: {
+                  lastRatedContest: cid,
+                  rating: newRating
+                },
+                $addToSet: {
+                  ratedRecord: {cid: cid, rating: newRating, inDate: endTime}
+                }
+              });
             }
-            set['ratedRecord.'+cid] = {
-              rating: newRating,
-              inDate: contest.startTime
-            };
-            User.update({name: pi.name}, {$set: set});
           });
           return res.end();
         });
@@ -1444,8 +1448,8 @@ exports.index = function(req, res){
           req.session.msg = '系统错误！';
           return res.redirect('/404');
         }
-	User.topFive({$nor: [{name: 'admin'}]}, function(err, D){
-	  if (err) {
+        User.topFive({$nor: [{name: 'admin'}]}, function(err, D){
+          if (err) {
             OE(err);
             req.session.msg = '系统错误！';
             return res.redirect('/404');
@@ -1457,10 +1461,10 @@ exports.index = function(req, res){
                                 A: A,
                                 B: B,
                                 C: C,
-				D: D,
+                                D: D,
                                 getTime: getTime
           });
-	});
+        });
       });
     });
   });
@@ -1560,14 +1564,14 @@ exports.avatar = function(req, res) {
 exports.avatarUpload = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.img) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var path = req.files.img.path
-  ,   sz = req.files.img.size
-  ,   tmp = req.files.img.mimetype.split('/')
-  ,   imgType = tmp[1];
+  ,  sz = req.files.img.size
+  ,  tmp = req.files.img.mimetype.split('/')
+  ,  imgType = tmp[1];
   if (sz > 2*1024*1024) {
-    fs.unlink(path, function(){  //fs.unlink 删除用户上传的文件
+    fs.unlink(path, function(){ //fs.unlink 删除用户上传的文件
       return res.end('1');
     });
   } else if (tmp[0] != 'image') {
@@ -1649,7 +1653,7 @@ exports.addproblem = function(req, res) {
     return res.redirect('/');
   }
   var tk = 1000, pid = parseInt(req.query.pID)
-  ,   RP = function(P, F, I) {
+  ,  RP = function(P, F, I) {
     if (P) {
       P.description = escapeHtml(P.description);
       P.input = escapeHtml(P.input);
@@ -1778,10 +1782,10 @@ exports.doAddproblem = function(req, res) {
 exports.imgUpload = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.info) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var path = req.files.info.path
-  ,   sz = req.files.info.size;
+  ,  sz = req.files.info.size;
   if (sz > 2*1024*1024) {
     fs.unlink(path, function() {
       return res.end('1');
@@ -1798,11 +1802,11 @@ exports.imgUpload = function(req, res) {
       }
       fs.unlink(path, function() {
         if (!req.session.user) {
-          return res.end();   //not allow
+          return res.end();  //not allow
         }
         var pid = parseInt(req.query.pid, 10);
         if (!pid) {
-          return res.end();   //not allow
+          return res.end();  //not allow
         }
         User.watch(req.session.user.name, function(err, user) {
           if (err) {
@@ -1832,11 +1836,11 @@ exports.dataUpload = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var pid = parseInt(req.query.pid, 10);
   if (!pid || !req.files || !req.files.data) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var path = req.files.data.path
-  ,   fname = req.files.data.name
-  ,   sz = req.files.data.size;
+  ,  fname = req.files.data.name
+  ,  sz = req.files.data.size;
   if (sz > 10*1024*1024) {
     return res.end('2');
   }
@@ -1872,15 +1876,15 @@ exports.dataUpload = function(req, res) {
 exports.delData = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var pid = parseInt(req.body.pid, 10);
   if (!pid) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var fname = req.body.fname;
   if (!fname) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   User.watch(req.session.user.name, function(err, user){
     if (err) {
@@ -1889,7 +1893,7 @@ exports.delData = function(req, res) {
       return res.end('1');    //refresh!
     }
     if (!user || !user.addprob) {
-      return res.end();       //not allow!
+      return res.end();    //not allow!
     }
     fs.unlink(data_path+pid+'/'+fname, function(){
       return res.end();
@@ -1904,11 +1908,11 @@ exports.delImg = function(req, res) {
   }
   var pid = parseInt(req.body.pid, 10);
   if (!pid) {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
   var fname = req.body.fname;
   if (!fname) {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
   User.watch(req.session.user.name, function(err, user){
     if (err) {
@@ -2146,8 +2150,8 @@ exports.status = function(req, res) {
       return res.redirect('/status');
     }
     var flg = false, has = {}
-    ,   names = new Array()
-    ,   R = new Array(), C = new Array();
+    ,  names = new Array()
+    ,  R = new Array(), C = new Array();
     if (sols) {
       sols.forEach(function(p, i){
         R.push(Res(p.result));
@@ -2217,8 +2221,8 @@ exports.addcontest = function(req, res) {
                               P: P
     });
   }
-  ,   name = req.session.user.name
-  ,   cid = parseInt(req.query.cID, 10);
+  ,  name = req.session.user.name
+  ,  cid = parseInt(req.query.cID, 10);
 
   if (!cid) {
     if (type == 2 && name != 'admin') {
@@ -2247,7 +2251,7 @@ exports.addcontest = function(req, res) {
       }
       if (clone == 1 && name != contest.userName && name != 'admin') {
         if ((new Date()).getTime() - contest.startTime < contest.len*60000) {
-          return res.end();   //not allow
+          return res.end();  //not allow
         }
       }
       var TP = function(E) {
@@ -2293,21 +2297,21 @@ exports.doAddcontest = function(req, res) {
   res.header('Content-Type', 'text/plain');
 
   var psw = ''
-  ,   title = clearSpace(req.body.title)
-  ,   date = clearSpace(req.body.date)
-  ,   hour = addZero(req.body.hour)
-  ,   min = addZero(req.body.min)
-  ,   dd = parseInt(req.body.dd, 10)
-  ,   hh = parseInt(req.body.hh, 10)
-  ,   mm = parseInt(req.body.mm, 10)
-  ,   desc = clearSpace(req.body.desc)
-  ,   anc = clearSpace(req.body.anc)
-  ,   type = parseInt(req.body.type, 10);
+  ,  title = clearSpace(req.body.title)
+  ,  date = clearSpace(req.body.date)
+  ,  hour = addZero(req.body.hour)
+  ,  min = addZero(req.body.min)
+  ,  dd = parseInt(req.body.dd, 10)
+  ,  hh = parseInt(req.body.hh, 10)
+  ,  mm = parseInt(req.body.mm, 10)
+  ,  desc = clearSpace(req.body.desc)
+  ,  anc = clearSpace(req.body.anc)
+  ,  type = parseInt(req.body.type, 10);
 
   if (!title || !date || !hour || !min ||
       nan(dd) || nan(hh) || nan(mm) ||
       !type || type < 1 || type > 2) {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
 
   if (!req.session.user) {
@@ -2336,8 +2340,8 @@ exports.doAddcontest = function(req, res) {
   var alias = req.body.alias ? req.body.alias : {}
   , RP = function(ary) {
     var startTime = (new Date(date+' '+hour+':'+min)).getTime()
-    ,   len = dd*1440 + hh*60 + mm
-    ,   cid = parseInt(req.body.cid, 10);
+    ,  len = dd*1440 + hh*60 + mm
+    ,  cid = parseInt(req.body.cid, 10);
     if (cid) {
       Contest.watch(cid, function(err, con) {
         if (err) {
@@ -2346,7 +2350,7 @@ exports.doAddcontest = function(req, res) {
           return res.end();
         }
         if (!con || con.type != type) {
-          return res.end();   //not allow
+          return res.end();  //not allow
         }
         if (name != con.userName && name != 'admin') {
           req.session.msg = 'Update Failed! You are not the manager!';
@@ -2412,7 +2416,7 @@ exports.doAddcontest = function(req, res) {
       });
     } else {
       if (!ary.length) {
-        return res.end();   //not allow
+        return res.end();  //not allow
       }
       IDs.get('contestID', function(err, id) {
         if (err) {
@@ -2421,14 +2425,14 @@ exports.doAddcontest = function(req, res) {
           return res.end();
         }
         (new Contest({
-          contestID   : id,
+          contestID  : id,
           userName    : name,
-          title       : title,
-          startTime   : startTime,
-          len         : len,
+          title    : title,
+          startTime  : startTime,
+          len     : len,
           description : desc,
-          msg         : anc,
-          probs       : ary,
+          msg     : anc,
+          probs    : ary,
           password    : psw,
           type        : type
         })).save(function(err) {
@@ -2520,7 +2524,7 @@ exports.onecontest = function(req, res) {
           return res.redirect('/');
         }
         if (!user) {
-          return res.end();   //not allow
+          return res.end();  //not allow
         }
         res.render('onecontest', {title: 'OneContest',
                                   user: req.session.user,
@@ -2545,12 +2549,12 @@ exports.onecontest = function(req, res) {
 exports.contestDelete = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var cid = parseInt(req.body.cid, 10)
-  ,   name = req.session.user.name;
+  ,  name = req.session.user.name;
   if (!cid || !name) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Contest.watch(cid, function(err, con){
     if (err) {
@@ -2742,12 +2746,12 @@ exports.doSubmit = function(req, res) {
     return res.end('1');
   }
   var cid = parseInt(req.body.cid, 10)
-  ,   name = clearSpace(req.session.user.name)
-  ,   pid = parseInt(req.body.pid, 10)
-  ,   Str = String(req.body.code)
-  ,   lang = parseInt(req.body.lang, 10);
+  ,  name = clearSpace(req.session.user.name)
+  ,  pid = parseInt(req.body.pid, 10)
+  ,  Str = String(req.body.code)
+  ,  lang = parseInt(req.body.lang, 10);
   if (!name) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   if (!pid || !Str || Str.length < 50 || Str.length > 65536) {
     return res.end('4');
@@ -2930,9 +2934,9 @@ exports.statistic = function(req, res) {
         $match: Q1
       }, {$sort: sq}, {
         $group: {
-          _id       : '$userName',
-          runID     : { $first : '$runID' },
-          cid       : { $first : '$cID' },
+          _id    : '$userName',
+          runID   : { $first : '$runID' },
+          cid    : { $first : '$cID' },
           time      : { $first : '$time' },
           memory    : { $first : '$memory' },
           length    : { $first : '$length' },
@@ -2954,8 +2958,8 @@ exports.statistic = function(req, res) {
         }
         var N = {}, sum = 0, Q = {problemID: pid};
         Solution.aggregate([
-          {$match  : Q2}
-        , {$group  : { _id: '$result', val: {$sum:1} }}
+          {$match : Q2}
+        , {$group : { _id: '$result', val: {$sum:1} }}
         ], function(err, results){
           if (err) {
             OE(err);
@@ -3020,7 +3024,7 @@ exports.statistic = function(req, res) {
 function regContestAndUpdate(cid, name, callback) {
   Contest.update(cid, {$addToSet: {contestants:name}}, function(err){
     if (err) {
-      return callback(err);   //no need to output err, because of callback
+      return callback(err);  //no need to output err, because of callback
     }
     ContestRank.findOne({'_id.cid': cid, '_id.name': name}, function(err, doc){
       if (err) {
@@ -3052,7 +3056,7 @@ exports.contestReg = function(req, res) {
       return res.end('2');
     }
     if (!contest || contest.type != 2 || contest.password) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     if (contest.startTime - (new Date()).getTime() < 300000) {
       return res.end('3');
@@ -3080,11 +3084,11 @@ exports.regContestAdd = function(req, res) {
   }
   var name = clearSpace(req.body.name);
   if (!name) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Contest.watch(cid, function(err, contest){
     if (err) {
@@ -3130,11 +3134,11 @@ exports.regContestRemove = function(req, res) {
   }
   var name = clearSpace(req.body.name);
   if (!name) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();   //not allow
+    return res.end();  //not allow
   }
   Solution.watch({userName: name, cID: cid}, function(err, sol){
     if (err) {
@@ -3172,10 +3176,10 @@ exports.toggleStar = function(req, res) {
     return res.end();
   }
   var cid = parseInt(req.body.cid, 10)
-  ,   str = clearSpace(req.body.str)
-  ,   type = parseInt(req.body.type, 10);
+  ,  str = clearSpace(req.body.str)
+  ,  type = parseInt(req.body.type, 10);
   if (!cid || !str || !type) {
-    return res.end();       //not allow!
+    return res.end();    //not allow!
   }
   Contest.watch(cid, function(err, con){
     if (err) {
@@ -3189,7 +3193,7 @@ exports.toggleStar = function(req, res) {
       return res.end();
     }
     if (!con) {
-      return res.end();     //not allow!
+      return res.end();   //not allow!
     }
     var has = {}, names = new Array();
     if (str) {
@@ -3403,12 +3407,12 @@ exports.doAddtopic = function(req, res) {
     return res.end();
   }
   var tid = parseInt(req.body.tid, 10)
-  ,   title = clearSpace(req.body.title)
-  ,   content = req.body.content        //can not do clearSpace because it is content
-  ,   name = req.session.user.name
-  ,   cid = parseInt(req.body.cid, 10);
+  ,  title = clearSpace(req.body.title)
+  ,  content = req.body.content        //can not do clearSpace because it is content
+  ,  name = req.session.user.name
+  ,  cid = parseInt(req.body.cid, 10);
   if (!title || !content || !name) {
-    return res.end();     //not allow!
+    return res.end();   //not allow!
   }
   if (!cid) {
     cid = -1;
@@ -3416,8 +3420,8 @@ exports.doAddtopic = function(req, res) {
   if (tid) {
     var RP = function() {
       Topic.update(tid, {$set: {
-        title     : title,
-        content   : content,
+        title   : title,
+        content  : content,
         inDate    : (new Date()).getTime()
       }}, function(err){
         if (err) {
@@ -3437,7 +3441,7 @@ exports.doAddtopic = function(req, res) {
         return res.end('2');
       }
       if (!topic) {
-        return res.end();   //not allow
+        return res.end();  //not allow
       }
       if (topic.user != name) {
         req.session.msg = '抱歉，您不是该话题的主人，无权修改！';
@@ -3448,7 +3452,7 @@ exports.doAddtopic = function(req, res) {
   } else {
     var vcode = clearSpace(req.body.vcode);
     if (!vcode) {
-      return res.end();     //not allow
+      return res.end();   //not allow
     }
     if (vcode.toLowerCase() != req.session.verifycode) {
       return res.end('1');
@@ -3460,9 +3464,9 @@ exports.doAddtopic = function(req, res) {
       }
       (new Topic({
         id      : id,
-        title   : title,
+        title  : title,
         content : content,
-        cid     : cid,
+        cid   : cid,
         user    : req.session.user.name,
         inDate  : (new Date()).getTime()
       })).save(function(err){
@@ -3480,11 +3484,11 @@ exports.doAddtopic = function(req, res) {
 exports.toggleTop = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user || req.session.user.name != 'admin') {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
   var tid = parseInt(req.body.tid, 10);
   if (!tid) {
-    return res.end();   //not allow!
+    return res.end();  //not allow!
   }
   Topic.watch(tid, function(err, topic){
     if (err) {
@@ -3516,7 +3520,7 @@ exports.toggleHide = function(req, res) {
   }
   var pid = parseInt(req.body.pid, 10);
   if (!pid) {
-    return res.end();     //not allow
+    return res.end();   //not allow
   }
   Problem.watch(pid, function(err, problem){
     if (err) {
@@ -3524,7 +3528,7 @@ exports.toggleHide = function(req, res) {
       return res.end('1');
     }
     if (!problem) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     problem.hide = !problem.hide;
     problem.save(function(err){
@@ -3551,16 +3555,16 @@ exports.updateEasy = function(req, res) {
       return res.end('1');
     }
     if (!user) {
-      return res.end();   //not allow
+      return res.end();  //not allow
     }
     if (!user.addprob) {
       req.session.msg = 'You have no permission to do that!';
       return res.end('2');
     }
     var pid = parseInt(req.body.pid, 10)
-    ,   easy = parseInt(req.body.easy, 10);
+    ,  easy = parseInt(req.body.easy, 10);
     if (!pid) {
-      return res.end();     //not allow
+      return res.end();   //not allow
     }
     if (!easy) {
       easy = 0;
@@ -3582,12 +3586,12 @@ exports.review = function(req, res) {
     return res.end();
   }
   var user = req.session.user.name
-  ,   tid = parseInt(req.body.tid, 10)
-  ,   content = req.body.content      //can not do clearSpace because it is content
-  ,   fa = parseInt(req.body.fa, 10)
-  ,   at = clearSpace(req.body.at);
+  ,  tid = parseInt(req.body.tid, 10)
+  ,  content = req.body.content      //can not do clearSpace because it is content
+  ,  fa = parseInt(req.body.fa, 10)
+  ,  at = clearSpace(req.body.at);
   if (!user || !tid || !content || !fa) {
-    return res.end();     //not allow!
+    return res.end();   //not allow!
   }
   IDs.get('topicID', function(err, id){
     if (err) {
@@ -3599,7 +3603,7 @@ exports.review = function(req, res) {
       id      : id,
       content : content,
       user    : user,
-      tid     : tid,
+      tid   : tid,
       fa      : fa,
       at      : at,
       inDate  : (new Date()).getTime()

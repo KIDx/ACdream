@@ -1028,14 +1028,17 @@ $(document).ready(function(){
 		if ($cal.hasClass('disabled')) {
 			return false;
 		}
-		$cal.addClass('disabled').text('正在计算中...');
+		$cal.addClass('disabled').text('请稍候...');
 		$.post('/calRating', {cid: cid}, function(err){
 			if (!err) {
 				ShowMessage('统计完成！');
+				$refresh.click();
 			} else if (err == '1' || err == '2') {
 				window.location.reload(true);
 			} else if (err == '3') {
 				ShowMessage('系统错误！');
+			} else if (err == '4') {
+				ShowMessage('比赛还没结束，无法统计rating！');
 			}
 			$cal.text('统计rating').removeClass('disabled');
 		});

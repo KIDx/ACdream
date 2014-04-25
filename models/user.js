@@ -31,7 +31,7 @@ var userObj = new Schema({
   submit: Number,
   solved: Number,
   rating: Number,
-  ratedRecord: Object,
+  ratedRecord: Array,
   lastRatedContest: Number,
 
   addprob: Boolean,
@@ -52,6 +52,8 @@ User.prototype.save = function(callback) {
   user.signature = this.signature;
   user.submit = 0;
   user.solved = 0;
+  user.rating = 0;
+  user.ratedRecord = new Array();
   user.addprob = false;
   user.save(function(err){
     if (err) {
@@ -121,12 +123,16 @@ User.count = function(Q, callback) {
 };
 
 User.update = function(Q, H, callback) {
-  users.update(Q, H, function(err){
-    if (err) {
-      OE('User.update failed!');
-    }
-    return callback ? callback(err) : null;
-  });
+  if (callback) {
+    users.update(Q, H, function(err){
+      if (err) {
+        OE('User.update failed!');
+      }
+      return callback(err);
+    });
+  } else {
+    users.update(Q, H).exec();
+  }
 };
 
 User.multiUpdate = function(Q, H, callback) {
