@@ -1,5 +1,5 @@
 <!--<html>-->
-<% var now = (new Date()).getTime(), oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action']; blog = ['KID (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action'];   %>
+<% var now = (new Date()).getTime(), oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'Virtual Judge'], oj_url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action'], blog = ['KIDx', 'cxlove', 'Shoutmon', 'Nanae', '谁想加blog'], blog_url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.hust.edu.cn/vjudge/toIndex.action'];   %>
 <% var get = function(x) { return (new Date(x)).getTime(); } %>
 <fieldset>
 	<div><legend>主页</legend></div>
@@ -96,7 +96,7 @@
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
 						<img class="icon" src="/img/arrow.png"/>
-						<a target="_blank" href="<%= url[i] %>"><%= oj[i] %></a>
+						<a target="_blank" href="<%= oj_url[i] %>"><%= oj[i] %></a>
 					</li>
 					<% } %>
 				</ul>
@@ -138,7 +138,7 @@
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
 						<img class="icon" src="/img/arrow.png"/>
-						<a target="_blank" href="<%= url[i] %>"><%= blog[i] %></a>
+						<a target="_blank" href="<%= blog_url[i] %>"><%= blog[i] %></a>
 					</li>
 					<% } %>
 				</ul>
