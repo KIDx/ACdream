@@ -134,7 +134,7 @@ Contest.remove = function(cid, callback) {
 };
 
 Contest.topFive = function(Q, callback) {
-  contests.find(Q).sort({contestID: -1}).limit(5).exec(function(err, docs){
+  contests.find(Q).sort({startTime:-1, contestID: -1}).limit(5).exec(function(err, docs){
     if (err) {
       OE('Contest.topFive failed!');
     }
