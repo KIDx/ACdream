@@ -327,6 +327,9 @@ $(document).ready(function(){
         });
 
         $loginsubmit.click(function(){
+            if ($(this).hasClass('disabled')) {
+                return false;
+            }
             var name = $logininput.eq(0).val();
             if (!name) {
                 errAnimate($loginerr, 'the username can not be empty!');
@@ -337,6 +340,8 @@ $(document).ready(function(){
                 errAnimate($loginerr, 'the password can not be empty!');
                 return ;
             }
+            $(this).addClass('disabled');
+            $(this).text('logging in...');
             $.post('/doLogin', {
                     username: name,
                     password: psw
@@ -537,7 +542,6 @@ $(document).ready(function(){
 });
 
 //button animate
-
 function btnAnimate($btn) {
     $btn.bind('mouseenter', function(){
         $(this).stop().animate({
