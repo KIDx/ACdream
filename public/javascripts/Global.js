@@ -288,6 +288,20 @@ function ShowMessage(msg) {
     $msgdialog.jqmShow();
 }
 
+var $username = $logininput.eq(0);
+var $password = $logininput.eq(1);
+var $remember = $('#remember');
+
+//get login cookie
+$(document).ready(function(){
+    var remember = $.cookie('remember');
+    if (remember == 'true') {
+        $username.val($.cookie('username'));
+        $password.val($.cookie('password'));
+        $remember.attr('checked', true);
+    }
+});
+
 $(document).ready(function(){
     if ($tablebg.length) {
         $tablebg.prepend('<div class="lt"></div><div class="rt"></div><div class="lb"></div><div class="rb"></div>');
@@ -330,18 +344,27 @@ $(document).ready(function(){
             if ($(this).hasClass('disabled')) {
                 return false;
             }
-            var name = $logininput.eq(0).val();
+            var name = $username.val();
             if (!name) {
                 errAnimate($loginerr, 'the username can not be empty!');
                 return ;
             }
-            var psw = $logininput.eq(1).val();
+            var psw = $password.val();
             if (!psw) {
                 errAnimate($loginerr, 'the password can not be empty!');
                 return ;
             }
             $(this).addClass('disabled');
             $(this).text('logging in...');
+            if ($('#remember').is(':checked')) {
+                $.cookie('username', name, { expires: 30 });
+                $.cookie('password', psw, { expires: 30 });
+                $.cookie('remember', true, { expires: 30 });
+            } else {
+                $.cookie('username', null);
+                $.cookie('password', null);
+                $.cookie('remember', null);
+            }
             $.post('/doLogin', {
                     username: name,
                     password: psw

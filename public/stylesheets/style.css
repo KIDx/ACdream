@@ -1520,6 +1520,21 @@ div.jqfoot .btn {
     right: 15px;
 }
 
+.jqcheck {
+    position: absolute;
+    left: 8px;
+    bottom: 3px;
+}
+
+.jqcheck input {
+    margin: 0;
+}
+
+.jqcheck label {
+    font-size: 12px!important;
+    display: inline-block;
+}
+
 .jqclose {
     width: 16px;
     height: 16px;
