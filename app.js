@@ -245,4 +245,9 @@ io.sockets.on('connection', function(socket){
 			socket.join(room.toString());
 		}
 	});
+	socket.on('addDiscuss', function(room){
+		if (room) {
+			socket.broadcast.to(room).emit('addDiscuss');
+		}
+	});
 });

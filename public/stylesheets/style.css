@@ -1364,6 +1364,16 @@ table th img {
     cursor: pointer;
 }
 
+.tips {
+    background: rgb(240, 59, 59);
+    padding: 0 3px;
+    margin-left: 3px;
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    border-radius: 5px;
+}
+
 /* jqModal base Styling courtesy of;
     Brice Burgess <bhb@iceburg.net> */
 

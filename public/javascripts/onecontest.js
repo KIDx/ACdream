@@ -1,3 +1,46 @@
+//socket
+var socket = io.connect('/')
+,	$msg = $('#msg_data')
+,	$msg_err = $('#msg_err')
+,	$broadcast = $('#broadcast')
+,	$dialog_bc = $('#dialog_bc')
+,	$bc_content = $dialog_bc.find('div.bc_content');
+
+$(document).ready(function(){
+	if ($dialog_bc.length) {
+		$dialog_bc.jqm({
+			overlay: 30,
+			trigger: false,
+			modal: true,
+			closeClass: 'bc_close',
+			onShow: function(h) {
+				h.o.fadeIn(200);
+				h.w.fadeIn(200);
+			},
+			onHide: function(h) {
+				h.w.fadeOut(200);
+				h.o.fadeOut(200);
+			}
+		}).jqDrag('.jqDrag');
+	}
+	socket.emit('login', cid);
+	socket.on('broadcast', function(data){
+		$bc_content.text(data);
+		$dialog_bc.jqmShow();
+	});
+	if ($broadcast.length) {
+		$broadcast.click(function(){
+			var msg = JudgeString($msg.val());
+			if (!msg) {
+				errAnimate($msg_err, '消息不能为空！');
+				return false;
+			}
+			socket.emit('broadcast', {room: cid, msg: msg});
+			$bc_content.text('消息已广播完成！');
+			$dialog_bc.jqmShow();
+		});
+	}
+});
 
 //截流响应
 var interceptorTime = 200
@@ -577,8 +620,10 @@ function clearTimer() {
 var $discuss = $div.find('#discusstab')
 ,	$distbody = $discuss.find('table tbody')
 ,	$discuss_refresh = $discuss.find('#discuss_refresh')
+,	$discuss_tips = $div.find('#discuss_tips')
 ,	$dislist = $('#dislist')
 ,	$dislist_a
+,	discuss_tips = 0
 ,	discussQ = {cid:cid, page:1}
 ,	discussTimeout
 ,	Imgtype
@@ -628,6 +673,8 @@ function DiscussResponse(json) {
 	});
 	$loading.hide();
 	$discuss.fadeIn(100);
+	discuss_tips = 0;
+	$discuss_tips.hide();
 }
 
 function GetDiscuss() {
@@ -1086,6 +1133,7 @@ $(document).ready(function(){
 				$publish_title.val('');
 				$publish_content.attr('value', '');
 				ChangeScrollTop(200);
+				socket.emit('addDiscuss', cid);
 			} else if (res == '1') {
 				ShowMessage('系统错误！');
 			} else if (res == '2') {
@@ -1094,6 +1142,18 @@ $(document).ready(function(){
 			}
 			$publish.removeClass('disabled');
 		});
+	});
+});
+
+//use socket to listen addDiscuss event
+$(document).ready(function(){
+	socket.on('addDiscuss', function(){
+		if (!isActive(4)) {
+			++discuss_tips;
+			$discuss_tips.text(discuss_tips).show();
+		} else {
+			GetDiscuss();
+		}
 	});
 });
 
@@ -1112,50 +1172,6 @@ function clearAjax() {
 	if (rankAjax) rankAjax.abort();
 	if (discussAjax) discussAjax.abort();
 }
-
-//socket
-var socket = io.connect('/')
-,	$msg = $('#msg_data')
-,	$msg_err = $('#msg_err')
-,	$broadcast = $('#broadcast')
-,	$dialog_bc = $('#dialog_bc')
-,	$bc_content = $dialog_bc.find('div.bc_content');
-
-$(document).ready(function(){
-	if ($dialog_bc.length) {
-		$dialog_bc.jqm({
-			overlay: 30,
-			trigger: false,
-			modal: true,
-			closeClass: 'bc_close',
-			onShow: function(h) {
-				h.o.fadeIn(200);
-				h.w.fadeIn(200);
-			},
-			onHide: function(h) {
-				h.w.fadeOut(200);
-				h.o.fadeOut(200);
-			}
-		}).jqDrag('.jqDrag');
-	}
-	socket.emit('login', cid);
-	socket.on('broadcast', function(data){
-		$bc_content.text(data);
-		$dialog_bc.jqmShow();
-	});
-	if ($broadcast.length) {
-		$broadcast.click(function(){
-			var msg = JudgeString($msg.val());
-			if (!msg) {
-				errAnimate($msg_err, '消息不能为空！');
-				return false;
-			}
-			socket.emit('broadcast', {room: cid, msg: msg});
-			$bc_content.text('消息已广播完成！');
-			$dialog_bc.jqmShow();
-		});
-	}
-});
 
 //calculate ratings
 var $cal = $('#calrating');
