@@ -690,7 +690,7 @@ exports.addDiscuss = function(req, res) {
       OE(err);
       return res.end('1');
     }
-    if (con.type == 2 && !IsRegCon(con.contestants, name)) {
+    if (con.type == 2 && name != con.userName && !IsRegCon(con.contestants, name)) {
       req.session.msg = '发表失败！你还没注册此比赛！';
       return res.end('2');  //refresh
     }
