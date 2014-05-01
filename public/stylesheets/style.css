@@ -1350,8 +1350,19 @@ table th img {
     font-size: 1em;
 }
 
+#go_top {
+    background: url(/img/top.png);
+    width: 80px;
+    height: 80px;
+    position: fixed;
+    bottom: 70px;
+    right: 10px;
+}
 
-/*.table {word-break: break-all;}*/
+#go_top:hover {
+    background:  url(/img/top_hover.png);
+    cursor: pointer;
+}
 
 /* jqModal base Styling courtesy of;
     Brice Burgess <bhb@iceburg.net> */

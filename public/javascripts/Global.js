@@ -19,6 +19,25 @@ $(document).ready(function(){
     });
 });
 
+//go to top button
+$(document).ready(function(){
+    var $top = $('#go_top'), dis = 150;
+    if ($(window).scrollTop() > dis) {
+        $top.show();
+    }
+    $(window).scroll(function(){
+        var top = $(this).scrollTop();
+        if (top > dis) {
+            $top.show();
+        } else {
+            $top.hide();
+        }
+    });
+    $top.click(function(){
+        $('html,body').stop().animate({scrollTop: '0px'}, 500);
+    });
+});
+
 //return status color class
 function Col (n) {
   switch(n) {
