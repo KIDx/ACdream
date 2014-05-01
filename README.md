@@ -1,4 +1,4 @@
-# ACdream Online Judge v1.0.0
+# ACdream Online Judge v1.0.1
 
 ## 如何快速搭建(ubuntu下测试通过)
 
