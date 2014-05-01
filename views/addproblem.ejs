@@ -4,10 +4,11 @@
   	<legend>管理<% if (problem) { %> <a href="/problem?pid=<%= problem.problemID %>">problem <%= problem.problemID %></a><% } %></legend>
   </div>
   <% if (problem) { %>
-  	<%- partial('editproblem', {p:problem,u:user,partial:partial,f:files,imgs:imgs,tips:tips}) %>
+  	<%- partial('editproblem', {p:problem,u:user,partial:partial,f:files,imgs:imgs,tips:tips,_csrf:csrf_token}) %>
   <% } else { %>
   <form class="form-horizontal" method="post">
-  	<button type="submit" class="btn btn-large">快速新建题目</button>
+    <button type="submit" class="btn btn-large">快速新建题目</button>
+    <input class="hide" type="text" name="_csrf" value="<%= csrf_token %>">
   </form>
   <% } %>
 </fieldset>

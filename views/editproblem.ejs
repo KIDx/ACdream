@@ -5,7 +5,7 @@
         <span class="success-text">上传图片：</span><br/>
         <span class="uibtn upload-btn">
           <span>选择并上传图片</span>
-          <input type="file" id="image" name="info" data-url="/imgUpload?pid=<%= p.problemID %>" />
+          <input type="file" id="image" name="info" data-url="/imgUpload?pid=<%= p.problemID %>" >
         </span>
         <span id="submit-info" class="upload-info">未选择文件</span><br/>
         <span id="imgerr" class="error-text">&nbsp;</span>
@@ -30,7 +30,7 @@
         <span class="success-text">上传数据：</span><br/>
         <span class="uibtn upload-btn">
           <span>选择并上传数据</span>
-          <input type="file" id="data" name="data" data-url="/dataUpload?pid=<%= p.problemID %>" multiple/>
+          <input type="file" id="data" name="data" data-url="/dataUpload?pid=<%= p.problemID %>" multiple>
         </span>
         <span id="upload-info" class="upload-info">未选择文件</span><br/>
         <span class="error-text" id="dataerr">&nbsp;</span>
@@ -66,18 +66,18 @@
   <div>
       <h4>Use Special Judge ?</h4>
       <div class="my-radio">
-        <input id="spj" type="radio" name="isSpj" value="1" <% if (p.spj) { %>checked<% } %>/>
+        <input id="spj" type="radio" name="isSpj" value="1" <% if (p.spj) { %>checked<% } %>>
         <label for="spj">YES</label>
-        <input id="nospj" type="radio" name="isSpj" value="0" <% if (!p.spj) { %>checked<% } %>/>
+        <input id="nospj" type="radio" name="isSpj" value="0" <% if (!p.spj) { %>checked<% } %>>
         <label for="nospj">NO</label>
       </div>
   </div>
   <div>
       <h4>Use TC Mode ?</h4>
       <div class="my-radio">
-        <input id="tc" type="radio" name="TC" value="1" <% if (p.TC) { %>checked<% } %>/>
+        <input id="tc" type="radio" name="TC" value="1" <% if (p.TC) { %>checked<% } %>>
         <label for="tc">YES</label>
-        <input id="notc" type="radio" name="TC" value="0" <% if (!p.TC) { %>checked<% } %>/>
+        <input id="notc" type="radio" name="TC" value="0" <% if (!p.TC) { %>checked<% } %>>
         <label for="notc">NO</label>
       </div>
   </div>
@@ -85,9 +85,9 @@
   <div>
       <h4>Hide ?</h4>
       <div class="my-radio">
-        <input id="hide" type="radio" name="hide" value="1" <% if (p.hide) { %>checked<% } %>/>
+        <input id="hide" type="radio" name="hide" value="1" <% if (p.hide) { %>checked<% } %>>
         <label for="hide">YES</label>
-        <input id="nohide" type="radio" name="hide" value="0" <% if (!p.hide) { %>checked<% } %>/>
+        <input id="nohide" type="radio" name="hide" value="0" <% if (!p.hide) { %>checked<% } %>>
         <label for="nohide">NO</label>
       </div>
   </div>
@@ -101,15 +101,15 @@
     </div>
     <div>
       <h4>Title</h4>
-      <input type="text" name="Title" value="<%= p.title %>"/>
+      <input type="text" name="Title" value="<%= p.title %>">
     </div>
     <div>
       <h4>Time limit</h4>
-      <input type="text" class="input-small" name="Timelimit" value="<%= p.timeLimit %>"/> MS
+      <input type="text" class="input-small" name="Timelimit" value="<%= p.timeLimit %>"> MS
     </div>
     <div>
       <h4>Memory limit</h4>
-      <input type="text" class="input-small" name="Memorylimit" value="<%= p.memoryLimit %>"/> KB
+      <input type="text" class="input-small" name="Memorylimit" value="<%= p.memoryLimit %>"> KB
     </div>
   </div>
   <div>
@@ -138,10 +138,11 @@
   </div>
   <div>
     <h4>Source</h4>
-    <input type="text" class="input-xlarge" name="Source" value="<%= p.source %>"/>
+    <input type="text" class="input-xlarge" name="Source" value="<%= p.source %>">
   </div>
   <div class="form-actions">
     <button type="submit" class="btn btn-large">submit</button>
   </div>
-  <input style="display:none;" type="text" name="pid" value="<%= p.problemID %>"/>
+  <input class="hide" type="text" name="pid" value="<%= p.problemID %>">
+  <input class="hide" type="text" name="_csrf" value="<%= _csrf %>">
 </form>

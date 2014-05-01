@@ -1456,6 +1456,7 @@ exports.index = function(req, res){
           }
           res.render('index', { title: 'ACdream Online Judge',
                                 user: req.session.user,
+                                csrf_token: req.csrfToken(),
                                 time: (new Date()).getTime(),
                                 key: -1,
                                 A: A,
@@ -1507,6 +1508,7 @@ exports.user = function(req, res) {
       var RP = function(H) {
         res.render('user', {title: 'User',
                             user: req.session.user,
+                            csrf_token: req.csrfToken(),
                             time: (new Date()).getTime(),
                             key: 0,
                             u: user,
@@ -1556,6 +1558,7 @@ exports.avatar = function(req, res) {
   }
   res.render('avatar', {title: 'Avatar Setting',
                         user: req.session.user,
+                        csrf_token: req.csrfToken(),
                         time: (new Date()).getTime(),
                         key: 12
   });
@@ -1662,6 +1665,7 @@ exports.addproblem = function(req, res) {
     }
     res.render('addproblem', { title: 'addproblem',
                                user: req.session.user,
+                               csrf_token: req.csrfToken(),
                                time: (new Date()).getTime(),
                                problem: P,
                                key: tk,
@@ -1944,6 +1948,7 @@ exports.problem = function(req, res) {
   if (!pid) {
     res.render('problem', {title: 'Problem',
                             user: req.session.user,
+                            csrf_token: req.csrfToken(),
                             time: (new Date()).getTime(),
                             key: -1,
                             problem: null
@@ -1977,6 +1982,7 @@ exports.problem = function(req, res) {
           }
           res.render('problem', { title: 'Problem '+pid,
                                   user: req.session.user,
+                                  csrf_token: req.csrfToken(),
                                   time: (new Date()).getTime(),
                                   key: 8,
                                   problem: problem,
@@ -2057,6 +2063,7 @@ exports.problemset = function(req, res) {
     var RP = function(R){
       res.render('problemset', {title: 'ProblemSet',
                                 user: req.session.user,
+                                csrf_token: req.csrfToken(),
                                 time: (new Date()).getTime(),
                                 key: 3,
                                 n: n,
@@ -2177,6 +2184,7 @@ exports.status = function(req, res) {
       }
       res.render('status', {title: 'Status',
                             user: req.session.user,
+                            csrf_token: req.csrfToken(),
                             time: (new Date()).getTime(),
                             key: 4,
                             n: n,
@@ -2211,6 +2219,7 @@ exports.addcontest = function(req, res) {
   var RP = function(C, clone, type, E, P) {
     res.render('addcontest', {title: 'AddContest',
                               user: req.session.user,
+                              csrf_token: req.csrfToken(),
                               time: (new Date()).getTime(),
                               contest: C,
                               getDate: getDate,
@@ -2528,6 +2537,7 @@ exports.onecontest = function(req, res) {
         }
         res.render('onecontest', {title: 'OneContest',
                                   user: req.session.user,
+                                  csrf_token: req.csrfToken(),
                                   time: (new Date()).getTime(),
                                   key: 9,
                                   contest: contest,
@@ -2646,6 +2656,7 @@ exports.contest = function(req, res) {
       }
       res.render ('contest', {title: 'Contest',
                               user: req.session.user,
+                              csrf_token: req.csrfToken(),
                               time: now,
                               key: 6,
                               type: type,
@@ -2693,6 +2704,7 @@ exports.ranklist = function(req, res) {
       }
       res.render('ranklist', {title: 'Ranklist',
                               user: req.session.user,
+                              csrf_token: req.csrfToken(),
                               time: (new Date()).getTime(),
                               key: 5,
                               n: n,
@@ -2732,6 +2744,7 @@ exports.ranklist = function(req, res) {
 exports.submit = function(req, res) {
   res.render('submit', {title: 'Submit',
                         user: req.session.user,
+                        csrf_token: req.csrfToken(),
                         time: (new Date()).getTime(),
                         key: 10,
                         id: req.query.pid,
@@ -2847,6 +2860,7 @@ exports.sourcecode = function(req, res) {
     var RP = function(flg){
       res.render('sourcecode', {title: 'Sourcecode',
                                 user: req.session.user,
+                                csrf_token: req.csrfToken(),
                                 time: (new Date()).getTime(),
                                 key: 11,
                                 solution: solution,
@@ -2998,6 +3012,7 @@ exports.statistic = function(req, res) {
             }
             res.render('statistic', { title: 'Problem Statistic',
                                       user: req.session.user,
+                                      csrf_token: req.csrfToken(),
                                       time: (new Date()).getTime(),
                                       key: 1,
                                       pid: pid,
@@ -3267,6 +3282,7 @@ exports.topic = function(req, res) {
       }
       res.render('topic', { title: 'Topic',
                             user: req.session.user,
+                            csrf_token: req.csrfToken(),
                             time: (new Date()).getTime(),
                             key: 17,
                             topics: topics,
@@ -3343,6 +3359,7 @@ exports.onetopic = function(req, res) {
           }
           res.render('onetopic', {title: 'OneTopic',
                                   user: req.session.user,
+                                  csrf_token: req.csrfToken(),
                                   time: (new Date()).getTime(),
                                   key: 18,
                                   topic: topic,
@@ -3373,6 +3390,7 @@ exports.addtopic = function(req, res) {
       req.session.verifycode = vcode;
       res.render('addtopic', {title: type+'Topic',
                               user: req.session.user,
+                              csrf_token: req.csrfToken(),
                               time: (new Date()).getTime(),
                               topic: T,
                               key: 1004,

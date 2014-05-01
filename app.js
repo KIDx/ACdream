@@ -43,6 +43,7 @@ app.use(session({
 	secret: settings.cookie_secret,
 	store: sessionStore
 }));
+app.use(require('csurf')());
 
 app.use(express.static(__dirname+'/public', {maxAge: 259200000}));	//使用静态资源服务以及设置缓存(三天)
 app.use(require('static-favicon')(__dirname+'/public/favicon.ico', {maxAge: 2592000000}));
