@@ -1,4 +1,5 @@
 <!--<html>-->
+<% var now = (new Date()).getTime(); %>
 <fieldset>
   <div>
     <legend id="topic">论坛</legend>
@@ -64,6 +65,9 @@
               <% } %>
               <% if (p.top) { %><span class="put_top">置顶</span><% } %>
               <a href="/topic/<%= p.id %>"><%= p.title %></a>
+              <% if (now - p.inDate < 86400000) { %>
+                <img class="top" src="/img/new.gif" />
+              <% } %>
             </td>
             <td style="text-align:right;vertical-align:bottom;">
               <span class="user-gray"><%= getDate(p.inDate) %></span>

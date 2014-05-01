@@ -16,7 +16,7 @@
 					<% if (i < A.length) { %>
 						<span class="fr user-gray"><%= getTime(A[i].inDate) %></span>
 						<a href="/topic/<%= A[i].id %>"><%= A[i].title %></a>
-						<% if (now - A[i].inDate < 604800000) { %>
+						<% if (now - A[i].inDate < 86400000) { %>
 						<img class="top" src="/img/new.gif" />
 						<% } %>
 					<% } else { %>
