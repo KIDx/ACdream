@@ -335,8 +335,21 @@ function ShowProblem(prob) {
 			if ($(this).hasClass('disabled')) {
 				return false;
 			}
-			$(this).addClass('disabled');
-			$.post('/rejudge', {pid:prob.problemID, cid:'1'}, function(res){
+			$rejudge.addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/rejudge',
+				data : {
+					pid : prob.problemID,
+					cid : '1'
+				},
+				dataType : 'text',
+				error: function() {
+					$rejudge.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(res){
 				if (res == '0') ShowMessage('Failed! You have no permission to Rejudge.');
 				else if (res == '1') {
 					ShowMessage('Problem '+F.charAt(ID)+' has been Rejudged successfully!');
@@ -506,10 +519,27 @@ function RankResponse(json) {
 	if (current_user == 'admin') {
 		$removebtn = $('button.close');
 		$removebtn.click(function(){
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
 			if (!confirm('确定要将该参赛者从比赛中移除吗？')) {
 				return false;
 			}
-			$.post('/regContestRemove', {cid: cid, name: $(this).attr('user')}, function(){
+			$removebtn.addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/regContestRemove',
+				data : {
+					cid : cid,
+					name : $(this).attr('user')
+				}, 
+				dataType : 'text',
+				error: function() {
+					$removebtn.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(){
 				window.location.reload(true);
 			});
 		});
@@ -805,24 +835,40 @@ $(document).ready(function(){
 			}
 		}).jqDrag('.jqDrag').jqResize('.jqResize');
 		var $submit_code = $dialog_sm.find('textarea')
-		,	$submit_err = $dialog_sm.find('span#error');
-		$dialog_sm.find('a#jqcodesubmit').click(function(){
+		,	$submit_err = $dialog_sm.find('span#error')
+		,	$submit = $dialog_sm.find('a#jqcodesubmit');
+		$submit.click(function(){
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
 			var code = $submit_code.val();
 			if (code.length < 50 || code.length > 65536) {
 				errAnimate($submit_err, 'the length of code must be between 50B to 65535B');
 				return false;
 			}
-			$.post('/submit', {
-				pid: pid_index,
-				cid: cid,
-				code: code,
-				lang: $dialog_sm.find('select').val()
-			}, function(err){
+			$submit.text('Submitting...').addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/submit',
+				data : {
+					pid: pid_index,
+					cid: cid,
+					code: code,
+					lang: $dialog_sm.find('select').val()
+				},
+				dataType : 'text',
+				error: function() {
+					$submit.text('Submit').removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(err){
 				$dialog_sm.jqmHide();
 				if (!err) {
 					ShowMessage('Your code for problem '+pmap[pid_index]+' has been submited successfully!');
 				} else if (err == '1') {
 					window.location.reload(true);
+					return ;
 				} else if (err == '2') {
 					ShowMessage('You can not submit because you have not registered the contest yet!');
 				} else if (err == '3') {
@@ -832,6 +878,7 @@ $(document).ready(function(){
 				} else if (err == '5') {
 					ShowMessage('The language is not exit!');
 				}
+				$submit.text('Submit').removeClass('disabled');
 				window.location.hash = '#status';
 			});
 		});
@@ -843,10 +890,24 @@ var $del = $('a#delete');
 $(document).ready(function(){
 	if ($del.length) {
 		$del.click(function(){
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
 			if (!window.confirm('Are you sure to delete this contest?')) {
 				return false;
 			}
-			$.post('/contestDelete', {cid:cid}, function(){
+			$del.addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/contestDelete',
+				data : { cid : cid },
+				dataType : 'text',
+				error: function() {
+					$del.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(){
 				window.location.href = '/contest/'+ctype;
 			});
 		});
@@ -865,11 +926,22 @@ $(document).ready(function(){
 			}
 			$p.addClass('disabled');
 			var pid = $p.attr('pid');
-			$.post('/toggleHide', {pid: pid}, function(res){
+			$.ajax({
+				type : 'POST',
+				url : '/toggleHide',
+				data : { pid: pid },
+				dataType : 'text',
+				error: function() {
+					$p.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(res){
 				if (res == '1') {
 					ShowMessage('系统错误！');
 				} else if (res == '2') {
 					window.location.reload(true);
+					return ;
 				} else {
 					if (res == 'h') {
 						$p.text('显示到题库');
@@ -892,12 +964,29 @@ var $adduser = $('#user-add')
 $(document).ready(function(){
 	if ($adduser.length) {
 		$adduser.click(function(){
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
 			var name = JudgeString($userstr.val());
 			if (!name) {
 				errAnimate($adderr, '用户名不能为空！');
 				return false;
 			}
-			$.post('/regContestAdd', {cid:cid,name:name}, function(){
+			$adduser.addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/regContestAdd',
+				data : {
+					cid : cid,
+					name : name
+				}, 
+				dataType : 'text',
+				error: function() {
+					$adduser.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(){
 				window.location.reload(true);
 			});
 		});
@@ -912,12 +1001,30 @@ var $star = $('#star')
 $(document).ready(function(){
 	if ($star.length) {
 		$star.click(function(){
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
 			var str = JudgeString($starstr.val());
 			if (!str) {
 				errAnimate($starerr, '用户名不能为空！');
 				return false;
 			}
-			$.post('/toggleStar', {cid:cid,str:str,type:$('#type').val()}, function(){
+			$star.addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/toggleStar',
+				data : {
+					cid : cid,
+					str : str,
+					type : $('#type').val()
+				}, 
+				dataType : 'text',
+				error: function() {
+					$star.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(){
 				window.location.reload(true);
 			});
 		});
@@ -933,6 +1040,9 @@ var $publish = $('#publish')
 
 $(document).ready(function(){
 	$publish.click(function(){
+		if ($(this).hasClass('disabled')) {
+			return false;
+		}
 		var title = JudgeString($publish_title.val());
 		if (!title) {
 			errAnimate($publish_err, '标题不能为空！');
@@ -943,11 +1053,22 @@ $(document).ready(function(){
 			errAnimate($publish_err, '内容不能为空！');
 			return false;
 		}
-		if ($publish.hasClass('disabled')) {
-			return false;
-		}
 		$publish.addClass('disabled');
-		$.post('/addDiscuss', {cid: cid, title:$publish_pid.val()+'题：'+title, content:content}, function(res){
+		$.ajax({
+			type : 'POST',
+			url : '/addDiscuss',
+			data : {
+				cid : cid,
+				title : $publish_pid.val()+'题：'+title,
+				content : content
+			},
+			dataType : 'text',
+			error: function() {
+				$publish.removeClass('disabled');
+				ShowMessage('无法连接到服务器！');
+			}
+		})
+		.done(function(res){
 			if (!res) {
 				GetDiscuss();
 				ShowMessage('发表成功！');
@@ -955,7 +1076,9 @@ $(document).ready(function(){
 				ShowMessage('系统错误！');
 			} else if (res == '2') {
 				window.location.href = '/';
+				return ;
 			}
+			$publish.removeClass('disabled');
 		});
 	});
 });
@@ -1029,12 +1152,24 @@ $(document).ready(function(){
 			return false;
 		}
 		$cal.addClass('disabled').text('请稍候...');
-		$.post('/calRating', {cid: cid}, function(err){
+		$.ajax({
+			type : 'POST',
+			url : '/calRating',
+			data : { cid: cid },
+			dataType : 'text',
+			error: function() {
+				$cal.text('统计rating').removeClass('disabled');
+				ShowMessage('无法连接到服务器！');
+			}
+		})
+		.done(function(err){
+			if (err == '1' || err == '2') {
+				window.location.reload(true);
+				return ;
+			}
 			if (!err) {
 				ShowMessage('统计完成！');
 				$refresh.click();
-			} else if (err == '1' || err == '2') {
-				window.location.reload(true);
 			} else if (err == '3') {
 				ShowMessage('系统错误！');
 			} else if (err == '4') {

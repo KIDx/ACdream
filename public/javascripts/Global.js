@@ -144,13 +144,12 @@ function BindCE() {
                 $text.text(CE[rid]);
                 return false;
             }
+            $text.html('<img src="/img/loading.gif">');
             $.ajax({
                 type: 'POST',
                 url: '/getCE',
-                data: {rid: rid}
-            })
-            .always(function(){
-                $text.html('<img src="/img/loading.gif">');
+                data: { rid: rid },
+                dataType: 'text'
             })
             .done(function(res){
                 CE[rid] = res;
@@ -313,9 +312,15 @@ $(document).ready(function(){
     setInterval(SetCurrentTime, 1000);
 
     //message
-    $.post('/getMessage', function(res){
-        if (res)
+    $.ajax({
+        type : 'POST',
+        url : '/getMessage',
+        dataType : 'text'
+    })
+    .done(function(res){
+        if (res) {
             ShowMessage(res);
+        }
     });
 
     //login
@@ -354,8 +359,6 @@ $(document).ready(function(){
                 errAnimate($loginerr, 'the password can not be empty!');
                 return ;
             }
-            $(this).addClass('disabled');
-            $(this).text('logging in...');
             if ($('#remember').is(':checked')) {
                 $.cookie('username', name, { expires: 30 });
                 $.cookie('password', psw, { expires: 30 });
@@ -365,10 +368,21 @@ $(document).ready(function(){
                 $.cookie('password', null);
                 $.cookie('remember', null);
             }
-            $.post('/doLogin', {
+            $loginsubmit.text('Logging in...').addClass('disabled');
+            $.ajax({
+                type : 'POST',
+                url : '/doLogin',
+                data : {
                     username: name,
                     password: psw
-                }, function(res){
+                },
+                dataType : 'text',
+                error: function() {
+                    $loginsubmit.text('Login').removeClass('disabled');
+                    errAnimate($loginerr, '无法连接到服务器！');
+                }
+            })
+            .done(function(res){
                     if (res == '1') {
                         errAnimate($loginerr, 'the user is not exist!');
                     } else if (res == '2') {
@@ -383,7 +397,9 @@ $(document).ready(function(){
                             window.location.href = nextURL;
                             nextURL = '';
                         }
+                        return ;
                     }
+                    $loginsubmit.text('Login').removeClass('disabled');
             });
         });
 
@@ -393,7 +409,12 @@ $(document).ready(function(){
     //logout
     if ($logout.length) {
         $logout.click(function(){
-            $.post('/logout', function(){
+            $.ajax({
+                type : 'POST',
+                url : '/logout',
+                dataType : 'text'
+            })
+            .done(function(){
                 window.location.reload(true);
             });
         });
@@ -450,18 +471,31 @@ $(document).ready(function(){
                     h.o.fadeOut(200);
                 }
             }).jqDrag('.jqDrag').jqResize('.jqResize').jqmShow();
-            $.post('/createVerifycode', function(res){
+            $.ajax({
+                type : 'POST',
+                url : '/createVerifycode',
+                dataType : 'text'
+            })
+            .done(function(res){
                 $regimg.html(res);
             });
         });
 
         $regimg.click(function(){
-            $.post('/createVerifycode', function(res){
+            $.ajax({
+                type: 'POST',
+                url : '/createVerifycode',
+                dataType : 'text'
+            })
+            .done(function(res){
                 $regimg.html(res);
             });
         });
 
         $regsubmit.click(function(){
+            if ($(this).hasClass('disabled')) {
+                return false;
+            }
             var username = $reginput.eq(0).val();
             if (!username) {
                 errAnimate($regerr, 'username can not be empty!');
@@ -522,15 +556,26 @@ $(document).ready(function(){
                 errAnimate($regerr, '验证码不能为空!');
                 return false;
             }
-            $.post('/doReg', {
-                username: username,
-                password: password,
-                nick: nick,
-                school: school,
-                email: email,
-                signature: signature,
-                vcode: vcode
-            }, function(res){
+            $regsubmit.text('Submitting...').addClass('disabled');
+            $.ajax({
+                type : 'POST',
+                url : '/doReg',
+                dataType : 'text',
+                data: {
+                    username: username,
+                    password: password,
+                    nick: nick,
+                    school: school,
+                    email: email,
+                    signature: signature,
+                    vcode: vcode
+                },
+                error: function() {
+                    $regsubmit.text('Submit').removeClass('disabled');
+                    errAnimate($regerr, '无法连接到服务器！');
+                }
+            })
+            .done(function(res){
                 if (!res) {
                      window.location.reload(true);
                      return ;
@@ -542,6 +587,7 @@ $(document).ready(function(){
                 } else {
                     errAnimate($regerr, '系统错误！');
                 }
+                $regsubmit.text('Submit').removeClass('disabled');
             });
         });
         simulateClick($reginput, $regsubmit);

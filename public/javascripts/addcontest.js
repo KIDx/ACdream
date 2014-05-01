@@ -73,7 +73,18 @@ function init() {
 var timeout, ajax;
 
 function getProblem($p, $t) {
-	return ($.post('/getProblem', {pid: $p.val()}, function(res){
+	return ($.ajax({
+		type : 'POST',
+		url : '/getProblem',
+		data : { pid: $p.val() },
+		dataType : 'text',
+		error: function() {
+			$t.removeClass('success-text')
+			.addClass('error-text')
+			.text('无法连接到服务器！');
+		}
+	})
+	.done(function(res){
 		if (!res) {
 			$t.removeClass('success-text')
 			.addClass('error-text')
@@ -185,12 +196,11 @@ $(document).ready(function(){
 			if (!tmp) tmp = ' ';
 			alias.push(tmp);
 		});
-
-		$(this).addClass('disabled');
+		$err.text('');
+		$submit.text('Submitting...').addClass('disabled');
 		$.ajax({
 			type: 'POST',
 			url: '/addcontest',
-			dataType: 'text',
 			data: {
 				cid 	: cid,
 				type 	: c_type,
@@ -207,7 +217,11 @@ $(document).ready(function(){
 				pids 	: pids,
 				alias 	: alias
 			},
-			timeout: 5000
+			dataType: 'text',
+			error: function() {
+				$submit.text('Submit').removeClass('disabled');
+				errAnimate($err, '无法连接到服务器！');
+			}
 		}).done(function(res){
 			window.location.href = '/onecontest/' + res;
 		});

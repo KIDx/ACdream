@@ -68,13 +68,32 @@ $(document).ready(function(){
 			$(this).addClass('hidden');
 			$selectdiv.show();
 			$select.change(function(res){
-				$.post('/editTag', {tag:$(this).val(), pid:pid, add:true}, function(){
+				$.ajax({
+					type : 'POST',
+					url : '/editTag',
+					data : {
+						tag : $(this).val(),
+						pid : pid,
+						add : true
+					},
+					dataType : 'text'
+				})
+				.done(function(){
 					window.location.reload(true);
 				});
 			});
 		});
 		$del_tag.click(function(){
-			$.post('/editTag', {tag:$(this).attr('tag'), pid:pid}, function(){
+			$.ajax({
+				type : 'POST',
+				url : '/editTag',
+				data : {
+					tag : $(this).attr('tag'),
+					pid : pid
+				},
+				dataType : 'text'
+			})
+			.done(function(){
 				window.location.reload(true);
 			});
 		});
@@ -86,7 +105,21 @@ var $rejudge = $('#rejudge');
 $(document).ready(function(){
 	if ($rejudge.length) {
 		$rejudge.click(function(){
-			$.post('/rejudge', {pid: pid}, function(){
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
+			$rejudge.addClass('disabled');
+			$.ajax({
+				type : 'POST',
+				url : '/rejudge',
+				data : { pid : pid },
+				dataType : 'text',
+				error: function() {
+					$rejudge.removeClass('disabled');
+					ShowMessage('无法连接到服务器！');
+				}
+			})
+			.done(function(){
 				window.location.href = '/status?pid='+pid;
 			})
 		});
@@ -101,7 +134,13 @@ var $phide = $('#phide')
 $(document).ready(function(){
 	if ($phide.length) {
 		$phide.change(function(){
-			$.post('/toggleHide', {pid: pid}, function(res){
+			$.ajax({
+				type : 'POST',
+				url : '/toggleHide',
+				data : { pid : pid },
+				dataType : 'text'
+			})
+			.done(function(res){
 				if (res == '1') {
 					ShowMessage('系统错误！');
 				} else if (res == '2') {
@@ -115,7 +154,16 @@ $(document).ready(function(){
 	if ($peasy.length) {
 		$peasy.change(function(){
 			var e = $(this).val();
-			$.post('/updateEasy', {pid: pid, easy: e}, function(res){
+			$.ajax({
+				type : 'POST',
+				url : '/updateEasy',
+				data : {
+					pid : pid,
+					easy : e
+				},
+				dataType : 'text'
+			})
+			.done(function(res){
 				if (res == '1') {
 					ShowMessage('系统错误！');
 				} else if (res == '2') {

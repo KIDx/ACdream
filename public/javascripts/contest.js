@@ -69,6 +69,9 @@ $(document).ready(function(){
 		interval = setInterval(Timer, 1000);
 		$.each($register, function(){
 			$(this).click(function(){
+				if ($(this).hasClass('disabled')) {
+					return false;
+				}
 				if ($(this).hasClass('public')) {
 					if ($dialog_lg.length > 0) {
 						nextURL = '';
@@ -77,16 +80,30 @@ $(document).ready(function(){
 					}
 					var $clickreg = $(this);
 					var cid = parseInt($clickreg.attr('id'));
-					$.post('/contestReg', {cid:cid}, function(res){
+					$clickreg.addClass('disabled');
+					$.ajax({
+						type : 'POST',
+						url : '/contestReg',
+						data: { cid:cid },
+						dataType : 'text',
+						error : function() {
+							$clickreg.removeClass('disabled');
+							ShowMessage('无法连接到服务器！');
+						}
+					})
+					.done(function(res){
 						if (!res) {
 							window.location.reload(true);
-						} else if (res == '1') {
+							return ;
+						}
+						if (res == '1') {
 							ShowMessage('管理员无需注册！');
 						} else if (res == '2') {
 							ShowMessage('系统错误！');
 						} else {
 							ShowMessage('Registration Closed.');
 						}
+						$clickreg.removeClass('disabled');
 					});
 				}
 			});
@@ -109,18 +126,33 @@ $(document).ready(function(){
 				$submit.unbind();
 				$psw.unbind();
 				$submit.click(function(){
+					if ($(this).hasClass('disabled')) {
+						return false;
+					}
 					if (!$psw.val()) {
 						errAnimate($err, 'the password can not be empty!');
 						return false;
 					}
-					$.post('/loginContest', {
-						cid: cid,
-						psw: $psw.val()
-					}, function(res){
+					$submit.text('Logging in...').addClass('disabled');
+					$.ajax({
+						type : 'POST',
+						url : '/loginContest',
+						data: {
+							cid: cid,
+							psw: $psw.val()
+						},
+						dataType : 'text',
+						error : function() {
+							$submit.text('Login').removeClass('disabled');
+							errAnimate($err, '无法连接到服务器！');
+						}
+					})
+					.done(function(res){
 						if (res) {
 							window.location.href = '/onecontest/'+cid;
 							return ;
 						}
+						$submit.text('Login').removeClass('disabled');
 						errAnimate($err, 'the password is not correct!');
 					});
 				});

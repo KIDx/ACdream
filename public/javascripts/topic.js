@@ -48,11 +48,21 @@ $(document).ready(function(){
 	if ($top.length) {
 		$.each($top, function(i, p){
 			$(p).click(function(){
-				if ($(this).hasClass('disabled')) {
+				if ($(p).hasClass('disabled')) {
 					return false;
 				}
-				$(this).addClass('disabled');
-				$.post('/toggleTop', {tid: $(this).attr('tid')}, function(){
+				$(p).addClass('disabled');
+				$.ajax({
+					type : 'POST',
+					url : '/toggleTop',
+					data : { tid : $(p).attr('tid') },
+					dataType : 'text',
+					error: function() {
+						$(p).removeClass('disabled');
+						ShowMessage('无法连接到服务器！');
+					}
+				})
+				.done(function(){
 					window.location.reload(true);
 				});
 			});

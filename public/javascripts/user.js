@@ -6,11 +6,21 @@ var $ap = $('#addprob');
 $(document).ready(function(){
     if ($ap.length) {
         $ap.click(function(){
-            if ($(this).hasClass('disabled')) {
+            if ($ap.hasClass('disabled')) {
                 return false;
             }
-            $(this).addClass('disabled');
-            $.post('/changeAddprob', {name:name}, function(){
+            $ap.addClass('disabled');
+            $.ajax({
+                type : 'POST',
+                url : '/changeAddprob',
+                data : { name : name },
+                dataType : 'text',
+                error: function() {
+                    $ap.removeClass('disabled');
+                    ShowMessage('无法连接到服务器！');
+                }
+            })
+            .done(function(){
                 window.location.reload(true);
             });
         });
@@ -25,9 +35,18 @@ $(document).ready(function(){
             if ($(this).hasClass('disabled')) {
                 return false;
             }
-            $(this).text('处理中...');
-            $(this).addClass('disabled');
-            $.post('/recal', function(res){
+            $recal.text('处理中...').addClass('disabled');
+            $.ajax({
+                type : 'POST',
+                url : '/changeAddprob',
+                data : { name : name },
+                dataType : 'text',
+                error: function() {
+                    $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
+                    ShowMessage('无法连接到服务器！');
+                }
+            })
+            .done('/recal', function(res){
                 window.location.href = '/ranklist';
             });
         });
@@ -42,12 +61,21 @@ $(document).ready(function(){
             if ($(this).hasClass('disabled')) {
                 return false;
             }
-            $(this).addClass('disabled');
             if (!confirm('确认要把'+name+'的密码恢复为"123456"吗？')) {
-                $(this).removeClass('disabled');
                 return false;
             }
-            $.post('/restorePsw', {name: name}, function(){
+            $restore.addClass('disabled');
+            $.ajax({
+                type : 'POST',
+                url : '/restorePsw',
+                data : { name : name },
+                dataType : 'text',
+                error: function() {
+                    $restore.removeClass('disabled');
+                    ShowMessage('无法连接到服务器！');
+                }
+            })
+            .done(function(){
                 window.location.reload(true);
             });
         });
@@ -79,6 +107,9 @@ $(document).ready(function(){
         }).jqDrag('.jqDrag').jqResize('.jqResize');
 
         $setsubmit.click(function(){
+            if ($(this).hasClass('disabled')) {
+                return false;
+            }
             var oldpassword = $setinput.eq(0).val();
             if (!oldpassword) {
                 errAnimate($seterr, 'Old Password can not be empty!');
@@ -125,20 +156,32 @@ $(document).ready(function(){
                 errAnimate($seterr, 'the length of signature should be no more than 200!');
                 return false;
             }
-            $.post('/changeInfo', {
-                name: $dialog_st.attr('name'),
-                oldpassword: oldpassword,
-                password: password,
-                nick: nick,
-                school: school,
-                email: email,
-                signature: signature
-            }, function(res){
+            $setsubmit.text('Submitting...').addClass('disabled');
+            $.ajax({
+                type : 'POST',
+                url : '/changeInfo',
+                data : {
+                    name: $dialog_st.attr('name'),
+                    oldpassword: oldpassword,
+                    password: password,
+                    nick: nick,
+                    school: school,
+                    email: email,
+                    signature: signature
+                },
+                dataType : 'text',
+                error: function() {
+                    $setsubmit.text('Submit').removeClass('disabled');
+                    errAnimate($seterr, '无法连接到服务器！');
+                }
+            })
+            .done(function(res){
                 if (res) {
-                    errAnimate($seterr, 'The Old Password is not True!');
+                    errAnimate($seterr, 'The old password is NOT true!');
                 } else {
                     window.location.reload(true);
                 }
+                $setsubmit.text('Submit').removeClass('disabled');
             });
         });
 

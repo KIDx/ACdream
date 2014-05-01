@@ -13,7 +13,12 @@ var $submit = $('#submit')
 ,	tid = parseInt($('#addtopic').attr('tid'), 10);
 
 function getVcode() {
-	$.post('/createVerifycode', function(res){
+	$.ajax({
+		type: 'POST',
+		url: '/createVerifycode',
+		dataType: 'text'
+	})
+	.done(function(res){
 		$vcimg.html(res);
 	});
 }
@@ -51,13 +56,24 @@ $(document).ready(function(){
 		} else {
 			data.vcode = $vcode.val();
 		}
-		$.post('/addtopic', data, function(res){
+		$.ajax({
+			type: 'POST',
+			url: '/addtopic',
+			data: data,
+			dataType: 'text',
+			error: function() {
+				$submit.removeClass('disabled');
+				errAnimate($err, '连接服务器失败！');
+			}
+		})
+		.done(function(res){
 			if (res == '1') {
 				errAnimate($err, '验证码错误！');
 			} else if (res == '2') {
 				errAnimate($err, '系统错误！');
 			} else {
 				window.location.href = '/topic/'+res;
+				return ;
 			}
 			$submit.removeClass('disabled');
 		});

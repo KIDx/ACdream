@@ -38,10 +38,26 @@ function bindDel () {
 	$datadel = $('a.del');
 	$.each($datadel, function(i, p){
 		$(p).click(function(){
-			$.post('/delData', {
-				pid 	: pid,
-				fname 	: $(p).parent().prev().text()
-			}, function(res){
+			if ($(p).hasClass('disabled')) {
+				return false;
+			}
+			$(p).addClass('disabled');
+			$(p).text('删除中...');
+			$.ajax({
+				type : 'POST',
+				url : '/delData',
+				data : {
+					pid : pid,
+					fname : $(p).parent().prev().text()
+				},
+				dataType : 'text',
+				error: function() {
+					$(p).removeClass('disabled');
+					$(p).text('删除');
+					ShowMessage('服务器连接失败！');
+				}
+			})
+			.done(function(res){
 				if (res) {
 					window.location.reload(true);
 					return ;
@@ -65,10 +81,26 @@ function bindImgDel () {
 	$imgdel = $('a.imgdel');
 	$.each($imgdel, function(i, p){
 		$(p).click(function(){
-			$.post('/delImg', {
-				pid 	: pid,
-				fname 	: $(p).parent().prev().text()
-			}, function(res){
+			if ($(p).hasClass('disabled')) {
+				return false;
+			}
+			$(p).addClass('disabled');
+			$(p).text('删除中...');
+			$.ajax({
+				type : 'POST',
+				url : '/delImg',
+				data : {
+					pid : pid,
+					fname : $(p).parent().prev().text()
+				},
+				dataType : 'text',
+				error: function() {
+					$(p).removeClass('disabled');
+					$(p).text('删除');
+					ShowMessage('服务器连接失败！');
+				}
+			})
+			.done(function(res){
 				if (res) {
 					window.location.reload(true);
 					return ;
