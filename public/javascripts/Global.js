@@ -19,6 +19,10 @@ $(document).ready(function(){
     });
 });
 
+function ChangeScrollTop(n) {
+    $('html,body').stop().animate({scrollTop: n+'px'}, 500);
+}
+
 //go to top button
 $(document).ready(function(){
     var $top = $('#go_top'), dis = 150;
@@ -34,7 +38,7 @@ $(document).ready(function(){
         }
     });
     $top.click(function(){
-        $('html,body').stop().animate({scrollTop: '0px'}, 500);
+        ChangeScrollTop(0);
     });
 });
 

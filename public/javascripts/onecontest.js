@@ -405,7 +405,7 @@ var $rank = $div.find('#ranktab')
 ,	$ranklist = $rank.find('#ranklist')
 ,	$ranklist_a
 ,	$removebtn
-,	$refresh = $rank.find('#refresh')
+,	$rank_refresh = $rank.find('#rank_refresh')
 ,	rankQ = {cid:cid, page:1}
 ,	rank = 1
 ,	rankTimeout
@@ -576,6 +576,7 @@ function clearTimer() {
 
 var $discuss = $div.find('#discusstab')
 ,	$distbody = $discuss.find('table tbody')
+,	$discuss_refresh = $discuss.find('#discuss_refresh')
 ,	$dislist = $('#dislist')
 ,	$dislist_a
 ,	discussQ = {cid:cid, page:1}
@@ -584,8 +585,11 @@ var $discuss = $div.find('#discusstab')
 ,	discussAjax;
 
 function buildDiscuss(p) {
-	var html = '<tr><td>', img;
-	html += '<a target="_blank" href="/user/'+p.user+'">';
+	var html = '<tr', img;
+	if (current_user == p.user) {
+		html += ' class="highlight"';
+	}
+	html += '><td><a target="_blank" href="/user/'+p.user+'">';
 	if (Imgtype[p.user]) {
 		img = '/img/avatar/'+p.user+'/4.'+Imgtype[p.user];
 	} else {
@@ -776,7 +780,7 @@ $(document).ready(function(){
 	runContest();
 });
 
-//bind status and rank refresh
+//bind status, rank refresh and discuss refresh
 $(document).ready(function(){
 	$Filter.click(function(){
 		window.location.hash = '#status-'+$search.val()+'-'+$pid.val()+'-'+$result.val();
@@ -786,10 +790,15 @@ $(document).ready(function(){
 			$Filter.click();
 		}
 	});
-	$refresh.click(function(){
+	$rank_refresh.click(function(){
 		hideAll();
 		$loading.show();
 		GetRanklist();
+	});
+	$discuss_refresh.click(function(){
+		hideAll();
+		$loading.show();
+		GetDiscuss();
 	});
 });
 
@@ -1070,8 +1079,13 @@ $(document).ready(function(){
 		})
 		.done(function(res){
 			if (!res) {
+				window.location.hash = 'discuss';
 				GetDiscuss();
 				ShowMessage('发表成功！');
+				$publish_pid.val('A');
+				$publish_title.val('');
+				$publish_content.attr('value', '');
+				ChangeScrollTop(200);
 			} else if (res == '1') {
 				ShowMessage('系统错误！');
 			} else if (res == '2') {
@@ -1169,7 +1183,7 @@ $(document).ready(function(){
 			}
 			if (!err) {
 				ShowMessage('统计完成！');
-				$refresh.click();
+				$rank_refresh.click();
 			} else if (err == '3') {
 				ShowMessage('系统错误！');
 			} else if (err == '4') {
