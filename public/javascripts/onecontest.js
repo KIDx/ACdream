@@ -177,7 +177,7 @@ function GetStatus() {
 			error: function(){
 				if (statusAjax)
 					statusAjax.abort();
-				GetStatus();
+				setTimeout(GetStatus, interceptorTime);
 			}
 		})
 		.done(Response);
@@ -263,7 +263,7 @@ function GetOverview() {
 			error: function(){
 				if (overviewAjax)
 					overviewAjax.abort();
-				GetOverview();
+				setTimeout(GetOverview, interceptorTime);
 			}
 		})
 		.done(OverviewResponse);
@@ -393,7 +393,7 @@ function GetProblem() {
 			error: function() {
 				if (problemAjax)
 					problemAjax.abort();
-				GetProblem();
+				setTimeout(GetProblem, interceptorTime);
 			}
 		})
 		.done(ProblemResponse);
@@ -560,7 +560,7 @@ function GetRanklist() {
 			error: function() {
 				if (rankAjax)
 					rankAjax.abort();
-				GetRanklist();
+				setTimeout(GetRanklist, interceptorTime);
 			}
 		})
 		.done(RankResponse);
@@ -642,7 +642,7 @@ function GetDiscuss() {
 			error: function() {
 				if (discussAjax)
 					discussAjax.abort();
-				GetDiscuss();
+				setTimeout(GetDiscuss, interceptorTime);
 			}
 		})
 		.done(DiscussResponse);
