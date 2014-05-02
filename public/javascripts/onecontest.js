@@ -1188,6 +1188,9 @@ $(document).ready(function(){
 		if ($cal.hasClass('disabled')) {
 			return false;
 		}
+    if (!confirm('确定要统计rating吗？')) {
+      return false;
+    }
 		$cal.addClass('disabled').text('请稍候...');
 		$.ajax({
 			type : 'POST',
