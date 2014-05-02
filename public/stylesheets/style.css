@@ -1353,6 +1353,8 @@ table th img {
 
 #go_top {
     background: url(/img/top.png);
+    opacity: 0.75;
+    filter:alpha(opacity=75);
     width: 80px;
     height: 80px;
     position: fixed;
@@ -1361,7 +1363,8 @@ table th img {
 }
 
 #go_top:hover {
-    background:  url(/img/top_hover.png);
+    opacity: 1.0;
+    filter:alpha(opacity=100);
     cursor: pointer;
 }
 
