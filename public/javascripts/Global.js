@@ -25,19 +25,7 @@ function ChangeScrollTop(n) {
 
 //go to top button
 $(document).ready(function(){
-    var $top = $('#go_top'), dis = 150;
-    if ($(window).scrollTop() > dis) {
-        $top.show();
-    }
-    $(window).scroll(function(){
-        var top = $(this).scrollTop();
-        if (top > dis) {
-            $top.show();
-        } else {
-            $top.hide();
-        }
-    });
-    $top.click(function(){
+    $('#go_top').click(function(){
         ChangeScrollTop(0);
     });
 });
