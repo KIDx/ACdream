@@ -444,16 +444,17 @@ function GetProblem() {
 }
 
 var $rank = $div.find('#ranktab')
-,	$ranktbody = $rank.find('table tbody')
-,	$ranklist = $rank.find('#ranklist')
-,	$ranklist_a
-,	$removebtn
-,	$rank_refresh = $rank.find('#rank_refresh')
-,	rankQ = {cid:cid, page:1}
-,	rank = 1
-,	rankTimeout
-,	FB = {}
-,	rankAjax;
+,   $ranktbody = $rank.find('table tbody')
+,   $ranklist = $rank.find('#ranklist')
+,   $ranklist_a
+,   $removebtn
+,   $rank_refresh = $rank.find('#rank_refresh')
+,   rankQ = {cid:cid, page:1}
+,   rank = 1
+,   rankTimeout
+,   FB = {}
+,   rankAjax
+,   rankInterval;
 
 //deal with overflow rank table
 $(document).ready(function(){
@@ -712,6 +713,7 @@ function run() {
 	for (var i = 0; i < 5; i++) {
 		noActive(i);
 	}
+  clearInterval(rankInterval);
 	switch(a) {
 		case '#problem': {
 			if (b) ID = b.charCodeAt(0)-65;
@@ -732,6 +734,9 @@ function run() {
 		}
 		case '#rank': {
 			doActive(3);
+      rankInterval = setInterval(function(){
+        $rank_refresh.click();
+      }, 10000);
 			rankQ.page = b ? parseInt(b, 10) : 1;
 			GetRanklist();
 			PreTab = 0;
