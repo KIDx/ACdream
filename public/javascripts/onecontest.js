@@ -14,6 +14,7 @@ $(document).ready(function(){
 			modal: true,
 			closeClass: 'bc_close',
 			onShow: function(h) {
+        $broadcast.removeClass('disabled');
 				h.o.fadeIn(200);
 				h.w.fadeIn(200);
 			},
@@ -30,14 +31,24 @@ $(document).ready(function(){
 	});
 	if ($broadcast.length) {
 		$broadcast.click(function(){
+      if ($(this).hasClass('disabled')) {
+        return false;
+      }
 			var msg = JudgeString($msg.val());
 			if (!msg) {
 				errAnimate($msg_err, '消息不能为空！');
 				return false;
 			}
-			socket.emit('broadcast', {room: cid, msg: msg});
-			$bc_content.text('消息已广播完成！');
-			$dialog_bc.jqmShow();
+      $msg.val('');
+      $(this).addClass('disabled');
+			socket.emit('broadcast', {room: cid, msg: msg}, function(res){
+			  if (res) {
+          $bc_content.text('消息广播成功！');
+        } else {
+          $bc_content.text('系统错误！');
+        }
+			  $dialog_bc.jqmShow();
+      });
 		});
 	}
 });

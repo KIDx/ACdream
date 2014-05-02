@@ -216,7 +216,7 @@ io.set('authorization', function(handshakeData, accept){
 io.sockets.on('connection', function(socket){
 	var session = socket.handshake.session;
 	if (session && session.user) {
-		socket.on('broadcast', function(data){
+		socket.on('broadcast', function(data, fn){
 			if (data) {
 				var cid = parseInt(data.room, 10);
 				if (!cid) {
@@ -224,6 +224,8 @@ io.sockets.on('connection', function(socket){
 				}
 				var RP = function() {
 					socket.broadcast.to(data.room).emit('broadcast', data.msg);
+          if (fn)
+            fn(true);
 				};
 				if (session.user.name == 'admin') {
 					return RP();
@@ -231,6 +233,8 @@ io.sockets.on('connection', function(socket){
 				Contest.watch(cid, function(err, con){
 					if (err) {
 						OE(err);
+            if (fn)
+              fn(false);
 						return ;
 					}
 					if (con && con.userName == session.user.name) {
