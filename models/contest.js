@@ -11,6 +11,7 @@ function Contest(contest) {
   this.title = contest.title;
   this.startTime = contest.startTime;
   this.len = contest.len;
+  this.penalty = contest.penalty;
   this.description = contest.description;
   this.msg = contest.msg;
   this.probs = contest.probs;
@@ -35,6 +36,7 @@ var contestObj = new Schema({
   stars: Array,
   updateTime: Number,
   maxRunID: Number,
+  penalty: Number,
   FB: Object
 });
 
@@ -48,6 +50,7 @@ Contest.prototype.save = function(callback) {
   contest.title = this.title;
   contest.startTime = this.startTime;
   contest.len = this.len;
+  contest.penalty = this.penalty;
   contest.description = this.description;
   contest.msg = this.msg;
   contest.probs = this.probs;

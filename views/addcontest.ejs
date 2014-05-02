@@ -73,6 +73,16 @@
           </tr>
           <% } %>
           <tr>
+            <th>Penalty: </th>
+            <td>
+              <select id="penalty">
+              <% for (var i = 2; i <= 6; ++i) { %>
+                <option value="<%= i*10 %>"><%= i*10 %> 分钟/次</option>
+              <% } %>
+              </select>
+            </td>
+          </tr>
+          <tr>
             <th>Description: </th>
             <td>
               <textarea id="desc" type="text" rows="5" class="input-xlarge"><% if (contest && clone == 0) { %><%= contest.description %><% } %></textarea>

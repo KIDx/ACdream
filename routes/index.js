@@ -563,7 +563,7 @@ exports.getRanklist = function(req, res) {
                     if (!val.status[i]) {
                       if (o.wa >= 0) {
                         val.solved++;
-                        val.penalty += o.wa*1200000 + o.inDate;
+                        val.penalty += o.wa*penalty*60000 + o.inDate;
                       }
                       val.status[i] = o;
                     } else if (val.status[i].wa < 0) {
@@ -571,7 +571,7 @@ exports.getRanklist = function(req, res) {
                         val.solved++;
                         val.status[i].wa = o.wa - val.status[i].wa;
                         val.status[i].inDate = o.inDate;
-                        val.penalty += val.status[i].wa*1200000 + o.inDate;
+                        val.penalty += val.status[i].wa*penalty*60000 + o.inDate;
                       } else {
                         val.status[i].wa += o.wa;
                       }
@@ -581,7 +581,8 @@ exports.getRanklist = function(req, res) {
               }
               return val;
             },
-            out: { reduce: 'ranks' }
+            scope: { penalty : contest.penalty },
+            out: { reduce : 'ranks' }
           }, function(err){
             if (err) {
               OE(err);
@@ -2306,19 +2307,20 @@ exports.doAddcontest = function(req, res) {
   res.header('Content-Type', 'text/plain');
 
   var psw = ''
-  ,  title = clearSpace(req.body.title)
-  ,  date = clearSpace(req.body.date)
-  ,  hour = addZero(req.body.hour)
-  ,  min = addZero(req.body.min)
-  ,  dd = parseInt(req.body.dd, 10)
-  ,  hh = parseInt(req.body.hh, 10)
-  ,  mm = parseInt(req.body.mm, 10)
-  ,  desc = clearSpace(req.body.desc)
-  ,  anc = clearSpace(req.body.anc)
-  ,  type = parseInt(req.body.type, 10);
+  ,   title = clearSpace(req.body.title)
+  ,   date = clearSpace(req.body.date)
+  ,   hour = addZero(req.body.hour)
+  ,   min = addZero(req.body.min)
+  ,   dd = parseInt(req.body.dd, 10)
+  ,   hh = parseInt(req.body.hh, 10)
+  ,   mm = parseInt(req.body.mm, 10)
+  ,   penalty = parseInt(req.body.penalty, 10)
+  ,   desc = clearSpace(req.body.desc)
+  ,   anc = clearSpace(req.body.anc)
+  ,   type = parseInt(req.body.type, 10);
 
   if (!title || !date || !hour || !min ||
-      nan(dd) || nan(hh) || nan(mm) ||
+      nan(dd) || nan(hh) || nan(mm) || !penalty ||
       !type || type < 1 || type > 2) {
     return res.end();  //not allow!
   }
@@ -2367,12 +2369,13 @@ exports.doAddcontest = function(req, res) {
         }
         con.title = title;
         var flg = false;
-        if (con.startTime != startTime || con.len > len) {
+        if (con.startTime != startTime || con.len > len || con.penalty != penalty) {
           flg = true;
           con.updateTime = con.maxRunID = 0;
         }
         con.startTime = startTime;
         con.len = len;
+        con.penalty = penalty;
         con.description = desc;
         con.msg = anc;
         if (con.password != req.body.psw)
@@ -2434,14 +2437,15 @@ exports.doAddcontest = function(req, res) {
           return res.end();
         }
         (new Contest({
-          contestID  : id,
+          contestID   : id,
           userName    : name,
-          title    : title,
-          startTime  : startTime,
-          len     : len,
+          title       : title,
+          startTime   : startTime,
+          len         : len,
+          penalty     : penalty,
           description : desc,
-          msg     : anc,
-          probs    : ary,
+          msg         : anc,
+          probs       : ary,
           password    : psw,
           type        : type
         })).save(function(err) {

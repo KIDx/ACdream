@@ -212,6 +212,7 @@ $(document).ready(function(){
 				hh 		: hh,
 				mm 		: mm,
 				psw 	: psw,
+				penalty : $('#penalty').val(),
 				desc 	: desc,
 				anc 	: anc,
 				pids 	: pids,

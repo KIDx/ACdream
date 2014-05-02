@@ -761,7 +761,8 @@ div.tablebg div#filter input:focus {
 
 form div#simpleInput div select,
 div.tablebg div#filter select,
-div.tablebg div#filter button {
+div.tablebg div#filter button,
+.table tr td select {
     line-height: 15px;
     font-size: 12px;
     height: 24px;
