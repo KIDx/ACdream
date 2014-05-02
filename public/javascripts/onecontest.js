@@ -876,23 +876,26 @@ $(document).ready(function(){
 	});
 
 	if ($dialog_sm.length) {
+		var $submit_code = $dialog_sm.find('textarea')
+		,	$submit_err = $dialog_sm.find('span#error')
+		,	$submit = $dialog_sm.find('a#jqcodesubmit');
 		$dialog_sm.jqm({
 			overlay: 30,
 			trigger: false,
 			modal: true,
 			closeClass: 'submitclose',
 			onShow: function(h) {
+        $submit.text('Submit').removeClass('disabled');
 				h.o.fadeIn(200);
-				h.w.fadeIn(200, function(){$dialog_sm.find('textarea').focus();});
+				h.w.fadeIn(200, function(){
+          $dialog_sm.find('textarea').focus();
+        });
 			},
 			onHide: function(h) {
 				h.w.fadeOut(200);
 				h.o.fadeOut(200);
 			}
 		}).jqDrag('.jqDrag').jqResize('.jqResize');
-		var $submit_code = $dialog_sm.find('textarea')
-		,	$submit_err = $dialog_sm.find('span#error')
-		,	$submit = $dialog_sm.find('a#jqcodesubmit');
 		$submit.click(function(){
 			if ($(this).hasClass('disabled')) {
 				return false;
@@ -934,7 +937,6 @@ $(document).ready(function(){
 				} else if (err == '5') {
 					ShowMessage('The language is not exit!');
 				}
-				$submit.text('Submit').removeClass('disabled');
 				window.location.hash = '#status';
 			});
 		});
