@@ -77,7 +77,7 @@
             <td>
               <select id="penalty">
               <% for (var i = 2; i <= 6; ++i) { %>
-                <option value="<%= i*10 %>"><%= i*10 %> 分钟/次</option>
+                <option value="<%= i*10 %>" <% if (contest && contest.penalty == i * 10) { %>selected<% } %>><%= i*10 %> 分钟/次</option>
               <% } %>
               </select>
             </td>
