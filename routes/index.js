@@ -201,9 +201,10 @@ function getRank(user, callback) {
   User.count({
     $nor: [{name: 'admin'}],
     $or:[
-      { solved: {$gt: user.solved} },
-      { solved: user.solved, submit: {$lt: user.submit} },
-      { solved: user.solved, submit: user.submit, name: {$lt: user.name} }
+      { rating: {$gt: user.rating} },
+      { rating: user.rating, solved: {$gt: user.solved} },
+      { rating: user.rating, solved: user.solved, submit: {$lt: user.submit} },
+      { rating: user.rating, solved: user.solved, submit: user.submit, name: {$lt: user.name} }
     ]
   }, function(err, rank) {
     return callback(err, rank+1);
@@ -1433,7 +1434,6 @@ exports.calRating = function(req, res) {
             if (!p.value || !p.value.solved) {
               if (pos < 0) pos = i;
               act[p._id.name] = 0.5 * (R.length - pos - 1);
-              console.log(act[p._id.name]);
             } else {
               act[p._id.name] = R.length - i - 1;
             }
