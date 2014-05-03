@@ -210,6 +210,19 @@ function getRank(user, callback) {
   });
 }
 
+function getContestRank(cid, stars, name, V, callback) {
+  ContestRank.count({
+    '_id.cid': cid,
+    '_id.name': {$nin: stars},
+    $or: [{'value.solved': {$gt: V.solved}},
+          {$and: [{'value.solved': V.solved}, {'value.penalty': {$lt: V.penalty}}]},
+          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$gt: V.status}}]},
+          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': V.status}, {'_id.name': {$lt: name}}]}]
+  }, function(err, rank) {
+    return callback(err, rank+1);
+  });
+}
+
 exports.connectMongodb = function() {
   Solution.connect(function(err){
     if (err) {
@@ -472,25 +485,25 @@ exports.getRanklist = function(req, res) {
             has[p] = true;
           });
         }
+        var hasMe = false;
         users.forEach(function(p, i){
           var tmp = {name: p._id.name, value: p.value};
           if (has[tmp.name]) {
             tmp.star = true;
           }
           Users.push(tmp);
-          names.push(p._id.name);
+          names.push(tmp.name);
+          if (req.session.user && !hasMe && req.session.user.name == tmp.name) {
+            hasMe = true;
+          }
         });
-        ContestRank.count({
-          '_id.cid': cid,
-          '_id.name': {$nin: con.stars},
-          $or: [{'value.solved': {$gt: V.solved}},
-                {$and: [{'value.solved': V.solved}, {'value.penalty': {$lt: V.penalty}}]},
-                {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$gt: V.status}}]},
-                {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': V.status}, {'_id.name': {$lt: T}}]}]
-        }, function(err, rank){
+        getContestRank(cid, con.stars, T, V, function(err, rank){
           if (err) {
             OE(err);
             return res.end();
+          }
+          if (req.session.user && !hasMe) {
+            names.push(req.session.user.name);
           }
           User.find({name: {$in:names}}, function(err, U){
             if (err) {
@@ -503,7 +516,31 @@ exports.getRanklist = function(req, res) {
                 I[p.name] = p.nick;
               });
             }
-            return res.json([Users, rt, I, n, con.FB, rank+1]);
+            var Resp = function() {
+              res.json([Users, rt, I, n, con.FB, rank]);
+            };
+            if (req.session.user && !hasMe) {
+              ContestRank.findOne({'_id.cid': cid, '_id.name': req.session.user.name}, function(err, u){
+                if (err) {
+                  OE(err);
+                  return res.end();
+                }
+                if (!u) {
+                  return Resp();
+                }
+                getContestRank(cid, con.stars, u._id.name, u.value, function(err, rk){
+                  var tp = {name: u._id.name, value: u.value, rank: rk};
+                  if (rk <= rank) {
+                    Users.unshift(tp);
+                  } else {
+                    Users.push(tp);
+                  }
+                  return Resp();
+                });
+              });
+            } else {
+              return Resp();
+            }
           });
         });
       });
