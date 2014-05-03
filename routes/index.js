@@ -451,7 +451,7 @@ exports.getRanklist = function(req, res) {
         if (!users || users.length == 0) {
           return res.json([null, {}, {}, n, {}, 0]);
         }
-        var has = {}, names = new Array(), stars = new Array()
+        var has = {}, names = new Array()
         ,  rt = {}, I = {}, Users = new Array()
         ,  V = users[0].value, T = users[0]._id.name;
         if (con.stars) {
@@ -467,19 +467,13 @@ exports.getRanklist = function(req, res) {
           Users.push(tmp);
           names.push(p._id.name);
         });
-        if (con.contestants) {
-          con.contestants.forEach(function(p){
-            if (has[p]) {
-              stars.push(p);
-            }
-          });
-        }
         ContestRank.count({
           '_id.cid': cid,
-          '_id.name': {$nin: stars},
+          '_id.name': {$nin: con.stars},
           $or: [{'value.solved': {$gt: V.solved}},
                 {$and: [{'value.solved': V.solved}, {'value.penalty': {$lt: V.penalty}}]},
-                {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'_id.name': {$lt: T}}]}]
+                {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$gt: V.status}}]},
+                {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': V.status}, {'_id.name': {$lt: T}}]}]
         }, function(err, rank){
           if (err) {
             OE(err);
