@@ -58,7 +58,7 @@
           <tr class="<%= c %><%= h %>">
             <td><%= p.rank ? p.rank : (page-1)*pageNum+i+1 %></td>
             <td>
-              <a class="user user-<%= UC[i] %>" href="/user/<%= p.name %>" title="<%= UT[i] %> <%= p.name %>">
+              <a class="user user-<%= UC[p.name] %>" href="/user/<%= p.name %>" title="<%= UT[p.name] %> <%= p.name %>">
                 <%= p.name %>
               </a>
             </td>
