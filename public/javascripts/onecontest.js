@@ -1215,18 +1215,18 @@ $(document).ready(function(){
 				ShowMessage('无法连接到服务器！');
 			}
 		})
-		.done(function(err){
-			if (err == '1' || err == '2') {
+		.done(function(res){
+			if (res == '-1' || res == '-2') {
 				window.location.reload(true);
 				return ;
 			}
-			if (!err) {
-				ShowMessage('统计完成！');
-				$rank_refresh.click();
-			} else if (err == '3') {
+			if (res == '-3') {
 				ShowMessage('系统错误！');
-			} else if (err == '4') {
+			} else if (res == '-4') {
 				ShowMessage('比赛还没结束，无法统计rating！');
+			} else {
+				GetRanklist();
+				ShowMessage('成功计算了'+res+'个用户的rating！');
 			}
 			$cal.text('统计rating').removeClass('disabled');
 		});

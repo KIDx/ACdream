@@ -58,7 +58,7 @@ Rank.get = function(Q, page, callback) {
 };
 
 Rank.getAll = function(Q, callback) {
-  ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, '_id.name':1}).exec(function(err, docs){
+  ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.status':-1, '_id.name':1}).exec(function(err, docs){
     if (err) {
       OE('Rank.get failed!');
     }

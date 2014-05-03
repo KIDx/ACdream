@@ -1393,24 +1393,24 @@ exports.calRating = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
     req.session.msg = 'Please login first!';
-    return res.end('1');
+    return res.end('-1');
   }
   if (req.session.user.name != 'admin') {
     req.session.msg = 'Failed! You have no permission to Calculate Ratings.';
-    return res.end('2');
+    return res.end('-2');
   }
   var cid = parseInt(req.body.cid, 10);
   Contest.watch(cid, function(err, contest){
     if (err) {
       OE(err);
-      return res.end('3');
+      return res.end('-3');
     }
     if (!contest) {
-      return res.end();     //not allow
+      return res.end();       //not allow
     }
     var endTime = contest.startTime+contest.len*60000;
     if ((new Date()).getTime() <= endTime) {
-      return res.end('4');  //can not calculate rating because the contest is not finished.
+      return res.end('-4');   //can not calculate rating because the contest is not finished.
     }
     contest.stars.push('admin');
     Solution.distinct('userName', {
@@ -1420,25 +1420,35 @@ exports.calRating = function(req, res) {
     }, function(err, names){
       if (err) {
         OE(err);
-        return res.end('3');
+        return res.end('-3');
       }
       ContestRank.getAll({'_id.cid': cid, '_id.name': {$in: names}}, function(err, R){
         if (err) {
           OE(err);
-          return res.end('3');
+          return res.end('-3');
         }
-        var act = {};
+        var act = {}, pos = -1;
         if (R && R.length) {
           R.forEach(function(p, i){
-            act[p._id.name] = R.length - i - 1;
+            if (!p.value || !p.value.solved) {
+              if (pos < 0) pos = i;
+              act[p._id.name] = 0.5 * (R.length - pos - 1);
+              console.log(act[p._id.name]);
+            } else {
+              act[p._id.name] = R.length - i - 1;
+            }
           });
         }
         User.find({name: {$in: names}}, function(err, U){
           if (err) {
             OE(err);
-            return res.end('3');
+            return res.end('-3');
           }
+          var cnt = 0;
           U.forEach(function(pi, i){
+            if (pi.lastRatedContest && cid <= pi.lastRatedContest) {
+              return true;
+            }
             var old = pi.lastRatedContest ? pi.rating : 1500;
             var exp = 0;
             U.forEach(function(pj, j){
@@ -1455,19 +1465,18 @@ exports.calRating = function(req, res) {
               K = 1;
             }
             var newRating = Math.round(old + K*(act[pi.name]-exp));
-            if (!pi.lastRatedContest || cid >= pi.lastRatedContest) {
-              User.update({name: pi.name}, {
-                $set: {
-                  lastRatedContest: cid,
-                  rating: newRating
-                },
-                $addToSet: {
-                  ratedRecord: {cid: cid, rating: newRating, inDate: endTime}
-                }
-              });
-            }
+            User.update({name: pi.name}, {
+              $set: {
+                lastRatedContest: cid,
+                rating: newRating
+              },
+              $push: {
+                ratedRecord: { cid: cid, rating: newRating, inDate: endTime }
+              }
+            });
+            ++cnt;
           });
-          return res.end();
+          return res.end(String(cnt));
         });
       });
     });
