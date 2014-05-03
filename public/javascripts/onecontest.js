@@ -746,7 +746,7 @@ function run() {
 		case '#rank': {
 			doActive(3);
       rankInterval = setInterval(function(){
-        $rank_refresh.click();
+        GetRanklist();
       }, 10000);
 			rankQ.page = b ? parseInt(b, 10) : 1;
 			GetRanklist();
