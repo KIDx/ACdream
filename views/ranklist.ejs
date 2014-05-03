@@ -1,10 +1,9 @@
 <!--<html>-->
 <fieldset id="ranklist" <% if (cid) { %>cid="<%= cid %>"<% } %>>
-  <div><legend>排名</legend></div>
+  <div><legend><% if (cid) { %>Contest <%= cid %> 参赛者<% } else { %>排名<% } %></legend></div>
   <div class="tablebg">
     <div id="pager">
       <%- partial('pager', {page:page, n:n}) %>
-      <% if (!cid) { %>
       <div class="fr" id="filter">
         <div class="input-prepend">
           <span class="add-on"><i class="icon-search"></i></span>
@@ -17,7 +16,6 @@
           <a href="/ranklist" class="uibtn uibtn-mini">Reset</a>
         </div>
       </div>
-      <% } %>
     </div>
     <div id="tablediv">
       <table class="table table-cf tdcenter" style="table-layout:fixed;" id="rank">

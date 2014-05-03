@@ -2783,6 +2783,12 @@ exports.ranklist = function(req, res) {
     });
   };
 
+  var q1 = {}, q2 = {};
+  var search = clearSpace(req.query.search);
+  if (search) {
+    q1.name = q2.nick = new RegExp("^.*"+toEscape(search)+".*$", 'i');
+  }
+  var Q = { $or:[q1, q2], $nor:[{name:'admin'}] };
   if (cid) {
     Contest.watch(cid, function(err, con){
       if (err) {
@@ -2793,15 +2799,11 @@ exports.ranklist = function(req, res) {
       if (!con || con.type != 2 || !con.contestants) {
         return res.redirect('404');
       }
-      return RP({name: {$in: con.contestants}});
+      Q.name = {$in: con.contestants};
+      return RP(Q);
     });
   } else {
-    var q1 = {}, q2 = {};
-    var search = clearSpace(req.query.search);
-    if (search) {
-      q1.name = q2.nick = new RegExp("^.*"+toEscape(search)+".*$", 'i');
-    }
-    return RP({ $or:[q1, q2], $nor:[{name:'admin'}] });
+    return RP(Q);
   }
 };
 
