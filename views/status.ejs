@@ -77,7 +77,7 @@
             <% if (p.result < 2) { %>
             <% vc = 'unknow'; %>
             <% } %>
-            <% if (p.cID != -1 && (!user || (p.userName != user.name && user.name != 'admin'))) { %>
+            <% if ((p.cID != -1 || p.userName == 'admin') && (!user || (p.userName != user.name && user.name != 'admin'))) { %>
             <% time = memory = len = '<span class="user user-gray">---</span>'; %>
             <% } else { %>
             <% time = p.time+' MS'; memory = p.memory+' KB'; len = p.code.length+' B'; %>
