@@ -747,9 +747,11 @@ function run() {
 		}
 		case '#rank': {
 			doActive(3);
+      /*
       rankInterval = setInterval(function(){
         GetRanklist();
       }, 10000);
+      */
 			rankQ.page = b ? parseInt(b, 10) : 1;
 			GetRanklist();
 			PreTab = 0;

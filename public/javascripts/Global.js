@@ -4,6 +4,7 @@
 *
 */
 
+/*
 $(document).ready(function(){
     $.ajaxSetup({
         headers: {
@@ -11,6 +12,7 @@ $(document).ready(function(){
         }
     });
 });
+*/
 
 //使模态对话框居中
 $(document).ready(function(){
