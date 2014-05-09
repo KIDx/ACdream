@@ -1451,11 +1451,15 @@ exports.calRating = function(req, res) {
             }
             var old = pi.lastRatedContest ? pi.rating : 1500;
             var exp = 0;
-            U.forEach(function(pj, j){
-              if (j != i) {
-                exp += 1.0/(1.0 + Math.pow(10.0, ((pj.lastRatedContest ? pj.rating : 1500)-old)/400.0));
-              }
-            });
+            if (p.lastRatedContest) {
+              U.forEach(function(pj, j){
+                if (j != i) {
+                  exp += 1.0/(1.0 + Math.pow(10.0, ((pj.lastRatedContest ? pj.rating : 1500)-old)/400.0));
+                }
+              });
+            } else {
+              exp = R.length/2 + 1;
+            }
             var K;
             if (old <= 2100) {
               K = 4;
