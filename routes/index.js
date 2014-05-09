@@ -218,7 +218,7 @@ function getContestRank(cid, stars, name, V, callback) {
     $or: [{'value.solved': {$gt: V.solved}},
           {$and: [{'value.solved': V.solved}, {'value.penalty': {$lt: V.penalty}}]},
           {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$gt: V.status}}]},
-          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': V.status}, {'_id.name': {$lt: name}}]}]
+          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$eq: V.status}}, {'_id.name': {$lt: name}}]}]
   }, function(err, rank) {
     return callback(err, rank+1);
   });
