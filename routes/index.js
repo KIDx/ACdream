@@ -218,7 +218,7 @@ function getContestRank(cid, stars, name, V, callback) {
     $or: [{'value.solved': {$gt: V.solved}},
           {$and: [{'value.solved': V.solved}, {'value.penalty': {$lt: V.penalty}}]},
           {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$gt: V.status}}]},
-          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$eq: V.status}}, {'_id.name': {$lt: name}}]}]
+          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': V.status}, {'_id.name': {$lt: name}}]}]
   }, function(err, rank) {
     return callback(err, rank+1);
   });
@@ -1451,7 +1451,7 @@ exports.calRating = function(req, res) {
             }
             var old = pi.lastRatedContest ? pi.rating : 1500;
             var exp = 0;
-            if (p.lastRatedContest) {
+            if (pi.lastRatedContest) {
               U.forEach(function(pj, j){
                 if (j != i) {
                   exp += 1.0/(1.0 + Math.pow(10.0, ((pj.lastRatedContest ? pj.rating : 1500)-old)/400.0));
@@ -1462,13 +1462,13 @@ exports.calRating = function(req, res) {
             }
             var K;
             if (old <= 2100) {
-              K = 4;
+              K = 1.2;
             } else if (old <= 2400) {
               K = 2;
             } else {
               K = 1;
             }
-            var newRating = Math.round(old + K*(act[pi.name]-exp));
+            var newRating = Math.round(old + K*(act[pi.name]-exp) + 95);
             User.update({name: pi.name}, {
               $set: {
                 lastRatedContest: cid,
