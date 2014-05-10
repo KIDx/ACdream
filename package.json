@@ -20,7 +20,6 @@
     "method-override": "*",
     "static-favicon": "*",
     "express-session": "*",
-    "csurf": "*",
 
     "connect": "*",
     "mongodb": "*",

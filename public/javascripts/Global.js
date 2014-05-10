@@ -4,16 +4,6 @@
 *
 */
 
-/*
-$(document).ready(function(){
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-Token': $('meta[name="X-CSRF-Token"]').attr('content')
-        }
-    });
-});
-*/
-
 //使模态对话框居中
 $(document).ready(function(){
     $.each($('.jqmSubmit,.CeWindow'), function(){
