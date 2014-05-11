@@ -46,7 +46,8 @@ var crypto = require('crypto')
 ,  Contest = require('../models/contest.js')
 ,  Topic = require('../models/topic.js')
 ,  Comment = require('../models/comment.js')
-,  tCan = require('../models/can.js');
+,  tCan = require('../models/can.js')
+,  xss = require('xss');
 
 var settings = require('../settings')
 ,  ranklist_pageNum = settings.ranklist_pageNum
@@ -748,7 +749,7 @@ exports.addDiscuss = function(req, res) {
       (new Topic({
         id      : id,
         title  : title,
-        content : content,
+        content : xss(content),
         cid   : cid,
         user    : req.session.user.name,
         inDate  : (new Date()).getTime()
@@ -3500,7 +3501,7 @@ exports.doAddtopic = function(req, res) {
     var RP = function() {
       Topic.update(tid, {$set: {
         title   : title,
-        content  : content,
+        content  : xss(content),
         inDate    : (new Date()).getTime()
       }}, function(err){
         if (err) {
@@ -3544,7 +3545,7 @@ exports.doAddtopic = function(req, res) {
       (new Topic({
         id      : id,
         title  : title,
-        content : content,
+        content : xss(content),
         cid   : cid,
         user    : req.session.user.name,
         inDate  : (new Date()).getTime()
@@ -3680,7 +3681,7 @@ exports.review = function(req, res) {
     }
     (new Comment({
       id      : id,
-      content : content,
+      content : xss(content),
       user    : user,
       tid   : tid,
       fa      : fa,
