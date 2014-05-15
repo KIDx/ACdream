@@ -118,7 +118,31 @@ var $status = $div.find('#statustab')
 ,	Users
 ,	statusAjax;
 
-var $loading = $('#loading');
+var $loading = $('#loading')
+,	$retry = $('#retry')
+,	$retry_a = $retry.find('a')
+,	retryFunc;
+
+$(document).ready(function(){
+	$retry_a.click(function(){
+		if ($(this).hasClass('disabled')) {
+			return false;
+		}
+		$retry_a.addClass('disabled');
+		$retry.hide();
+		if (retryFunc) {
+			$loading.show();
+			retryFunc();
+		}
+	});
+});
+
+function setRetry(func) {
+	$retry_a.removeClass('disabled');
+	retryFunc = func;
+	$loading.hide();
+	$retry.slideDown();
+}
 
 function lang(s) {
 	if (s == 1) return 'C';
@@ -231,7 +255,7 @@ function GetStatus() {
 			error: function(){
 				if (statusAjax)
 					statusAjax.abort();
-				GetStatus();
+				setRetry(GetStatus);
 			}
 		})
 		.done(Response);
@@ -317,7 +341,6 @@ function GetOverview() {
 			error: function(){
 				if (overviewAjax)
 					overviewAjax.abort();
-				GetOverview();
 			}
 		})
 		.done(OverviewResponse);
@@ -447,7 +470,8 @@ function GetProblem() {
 			error: function() {
 				if (problemAjax)
 					problemAjax.abort();
-				GetProblem();
+				if (!ProblemCache[ID])
+					setRetry(GetProblem);
 			}
 		})
 		.done(ProblemResponse);
@@ -617,7 +641,7 @@ function GetRanklist() {
 			error: function() {
 				if (rankAjax)
 					rankAjax.abort();
-				GetRanklist();
+				setRetry(GetRanklist);
 			}
 		})
 		.done(RankResponse);
@@ -703,7 +727,7 @@ function GetDiscuss() {
 			error: function() {
 				if (discussAjax)
 					discussAjax.abort();
-				GetDiscuss();
+				setRetry(GetDiscuss);
 			}
 		})
 		.done(DiscussResponse);
@@ -722,6 +746,7 @@ function run() {
 	if (a != '#problem' || !PreTab) {
 		hideAll();
 	}
+	$retry.hide();
 	$loading.show();
 	flg = {};	//important [update status]
 	for (var i = 0; i < 5; i++) {
