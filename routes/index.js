@@ -1171,7 +1171,11 @@ exports.upload = function(req, res) {
       fs.unlink(path, function() {
         var lang = parseInt(req.body.lang, 10);
         if (!lang || lang < 1 || lang >= languages.length) {
-          return res.end('5');   //not allow!
+          return res.end('5');    //not allow!
+        }
+        var code = String(data);
+        if (lang < 3 && !req.body.ignore_i64 && code.indexOf("%I64") >= 0) {
+          return res.end('6');    //i64 alert
         }
         var pid = parseInt(req.query.pid, 10);
         if (!pid) {
@@ -1195,16 +1199,15 @@ exports.upload = function(req, res) {
               OE(err);
               return res.end('3');
             }
-            var str = String(data);
             var newSolution = new Solution({
               runID: id,
               problemID: pid,
               userName: name,
               inDate: (new Date()).getTime(),
               language: lang,
-              length: str.length,
+              length: code.length,
               cID: -1,
-              code: str
+              code: code
             });
             newSolution.save(function(err){
               if (err) {

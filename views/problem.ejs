@@ -2,7 +2,7 @@
 <fieldset>
   <div><legend>内容</legend></div>
 <% if (!problem) { %>
-  <div class="alert alert-error" style="padding:100px;display:none;">
+  <div class="alert alert-error" style="padding:100px;">
     <h1 align="center">The Problem is not Available!!</h1>
   </div>
 <% } else { %>
@@ -61,6 +61,13 @@
               <td></td>
               <td>
                 <span id="error" class="error-text">&nbsp;</span>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <div id="alert" class="alert alert-error hide">
+                  <%- partial('i64_info') %>
+                </div>
               </td>
             </tr>
           </table>

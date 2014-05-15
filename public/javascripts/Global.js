@@ -317,7 +317,6 @@ $(document).ready(function(){
         $tablebg.prepend('<div class="lt"></div><div class="rt"></div><div class="lb"></div><div class="rb"></div>');
         $tablebg.find('#tablediv,div.tablediv').prepend('<div class="ilt"></div><div class="irt"></div>');
     }
-    $('div.alert').slideDown();
 
     SetCurrentTime();
     setInterval(SetCurrentTime, 1000);

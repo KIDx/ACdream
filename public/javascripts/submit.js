@@ -10,7 +10,7 @@ function U(err) {
 
 $(document).ready(function(){
     $alert_close.click(function(){
-        $alert.hide();
+        $alert.slideUp();
     });
     $submit.click(function(){
         if ($submit.hasClass('disabled')) {

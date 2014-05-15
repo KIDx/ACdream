@@ -8,11 +8,16 @@ var $sidebar = $('#sidebar')
 ,	$select = $selectdiv.find('select')
 ,	$del_tag = $('span.del')
 ,	$tag_box = $sidebar.find('div.tag-box')
-,   $ui = $('#upload-info');
+,	$ui = $('#upload-info')
+,	$alert = $('#alert')
+,	$alert_close = $alert.find('.close');
 
 var pid = $sidebar.attr('pid');
 
 $(document).ready(function() {
+	$alert_close.click(function(){
+		$alert.slideUp();
+	});
 	$submit.click(function() {
 		if (!$file.val()) {
 			errAnimate($error, 'Choose file!');
@@ -51,6 +56,7 @@ $(document).ready(function() {
 			else if (res == '3') tp = '异常错误！';
 			else if (res == '4') window.location.reload(true);
 			else if (res == '5') tp = 'the language is not exit!';
+			else if (res == '6') $alert.slideDown();
 			if (tp) {
 				errAnimate($error, tp);
 			}
@@ -58,6 +64,9 @@ $(document).ready(function() {
 	});
 	$file.bind('fileuploadsubmit', function(e, data){
 		data.formData = { lang: $lang.val() };
+		if ($alert.is(':visible')) {
+			data.formData.ignore_i64 = true;
+		}
 	});
 });
 

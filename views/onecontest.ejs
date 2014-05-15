@@ -1,12 +1,6 @@
 <!--<html>-->
 <% var _id = [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]; %>
 <fieldset id="widthfix">
-<% if (!contest) { %>
-  <div><legend>比赛</legend></div>
-  <div class="alert alert-error" style="display:none;padding:100px;">
-    <h1 align="center">The Contest is not Available!!</h1>
-  </div>
-<% } else { %>
   <% var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", probNum = 0; %>
   <% var startTime = contest.startTime %>
   <% var pending = parseInt((startTime - time)/1000, 10); %>
@@ -385,7 +379,5 @@
         <img src="/img/Loading.gif" alt="Loading..." />
       </div>
     </div>
-<!---->
   </div>
-<% } %>
 </fieldset>
