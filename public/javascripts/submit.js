@@ -1,5 +1,6 @@
 var $submit = $('#submit')
-,   $err = $('#error');
+,   $err = $('#error')
+,   $alert = $('#alert');
 
 function U(err) {
     $err.text(err);
@@ -11,9 +12,13 @@ $(document).ready(function(){
         if ($submit.hasClass('disabled')) {
             return false;
         }
-        var  code = $('#code').val(), pid = $('#pid').val();
+        var  code = String($('#code').val()), pid = $('#pid').val(), lang = $('#lang').val();
         if (code.length < 50 || code.length > 65536) {
             U('the length of code must be between 50B and 65536B!');
+            return false;
+        }
+        if (lang < 3 && code.indexOf('%I64') >= 0 && $alert.is(':hidden')) {
+            $alert.slideDown();
             return false;
         }
         $submit.text('Submitting...').addClass('disabled');
@@ -23,7 +28,7 @@ $(document).ready(function(){
             data : {
                 pid: pid,
                 code: code,
-                lang: $('#lang').val()
+                lang: lang
             },
             dataType : 'text',
             error: function() {
@@ -40,6 +45,7 @@ $(document).ready(function(){
                 U('The language is not exit!');
             } else {
                 window.location.href = '/status';
+                return ;
             }
             $submit.text('Submit').removeClass('disabled');
         });
