@@ -41,15 +41,17 @@ $(document).ready(function(){
             }
         })
         .done(function(res){
-            if (res == '3') {
+            if (!res) {
+                window.location.href = '/status';
+                return ;
+            } else if (res == '6') {
+                U('同一个会话在5秒内只能交一次代码，请稍候再交。');
+            } else if (res == '3') {
                 U('系统错误！');
             } else if (res == '4') {
                 U('The problem is not exist!');
             } else if (res == '5') {
                 U('The language is not exit!');
-            } else {
-                window.location.href = '/status';
-                return ;
             }
             $submit.text('Submit').removeClass('disabled');
         });

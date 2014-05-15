@@ -51,12 +51,13 @@ $(document).ready(function() {
 		done: function(e, data) {
 			var res = data.response().result, tp;
 			if (!res) window.location.href = '/status';
+			else if (res == '6') $alert.slideDown();
+			else if (res == '7') tp = '同一个会话在5秒内只能交一次代码，请稍候再交';
 			else if (res == '1') tp = 'too small!(<50)';
 			else if (res == '2') tp = 'too large!(>65535)';
 			else if (res == '3') tp = '异常错误！';
 			else if (res == '4') window.location.reload(true);
 			else if (res == '5') tp = 'the language is not exit!';
-			else if (res == '6') $alert.slideDown();
 			if (tp) {
 				errAnimate($error, tp);
 			}

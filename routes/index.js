@@ -1149,6 +1149,11 @@ exports.createVerifycode = function(req, res) {
 
 exports.upload = function(req, res) {
   res.header('Content-Type', 'text/plain');
+  var now = (new Date()).getTime();
+  if (req.session.submitTime && now - req.session.submitTime <= 5000) {
+    return res.end('7');
+  }
+  req.session.submitTime = now;
   if (!req.files || !req.files.info) {
     return res.end();  //not allow
   }
@@ -2828,6 +2833,11 @@ exports.doSubmit = function(req, res) {
     req.session.msg = 'Please login first!';
     return res.end('1');
   }
+  var now = (new Date()).getTime();
+  if (req.session.submitTime && now - req.session.submitTime <= 5000) {
+    return res.end('6');
+  }
+  req.session.submitTime = now;
   var cid = parseInt(req.body.cid, 10)
   ,  name = clearSpace(req.session.user.name)
   ,  pid = parseInt(req.body.pid, 10)
