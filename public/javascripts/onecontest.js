@@ -14,7 +14,7 @@ $(document).ready(function(){
 			modal: true,
 			closeClass: 'bc_close',
 			onShow: function(h) {
-        $broadcast.removeClass('disabled');
+			$broadcast.removeClass('disabled');
 				h.o.fadeIn(200);
 				h.w.fadeIn(200);
 			},
@@ -31,24 +31,24 @@ $(document).ready(function(){
 	});
 	if ($broadcast.length) {
 		$broadcast.click(function(){
-      if ($(this).hasClass('disabled')) {
-        return false;
-      }
+			if ($(this).hasClass('disabled')) {
+				return false;
+			}
 			var msg = JudgeString($msg.val());
 			if (!msg) {
 				errAnimate($msg_err, '消息不能为空！');
 				return false;
 			}
-      $msg.val('');
-      $(this).addClass('disabled');
+			$msg.val('');
+			$(this).addClass('disabled');
 			socket.emit('broadcast', {room: cid, msg: msg}, function(res){
-			  if (res) {
-          $bc_content.text('消息广播成功！');
-        } else {
-          $bc_content.text('系统错误！');
-        }
-			  $dialog_bc.jqmShow();
-      });
+				if (res) {
+					$bc_content.text('消息广播成功！');
+				} else {
+					$bc_content.text('系统错误！');
+				}
+				$dialog_bc.jqmShow();
+			});
 		});
 	}
 });
@@ -726,7 +726,7 @@ function run() {
 	for (var i = 0; i < 5; i++) {
 		noActive(i);
 	}
-  clearInterval(rankInterval);
+	clearInterval(rankInterval);
 	switch(a) {
 		case '#problem': {
 			if (b) ID = b.charCodeAt(0)-65;
@@ -747,11 +747,11 @@ function run() {
 		}
 		case '#rank': {
 			doActive(3);
-      /*
-      rankInterval = setInterval(function(){
-        GetRanklist();
-      }, 10000);
-      */
+			/*
+			rankInterval = setInterval(function(){
+			GetRanklist();
+			}, 10000);
+			*/
 			rankQ.page = b ? parseInt(b, 10) : 1;
 			GetRanklist();
 			PreTab = 0;
@@ -897,19 +897,25 @@ $(document).ready(function(){
 
 	if ($dialog_sm.length) {
 		var $submit_code = $dialog_sm.find('textarea')
-		,	$submit_err = $dialog_sm.find('span#error')
-		,	$submit = $dialog_sm.find('a#jqcodesubmit');
+		,	$submit_err = $dialog_sm.find('#error')
+		,	$submit = $dialog_sm.find('#jqcodesubmit')
+		,	$alert = $dialog_sm.find('div.alert')
+		,	$alert_close = $alert.find('button.close');
+		$alert_close.click(function(){
+			$alert.hide();
+		});
 		$dialog_sm.jqm({
 			overlay: 30,
 			trigger: false,
 			modal: true,
 			closeClass: 'submitclose',
 			onShow: function(h) {
-        $submit.text('Submit').removeClass('disabled');
+				$alert.hide();
+				$submit.text('Submit').removeClass('disabled');
 				h.o.fadeIn(200);
 				h.w.fadeIn(200, function(){
-          $dialog_sm.find('textarea').focus();
-        });
+					$dialog_sm.find('textarea').focus();
+				});
 			},
 			onHide: function(h) {
 				h.w.fadeOut(200);
@@ -920,9 +926,13 @@ $(document).ready(function(){
 			if ($(this).hasClass('disabled')) {
 				return false;
 			}
-			var code = $submit_code.val();
+			var code = $submit_code.val(), lang = $dialog_sm.find('select').val();
 			if (code.length < 50 || code.length > 65536) {
 				errAnimate($submit_err, 'the length of code must be between 50B to 65535B');
+				return false;
+			}
+			if (lang < 3 && code.indexOf('%I64') >= 0 && $alert.is(':hidden')) {
+				$alert.slideDown();
 				return false;
 			}
 			$submit.text('Submitting...').addClass('disabled');
@@ -933,7 +943,7 @@ $(document).ready(function(){
 					pid: pid_index,
 					cid: cid,
 					code: code,
-					lang: $dialog_sm.find('select').val()
+					lang: lang
 				},
 				dataType : 'text',
 				error: function() {
@@ -1203,9 +1213,9 @@ $(document).ready(function(){
 		if ($cal.hasClass('disabled')) {
 			return false;
 		}
-    if (!confirm('确定要统计rating吗？')) {
-      return false;
-    }
+		if (!confirm('确定要统计rating吗？')) {
+			return false;
+		}
 		$cal.addClass('disabled').text('请稍候...');
 		$.ajax({
 			type : 'POST',
@@ -1234,3 +1244,4 @@ $(document).ready(function(){
 		});
 	});
 });
+	

@@ -23,7 +23,10 @@
     </div>
     <div id="alert" class="control-group hide">
       <label class="control-label"></label>
-      <div class="alert alert-error span7">Please do not use the %I64d (or similar) specificator to read or write 64-bit integers in С++. It is preferred to use cin, cout streams or the %lld specificator. Press button to submit the solution.</div>
+      <div class="alert alert-error span7">
+        <%= partial('i64_info') %>
+        <button type="button" class="close">&times;</button>
+      </div>
     </div>
     <div class="form-actions">
       <a id="submit" class="uibtn" href="javascript:;">Submit</a>

@@ -1,6 +1,7 @@
 var $submit = $('#submit')
 ,   $err = $('#error')
-,   $alert = $('#alert');
+,   $alert = $('#alert')
+,   $alert_close = $alert.find('button.close');
 
 function U(err) {
     $err.text(err);
@@ -8,6 +9,9 @@ function U(err) {
 }
 
 $(document).ready(function(){
+    $alert_close.click(function(){
+        $alert.hide();
+    });
     $submit.click(function(){
         if ($submit.hasClass('disabled')) {
             return false;
