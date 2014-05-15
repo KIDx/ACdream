@@ -585,8 +585,6 @@ exports.getRanklist = function(req, res) {
           } else {
             maxRunID = doc.runID;
           }
-          console.log("doc: "+doc);
-          console.log("sol: "+sol);
           Solution.mapReduce({
             query: {$and: [Q, {runID: {$lte: maxRunID}}]},
             sort: {runID: -1},
