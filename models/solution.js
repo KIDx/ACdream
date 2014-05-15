@@ -77,11 +77,11 @@ Solution.find = function(Q, callback) {
 };
 
 Solution.findOne = function(Q, sq, callback) {
-  solutions.find(Q).sort(sq).limit(1).exec(function(err, docs){
+  solutions.findOne(Q).sort(sq).exec(function(err, doc){
     if (err) {
-      OE('Solution.findMax failed!');
+      OE('Solution.findOne failed!');
     }
-    return callback(err, docs);
+    return callback(err, doc);
   });
 };
 

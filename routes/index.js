@@ -566,12 +566,12 @@ exports.getRanklist = function(req, res) {
         inDate: indate,
         runID: {$gt: contest.maxRunID}
       };
-      Solution.findOne(Q, {runID: -1}, function(err, docs){
+      Solution.findOne(Q, {runID: -1}, function(err, doc){
         if (err) {
           OE(err);
           return res.end();
         }
-        if (!docs || docs.length == 0) {
+        if (!doc) {
           return RP(contest);
         }
         Solution.findOne({$and: [Q, {result: {$lt: 2}}]}, {runID: 1}, function(err, sol){
@@ -580,11 +580,13 @@ exports.getRanklist = function(req, res) {
             return res.end();
           }
           var maxRunID;
-          if (sol.length) {
-            maxRunID = sol[0].runID - 1;
+          if (sol) {
+            maxRunID = sol.runID - 1;
           } else {
-            maxRunID = docs[0].runID;
+            maxRunID = doc.runID;
           }
+          console.log("doc: "+doc);
+          console.log("sol: "+sol);
           Solution.mapReduce({
             query: {$and: [Q, {runID: {$lte: maxRunID}}]},
             sort: {runID: -1},
