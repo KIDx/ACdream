@@ -16,7 +16,7 @@ var express = require('express')
 ,	fs = require('fs')
 ,	cookie = require('express/node_modules/cookie')
 ,	utils = require('connect/lib/utils')
-,	sessionStore = new MongoStore({ db : settings.db })
+,	sessionStore = new MongoStore({ db : 'session_db' })
 ,	Contest = require('./models/contest.js');
 
 //服务器配置
