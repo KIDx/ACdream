@@ -711,6 +711,7 @@ function GetDiscuss() {
 }
 
 function run() {
+	clearInterval(rankInterval);
 	clearAjax();
 	var str = window.location.hash;
 	if (!str) str = '#overview';
@@ -726,7 +727,6 @@ function run() {
 	for (var i = 0; i < 5; i++) {
 		noActive(i);
 	}
-	clearInterval(rankInterval);
 	switch(a) {
 		case '#problem': {
 			if (b) ID = b.charCodeAt(0)-65;
@@ -747,11 +747,9 @@ function run() {
 		}
 		case '#rank': {
 			doActive(3);
-			/*
 			rankInterval = setInterval(function(){
-			GetRanklist();
+				GetRanklist();
 			}, 10000);
-			*/
 			rankQ.page = b ? parseInt(b, 10) : 1;
 			GetRanklist();
 			PreTab = 0;
