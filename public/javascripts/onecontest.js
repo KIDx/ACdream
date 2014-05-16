@@ -625,11 +625,12 @@ function RankResponse(json) {
 			});
 		});
 	}
+	$retry.hide();
 	$loading.hide();
 	$rank.fadeIn(100);
 }
 
-function GetRanklist() {
+function GetRanklist(flg) {
 	clearTimeout(rankTimeout);
 	rankTimeout = setTimeout(function(){
 		rankAjax = $.ajax({
@@ -641,7 +642,8 @@ function GetRanklist() {
 			error: function() {
 				if (rankAjax)
 					rankAjax.abort();
-				setRetry(GetRanklist);
+				if (!flg)
+					setRetry(GetRanklist);
 			}
 		})
 		.done(RankResponse);
@@ -773,7 +775,7 @@ function run() {
 		case '#rank': {
 			doActive(3);
 			rankInterval = setInterval(function(){
-				GetRanklist();
+				GetRanklist(true);
 			}, 10000);
 			rankQ.page = b ? parseInt(b, 10) : 1;
 			GetRanklist();
@@ -1269,4 +1271,3 @@ $(document).ready(function(){
 		});
 	});
 });
-	
