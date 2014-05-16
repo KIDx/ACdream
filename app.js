@@ -47,7 +47,7 @@ app.use(session({
 
 app.use(express.static(__dirname+'/public', {maxAge: 259200000}));	//使用静态资源服务以及设置缓存(三天)
 app.use(require('serve-favicon')(__dirname+'/public/favicon.ico', {maxAge: 2592000000}));
-routes.FixDB();
+
 //#####server response
 //主页
 app.get('/', routes.index);

@@ -68,33 +68,6 @@ var settings = require('../settings')
 var data_path = settings.data_path
 ,  root_path = settings.root_path;
 
-exports.FixDB = function() {
-  ContestRank.remove({}, function(err){
-    if (err) {
-      console.log(err);
-      return ;
-    }
-    console.log('remove done.');
-    Contest.find({contestID: {$in: [1000, 1011, 1014]}}, function(err, contests){
-      if (err) {
-        console.log(err);
-        return ;
-      }
-      contests.forEach(function(p){
-        p.updateTime = p.maxRunID = 0;
-        p.save();
-        p.contestants.forEach(function(name){
-          (new ContestRank(p.contestID, name)).save(function(err){
-            if (err)
-              console.log('error: '+err);
-            else console.log('yes');
-          });
-        });
-      });
-    });
-  });
-}
-
 function nan(n) {
   return n != n;
 }
