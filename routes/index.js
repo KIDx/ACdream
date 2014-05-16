@@ -68,6 +68,33 @@ var settings = require('../settings')
 var data_path = settings.data_path
 ,  root_path = settings.root_path;
 
+exports.FixDB = function() {
+  ContestRank.remove({}, function(err){
+    if (err) {
+      console.log(err);
+      return ;
+    }
+    console.log('remove done.');
+    Contest.find({contestID: {$in: [1000, 1011, 1014]}}, function(err, contests){
+      if (err) {
+        console.log(err);
+        return ;
+      }
+      contests.forEach(function(p){
+        p.updateTime = p.maxRunID = 0;
+        p.save();
+        p.contestants.forEach(function(name){
+          (new ContestRank(p.contestID, name)).save(function(err){
+            if (err)
+              console.log('error: '+err);
+            else console.log('yes');
+          });
+        });
+      });
+    });
+  });
+}
+
 function nan(n) {
   return n != n;
 }
@@ -217,9 +244,9 @@ function getContestRank(cid, stars, name, V, callback) {
     '_id.cid': cid,
     '_id.name': {$nin: stars},
     $or: [{'value.solved': {$gt: V.solved}},
-          {$and: [{'value.solved': V.solved}, {'value.penalty': {$lt: V.penalty}}]},
-          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': {$gt: V.status}}]},
-          {$and: [{'value.solved': V.solved}, {'value.penalty': V.penalty}, {'value.status': V.status}, {'_id.name': {$lt: name}}]}]
+          {'value.solved': V.solved, 'value.penalty': {$lt: V.penalty}},
+          {'value.solved': V.solved, 'value.penalty': V.penalty, 'value.submitTime': {$gt: V.submitTime}},
+          {'value.solved': V.solved, 'value.penalty': V.penalty, 'value.submitTime': V.submitTime, '_id.name': {$lt: name}}]
   }, function(err, rank) {
     return callback(err, rank+1);
   });
@@ -589,7 +616,7 @@ exports.getRanklist = function(req, res) {
             query: {$and: [Q, {runID: {$lte: maxRunID}}]},
             sort: {runID: -1},
             map: function(){
-              var val = { solved:0, penalty:0, status:{} };
+              var val = { solved: 0, penalty: 0, status: {}, submitTime: this.inDate };
               if (this.result == 2) {
                 val.solved = 1;
                 val.penalty = this.inDate;
@@ -600,7 +627,7 @@ exports.getRanklist = function(req, res) {
               return emit({cid: this.cID, name: this.userName}, val);
             },
             reduce: function(key, vals){
-              var val = { solved: 0, penalty: 0, status: {} };
+              var val = { solved: 0, penalty: 0, status: {}, submitTime: vals.length ? vals[0].submitTime : 0 };
               for (var j = vals.length-1; j >= 0; j--) {
                 p = vals[j];
                 if (p.status) {

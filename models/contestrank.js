@@ -23,8 +23,8 @@ var ranks = mongoose.model('ranks');
 Rank.prototype.save = function(callback) {
   //存入 Mongodb 的文档
   rank = new ranks();
-  rank.value = {penalty:0, solved:0};
-  rank._id = new Object({name: this.name, cid: this.cid});
+  rank.value = { penalty: 0, solved: 0, submitTime: 0 };
+  rank._id = new Object({ name: this.name, cid: this.cid });
   rank.save(function(err){
     if (err) {
       OE('Rank.save failed!');
@@ -47,7 +47,7 @@ Rank.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.status':-1, '_id.name':1})
+    ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.submitTime':-1, '_id.name':1})
     .skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs) {
       if (err) {
         OE('Rank.get failed!');
@@ -58,9 +58,9 @@ Rank.get = function(Q, page, callback) {
 };
 
 Rank.getAll = function(Q, callback) {
-  ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.status':-1, '_id.name':1}).exec(function(err, docs){
+  ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.submitTime':-1, '_id.name':1}).exec(function(err, docs){
     if (err) {
-      OE('Rank.get failed!');
+      OE('Rank.getAll failed!');
     }
     return callback(err, docs);
   });
