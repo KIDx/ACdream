@@ -143,5 +143,43 @@ module.exports = {
       return 'Pupil';
     }
     return 'Newbie';
+  },
+  xss_options: {
+    whiteList : {
+      a:      ['target', 'href', 'title', 'id', 'name'],
+      blockquote: ['cite'],
+      br:     [],
+      caption:[],
+      dd:     [],
+      div:    ['style'],
+      dl:     [],
+      dt:     [],
+      em:     [],
+      font:   ['color', 'size', 'face'],
+      footer: [],
+      h1:     ['style'],
+      h2:     ['style'],
+      h3:     ['style'],
+      header: [],
+      hr:     [],
+      i:      [],
+      img:    ['style', 'src', 'alt'],
+      li:     ['style'],
+      ol:     [],
+      p:      ['style'],
+      pre:    ['style', 'class'],
+      section:[],
+      small:  [],
+      span:   ['style', 'class'],
+      strong: [],
+      table:  ['style', 'class', 'cellpadding', 'cellspacing', 'summary', 'width', 'border', 'align', 'valign'],
+      tbody:  ['align', 'valign'],
+      td:     ['style', 'width', 'colspan', 'align', 'valign'],
+      tfoot:  ['align', 'valign'],
+      th:     ['width', 'colspan', 'align', 'valign', 'scope'],
+      thead:  ['align', 'valign'],
+      tr:     ['rowspan', 'align', 'valign'],
+      ul:     []
+    }
   }
 };

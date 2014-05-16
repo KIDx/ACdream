@@ -63,7 +63,8 @@ var settings = require('../settings')
 ,  addZero = settings.addZero
 ,  getDate = settings.getDate
 ,  easy_tips = settings.easy_tips
-,  languages = settings.languages;
+,  languages = settings.languages
+,  xss_options = settings.xss_options;
 
 var data_path = settings.data_path
 ,  root_path = settings.root_path;
@@ -749,7 +750,7 @@ exports.addDiscuss = function(req, res) {
       (new Topic({
         id      : id,
         title  : title,
-        content : xss(content),
+        content : xss(content, xss_options),
         cid   : cid,
         user    : req.session.user.name,
         inDate  : (new Date()).getTime()
@@ -3514,7 +3515,7 @@ exports.doAddtopic = function(req, res) {
     var RP = function() {
       Topic.update(tid, {$set: {
         title   : title,
-        content  : xss(content),
+        content  : xss(content, xss_options),
         inDate    : (new Date()).getTime()
       }}, function(err){
         if (err) {
@@ -3558,7 +3559,7 @@ exports.doAddtopic = function(req, res) {
       (new Topic({
         id      : id,
         title  : title,
-        content : xss(content),
+        content : xss(content, xss_options),
         cid   : cid,
         user    : req.session.user.name,
         inDate  : (new Date()).getTime()
@@ -3694,7 +3695,7 @@ exports.review = function(req, res) {
     }
     (new Comment({
       id      : id,
-      content : xss(content),
+      content : xss(content, xss_options),
       user    : user,
       tid   : tid,
       fa      : fa,
