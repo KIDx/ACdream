@@ -4,6 +4,7 @@
 
 ### 安装依赖
 ```
+$ sudo apt-get update
 $ sudo apt-get install imagemagick
 $ sudo apt-get install python-software-properties python g++ make
 $ sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential
