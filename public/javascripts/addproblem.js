@@ -1,26 +1,26 @@
 
 var $image = $('#image')
-,	$imgerr = $('#imgerr')
+,   $imgerr = $('#imgerr')
 ,   $si = $('#submit-info')
-,	submitTimeout;
+,   submitTimeout;
 
 var $data = $('#data')
-,	$dataerr = $('#dataerr')
-,	$ui = $('#upload-info')
-,	$datadel;
+,   $dataerr = $('#dataerr')
+,   $ui = $('#upload-info')
+,   $datadel;
 
 var $datadiv = $('#datadiv')
-,	$datacbs = $datadiv.find('div.cb')
-,	$datanum = $('#datanum')
-,	datahas = {}
-,	datanum = parseInt($datanum.text(), 10);
+,   $datacbs = $datadiv.find('div.cb')
+,   $datanum = $('#datanum')
+,   datahas = {}
+,   datanum = parseInt($datanum.text(), 10);
 
 var $imgdiv = $('#imgdiv')
-,	$imgcbs = $imgdiv.find('div.cb')
-,	$imgnum = $('#imgnum')
-,	$imgdel
-,	imghas = {}
-,	imgnum = parseInt($imgnum.text(), 10);
+,   $imgcbs = $imgdiv.find('div.cb')
+,   $imgnum = $('#imgnum')
+,   $imgdel
+,   imghas = {}
+,   imgnum = parseInt($imgnum.text(), 10);
 
 var pid = parseInt($('#addproblem').attr('pid'), 10);
 
@@ -151,9 +151,7 @@ $(document).ready(function(){
 						F.push(i.toString());
 					}
 				}
-				F.sort(function(a, b){
-					return a > b;
-				});
+				F.sort();
 				$imgcbs.remove();
 				var html = '';
 				$.each(F, function(i, p){
@@ -203,9 +201,7 @@ $(document).ready(function(){
 						F.push(i.toString());
 					}
 				}
-				F.sort(function(a, b){
-					return a > b;
-				});
+				F.sort();
 				$datacbs.remove();
 				var html = '';
 				$.each(F, function(i, p){

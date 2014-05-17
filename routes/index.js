@@ -33,41 +33,41 @@
 */
 
 var crypto = require('crypto')
-,  fs = require('fs')
-,  csv = require('csv')
-,  gm = require('gm')
-,  imageMagick = gm.subClass({ imageMagick : true })
-,  exec = require('child_process').exec
-,  IDs = require('../models/ids.js')
-,  ContestRank = require('../models/contestrank.js')
-,  User = require('../models/user.js')
-,  Solution = require('../models/solution.js')
-,  Problem = require('../models/problem.js')
-,  Contest = require('../models/contest.js')
-,  Topic = require('../models/topic.js')
-,  Comment = require('../models/comment.js')
-,  tCan = require('../models/can.js')
-,  xss = require('xss');
+,   fs = require('fs')
+,   csv = require('csv')
+,   gm = require('gm')
+,   imageMagick = gm.subClass({ imageMagick : true })
+,   exec = require('child_process').exec
+,   IDs = require('../models/ids.js')
+,   ContestRank = require('../models/contestrank.js')
+,   User = require('../models/user.js')
+,   Solution = require('../models/solution.js')
+,   Problem = require('../models/problem.js')
+,   Contest = require('../models/contest.js')
+,   Topic = require('../models/topic.js')
+,   Comment = require('../models/comment.js')
+,   tCan = require('../models/can.js')
+,   xss = require('xss');
 
 var settings = require('../settings')
-,  ranklist_pageNum = settings.ranklist_pageNum
-,  stats_pageNum = settings.stats_pageNum
-,  contestRank_pageNum = settings.contestRank_pageNum
-,  Tag = settings.T
-,  ProTil = settings.P
-,  Col = settings.C
-,  Res = settings.R
-,  UserCol = settings.UC
-,  UserTitle = settings.UT
-,  OE = settings.outputErr
-,  addZero = settings.addZero
-,  getDate = settings.getDate
-,  easy_tips = settings.easy_tips
-,  languages = settings.languages
-,  xss_options = settings.xss_options;
+,   ranklist_pageNum = settings.ranklist_pageNum
+,   stats_pageNum = settings.stats_pageNum
+,   contestRank_pageNum = settings.contestRank_pageNum
+,   Tag = settings.T
+,   ProTil = settings.P
+,   Col = settings.C
+,   Res = settings.R
+,   UserCol = settings.UC
+,   UserTitle = settings.UT
+,   OE = settings.outputErr
+,   addZero = settings.addZero
+,   getDate = settings.getDate
+,   easy_tips = settings.easy_tips
+,   languages = settings.languages
+,   xss_options = settings.xss_options;
 
 var data_path = settings.data_path
-,  root_path = settings.root_path;
+,   root_path = settings.root_path;
 
 function nan(n) {
   return n != n;
@@ -1624,84 +1624,85 @@ exports.avatar = function(req, res) {
 
 exports.avatarUpload = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  if (!req.files || !req.files.img) {
-    return res.end();  //not allow
+  if (!req.files || !req.files.img || !req.files.img.mimetype) {
+    return res.end();   //not allow
   }
   var path = req.files.img.path
-  ,  sz = req.files.img.size
-  ,  tmp = req.files.img.mimetype.split('/')
-  ,  imgType = tmp[1];
-  if (sz > 2*1024*1024) {
-    fs.unlink(path, function(){ //fs.unlink 删除用户上传的文件
-      return res.end('1');
-    });
-  } else if (tmp[0] != 'image') {
+  ,   sz = req.files.img.size
+  ,   tmp = req.files.img.mimetype.split('/')
+  ,   imgType = tmp[1];
+  var RP = function(s) {
     fs.unlink(path, function(){
-      return res.end('2');
+      return res.end(s);
     });
-  } else {
-    if (!req.session.user) {
-      fs.unlink(path, function(){
-        return res.end();
-      });
+  };
+  if (!req.session.user) {
+    return RP();  //not allow
+  }
+  if (sz > 2*1024*1024) {
+    return RP('1');
+  }
+  if (tmp[0] != 'image') {
+    return RP('2');
+  }
+  var pre = root_path+'public/img/avatar/' + req.session.user.name
+  ,   originImg = imageMagick(path);
+  exec('rm -rf '+pre, function(err){
+    if (err) {
+      OE(err);
+      return RP('3');
     }
-    var pre = root_path+'public/img/avatar/' + req.session.user.name;
-    exec('rm -rf '+pre, function(){
-      fs.mkdir(pre, function(err){
+    fs.mkdir(pre, function(err){
+      if (err) {
+        OE(err);
+        return RP('3');
+      }
+      originImg.resize(250, 250, '!')
+      .autoOrient()
+      .write(pre+'/1.'+imgType, function(err){
         if (err) {
           OE(err);
-          return res.end('3');
+          return RP('3');
         }
-        var originImg = imageMagick(path);
-        originImg.resize(250, 250, '!') //加('!')强行把图片缩放成对应尺寸250*250！
+        originImg.resize(150, 150, '!')
         .autoOrient()
-        .write(pre+'/1.'+imgType, function(err){
+        .write(pre+'/2.'+imgType, function(err){
           if (err) {
             OE(err);
-            return res.end('3');
+            return RP('3');
           }
-          originImg.resize(150, 150, '!')
+          originImg.resize(75, 75, '!')
           .autoOrient()
-          .write(pre+'/2.'+imgType, function(err){
+          .write(pre+'/3.'+imgType, function(err){
             if (err) {
               OE(err);
-              return res.end('3');
+              return RP('3');
             }
-            originImg.resize(75, 75, '!')
+            originImg.resize(50, 50, '!')
             .autoOrient()
-            .write(pre+'/3.'+imgType, function(err){
+            .write(pre+'/4.'+imgType, function(err){
               if (err) {
                 OE(err);
-                return res.end('3');
+                return RP('3');
               }
-              originImg.resize(50, 50, '!')
-              .autoOrient()
-              .write(pre+'/4.'+imgType, function(err){
+              req.session.msg = '头像修改成功！';
+              if (req.session.user.imgType == imgType) {
+                return RP();
+              }
+              req.session.user.imgType = imgType;
+              User.update({name: req.session.user.name}, {imgType: imgType}, function(err){
                 if (err) {
                   OE(err);
-                  return res.end('3');
+                  return RP('3');
                 }
-                if (imgType != req.session.user.imgType) {
-                  User.update({name:req.session.user.name}, {imgType:imgType}, function(err){
-                    fs.unlink(path, function() {
-                      req.session.user.imgType = imgType;
-                      req.session.msg = '头像修改成功！';
-                      return res.end();
-                    });
-                  });
-                } else {
-                  fs.unlink(path, function() {
-                    req.session.msg = '头像修改成功！';
-                    return res.end();
-                  });
-                }
+                return RP();
               });
             });
           });
         });
-      })
+      });
     });
-  }
+  });
 };
 
 exports.addproblem = function(req, res) {
@@ -1842,92 +1843,96 @@ exports.doAddproblem = function(req, res) {
 
 exports.imgUpload = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  if (!req.files || !req.files.info) {
-    return res.end();  //not allow
+  if (!req.files || !req.files.info || !req.files.info.mimetype) {
+    return res.end();   //not allow
   }
   var path = req.files.info.path
-  ,  sz = req.files.info.size;
+  ,   sz = req.files.info.size
+  ,   pid = parseInt(req.query.pid, 10);
+  var RP = function(s) {
+    fs.unlink(path, function(){
+      return res.end(s);
+    });
+  };
+  if (!pid || !req.session.user) {
+    return RP();  //not allow
+  }
   if (sz > 2*1024*1024) {
-    fs.unlink(path, function() {
-      return res.end('1');
-    });
-  } else if (req.files.info.mimetype.split('/')[0] != 'image') {
-    fs.unlink(path, function() {
-      return res.end('2');
-    });
-  } else {
-    fs.readFile(path, function(err, data){
+    return RP('1');
+  }
+  if (req.files.info.mimetype.split('/')[0] != 'image') {
+    return RP('2');
+  }
+  Problem.watch(pid, function(err, problem){
+    if (err) {
+      OE(err);
+      return RP('3');
+    }
+    if (!problem) {
+      return RP();  //not allow
+    }
+    User.watch(req.session.user.name, function(err, user) {
       if (err) {
         OE(err);
-        return res.end('3');
+        return RP('3');
       }
-      fs.unlink(path, function() {
-        if (!req.session.user) {
-          return res.end();  //not allow
-        }
-        var pid = parseInt(req.query.pid, 10);
-        if (!pid) {
-          return res.end();  //not allow
-        }
-        User.watch(req.session.user.name, function(err, user) {
+      if (!user || !user.addprob) {
+        return RP(); //not allow
+      }
+      var pre = root_path+'public/img/prob/'+pid;
+      fs.mkdir(pre, function(){
+        fs.rename(path, pre+'/'+req.files.info.name, function(err){
           if (err) {
             OE(err);
-            return res.end('3');
+            return RP('3');
           }
-          if (!user || !user.addprob) {
-            return res.end(); //not allow
-          }
-          var pre = root_path+'public/img/prob/'+pid;
-          fs.mkdir(pre, function(){
-            fs.writeFile(pre+'/'+req.files.info.name, data, function(err){
-              if (err) {
-                OE(err);
-                return res.end('3');
-              }
-              return res.end();
-            });
-          });
+          return RP();
         });
       });
     });
-  }
+  });
 };
 
 exports.dataUpload = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  var pid = parseInt(req.query.pid, 10);
-  if (!pid || !req.files || !req.files.data) {
-    return res.end();  //not allow
+  if (!req.files || !req.files.data) {
+    return res.end();   //not allow
   }
   var path = req.files.data.path
-  ,  fname = req.files.data.name
-  ,  sz = req.files.data.size;
-  if (sz > 10*1024*1024) {
-    return res.end('2');
+  ,   fname = req.files.data.name
+  ,   sz = req.files.data.size
+  ,   pid = parseInt(req.query.pid, 10);
+  var RP = function(s) {
+    fs.unlink(path, function(){
+      return res.end(s);
+    });
+  };
+  if (!pid || !req.session.user) {
+    return RP();  //not allow
   }
-  fs.readFile(path, function(err, data){
+  if (sz > 10*1024*1024) {
+    return RP('2');
+  }
+  User.watch(req.session.user.name, function(err, user){
     if (err) {
       OE(err);
-      return res.end('3');
+      return RP('3');
     }
-    fs.unlink(path, function() {
-      if (!req.session.user) {
-        return res.end();
+    if (!user || !user.addprob) {
+      return RP();
+    }
+    fs.readFile(path, function(err, data){
+      if (err) {
+        OE(err);
+        return RP('3');
       }
-      User.watch(req.session.user.name, function(err, user){
-        if (err) {
-          OE(err);
-          return res.end('3');
-        }
-        if (!user || !user.addprob) {
-          return res.end();
-        }
+      fs.mkdir(data_path+pid, function(){
         fs.writeFile(data_path+pid+'/'+fname, String(data).replace(/\r/g, ''), function(err){
           if (err) {
             OE(err);
-            return res.end('3');
+            return RP('3');
           }
-          return res.end();
+          return RP();
         });
       });
     });
