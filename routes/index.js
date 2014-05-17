@@ -1150,96 +1150,95 @@ exports.createVerifycode = function(req, res) {
 
 exports.upload = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  var now = (new Date()).getTime();
-  if (req.session.submitTime && now - req.session.submitTime <= 5000) {
-    return res.end('7');
-  }
-  req.session.submitTime = now;
   if (!req.files || !req.files.info) {
     return res.end();  //not allow
   }
-  var path = req.files.info.path;
-  var sz = req.files.info.size;
-  if (sz < 50 || sz > 65535) {
-    fs.unlink(path, function() {
-      if (sz < 50) {
-        return res.end('1');
-      } else {
-        return res.end('2');
-      }
+  var path = req.files.info.path
+  ,   sz = req.files.info.size;
+  var RP = function(s) {
+    fs.unlink(path, function(){
+      return res.end(s);
     });
-  } else {
-    fs.readFile(path, function(err, data){
+  };
+  if (!req.session.user) {
+    req.session.msg = 'Failed! Please login first!';
+    return RP('4');    //refresh!
+  }
+  var pid = parseInt(req.query.pid, 10);
+  if (!pid) {
+    return RP();    //not allow!
+  }
+  var lang = parseInt(req.body.lang, 10);
+  if (!lang || lang < 1 || lang >= languages.length) {
+    return RP('5'); //language not exist
+  }
+  if (sz < 50) {
+    return RP('1');
+  }
+  if (sz > 65535){
+    return RP('2');
+  }
+  var now = (new Date()).getTime();
+  if (req.session.submitTime && now - req.session.submitTime <= 5000) {
+    return RP('7');
+  }
+  req.session.submitTime = now;
+  fs.readFile(path, function(err, data){
+    if (err) {
+      OE(err);
+      return RP('3');
+    }
+    var code = String(data);
+    if (lang < 3 && !req.body.ignore_i64 && code.indexOf("%I64") >= 0) {
+      return RP('6'); //i64 alert
+    }
+    Problem.watch(pid, function(err, problem){
       if (err) {
         OE(err);
-        return res.end('3');
+        return RP('3');
       }
-      fs.unlink(path, function() {
-        var lang = parseInt(req.body.lang, 10);
-        if (!lang || lang < 1 || lang >= languages.length) {
-          return res.end('5');    //not allow!
+      if (!problem) {
+        return RP();  //not allow!
+      }
+      var name = req.session.user.name;
+      IDs.get ('runID', function(err, id){
+        if (err) {
+          OE(err);
+          return RP('3');
         }
-        var code = String(data);
-        if (lang < 3 && !req.body.ignore_i64 && code.indexOf("%I64") >= 0) {
-          return res.end('6');    //i64 alert
-        }
-        var pid = parseInt(req.query.pid, 10);
-        if (!pid) {
-          return res.end();  //not allow!
-        }
-        Problem.watch(pid, function(err, problem){
+        var newSolution = new Solution({
+          runID: id,
+          problemID: pid,
+          userName: name,
+          inDate: (new Date()).getTime(),
+          language: lang,
+          length: code.length,
+          cID: -1,
+          code: code
+        });
+        newSolution.save(function(err){
           if (err) {
             OE(err);
-            return res.end('3');
+            return RP('3');
           }
-          if (!problem) {
-            return res.end(); //not allow!
-          }
-          if (!req.session.user) {
-            req.session.msg = 'Failed! Please login first!';
-            return res.end('4');    //refresh!
-          }
-          var name = req.session.user.name;
-          IDs.get ('runID', function(err, id){
+          Problem.update(pid, {$inc: {submit: 1}}, function(err){
             if (err) {
               OE(err);
-              return res.end('3');
+              return RP('3');
             }
-            var newSolution = new Solution({
-              runID: id,
-              problemID: pid,
-              userName: name,
-              inDate: (new Date()).getTime(),
-              language: lang,
-              length: code.length,
-              cID: -1,
-              code: code
-            });
-            newSolution.save(function(err){
+            User.update({name: name}, {$inc: {submit: 1}}, function(err){
               if (err) {
                 OE(err);
-                return res.end('3');
+                return RP('3');
               }
-              Problem.update(pid, {$inc: {submit: 1}}, function(err){
-                if (err) {
-                  OE(err);
-                  return res.end('3');
-                }
-                User.update({name: name}, {$inc: {submit: 1}}, function(err){
-                  if (err) {
-                    OE(err);
-                    return res.end('3');
-                  }
-                  req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-                  return res.end();
-                });
-              });
+              req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+              return RP();
             });
           });
         });
       });
     });
-  }
+  });
 };
 
 exports.rejudge = function(req, res) {
