@@ -22,8 +22,6 @@
     "express-session": "*",
 
     "connect": "*",
-    "mongodb": "*",
-    "connect-mongo": "*",
     "mongoose": "*",
     "ejs": "*",
     "express-partials": "*",
@@ -31,6 +29,7 @@
     "socket.io": "*",
     "gm": "*",
     "csv": "*",
-    "xss":"*"
+    "xss":"*",
+    "connect-mongo": "*"
   }
 }
