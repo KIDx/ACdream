@@ -20,14 +20,12 @@ var express = require('express')
 ,	Contest = require('./models/contest.js');
 
 //服务器配置
+app.enable('trust proxy');
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.use(partials());
-
-app.use(require('morgan')('dev'));
-
 app.use(require('body-parser')());
 app.use(require('multer')({
 	dest: './uploads/',
@@ -37,16 +35,16 @@ app.use(require('multer')({
 }));
 app.use(require('compression')()); 		//gzip压缩传输
 app.use(require('method-override')());
-
 app.use(require('cookie-parser')());
 app.use(session({
 	secret: settings.cookie_secret,
 	store: sessionStore,
 	cookie: { maxAge: 3600000 }
 }));
-
 app.use(express.static(__dirname+'/public', {maxAge: 259200000}));	//使用静态资源服务以及设置缓存(三天)
 app.use(require('serve-favicon')(__dirname+'/public/favicon.ico', {maxAge: 2592000000}));
+
+app.use(require('morgan')('dev'));
 
 //#####server response
 //主页
@@ -189,7 +187,16 @@ server.listen(app.get('port'), function(){
 	console.log("Server running at http://localhost:3000");
 });
 
-//normal when use nginx
+io.configure('production', function(){
+  //socket settings
+  io.enable('browser client minification');  // send minified client
+  io.enable('browser client etag');          // apply etag caching logic based on version number
+  io.enable('browser client gzip');          // gzip the file
+  io.set('log level', 1);                    // reduce logging
+  //set trusted hosts
+  io.set('origins', 'acdream.info:80 115.28.76.232:80');
+});
+//ok when use nginx
 io.set('transports', [ 
   'xhr-polling',
   'jsonp-polling'
