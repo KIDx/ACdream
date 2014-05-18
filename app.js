@@ -188,19 +188,30 @@ server.listen(app.get('port'), function(){
 });
 
 io.configure('production', function(){
+  console.log('production env');
   //socket settings
   io.enable('browser client minification');  // send minified client
   io.enable('browser client etag');          // apply etag caching logic based on version number
   io.enable('browser client gzip');          // gzip the file
   io.set('log level', 1);                    // reduce logging
+  io.set('transports', [
+  'websocket'
+  , 'flashsocket'
+  , 'htmlfile'
+  , 'xhr-polling'
+  , 'jsonp-polling'
+  ]);
   //set trusted hosts
   io.set('origins', 'acdream.info:80 115.28.76.232:80');
 });
-//ok when use nginx
-io.set('transports', [ 
-  'xhr-polling',
-  'jsonp-polling'
-]);
+
+io.configure('development', function(){
+  console.log('development env');
+  io.set('transports', [ 
+    'xhr-polling',
+    'jsonp-polling'
+  ]);
+});
 
 //websocket设置session
 io.set('authorization', function(handshakeData, accept){
