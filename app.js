@@ -189,13 +189,23 @@ server.listen(app.get('port'), function(){
 
 io.configure('production', function(){
   console.log('production env');
+  var RedisStore = require('socket.io/lib/stores/redis')
+  ,   redis  = require('socket.io/node_modules/redis')
+  ,   pub    = redis.createClient()
+  ,   sub    = redis.createClient()
+  ,   client = redis.createClient();
+  io.set('store', new RedisStore({
+    redisPub : pub
+  , redisSub : sub
+  , redisClient : client
+  }));
   //socket settings
   io.enable('browser client minification');  // send minified client
   io.enable('browser client etag');          // apply etag caching logic based on version number
   io.enable('browser client gzip');          // gzip the file
   io.set('log level', 1);                    // reduce logging
   io.set('transports', [
-  'websocket'
+    'websocket'
   , 'flashsocket'
   , 'htmlfile'
   , 'xhr-polling'
