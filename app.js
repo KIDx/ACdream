@@ -7,7 +7,7 @@ var express = require('express')
 ,	path = require('path')
 ,	partials = require('express-partials')
 ,	session = require('express-session')
-,	MongoStore = require('connect-mongo')(session)
+,	redisStore = require('connect-redis')(session)
 ,	settings = require('./settings')
 ,	OE = settings.outputErr
 ,	app = express()
@@ -16,7 +16,7 @@ var express = require('express')
 ,	fs = require('fs')
 ,	cookie = require('express/node_modules/cookie')
 ,	utils = require('connect/lib/utils')
-,	sessionStore = new MongoStore({ db : 'session_db' })
+,	sessionStore = new redisStore({ db : 'session_db' })
 ,	Contest = require('./models/contest.js');
 
 //服务器配置
@@ -38,13 +38,17 @@ app.use(require('method-override')());
 app.use(require('cookie-parser')());
 app.use(session({
 	secret: settings.cookie_secret,
-	store: sessionStore,
-	cookie: { maxAge: 3600000 }
+	store: sessionStore
 }));
 app.use(express.static(__dirname+'/public', {maxAge: 259200000}));	//使用静态资源服务以及设置缓存(三天)
 app.use(require('serve-favicon')(__dirname+'/public/favicon.ico', {maxAge: 2592000000}));
 
 app.use(require('morgan')('dev'));
+app.use(function(req, res, next){
+  req.session.reload(function(){
+    next();
+  });
+});
 
 //#####server response
 //主页

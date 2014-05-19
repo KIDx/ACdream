@@ -30,6 +30,6 @@
     "gm": "*",
     "csv": "*",
     "xss":"*",
-    "connect-mongo": "*"
+    "connect-redis": "*"
   }
 }
