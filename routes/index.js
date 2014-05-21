@@ -201,7 +201,7 @@ function getTime(n) {
 
 function getRank(user, callback) {
   User.count({
-    $nor: [{name: 'admin'}],
+    name: {$ne: 'admin'},
     $or:[
       { rating: {$gt: user.rating} },
       { rating: user.rating, solved: {$gt: user.solved} },
@@ -318,7 +318,7 @@ exports.getOverview = function(req, res) {
       });
       return val;
     },
-    query: {$nor: [{userName:'admin'}], cID: cid},
+    query: {userName: {$ne: 'admin'}, cID: cid},
     sort: {runID: 1}
   }, function(err, results){
     if (err) {
@@ -391,7 +391,7 @@ exports.getStatus = function(req, res) {
       name = req.session.user.name;
     }
     if (name != 'admin') {
-      Q.$nor = [{userName: 'admin'}];
+      Q.userName = {$ne: 'admin'};
     }
     Solution.get(Q, page, function(err, solutions, n) {
       if (err) {
@@ -563,7 +563,7 @@ exports.getRanklist = function(req, res) {
       var indate = {$gte: contest.startTime, $lte: contest.startTime+contest.len*60000};
       var Q = {
         cID: cid,
-        $nor: [{userName:'admin'}],
+        userName: {$ne: 'admin'},
         inDate: indate,
         runID: {$gt: contest.maxRunID}
       };
@@ -638,7 +638,7 @@ exports.getRanklist = function(req, res) {
             Solution.aggregate([{
               $match: {
                 cID: cid,
-                $nor: [{userName:'admin'}],
+                userName: {$ne: 'admin'},
                 inDate: indate,
                 result: 2
               }
@@ -1515,7 +1515,7 @@ exports.index = function(req, res){
           req.session.msg = '系统错误！';
           return res.redirect('/404');
         }
-        User.topFive({$nor: [{name: 'admin'}]}, function(err, D){
+        User.topFive({name: {$ne: 'admin'}}, function(err, D){
           if (err) {
             OE(err);
             req.session.msg = '系统错误！';
@@ -2803,7 +2803,7 @@ exports.ranklist = function(req, res) {
   if (search) {
     q1.name = q2.nick = new RegExp("^.*"+toEscape(search)+".*$", 'i');
   }
-  var Q = { $or:[q1, q2], $nor:[{name:'admin'}] };
+  var Q = { $or: [q1, q2], name: {$ne: 'admin'} };
   if (cid) {
     Contest.watch(cid, function(err, con){
       if (err) {
