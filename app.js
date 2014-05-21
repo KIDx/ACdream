@@ -16,7 +16,7 @@ var express = require('express')
 ,	fs = require('fs')
 ,	cookie = require('express/node_modules/cookie')
 ,	utils = require('connect/lib/utils')
-,	sessionStore = new redisStore({ db : 'session_db' })
+,	sessionStore = new redisStore()
 ,	Contest = require('./models/contest.js');
 
 //服务器配置
