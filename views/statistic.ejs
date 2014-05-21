@@ -1,6 +1,7 @@
 <!--<html>-->
 <% var _id = [0, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]; %>
-<% var tc = ['', '', '']; %>
+<% var names = ['', 'AC', 'WA', 'PE', 'TLE', 'MLE', 'OLE', 'CE', 'RE']; %>
+<% var data = []; %>
 <fieldset>
   <div>
     <legend id="statistic" pid="<%= pid %>" <% if (sort_key >= 0) { %>sort="<%= sort_key %>"<% } %>>
@@ -24,18 +25,22 @@
               <% _id.forEach(function(p, i){ %>
               <% var c = ''; %>
               <% if (i == 0 || i % 2 == 1) { %>
-              <% c = 'odd'; %>
+              <%  c = 'odd'; %>
               <% } else { %>
-              <% c = 'even'; %>
+              <%  c = 'even'; %>
               <% } %>
               <% var v = 0; %>
               <% if (N[p]) { %>
-              <% v = N[p]; %>
+              <%  v = N[p]; %>
+              <% } %>
+              <% var title = Res(p); %>
+              <% if (p > 0 && p < 10) { %>
+		          <%  data.push({name: names[i], title: title, y: v}); %>
               <% } %>
                 <% if (i == 1) { %><tr><th colspan="2"><div id="chart" style="height:400px;"></div></th></tr><% } %>
                 <tr class="<%= c %>">
                   <td>
-                    <% if (i == 0) { %>Total Submissions<% } else { %><%= Res(p) %><% } %>
+                    <% if (i == 0) { %>Total Submissions<% } else { %><%= title %><% } %>
                   </td>
                   <td>
                     <a href="/status?pid=<%= pid %><% if (_id[i] > 0) { %>&result=<%= _id[i] %><% } %>">
@@ -127,3 +132,6 @@
     </tr>
   </table>
 </fieldset>
+<script type="text/javascript">
+var stat_data = <%- JSON.stringify(data) %>;
+</script>
