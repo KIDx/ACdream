@@ -108,7 +108,7 @@
             <td><%- time %></td>
             <td><%- memory %></td>
             <td>
-              <a href="/sourcecode/<%= p.runID %>"><%= langs[p.language] %></a>
+              <a href="/sourcecode/<%= p.runID %>"><%= langs[p.language] ? langs[p.language] : '' %></a>
             </td>
             <td><%- len %></td>
             <td><%= getDate(p.inDate) %></td>

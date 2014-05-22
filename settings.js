@@ -71,7 +71,7 @@ module.exports = {
   T: Tag,
   P: ProTil,
   easy_tips: easy_tips,
-  languages: ['', 'C', 'C++', 'Java'],
+  languages: ['', 'C', 'C++'],//, 'Java'],
   C: function(n) {    //return status' color
     switch(n) {
       case 0:
