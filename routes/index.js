@@ -1437,13 +1437,15 @@ exports.calRating = function(req, res) {
           OE(err);
           return res.end('-3');
         }
-        var act = {}, pos = -1;
+        var rank = {}, act = {}, pos = -1;
         if (R && R.length) {
           R.forEach(function(p, i){
             if (!p.value || !p.value.solved) {
               if (pos < 0) pos = i;
+              rank[p._id.name] = pos;
               act[p._id.name] = 0.5 * (R.length - pos - 1);
             } else {
+              rank[p._id.name] = i;
               act[p._id.name] = R.length - i - 1;
             }
           });
@@ -1471,20 +1473,20 @@ exports.calRating = function(req, res) {
             }
             var K;
             if (old <= 2100) {
-              K = 1.2;
+              K = 4;
             } else if (old <= 2400) {
               K = 2;
             } else {
               K = 1;
             }
-            var newRating = Math.round(old + K*(act[pi.name]-exp) + 95);
+            var newRating = Math.round(old + K*(act[pi.name]-exp));
             User.update({name: pi.name}, {
               $set: {
                 lastRatedContest: cid,
                 rating: newRating
               },
               $push: {
-                ratedRecord: { cid: cid, rating: newRating, inDate: endTime }
+                ratedRecord: { cid: cid, title: contest.title, rank: rank[pi.name], rating: newRating, inDate: endTime }
               }
             });
             ++cnt;
@@ -1572,6 +1574,12 @@ exports.user = function(req, res) {
         });
       }
       var RP = function(H) {
+        var mins = 1100;
+        user.ratedRecord.forEach(function(i, p){
+            if (p.rating < mins) {
+              mins = p.rating;
+            }
+        });
         res.render('user', {title: 'User',
                             user: req.session.user,
                             time: (new Date()).getTime(),
@@ -1582,7 +1590,8 @@ exports.user = function(req, res) {
                             H: H,
                             UC: UserCol,
                             UT: UserTitle,
-                            getTime: getAboutTime
+                            getTime: getAboutTime,
+                            minRating: mins
         });
       };
       if (user.name != 'admin') {

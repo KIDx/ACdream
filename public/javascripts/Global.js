@@ -23,7 +23,7 @@ $(document).ready(function(){
 });
 
 //return status color class
-function Col (n) {
+function Col(n) {
   switch(n) {
     case 0:
     case 1: return 'info-text';
@@ -43,7 +43,7 @@ function Col (n) {
 }
 
 //return status result string
-function Res (n) {
+function Res(n) {
     switch(n) {
         case 0: return 'Pending...';
         case 1: return 'Running...';
@@ -61,7 +61,7 @@ function Res (n) {
 }
 
 //return user color style
-function UserCol (n) {
+function UserCol(n) {
     n = parseInt(n, 10);
     if (!n) return 'unrated';
     if (n >= 2200) {
@@ -79,7 +79,7 @@ function UserCol (n) {
 }
 
 //return user title
-function UserTitle (n) {
+function UserTitle(n) {
     n = parseInt(n, 10);
     if (!n) return 'Unrated';
     if (n >= 2600) {

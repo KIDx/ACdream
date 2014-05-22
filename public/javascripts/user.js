@@ -193,3 +193,140 @@ $(document).ready(function(){
         });
     }
 });
+
+function DeltaSpan(x) {
+    var html = ' (<span style="font-weight:bold;color:';
+    if (x > 0) {
+        html += 'green">+';
+    } else {
+        html += 'red">';
+    }
+    html += x;
+    html += '</span>). ';
+    return html;
+}
+
+var $chart = $('#chart');
+
+$(document).ready(function(){
+    var data = new Array(), pre = 1500;
+    for (var i = 0; i < ratedRecord.length; i++) {
+        var p = ratedRecord[i];
+        var rowOne = '<div>= '+p.rating+DeltaSpan(p.rating-pre)+UserTitle(p.rating)+'</div>';
+        var rowTwo = '<div>Rank '+(p.rank+1)+'</div>';
+        var rowThree = '<a target="_blank" href="/onecontest/'+p.cid+'">'+p.title+'</a>';
+        data.push({ name: rowOne+rowTwo+rowThree, x: p.inDate, y: p.rating });
+        pre = p.rating;
+    }
+    var colors = ['#cccccc', '#aaffaa', '#77ff77', '#aaabfe', '#ff8efe',
+      '#fecc87', '#ffbb56', '#ff7777', '#ff3334'];
+    var plotBands = new Array();
+    var tickPositions = [pre=minRating-100, 1200, 1350, 1500, 1700, 1900, 2050, 2200, 2600, 100000];
+    for (var i = 1; i < tickPositions.length; i++) {
+        var p = tickPositions[i];
+        plotBands.push({ color: colors[i-1], from: pre, to: p });
+        pre = p;
+    }
+    $chart.highcharts({
+        exporting: {
+            enabled: false
+        },
+  		  credits: {
+  		  	  enabled: false
+  		  },
+        chart: {
+            marginRight: 8,
+            borderColor: '#EBBA95',
+            borderRadius: 5,
+            borderWidth: 2,
+            type: 'line',
+            height: 300,
+            plotBorderWidth: 2,
+            plotBorderColor: '#505050',
+            backgroundColor: null
+        },
+        plotOptions: {
+            series: {
+                color: '#ffd146',
+                shadow: true,
+                marker: {
+                    fillColor: '#FFFFFF',
+                    lineWidth: 2,
+                    lineColor: null
+                }
+            },
+            line: {
+                events: {
+                    legendItemClick: function() {
+                        return false;
+                    }
+                }
+            }
+        },
+        title: {
+            text: '',
+        },
+        xAxis: {
+            tickWidth: 0,
+            gridLineColor: 'rgba(50,50,50,0.2)',
+            gridLineWidth: 1,
+            tickPixelInterval: 100,
+            type: 'datetime',
+            dateTimeLabelFormats: {
+                millisecond: '%H:%M:%S.%L',
+                second: '%H:%M:%S',
+                minute: '%H:%M',
+                hour: '%H:%M',
+                day: '%e. %b',
+                week: '%e. %b',
+                month: '%b %Y',
+                year: '%Y'
+            }
+        },
+        yAxis: {
+            title: {
+                text: ''
+            },
+            gridLineColor: 'rgba(50,50,50,0.2)',
+            tickPositions: tickPositions,
+            showFirstLabel: false,
+            endOnTick: false,
+            maxPadding: 0.8,
+            minRange: 1000,
+            plotBands: plotBands
+        },
+        tooltip: {
+            backgroundColor: null,
+            borderWidth: 0,
+            shadow: false,
+            useHTML: true,
+            pointFormat: ''
+        },
+        legend: {
+            padding: 10,
+            borderRadius: 0,
+            borderWidth: 0,
+            backgroundColor: 'rgba(255,255,255,0.6)',
+            itemStyle: {
+                color: '#333333',
+                fontWeight: 'normal',
+                cursor: 'text'
+            },
+            align: 'right',
+            verticalAlign: 'top',
+            x: -5,
+            y: 5,
+            title: '{name}'
+        },
+        series: [{
+            name: name,
+            data: data,
+            pointStart: Date.UTC(2010, 1, 1),
+        }]
+    });
+    var chart = $chart.highcharts();
+    var y = chart.yAxis[0];
+    if (y.getExtremes().dataMax < 1950) {
+      y.setExtremes(tickPositions[0], 1950);
+    }
+});
