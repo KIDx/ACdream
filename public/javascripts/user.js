@@ -300,7 +300,10 @@ $(document).ready(function(){
             borderWidth: 0,
             shadow: false,
             useHTML: true,
-            pointFormat: ''
+            pointFormat: '',
+            style: {
+                fontFamily: '微软雅黑,Helvetica Neue,Helvetica,Arial,sans-serif'
+            }
         },
         legend: {
             padding: 10,
