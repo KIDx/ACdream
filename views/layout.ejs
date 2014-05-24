@@ -99,7 +99,7 @@
       <% } %>
     <% } else if (key == 9) { %>
       <%- partial('D_ce') + partial('D_broadcast') %>
-      <% if (user && isContestant) { %>
+      <% if (user) { %>
       <%- partial('D_submit', {langs: langs}) %>
       <% } %>
     <% } %>
