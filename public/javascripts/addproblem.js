@@ -123,7 +123,7 @@ $(document).ready(function(){
 		add: function(e, data) {
 			var f = data.files[0];
 			$si.text(f.name);
-			var pattern = new RegExp('^.*\.(jpg|jpeg|png)$');
+			var pattern = new RegExp('^.*\.(jpg|jpeg|png)$', 'i');
 			if (!pattern.test(f.name)) {
 				errAnimate($imgerr, '不支持的格式！');
 				return false;

@@ -19,7 +19,7 @@ $(document).ready(function(){
         	$ui.text(f.name);
             $upload.unbind('click');
         	$upload.click(function(){
-                var img_pattern = new RegExp('^.*\.(jpg|jpeg|png)$');
+                var img_pattern = new RegExp('^.*\.(jpg|jpeg|png)$', 'i');
         		if (!img_pattern.test(f.name)) {
         			errAnimate($imgerr, '不支持的格式！');
 					return false;
