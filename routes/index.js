@@ -356,7 +356,7 @@ exports.getStatus = function(req, res) {
     if (!contest) {
       return res.end();  //not allow
     }
-    var Q = {cID: cid}, page, pid, result, lang;
+    var Q = {cID: cid}, page, name, pid, result, lang;
     page = parseInt(req.body.page, 10);
     if (!page) {
       page = 1;
@@ -364,8 +364,9 @@ exports.getStatus = function(req, res) {
       return res.end();   //not allow!
     }
 
-    if (req.body.name) {
-      Q.userName = toEscape(req.body.name);
+    name = String(req.body.name);
+    if (name) {
+      Q.userName = String(req.body.name);
     }
 
     pid = parseInt(req.body.pid, 10);
@@ -391,7 +392,7 @@ exports.getStatus = function(req, res) {
       name = req.session.user.name;
     }
     if (name != 'admin') {
-      Q.userName = {$ne: 'admin'};
+      Q.$nor = [{userName: 'admin'}];
     }
     Solution.get(Q, page, function(err, solutions, n) {
       if (err) {
