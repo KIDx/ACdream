@@ -3694,7 +3694,7 @@ exports.review = function(req, res) {
   }
   var user = req.session.user.name
   ,  tid = parseInt(req.body.tid, 10)
-  ,  content = req.body.content      //can not do clearSpace because it is content
+  ,  content = String(req.body.content)      //can not do clearSpace because it is content
   ,  fa = parseInt(req.body.fa, 10)
   ,  at = clearSpace(req.body.at);
   if (!user || !tid || !content || !fa) {
@@ -3703,8 +3703,7 @@ exports.review = function(req, res) {
   IDs.get('topicID', function(err, id){
     if (err) {
       OE(err);
-      req.session.msg = '系统错误！';
-      return res.end();
+      return res.end('3');
     }
     (new Comment({
       id      : id,
@@ -3717,18 +3716,87 @@ exports.review = function(req, res) {
     })).save(function(err){
       if (err) {
         OE(err);
-        req.session.msg = '系统错误！';
-        return res.end();
+        return res.end('3');
       }
       Topic.update(tid, {$inc: {reviewsQty: 1}}, function(err){
         if (err) {
           OE(err);
-          req.session.msg = '系统错误！';
-          return res.end();
+          return res.end('3');
         }
         req.session.msg = '回复成功！';
-        return res.end(id.toString());
+        return res.end();
       });
     });
+  });
+};
+
+exports.delComment = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = '请先登录！';
+    return res.end();
+  }
+  var id = parseInt(req.body.id, 10);
+  if (!id) {
+    return res.end();   //not allow
+  }
+  var q = { id: id };
+  if (req.session.user.name != 'admin') {
+    q.user = req.session.user.name;
+  }
+  Comment.findOneAndRemove(q, function(err, comment){
+    if (err) {
+      OE(err);
+      return res.end('3');
+    }
+    if (!comment) {
+      return res.end();   //not allow
+    }
+    var Q = { fa: comment.id };
+    Comment.count(Q, function(err, cnt){
+      if (err) {
+        OE(err);
+        return res.end('3');
+      }
+      Comment.remove(Q, function(err){
+        if (err) {
+          OE(err);
+          return res.end('3');
+        }
+        Topic.update(comment.tid, {$set: {$inc: -(cnt+1)}}, function(err){
+          if (err) {
+            OE(err);
+            return res.end('3');
+          }
+          req.session.msg = '删除成功！';
+          return res.end();
+        });
+      });
+    });
+  });
+};
+
+exports.editComment = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = '请先登录！';
+    return res.end();
+  }
+  var id = parseInt(req.body.id, 10)
+  ,   content = String(req.body.content);
+  if (!id || !content) {
+    return res.end();   //not allow
+  }
+  var Q = { id: id };
+  if (req.session.user.name != 'admin') {
+    Q.user = req.session.user.name;
+  }
+  Comment.update(Q, {$set: {content: xss(content, xss_options)}}, function(err){
+    if (err) {
+      OE(err);
+      return res.end('3');
+    }
+    req.session.msg = '修改成功！';
+    return res.end();
   });
 };

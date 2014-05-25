@@ -73,7 +73,7 @@ Topic.watch = function(tid, callback) {
 };
 
 Topic.update = function(tid, H, callback) {
-  topics.update({id:tid}, H, function(err){
+  topics.update({id: tid}, H, function(err){
     if (err) {
       OE('Topic.update failed!');
     }

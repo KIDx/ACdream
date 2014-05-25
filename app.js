@@ -165,6 +165,10 @@ app.post('/toggleTop', routes.toggleTop);
 app.post('/updateEasy', routes.updateEasy);
 //添加回复
 app.post('/review', routes.review);
+//删除回复
+app.post('/delComment', routes.delComment);
+//编辑回复
+app.post('/editComment', routes.editComment);
 
 //清除服务器消息
 app.post('/getMessage', function(req, res){

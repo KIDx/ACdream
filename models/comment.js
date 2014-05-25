@@ -69,10 +69,37 @@ Comment.watch = function(tid, callback) {
   });
 };
 
-Comment.update = function(tid, H, callback) {
-  comments.update({id:tid}, H, function(err){
+Comment.update = function(Q, H, callback) {
+  comments.update(Q, H, function(err){
     if (err) {
       OE('Comment.update failed!');
+    }
+    return callback(err);
+  });
+};
+
+Comment.findOneAndRemove = function(Q, callback) {
+  comments.findOneAndRemove(Q, function(err, doc){
+    if (err) {
+      OE('Comment.findOneAndRemove failed!');
+    }
+    return callback(err, doc);
+  });
+};
+
+Comment.count = function(Q, callback) {
+  comments.count(Q, function(err, cnt){
+    if (err) {
+      OE('Comment.count failed!');
+    }
+    return callback(err, cnt);
+  });
+};
+
+Comment.remove = function(Q, callback) {
+  comments.remove(Q, function(err){
+    if (err) {
+      OE('Comment.remove failed!');
     }
     return callback(err);
   });

@@ -26,39 +26,30 @@ a.disabled {
 }
 
 a.edit {
-    padding: 0;
-    display: block;
-    width: 24px;
-    height: 24px;
     background: url('img/edit.png');
 }
 
-a.add {
-    padding: 0;
-    display: block;
-    width: 24px;
-    height: 24px;
-    background: url('img/add.png');
+a.trash {
+    background: url('img/trash.png');
 }
 
-a.add2 {
-    padding: 0;
-    display: block;
-    width: 18px;
-    height: 18px;
-    background: url('img/add.png');
+a.reply {
+    background: url('img/reply.png');
 }
 
-a.delete {
-    padding: 0;
-    display: block;
+a.img_link {
+    margin-right: 8px;
     width: 16px;
     height: 16px;
-    background: url('img/delete.png');
+    padding: 0;
+    display: block;
+    opacity: 0.4;
+    filter: alpha(opacity=0.4);
 }
 
-a.delete:hover {
-    background: url('img/_delete.png');
+a.img_link:hover {
+    opacity: 0.6;
+    filter: alpha(opacity=0.6);
 }
 
 .my-radio {

@@ -46,7 +46,7 @@
 			<% } else { %>
 			<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
 			<% } %>
-			<div class="reply_area">
+			<div id="<%= p.id %>" class="reply_area">
 				<div class="reply_avatar">
 					<a href="/user/<%= p.user %>">
 						<img class="img_s topic_img" title="<%= p.user %>" alt="<%= p.user %>" src="<%= img %>" />
@@ -62,8 +62,14 @@
 					</div>
 					<div class="reply_foot">
 						<span class="user-gray"><%= getDate(p.inDate) %></span>
-					<% if (user && user.name != p.user) { %>
-						<a class="fr uibtn reply" fa="<%= p.id %>" at="<%= p.user %>" href="javascript:;">回复</a>
+					<% if (user) { %>
+						<% if (user.name != p.user) { %>
+							<a class="fr reply img_link" title="回复" fa="<%= p.id %>" at="<%= p.user %>" href="javascript:;"></a>
+						<% } %>
+						<% if (user.name == 'admin' || user.name == p.user) { %>
+						<a class="fr trash img_link" title="删除" data-id="<%= p.id %>" href="javascript:;"></a>
+						<a class="fr edit img_link" title="编辑" data-id="<%= p.id %>" href="javascript:;"></a>
+						<% } %>
 					<% } %>
 					</div>
 				</div>
@@ -75,7 +81,7 @@
 				<% } else { %>
 				<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
 				<% } %>
-				<div class="reply_sub">
+				<div id="<%= p.id %>" class="reply_sub">
 					<div style="margin-top:5px;">
 						<div class="reply_avatar">
 							<a href="/user/<%= p.user %>">
@@ -91,10 +97,16 @@
 								<%- p.content %>
 							</div>
 							<div class="reply_foot">
-								<span class="user-gray"><%= getDate(p.inDate) %></span>
-							<% if (user && user.name != p.user) { %>
-								<a class="fr uibtn reply" fa="<%= fa %>" at="<%= p.user %>" href="javascript:;">回复</a>
+							<span class="user-gray"><%= getDate(p.inDate) %></span>
+						<% if (user) { %>
+							<% if (user.name != p.user) { %>
+							<a class="fr reply img_link" title="回复" fa="<%= fa %>" at="<%= p.user %>" href="javascript:;"></a>
 							<% } %>
+							<% if (user.name == 'admin' || user.name == p.user) { %>
+							<a class="fr trash img_link" title="删除" data-id="<%= p.id %>" href="javascript:;"></a>
+							<a class="fr edit img_link" title="编辑" data-id="<%= p.id %>" href="javascript:;"></a>
+							<% } %>
+						<% } %>
 							</div>
 						</div>
 					</div>
