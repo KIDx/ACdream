@@ -3764,7 +3764,7 @@ exports.delComment = function(req, res) {
           OE(err);
           return res.end('3');
         }
-        Topic.update(comment.tid, {$set: {$inc: -(cnt+1)}}, function(err){
+        Topic.update(comment.tid, {$inc: {reviewsQty: -(cnt+1)}}, function(err){
           if (err) {
             OE(err);
             return res.end('3');
