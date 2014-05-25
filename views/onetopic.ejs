@@ -47,32 +47,7 @@
 			<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
 			<% } %>
 			<div id="<%= p.id %>" class="reply_area">
-				<div class="reply_avatar">
-					<a href="/user/<%= p.user %>">
-						<img class="img_s topic_img" title="<%= p.user %>" alt="<%= p.user %>" src="<%= img %>" />
-					</a>
-				</div>
-				<div class="reply_right">
-					<div>
-						<a href="/user/<%= p.user %>" title="<%= UT[p.user] %>" class="user user-<%= UC[p.user] %>"><%= p.user %></a>
-						<span class="user-gray fr">#<%= i+1 %></span>
-					</div>
-					<div class="reply_content">
-						<%- p.content %>
-					</div>
-					<div class="reply_foot">
-						<span class="user-gray"><%= getDate(p.inDate) %></span>
-					<% if (user) { %>
-						<% if (user.name != p.user) { %>
-							<a class="fr reply img_link" title="回复" fa="<%= p.id %>" at="<%= p.user %>" href="javascript:;"></a>
-						<% } %>
-						<% if (user.name == 'admin' || user.name == p.user) { %>
-						<a class="fr trash img_link" title="删除" data-id="<%= p.id %>" href="javascript:;"></a>
-						<a class="fr edit img_link" title="编辑" data-id="<%= p.id %>" href="javascript:;"></a>
-						<% } %>
-					<% } %>
-					</div>
-				</div>
+				<%- partial('comment', {isParent: true, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC}) %>
 		<% var fa = p.id; %>
 		<% if (sub[p.id] && sub[p.id].length) { %>
 			<% sub[p.id].forEach(function(p){ %>
@@ -82,34 +57,7 @@
 				<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
 				<% } %>
 				<div id="<%= p.id %>" class="reply_sub">
-					<div style="margin-top:5px;">
-						<div class="reply_avatar">
-							<a href="/user/<%= p.user %>">
-								<img class="img_s topic_img" title="<%= p.user %>" alt="<%= p.user %>" src="<%= img %>" />
-							</a>
-						</div>
-						<div class="reply_right">
-							<div>
-								<a href="/user/<%= p.user %>" title="<%= UT[p.user] %>" class="user user-<%= UC[p.user] %>"><%= p.user %></a>
-								<span class="user user-gray">@<%= p.at %></span>
-							</div>
-							<div class="reply_content">
-								<%- p.content %>
-							</div>
-							<div class="reply_foot">
-							<span class="user-gray"><%= getDate(p.inDate) %></span>
-						<% if (user) { %>
-							<% if (user.name != p.user) { %>
-							<a class="fr reply img_link" title="回复" fa="<%= fa %>" at="<%= p.user %>" href="javascript:;"></a>
-							<% } %>
-							<% if (user.name == 'admin' || user.name == p.user) { %>
-							<a class="fr trash img_link" title="删除" data-id="<%= p.id %>" href="javascript:;"></a>
-							<a class="fr edit img_link" title="编辑" data-id="<%= p.id %>" href="javascript:;"></a>
-							<% } %>
-						<% } %>
-							</div>
-						</div>
-					</div>
+					<%- partial('comment', {isParent: false, fa: fa, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC}) %>
 				</div>
 			<% }); %>
 		<% } %>

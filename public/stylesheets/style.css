@@ -380,6 +380,7 @@ ul.publish_list > li > img.top {
 .reply_sub {
     margin: 10px 60px;
     border-top: 1px solid #ddd;
+    padding-top: 5px;
 }
 
 .reply_avatar {

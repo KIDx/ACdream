@@ -1,0 +1,30 @@
+<div class="reply_avatar">
+	<a href="/user/<%= p.user %>">
+		<img class="img_s topic_img" title="<%= p.user %>" alt="<%= p.user %>" src="<%= img %>" />
+	</a>
+</div>
+<div class="reply_right">
+	<div>
+		<a href="/user/<%= p.user %>" title="<%= UT[p.user] %>" class="user user-<%= UC[p.user] %>"><%= p.user %></a>
+		<% if (isParent) { %>
+		<span class="user-gray fr">#<%= num %></span>
+		<% } else { %>
+		<span class="user user-gray">@<%= p.at %></span>
+		<% } %>
+	</div>
+	<div class="reply_content">
+		<%- p.content %>
+	</div>
+	<div class="reply_foot">
+		<span class="user-gray"><%= getDate(p.inDate) %></span>
+	<% if (user) { %>
+		<% if (user.name != p.user) { %>
+			<a class="fr reply img_link" title="回复" fa="<%= isParent ? p.id : fa %>" at="<%= p.user %>" href="javascript:;"></a>
+		<% } %>
+		<% if (user.name == 'admin' || user.name == p.user) { %>
+		<a class="fr trash img_link" title="删除" data-id="<%= p.id %>" href="javascript:;"></a>
+		<a class="fr edit img_link" title="编辑" data-id="<%= p.id %>" href="javascript:;"></a>
+		<% } %>
+	<% } %>
+	</div>
+</div>
