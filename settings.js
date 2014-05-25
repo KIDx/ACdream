@@ -149,6 +149,7 @@ module.exports = {
       a:      ['target', 'href', 'title', 'id', 'name'],
       blockquote: ['cite'],
       br:     [],
+      b:      [],
       caption:[],
       dd:     [],
       div:    ['style'],
