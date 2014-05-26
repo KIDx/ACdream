@@ -409,7 +409,7 @@ function ShowProblem(prob) {
 	if ($rejudge.length) {
 		$rejudge.unbind('click');
 		$rejudge.click(function(){
-			if ($(this).hasClass('disabled')) {
+			if ($(this).hasClass('disabled') || !confirm('rejudge会给用户带来较大影响，确定要rejudge？')) {
 				return false;
 			}
 			$rejudge.addClass('disabled');
