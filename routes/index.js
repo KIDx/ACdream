@@ -459,7 +459,7 @@ exports.getRanklist = function(req, res) {
   var now = (new Date()).getTime();
   Contest.findOneAndUpdate({
     contestID  : cid,
-    updateTime  : { $lt: now-10000 }    //距离上次聚合>=10秒, 聚合一次排名
+    updateTime  : { $lt: now-30000 }    //距离上次聚合>=30秒, 聚合一次排名
   }, {
     $set: { updateTime: now }
   }, {
