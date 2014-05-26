@@ -51,12 +51,12 @@ a.img_link {
     padding: 0;
     display: block;
     opacity: 0.4;
-    filter: alpha(opacity=0.4);
+    filter: alpha(opacity=40);
 }
 
 a.img_link:hover {
     opacity: 0.6;
-    filter: alpha(opacity=0.6);
+    filter: alpha(opacity=60);
 }
 
 .my-radio {
