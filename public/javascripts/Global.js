@@ -4,6 +4,11 @@
 *
 */
 
+function NAN(x) {
+    x = parseInt(x, 10);
+    return x != x;
+}
+
 //使模态对话框居中
 $(document).ready(function(){
     $.each($('.jqmSubmit,.CeWindow'), function(){

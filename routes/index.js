@@ -1324,6 +1324,44 @@ exports.rejudge = function(req, res) {
   });
 };
 
+exports.singleRejudge = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.end('1');
+  }
+  var rid = parseInt(req.body.rid, 10);
+  if (!rid || req.session.user.name != 'admin') {
+    return res.end(); //not allow
+  }
+  Solution.findOneAndUpdate({runID: rid, result: {$gt: 2}}, {$set: {result:0}}, function(err, sol){
+    if (err) {
+      OE(err);
+      return res.end('3');
+    }
+    if (!sol) {
+      return res.end(); //not allow
+    }
+    var cid = sol.cID;
+    if (cid == -1) {
+      return res.end();
+    }
+    ContestRank.clear({'_id.cid': cid}, function(err){
+      if (err) {
+        OE(err);
+        return res.end('3');
+      }
+      Contest.update(cid, {$set: {maxRunID: 0, updateTime: 0}}, function(err){
+        if (err) {
+          OE(err);
+          return res.end('3');
+        }
+        return res.end();
+      });
+    });
+  });
+};
+
 exports.recal = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

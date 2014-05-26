@@ -153,3 +153,12 @@ Solution.count = function(Q, callback) {
     return callback(err, count);
   });
 };
+
+Solution.findOneAndUpdate = function(Q, H, callback) {
+  solutions.findOneAndUpdate(Q, H, function(err, doc){
+    if (err) {
+      OE('Solution.findOneAndUpdate failed!');
+    }
+    return callback(err, doc);
+  });
+};

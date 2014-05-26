@@ -129,10 +129,16 @@
   <% } else if (key == 9) { %>
     <script src="/javascripts/jquery.hashchange.js"></script>
     <script src="/javascripts/updatestatus.js"></script>
+    <% if (user && user.name == 'admin') { %>
+    <script src="/javascripts/singleRejudge.js"></script>
+    <% } %>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/javascripts/onecontest.js"></script>
   <% } else if (key == 4) { %>
     <script src="/javascripts/updatestatus.js"></script>
+    <% if (user && user.name == 'admin') { %>
+    <script src="/javascripts/singleRejudge.js"></script>
+    <% } %>
     <script src="/javascripts/status.js"></script>
   <% } else if (key == 10) { %>
     <script src="/javascripts/submit.js"></script>

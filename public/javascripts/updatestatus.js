@@ -1,6 +1,8 @@
 //update status
 
 var flg = {};
+var runningImg = '<img src="/img/running.gif" style="width:16px;height:16px;">';
+var pendingImg = '<img src="/img/pending.gif" style="width:16px;height:16px;">';
 
 function updateStatus($p) {
 	$.ajax({
@@ -20,7 +22,7 @@ function updateStatus($p) {
 				BindCE();
 			} else {
 				if (sol.result == 1 && $p.text() != 'Running...') {
-					$p.next().html('<img src="/img/running.gif" style="width:16px;height:16px;" />');
+					$p.next().html(runningImg);
 				}
 				$p.removeClass()
 				.addClass('bold')
@@ -41,16 +43,24 @@ function updateStatus($p) {
 				$p.next().text(sol.time);
 				$p.next().next().text(sol.memory);
 			}
+			if (current_user == 'admin' && sol.result > 2) {
+				$p.append(singleRejudgeBtn);
+				bindSingleRejudge($p.find('a.rejudge'));
+			}
 		}
 	});
+}
+
+function getResult($p) {
+	flg[$p.attr('rid')] = true;
+	updateStatus($p);
 }
 
 function getStatus() {
 	$verdict = $('#statustable td.unknow');
 	if ($verdict.length) {
 		$.each($verdict, function(i, p){
-			flg[$(p).attr('rid')] = true;
-			updateStatus($(p));
+			getResult($(p));
 		});
 	}
 }

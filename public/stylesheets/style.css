@@ -37,6 +37,13 @@ a.reply {
     background: url('img/reply.png');
 }
 
+a.rejudge {
+    background: url('img/rejudge.png');
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+}
+
 a.img_link {
     margin-right: 8px;
     width: 16px;

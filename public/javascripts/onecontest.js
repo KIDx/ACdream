@@ -113,6 +113,7 @@ var $status = $div.find('#statustab')
 ,	$pid = $('#pid')
 ,	$result = $('#result')
 ,	$Filter = $('#fil')
+,	$singleRejudge
 ,	statusQ = { cid:cid, page:1 }
 ,	searchTimeout
 ,	Users
@@ -173,14 +174,17 @@ function buildRow(sol) {
 		if (sol.result < 2) html += ' unknow';
 		html += '">'+Res(sol.result);
 	}
+	if (current_user == 'admin' && sol.result > 2) {
+		html += singleRejudgeBtn;
+	}
 	html += '</td>';
 
 	var tpstr, tmp = '<span class="user user-gray">---</span>';
 	if (sol.result == 0) {
-		tpstr = '<img src="/img/pending.gif" width="16px" height="16px"/>';
+		tpstr = pendingImg;
 	} else if (sol.result == 1) {
-		tpstr = '<img src="/img/running.gif" width="16px" height="16px"/>';
-	} else if (parseInt(sol.time, 10) >= 0) {
+		tpstr = runningImg;
+	} else if (!NAN(sol.time)) {
 		tpstr = sol.time+' MS';
 	} else {
 		tpstr = tmp;
@@ -221,6 +225,9 @@ function Response(json) {
 	if ($list_a && $list_a.length) {
 		$list_a.unbind('click');
 	}
+	if ($singleRejudge && $singleRejudge.length) {
+		$singleRejudge.unbind();
+	}
 	$tbody.html( html );
 	$list_a = $list.find('a');
 	$list_a.click(function(){
@@ -228,6 +235,8 @@ function Response(json) {
 			return false;
 		window.location.hash = '#status-'+$search.val()+'-'+$pid.val()+'-'+$result.val()+'-'+$(this).parent().attr('id');
 	});
+	$singleRejudge = $tbody.find('a.rejudge');
+	bindSingleRejudge($singleRejudge);
 	BindCE();
 	$loading.hide();
 	$status.fadeIn(100, function(){

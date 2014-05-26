@@ -102,8 +102,13 @@
             <td>
               <a href="/problem?pid=<%= p.problemID %>"><%= p.problemID %></a>
             </td>
-            <td class="bold <%= vc %> <%= C[i] %>" <% if (p.result < 2) { %>rid="<%= p.runID %>"<% } %>>
+            <td class="bold <%= vc %> <%= C[i] %>" rid="<%= p.runID %>">
               <%- v %>
+              <% if (user && user.name == 'admin' && p.result > 2) { %>
+              <div style="position:relative;">
+                <a href="javascript:;" title="rejudge" class="rejudge img_link"></a>
+              </div>
+              <% } %>
             </td>
             <td><%- time %></td>
             <td><%- memory %></td>

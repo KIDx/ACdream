@@ -137,6 +137,8 @@ app.post('/restorePsw', routes.restorePsw);
 app.post('/editTag', routes.editTag);
 //单题重判
 app.post('/rejudge', routes.rejudge);
+//单个提交重判
+app.post('/singleRejudge', routes.singleRejudge);
 //VIPContest增加指定用户(for admin)
 app.post('/regContestAdd', routes.regContestAdd);
 //将指定用户从比赛中移除(for admin)
