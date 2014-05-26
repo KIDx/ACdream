@@ -25,11 +25,32 @@ a.disabled {
     background: #fff!important;
 }
 
+a.img_link {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    display: block;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+}
+
+a.add {
+    width: 24px;
+    height: 24px;
+    background: url('img/add.png');
+}
+
+a.delete {
+    background: url('img/delete.png');
+}
+
 a.edit {
+    margin-right: 8px;
     background: url('img/edit.png');
 }
 
 a.trash {
+    margin-right: 8px;
     background: url('img/trash.png');
 }
 
@@ -42,16 +63,6 @@ a.rejudge {
     position: absolute;
     right: 10px;
     bottom: 5px;
-}
-
-a.img_link {
-    margin-right: 8px;
-    width: 16px;
-    height: 16px;
-    padding: 0;
-    display: block;
-    opacity: 0.4;
-    filter: alpha(opacity=40);
 }
 
 a.img_link:hover {

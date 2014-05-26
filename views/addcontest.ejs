@@ -103,8 +103,7 @@
         <table id="addprob" class="table table-condensed tdcenter">
           <tr>
             <th style="width:5%;">
-              <% if (edit) { %><a id="add" title="add" href="javascript:;" class="user user-green add"><% } %>
-              </a>
+              <% if (edit) { %><a id="add" title="add" href="javascript:;" class="img_link add"></a><% } %>
             </th>
             <th style="width:20%;">ProbNum</th>
             <th style="width:30%;">Alias</th>
@@ -114,7 +113,7 @@
         <% probs.forEach(function(p, i) { %>
           <tr>
             <td>
-              <% if (edit) { %><a title="delete" href="javascript:;" class="mc user user-red delete"></a><% } %>
+              <% if (edit) { %><a title="delete" href="javascript:;" class="mc img_link delete"></a><% } %>
             </td>
             <td><input type="text" class="probnum input-mini" value="<%= p[0] %>" <% if (!edit) { %>disabled<% } %> /></td>
             <td><input type="text" class="alias input-medium" value="<%= p[1] ? p[1] : '' %>" /></td>
