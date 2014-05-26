@@ -1303,7 +1303,7 @@ exports.rejudge = function(req, res) {
               if (!cids || cids.length == 0) {
                 return RP();
               }
-              ContestRank.update({'_id.cid': {$in: cids}}, {$set: {value:{solved:0,penalty:0,status:{}}}}, function(err){
+              ContestRank.clear({'_id.cid': {$in: cids}}, function(err){
                 if (err) {
                   OE(err);
                   return res.end();
@@ -2457,7 +2457,7 @@ exports.doAddcontest = function(req, res) {
             if (!flg) {
               return res.end(tp);
             }
-            ContestRank.update({'_id.cid':cid}, {$set:{value:{solved:0,penalty:0,status:{}}}}, function(err){
+            ContestRank.clear({'_id.cid':cid}, function(err){
               if (err) {
                 OE(err);
                 req.session.msg = '系统错误！';

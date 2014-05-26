@@ -3,7 +3,8 @@ var mongoose = require('mongoose')
 ,   Schema = mongoose.Schema
 ,   settings = require('../settings')
 ,   pageNum = settings.contestRank_pageNum
-,   OE = settings.outputErr;
+,   OE = settings.outputErr
+,   initialValue = { penalty: 0, solved: 0, submitTime: 0 };
 
 function Rank(cid, name) {
   this.cid = cid;
@@ -23,7 +24,7 @@ var ranks = mongoose.model('ranks');
 Rank.prototype.save = function(callback) {
   //存入 Mongodb 的文档
   rank = new ranks();
-  rank.value = { penalty: 0, solved: 0, submitTime: 0 };
+  rank.value = initialValue;
   rank._id = new Object({ name: this.name, cid: this.cid });
   rank.save(function(err){
     if (err) {
@@ -75,8 +76,8 @@ Rank.count = function(Q, callback) {
   });
 };
 
-Rank.update = function(Q, H, callback) {
-  ranks.update(Q, H, {multi:true}, function(err){
+Rank.clear = function(Q, callback) {
+  ranks.update(Q, {value: initialValue}, {multi:true}, function(err){
     if (err) {
       OE('Rank.update failed!');
     }
