@@ -2981,13 +2981,13 @@ exports.sourcecode = function(req, res) {
   if (!runid) {
     return res.redirect('/404');
   }
-  Solution.watch({runID:runid}, function(err, solution) {
+  Solution.watch({runID:runid}, function(err, sol) {
     if (err) {
       OE(err);
       req.session.msg = '系统错误！';
       return res.redirect('/');
     }
-    if (!solution) {
+    if (!sol) {
       return res.redirect('/404');
     }
     var RP = function(flg){
@@ -2995,7 +2995,7 @@ exports.sourcecode = function(req, res) {
                                 user: req.session.user,
                                 time: (new Date()).getTime(),
                                 key: 11,
-                                solution: solution,
+                                solution: sol,
                                 getDate: getDate,
                                 flg: flg,
                                 Res: Res
@@ -3004,22 +3004,37 @@ exports.sourcecode = function(req, res) {
     if (!req.session.user) {
       return RP(false);
     }
-    if (solution && req.session.user.name != solution.userName &&
-        req.session.user.name != 'admin') {
-      Contest.watch(solution.cID, function(err, contest){
+    var name = req.session.user.name;
+    if (name == sol.userName || name == 'admin') {
+      return RP(true);
+    }
+    Problem.watch(sol.problemID, function(err, prob){
+      if (err) {
+        OE(err);
+        req.session.msg = '系统错误！';
+        return res.redirect('/');
+      }
+      if (!prob) {
+        return res.redirect('/404');
+      }
+      if (name == prob.manager) {
+        return RP(true);
+      }
+      if (sol.cID < 0) {
+        return RP(false);
+      }
+      Contest.watch(sol.cID, function(err, contest){
         if (err) {
           OE(err);
           req.session.msg = '系统错误！';
           return res.redirect('/');
         }
-        if (contest && contest.userName == req.session.user.name) {
+        if (contest && name == contest.userName) {
           return RP(true);
         }
         return RP(false);
       });
-    } else {
-      return RP(true);
-    }
+    });
   });
 };
 
