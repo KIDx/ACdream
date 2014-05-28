@@ -273,10 +273,7 @@ $(document).ready(function(){
             tickPixelInterval: 100,
             type: 'datetime',
             dateTimeLabelFormats: {
-                millisecond: '%H:%M:%S.%L',
-                second: '%H:%M:%S',
-                minute: '%H:%M',
-                hour: '%H:%M',
+                millisecond: '%e. %b',
                 day: '%e. %b',
                 week: '%e. %b',
                 month: '%b %Y',
