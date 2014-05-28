@@ -139,8 +139,6 @@ app.post('/editTag', routes.editTag);
 app.post('/rejudge', routes.rejudge);
 //单个提交重判
 app.post('/singleRejudge', routes.singleRejudge);
-//VIPContest增加指定用户(for admin)
-app.post('/regContestAdd', routes.regContestAdd);
 //VIP Contest添加参赛者(for admin)
 app.post('/addContestant', routes.addContestant);
 //将指定用户从比赛中移除(for admin)

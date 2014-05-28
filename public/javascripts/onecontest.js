@@ -1082,43 +1082,6 @@ $(document).ready(function(){
 	}
 });
 
-//add user
-var $adduser = $('#user-add')
-,	$userstr = $('#userstr')
-,	$adderr = $('#adderr');
-
-$(document).ready(function(){
-	if ($adduser.length) {
-		$adduser.click(function(){
-			if ($(this).hasClass('disabled')) {
-				return false;
-			}
-			var name = JudgeString($userstr.val());
-			if (!name) {
-				errAnimate($adderr, '用户名不能为空！');
-				return false;
-			}
-			$adduser.addClass('disabled');
-			$.ajax({
-				type : 'POST',
-				url : '/regContestAdd',
-				data : {
-					cid : cid,
-					name : name
-				}, 
-				dataType : 'text',
-				error: function() {
-					$adduser.removeClass('disabled');
-					ShowMessage('无法连接到服务器！');
-				}
-			})
-			.done(function(){
-				window.location.reload(true);
-			});
-		});
-	}
-});
-
 //toggle star
 var $star = $('#star')
 ,	$starstr = $('#starstr')

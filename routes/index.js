@@ -3233,56 +3233,6 @@ exports.contestReg = function(req, res) {
   });
 };
 
-exports.regContestAdd = function(req, res) {
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
-  if (req.session.user.name != 'admin') {
-    req.session.msg = 'You have no permission to do that!';
-    return res.end();
-  }
-  var name = clearSpace(req.body.name);
-  if (!name) {
-    return res.end();  //not allow
-  }
-  var cid = parseInt(req.body.cid, 10);
-  if (!cid) {
-    return res.end();  //not allow
-  }
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      OE(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
-    if (!contest) {
-      return res.end(); //not allow
-    }
-    User.watch(name, function(err, user){
-      if (err) {
-        OE(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
-      if (!user) {
-        req.session.msg = 'The user is not exist.';
-        return res.end();
-      }
-      regContestAndUpdate(cid, name, function(err){
-        if (err) {
-          OE(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
-        req.session.msg = '添加完成！';
-        return res.end();
-      });
-    });
-  });
-};
-
 exports.regContestRemove = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
