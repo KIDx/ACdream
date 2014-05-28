@@ -13,7 +13,7 @@
 		<div class="topic_box">
 			<div class="header">
 				<% if (user && (user.name == 'admin' || user.name == topic.user)) { %>
-				<a style="margin-left:10px;" class="fr uibtn uibtn-mini" href="/addtopic?tid=<%= topic.id %>">&nbsp;编辑&nbsp;</a>
+				<a style="margin-left:10px;" title="编辑" class="img_link edit fr" href="/addtopic?tid=<%= topic.id %>"></a>
 				<% } %>
 				<span class="fr user user-black">浏览次数：<%= topic.browseQty %></span>
 				<a href="/topic">论坛主页</a>
