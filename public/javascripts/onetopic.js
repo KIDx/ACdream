@@ -205,3 +205,11 @@ $(document).ready(function(){
 		});
 	}
 });
+
+var $add = $('.add');
+
+$(document).ready(function(){
+	if ($add.length) {
+		bindAdd($add);
+	}
+});

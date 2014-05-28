@@ -35,6 +35,8 @@ a.img_link {
 }
 
 a.add {
+    display: inline-block;
+    vertical-align: top;
     background: url('img/add.png');
 }
 

@@ -5,6 +5,7 @@
 <% } else { %>
 <% img = '/img/avatar/%3Ddefault%3D/3.jpeg'; %>
 <% } %>
+<% var add = (topic.cid > 0 && user && user.name == 'admin') ? true : false; %>
 <fieldset>
 	<div>
 		<legend id="onetopic" tid="<%= topic.id %>">论坛</legend>
@@ -47,7 +48,7 @@
 			<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
 			<% } %>
 			<div id="<%= p.id %>" class="reply_area">
-				<%- partial('comment', {isParent: true, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC}) %>
+				<%- partial('comment', {isParent: true, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC, add: add, cid: topic.cid}) %>
 		<% var fa = p.id; %>
 		<% if (sub[p.id] && sub[p.id].length) { %>
 			<% sub[p.id].forEach(function(p){ %>
@@ -57,7 +58,7 @@
 				<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
 				<% } %>
 				<div id="<%= p.id %>" class="reply_sub">
-					<%- partial('comment', {isParent: false, fa: fa, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC}) %>
+					<%- partial('comment', {isParent: false, fa: fa, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC, add: add, cid: topic.cid}) %>
 				</div>
 			<% }); %>
 		<% } %>
@@ -79,3 +80,42 @@
 	<% } %>
 	</div>
 </fieldset>
+<% if (add) { %>
+<script type="text/javascript">
+function bindAdd($add) {
+	$add.click(function(){
+		var $p = $(this);
+		if ($p.hasClass('disabled')) {
+			return false;
+		}
+		$p.addClass('disabled');
+		$.ajax({
+			type: 'POST',
+			url: '/addContestant',
+			data: {
+				tid: <%= topic.id %>,
+				cid: <%= topic.cid %>,
+				name: $p.attr('data-user'),
+				fa: $p.attr('data-id')
+			},
+			dataType: 'text',
+			error: function() {
+				$p.removeClass('disabled');
+				ShowMessage('无法连接到服务器！');
+			}
+		})
+		.done(function(res){
+			if (!res) {
+				window.location.reload(true);
+				return ;
+			} else if (res == '1') {
+				ShowMessage($p.attr('data-user')+'已是该比赛的参赛者，无需添加。');
+			} else if (res == '3') {
+				ShowMessage('系统错误！');
+			}
+			$p.removeClass('disabled');
+		});
+	});
+}
+</script>
+<% } %>

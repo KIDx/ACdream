@@ -6,6 +6,9 @@
 <div class="reply_right">
 	<div>
 		<a href="/user/<%= p.user %>" title="<%= UT[p.user] %>" class="user user-<%= UC[p.user] %>"><%= p.user %></a>
+		<% if (add && p.user != 'admin') { %>
+		<a href="javascript:;" data-id="<%= p.id %>" data-user="<%= p.user %>" title="将<%= p.user %>添加到参赛者" class="img_link add"></a>
+		<% } %>
 		<% if (isParent) { %>
 		<span class="user-gray fr">#<%= num %></span>
 		<% } else { %>

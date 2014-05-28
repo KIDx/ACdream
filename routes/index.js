@@ -3854,3 +3854,76 @@ exports.editComment = function(req, res) {
     return res.end();
   });
 };
+
+exports.addContestant = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.end();
+  }
+  if (req.session.user.name != 'admin') {
+    return res.end(); //not allow
+  }
+  var name = clearSpace(req.body.name);
+  var cid = parseInt(req.body.cid, 10);
+  var fa = parseInt(req.body.fa, 10);
+  var tid = parseInt(req.body.tid, 10);
+  if (!cid || !name || !fa || !tid) {
+    return res.end(); //not allow
+  }
+  Contest.watch(cid, function(err, contest){
+    if (err) {
+      OE(err);
+      return res.end('3');
+    }
+    if (!contest) {
+      return res.end(); //not allow
+    }
+    User.watch(name, function(err, user){
+      if (err) {
+        OE(err);
+        return res.end('3');
+      }
+      if (!user) {
+        return res.end(); //not allow
+      }
+      if (contest.contestants.indexOf(user.name) >= 0) {
+        return res.end('1');
+      }
+      regContestAndUpdate(cid, name, function(err){
+        if (err) {
+          OE(err);
+          return res.end('3');
+        }
+        IDs.get('topicID', function(err, id){
+          if (err) {
+            OE(err);
+            return res.end('3');
+          }
+          (new Comment({
+            id: id,
+            content: '添加完成~',
+            user: 'admin',
+            tid: tid,
+            fa: fa,
+            at: name,
+            inDate: (new Date()).getTime()
+          })).save(function(err){
+            if (err) {
+              OE(err);
+              return res.end('3');
+            }
+            Topic.update(tid, {$inc: {reviewsQty: 1}}, function(err){
+              if (err) {
+                OE(err);
+                return res.end('3');
+              }
+              req.session.msg = '添加完成！';
+              return res.end();
+            });
+          });
+        });
+      });
+    });
+  });
+};
