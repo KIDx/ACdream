@@ -60,7 +60,7 @@
       <% if(u.school) { %>
         <li><img class="icon" src="/img/school.png"/>School: <%= u.school %></li>
       <% } %>
-        <li><img class="icon" src="/stylesheets/img/add.png"/>AddProblem: <% if(u.addprob) { %><span class="user user-green">YES</span><% } else { %><span class="error-text">NO</span><% } %></li>
+        <li><img class="icon" src="/img/add.png"/>AddProblem: <% if(u.addprob) { %><span class="user user-green">YES</span><% } else { %><span class="error-text">NO</span><% } %></li>
         <li>Last Visit: <%= getTime(u.visTime) %></li>
         <li>Registered: <%= getTime(u.regTime) %></li>
       </ul>

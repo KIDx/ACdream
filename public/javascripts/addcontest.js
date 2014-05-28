@@ -125,7 +125,7 @@ $(document).ready(function(){
 				return false;
 			}
 			var html = '<tr><td>'
-			html += '<a title="delete" href="javascript:;" class="mc user user-red delete"></a>';
+			html += '<a title="delete" href="javascript:;" class="img_link delete"></a>';
 			html += '</td><td><input type="text" class="probnum input-mini"'
 			if ($pid_in.length) {
 				var pid = parseInt($pid_in.last().val(),10)+1;
@@ -133,8 +133,8 @@ $(document).ready(function(){
 					html += 'value="'+pid+'"';
 				}
 			}
-			html += '/></td>';
-			html += '<td><input type="text" class="alias input-medium" /></td>';
+			html += '></td>';
+			html += '<td><input type="text" class="alias input-medium"></td>';
 			html += '<td class="bold p_index"></td>';
 			html += '<td class="error-text title" style="text-align:left;">';
 			html += '</td></tr>';
