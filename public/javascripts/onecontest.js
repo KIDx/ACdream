@@ -236,7 +236,9 @@ function Response(json) {
 		window.location.hash = '#status-'+$search.val()+'-'+$pid.val()+'-'+$result.val()+'-'+$(this).parent().attr('id');
 	});
 	$singleRejudge = $tbody.find('a.rejudge');
-	bindSingleRejudge($singleRejudge);
+  if ($singleRejudge.length) {
+	  bindSingleRejudge($singleRejudge);
+  }
 	BindCE();
 	$loading.hide();
 	$status.fadeIn(100, function(){
