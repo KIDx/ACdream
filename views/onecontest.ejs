@@ -255,6 +255,11 @@
 <!--ranktab-->
       <% var mw = 6 + 41 + 181 + 81 + 41 + 61 + 81*probNum; %>
       <div class="tab-pane" id="ranktab" style="margin:0px 10px;">
+      <div id="rankheader" style="width:<%= mw-6 %>px">
+        <table class="table table-rank">
+          <%- partial('rankheader', {probNum: probNum, F: F}) %>
+        </table>
+      </div>
       <% if (watch) { %>
         <% if (contest.type == 2) { %>
         <div class="form-inline">
@@ -287,18 +292,7 @@
           <div id="tablediv">
             <table class="table table-rank tdcenter">
               <thead>
-                <tr>
-                  <th class="rank">#</th>
-                  <th class="name">Name</th>
-                  <th class="nick">Nick</th>
-                  <th class="solved" title="solved"><span class="user-green">S</span></th>
-                  <th class="penalty" title="penalty(罚时)"><span class="user-red">P</span></th>
-                  <% for(var i = 0; i < probNum; i++) { %>
-                  <th class="standing_status">
-                    <a href="#problem-<%= F[i] %>"><%= F[i] %></a>
-                  </th>
-                  <% } %>
-                </tr>
+                <%- partial('rankheader', {probNum: probNum, F: F}) %>
               </thead>
               <tbody></tbody>
             </table>

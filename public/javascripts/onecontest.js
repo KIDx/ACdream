@@ -490,7 +490,9 @@ function GetProblem() {
 }
 
 var $rank = $div.find('#ranktab')
-,   $ranktbody = $rank.find('table tbody')
+,   $rankheader = $rank.find('#rankheader')
+,   $ranktable = $rank.find('#tablediv')
+,   $ranktbody = $ranktable.find('tbody')
 ,   $ranklist = $rank.find('#ranklist')
 ,   $ranklist_a
 ,   $removebtn
@@ -502,9 +504,20 @@ var $rank = $div.find('#ranktab')
 ,   rankAjax
 ,   rankInterval;
 
-//deal with overflow rank table
 $(document).ready(function(){
+	//deal with overflow rank table
 	$rank.width($('#widthfix').width()-22);
+	//deal with rankheader
+	$(window).scroll(function(){
+		if (!isActive(3)) {
+			return false;
+		}
+		if ($(window).scrollTop() > $ranktable.offset().top) {
+			$rankheader.show();
+		} else {
+			$rankheader.hide();
+		}
+	});
 });
 
 function buildRank(U) {

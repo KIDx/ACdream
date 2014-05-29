@@ -1228,15 +1228,19 @@ table#problemset tr td div#dif_bg img {
     top: 0;
 }
 
-div#ranktab div.tablebg table th a {
+#ranktab {
+    position: relative;
+}
+
+#ranktab .tablebg table th a {
     text-decoration: underline;
 }
 
-div#ranktab div.tablebg table td {
+#ranktab .tablebg table td {
     padding: .5em 0;
 }
 
-div#ranktab div.form-inline {
+#ranktab .form-inline {
     margin-bottom: 10px;
 }
 
@@ -1273,7 +1277,7 @@ div.prob-tag a.tag {
     text-decoration: none;
 }
 
-.table-rank tbody tr {
+#tablediv .table-rank tbody tr {
     height: 45px;
 }
 
@@ -1295,28 +1299,39 @@ div.prob-tag a.tag {
     overflow: visible;
 }
 
-th.rank {
+#rankheader {
+    display: none;
+    position: fixed;
+    top: 0;
+    z-index: 100;
+    padding: 0 3px;
+}
+
+#rankheader > table th {
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+
+.rank {
     width: 40px;
 }
 
-th.name {
-}
-
-th.nick {
+.nick {
     width: 80px;
 }
 
-th.solved {
+.solved {
     width: 40px;
     cursor: pointer;
 }
 
-th.penalty {
+.penalty {
     width: 60px;
     cursor: pointer;
 }
 
-th.standing_status {
+.standing_status {
     width: 80px;
 }
 

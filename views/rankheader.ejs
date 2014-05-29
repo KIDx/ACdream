@@ -1,0 +1,12 @@
+<tr>
+    <th class="rank">#</th>
+    <th class="name">Name</th>
+    <th class="nick">Nick</th>
+    <th class="solved" title="solved"><span class="user-green">S</span></th>
+    <th class="penalty" title="penalty(罚时)"><span class="user-red">P</span></th>
+    <% for(var i = 0; i < probNum; i++) { %>
+    <th class="standing_status">
+        <a href="#problem-<%= F[i] %>"><%= F[i] %></a>
+    </th>
+    <% } %>
+</tr>
