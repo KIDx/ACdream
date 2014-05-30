@@ -1518,7 +1518,7 @@ exports.calRating = function(req, res) {
             } else {
               K = 1;
             }
-            var newRating = Math.round(old + K*(act[pi.name]-exp));
+            var newRating = Math.round(old + K*(act[pi.name]-exp)*0.5);
             User.update({name: pi.name}, {
               $set: {
                 lastRatedContest: cid,
