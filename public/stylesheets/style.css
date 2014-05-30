@@ -103,7 +103,8 @@ td.first_blood {
 }
 
 .topic_timer > img {
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.62);
+    border-radius: 2px;
+    border: 1px solid #ccc;
 }
 
 .topic_timer > span {
