@@ -25,7 +25,10 @@ var topicObj = new Schema({
   inDate: Number,
   reviewsQty: Number,
   browseQty: Number,
-  top: Boolean
+  top: Boolean,
+  lastReviewer: String,
+  lastReviewTime: Number,
+  lastComment: Number
 });
 
 mongoose.model('topics', topicObj);
@@ -38,7 +41,7 @@ Topic.prototype.save = function(callback) {
   topic.content = this.content;
   topic.user = this.user;
   topic.cid = this.cid;
-  topic.inDate = this.inDate;
+  topic.lastReviewTime = topic.inDate = this.inDate;
   topic.reviewsQty = topic.browseQty = 0;
   topic.top = false;
   topic.save(function(err){
@@ -54,7 +57,7 @@ Topic.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    topics.find(Q).sort({top:-1, inDate:-1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    topics.find(Q).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('Topic.get failed!');
       }
@@ -64,7 +67,7 @@ Topic.get = function(Q, page, callback) {
 };
 
 Topic.watch = function(tid, callback) {
-  topics.findOne({id:tid}, function(err, doc){
+  topics.findOne({id: tid}, function(err, doc){
     if (err) {
       OE('Topic.watch failed!');
     }
@@ -82,9 +85,18 @@ Topic.update = function(tid, H, callback) {
 };
 
 Topic.topFive = function(Q, callback) {
-  topics.find(Q).sort({inDate: -1}).limit(5).exec(function(err, docs){
+  topics.find(Q).sort({lastReviewTime: -1}).limit(5).exec(function(err, docs){
     if (err) {
       OE('Topic.topFive failed!');
+    }
+    return callback(err, docs);
+  });
+};
+
+Topic.find = function(Q, callback) {
+  topics.find(Q, function(err, docs){
+    if (err) {
+      OE('Topic.find failed!');
     }
     return callback(err, docs);
   });

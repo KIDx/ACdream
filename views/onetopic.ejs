@@ -33,7 +33,7 @@
 				<%- topic.content %>
 				<hr />
 				<span class="fr">Added by <a href="/user/<%= topic.user %>" title="<%= UT[topic.user] %>" class="user user-<%= UC[topic.user] %>"><%= topic.user %>.</a></span>
-				于 <span class="user-gray"><%= getDate(topic.inDate) %></span> 最后编辑
+				<span class="user-gray">最后一次编辑是 <%= getDate(topic.inDate) %></span> 
 			</div>
 		</div>
 	<% if (comments && comments.length) { %>
@@ -67,7 +67,7 @@
 		</div>
 	<% } %>
 	<% if (user) { %>
-		<div class="topic_box form-horizontal">
+		<div class="topic_box form-horizontal" style="min-height:400px;">
 			<div class="header">添加回复</div>
 			<div class="inner_topic">
 				<textarea id="content"></textarea>

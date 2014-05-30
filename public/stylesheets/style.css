@@ -95,6 +95,21 @@ td.first_blood {
     background: #65bb81;
 }
 
+.topic_timer {
+    color: gray;
+    display: block;
+    float: right;
+    text-decoration: none!important;
+}
+
+.topic_timer > img {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.62);
+}
+
+.topic_timer > span {
+    margin-left: 8px;
+}
+
 .fl {
     float: left;
 }
@@ -891,6 +906,12 @@ div.avatar {
 .img_s {
     width: 50px;
     height: 50px;
+}
+
+.avatar_ss .img,
+.img_ss {
+    width: 30px;
+    height: 30px;
 }
 
 .avatar_b {

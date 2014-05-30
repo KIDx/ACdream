@@ -69,6 +69,38 @@ var settings = require('../settings')
 var data_path = settings.data_path
 ,   root_path = settings.root_path;
 
+exports.FixDB = function() {
+  console.log("start:");
+  Topic.find({}, function(err, topics){
+    if (err) {
+      console.log(err);
+      return ;
+    }
+    console.log("topics: "+topics.length);
+    topics.forEach(function(p){
+      p.lastReviewTime = p.inDate;
+      Comment.findLast({tid: p.id}, function(err, comment){
+        if (err) {
+          console.log(err);
+          return ;
+        }
+        if (comment && comment.inDate > p.lastReviewTime) {
+          p.lastReviewTime = comment.inDate;
+          p.lastReviewer = comment.user;
+          p.lastComment = comment.id;
+        }
+        p.save(function(err){
+          if (err) {
+            console.log(err);
+            return ;
+          }
+          console.log(p.id+" ok.");
+        });
+      });
+    });
+  });
+}
+
 function nan(n) {
   return n != n;
 }
@@ -3359,10 +3391,17 @@ exports.topic = function(req, res) {
     if (n < 0) {
       return res.redirect('/topic');
     }
-    var names = new Array(), I = {};
+    var names = new Array(), I = {}, has = {};
     if (topics) {
       topics.forEach(function(p){
-        names.push(p.user);
+        if (!has[p.user]) {
+          names.push(p.user);
+          has[p.user] = true;
+        }
+        if (p.lastReviewer && !has[p.lastReviewer]) {
+          names.push(p.lastReviewer);
+          has[p.lastReviewer] = true;
+        }
       });
     }
     User.find({name: {$in: names}}, function(err, users){
@@ -3530,10 +3569,13 @@ exports.doAddtopic = function(req, res) {
   }
   if (tid) {
     var RP = function() {
+      var now = (new Date()).getTime();
       Topic.update(tid, {$set: {
-        title   : title,
-        content  : xss(content, xss_options),
-        inDate    : (new Date()).getTime()
+        title: title,
+        content: xss(content, xss_options),
+        inDate: now,
+        lastReviewer: null,
+        lastReviewTime: now
       }}, function(err){
         if (err) {
           OE(err);
@@ -3574,12 +3616,12 @@ exports.doAddtopic = function(req, res) {
         return res.end('2');
       }
       (new Topic({
-        id      : id,
-        title  : title,
-        content : xss(content, xss_options),
-        cid   : cid,
-        user    : req.session.user.name,
-        inDate  : (new Date()).getTime()
+        id: id,
+        title: title,
+        content: xss(content, xss_options),
+        cid: cid,
+        user: req.session.user.name,
+        inDate: (new Date()).getTime()
       })).save(function(err){
         if (err) {
           OE(err);
@@ -3709,20 +3751,24 @@ exports.review = function(req, res) {
       OE(err);
       return res.end('3');
     }
+    var now = (new Date()).getTime();
     (new Comment({
-      id      : id,
-      content : xss(content, xss_options),
-      user    : user,
-      tid   : tid,
-      fa      : fa,
-      at      : at,
-      inDate  : (new Date()).getTime()
+      id: id,
+      content: xss(content, xss_options),
+      user: user,
+      tid: tid,
+      fa: fa,
+      at: at,
+      inDate: now
     })).save(function(err){
       if (err) {
         OE(err);
         return res.end('3');
       }
-      Topic.update(tid, {$inc: {reviewsQty: 1}}, function(err){
+      Topic.update(tid, {
+        $set: {lastReviewer: user, lastReviewTime: now, lastComment: id},
+        $inc: {reviewsQty: 1}
+      }, function(err){
         if (err) {
           OE(err);
           return res.end('3');
@@ -3767,13 +3813,34 @@ exports.delComment = function(req, res) {
           OE(err);
           return res.end('3');
         }
-        Topic.update(comment.tid, {$inc: {reviewsQty: -(cnt+1)}}, function(err){
+        Comment.findLast({tid: comment.tid}, function(err, com){
           if (err) {
             OE(err);
             return res.end('3');
           }
-          req.session.msg = '删除成功！';
-          return res.end();
+          Topic.watch(comment.tid, function(err, topic){
+            if (err) {
+              OE(err);
+              return res.end('3');
+            }
+            var set;
+            if (com && com.inDate > topic.inDate) {
+              set = {lastReviewer: com.user, lastReviewTime: com.inDate, lastComment: com.id};
+            } else {
+              set = {lastReviewer: null, lastReviewTime: topic.inDate, lastComment: null};
+            }
+            Topic.update(comment.tid, {
+              $set: set,
+              $inc: {reviewsQty: -(cnt+1)}
+            }, function(err){
+              if (err) {
+                OE(err);
+                return res.end('3');
+              }
+              req.session.msg = '删除成功！';
+              return res.end();
+            });
+          });
         });
       });
     });

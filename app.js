@@ -50,6 +50,7 @@ app.use(function(req, res, next){
   });
 });
 
+routes.FixDB();
 //#####server response
 //主页
 app.get('/', routes.index);

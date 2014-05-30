@@ -104,3 +104,12 @@ Comment.remove = function(Q, callback) {
     return callback(err);
   });
 };
+
+Comment.findLast = function(Q, callback) {
+  comments.findOne(Q).sort({inDate: -1}).exec(function(err, doc){
+    if (err) {
+      OE('Comment.findLast failed!');
+    }
+    return callback(err, doc);
+  });
+};
