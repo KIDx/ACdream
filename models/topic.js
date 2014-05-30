@@ -92,12 +92,3 @@ Topic.topFive = function(Q, callback) {
     return callback(err, docs);
   });
 };
-
-Topic.find = function(Q, callback) {
-  topics.find(Q, function(err, docs){
-    if (err) {
-      OE('Topic.find failed!');
-    }
-    return callback(err, docs);
-  });
-};
