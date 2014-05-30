@@ -69,38 +69,6 @@ var settings = require('../settings')
 var data_path = settings.data_path
 ,   root_path = settings.root_path;
 
-exports.FixDB = function() {
-  console.log("start:");
-  Topic.find({}, function(err, topics){
-    if (err) {
-      console.log(err);
-      return ;
-    }
-    console.log("topics: "+topics.length);
-    topics.forEach(function(p){
-      p.lastReviewTime = p.inDate;
-      Comment.findLast({tid: p.id}, function(err, comment){
-        if (err) {
-          console.log(err);
-          return ;
-        }
-        if (comment && comment.inDate > p.lastReviewTime) {
-          p.lastReviewTime = comment.inDate;
-          p.lastReviewer = comment.user;
-          p.lastComment = comment.id;
-        }
-        p.save(function(err){
-          if (err) {
-            console.log(err);
-            return ;
-          }
-          console.log(p.id+" ok.");
-        });
-      });
-    });
-  });
-}
-
 function nan(n) {
   return n != n;
 }
