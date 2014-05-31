@@ -35,8 +35,6 @@ var ProTil = ['','2-satisfiability','Binary search','Bitmasks','Brute force','С
 'Suffix arrays, suffix trees, suffix automatas, etc', 'Prefix- and Z-functions, suffix structures, Knuth–Morris–Pratt algorithm, etc',
 'Ternary search', 'Trees', 'Two pointers'];
 
-var easy_tips = ['未设置', '神题', '金牌题', '银牌题', '铜牌题', '水题'];
-
 var fs = require('fs')
 ,   errlog = fs.createWriteStream(__dirname+'/error.log', {flags: 'a'});
 
@@ -70,7 +68,6 @@ module.exports = {
   data_path           : __dirname+'/data/',
   T: Tag,
   P: ProTil,
-  easy_tips: easy_tips,
   languages: ['', 'C', 'C++'],//, 'Java'],
   C: function(n) {    //return status' color
     switch(n) {

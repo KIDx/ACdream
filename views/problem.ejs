@@ -95,21 +95,14 @@
           </div>
         </div>
       </div>
-      <% if (user && user.addprob) { %>
+      <% if (user && (user.name == problem.manager || user.name == 'admin')) { %>
       <div class="sidebox">
         <div class="side-header">→ Edit Problem</div>
         <ul class="edit">
-          <% if (user.name == problem.manager || user.name == 'admin') { %>
           <li>Hidden:
             <select class="side-input" id="phide">
               <option value="1">Yes</option>
               <option value="" <% if (!problem.hide) { %>selected<% } %>>No</option>
-            </select>
-          </li>
-          <% } %>
-          <li>Difficulty:
-            <select class="side-input" id="peasy">
-              <%- partial('easy', {easy: problem.easy, tips: tips}) %>
             </select>
           </li>
         </ul>

@@ -163,8 +163,6 @@ app.post('/calRating', routes.calRating);
 app.post('/toggleStar', routes.toggleStar);
 //切换话题置顶状态
 app.post('/toggleTop', routes.toggleTop);
-//修改指定题目的难度
-app.post('/updateEasy', routes.updateEasy);
 //添加回复
 app.post('/review', routes.review);
 //删除回复

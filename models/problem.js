@@ -31,7 +31,6 @@ var problemObj = new Schema({
   tags: Array,
   manager: String,
   TC: Boolean,
-  easy: Number,
   lastmodified: Number
 });
 
@@ -57,7 +56,6 @@ Problem.prototype.save = function(callback) {
   problem.memoryLimit = 64000;
   problem.hide = true;
   problem.TC = false;
-  problem.easy = 0;
   problem.lastmodified = (new Date()).getTime();
   if (this.manager) problem.manager = this.manager;
   problem.tags = new Array();

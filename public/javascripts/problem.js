@@ -137,7 +137,6 @@ $(document).ready(function(){
 });
 
 var $phide = $('#phide')
-,	$peasy = $('#peasy')
 ,	$star = $('#easy_star')
 ,	success_msg = 'Problem '+pid+' has been updated successfully!';
 
@@ -156,30 +155,6 @@ $(document).ready(function(){
 				} else if (res == '2') {
 					window.location.reload(true);
 				} else {
-					ShowMessage(success_msg);
-				}
-			});
-		});
-	}
-	if ($peasy.length) {
-		$peasy.change(function(){
-			var e = $(this).val();
-			$.ajax({
-				type : 'POST',
-				url : '/updateEasy',
-				data : {
-					pid : pid,
-					easy : e
-				},
-				dataType : 'text'
-			})
-			.done(function(res){
-				if (res == '1') {
-					ShowMessage('系统错误！');
-				} else if (res == '2') {
-					window.location.reload(true);
-				} else {
-					$star.css({width: e*16+'px'});
 					ShowMessage(success_msg);
 				}
 			});

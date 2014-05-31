@@ -62,7 +62,6 @@ var settings = require('../settings')
 ,   OE = settings.outputErr
 ,   addZero = settings.addZero
 ,   getDate = settings.getDate
-,   easy_tips = settings.easy_tips
 ,   languages = settings.languages
 ,   xss_options = settings.xss_options;
 
@@ -1781,8 +1780,7 @@ exports.addproblem = function(req, res) {
                                problem: P,
                                key: tk,
                                files: F,
-                               imgs: I,
-                               tips: easy_tips
+                               imgs: I
     });
   }
   if (!pid) {
@@ -1838,8 +1836,6 @@ exports.doAddproblem = function(req, res) {
     var tc = false;
     if (req.body.TC == '1') tc = true;
     else tc = false;
-    var easy = parseInt(req.body.easy, 10);
-    if (!easy) easy = 0;
     Problem.update(pid, {$set: {
       title: title,
       description: String(req.body.Description),
@@ -1854,7 +1850,6 @@ exports.doAddproblem = function(req, res) {
       memoryLimit: mle,
       hide: hide,
       TC: tc,
-      easy: easy,
       lastmodified: (new Date()).getTime()
     }}, function(err) {
       if (err) {
@@ -2105,7 +2100,6 @@ exports.problem = function(req, res) {
                                   cid: cid,
                                   UT: UT,
                                   UC: UC,
-                                  tips: easy_tips,
                                   langs: languages
           });
         };
@@ -2184,8 +2178,7 @@ exports.problemset = function(req, res) {
                                 search: search,
                                 Tag: Tag,
                                 Pt: ProTil,
-                                R: R,
-                                tips: easy_tips
+                                R: R
 
       });
     };
@@ -3665,42 +3658,6 @@ exports.toggleHide = function(req, res) {
       }
       if (problem.hide)
         return res.end('h');
-      return res.end();
-    });
-  });
-};
-
-exports.updateEasy = function(req, res) {
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'You have no permission to do that!';
-    return res.end('2');  //not allow
-  }
-  User.watch(req.session.user.name, function(err, user){
-    if (err) {
-      OE(err);
-      return res.end('1');
-    }
-    if (!user) {
-      return res.end();  //not allow
-    }
-    if (!user.addprob) {
-      req.session.msg = 'You have no permission to do that!';
-      return res.end('2');
-    }
-    var pid = parseInt(req.body.pid, 10)
-    ,  easy = parseInt(req.body.easy, 10);
-    if (!pid) {
-      return res.end();   //not allow
-    }
-    if (!easy) {
-      easy = 0;
-    }
-    Problem.update(pid, {$set: {easy: easy}}, function(err){
-      if (err) {
-        OE(err);
-        return res.end('1');
-      }
       return res.end();
     });
   });
