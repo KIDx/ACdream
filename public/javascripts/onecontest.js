@@ -529,10 +529,10 @@ function buildRank(U) {
 
 	html += '"><td';
 	if (user.solved > 0) {
-		if (rank < total*0.6 + 0.9) {
+		if (rank <= total*0.6 + 0.9) {
 			html += ' class="';
-			if (rank < total*0.1 + 0.9) html += 'gold';
-			else if (rank < total*0.3 + 0.9) html += 'silver';
+			if (rank <= total*0.1 + 0.9) html += 'gold';
+			else if (rank <= total*0.3 + 0.9) html += 'silver';
 			else html += 'bronze';
 			html += '"';
 		}
