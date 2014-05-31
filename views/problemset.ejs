@@ -22,7 +22,6 @@
         <thead>
           <tr>
             <th style="width:65px;">#</th>
-            <th style="width:100px;">easy?</th>
             <th>Title</th>
             <th style="width:70px;"></th>
             <th style="width:150px;">Source</th>
@@ -49,12 +48,6 @@
         <% } %>
           <tr class="<%= c %>">
             <td class="center <%= s %>"><%= p.problemID %></td>
-            <td>
-              <div title="<%= tips[p.easy] %>" class="bgstar mc">
-                <span title="<%= tips[p.easy] %>" class="star" style="width:<%= p.easy*80/5 %>px;">
-                </span>
-              </div>
-            </td>
             <td>
             <% if (p.tags && p.tags.length > 0) { %>
               <div class="table-tab prob-tag">
