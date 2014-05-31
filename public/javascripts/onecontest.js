@@ -53,9 +53,8 @@ $(document).ready(function(){
 	}
 });
 
-//截流响应
-var interceptorTime = 200
-,	cnt;	//行号
+var interceptorTime = 200; //截流响应
+var cnt; //行号
 
 var $div = $('#thumbnail')
 ,	$contest = $('#contest')
@@ -489,20 +488,21 @@ function GetProblem() {
 	}, interceptorTime);
 }
 
-var $rank = $div.find('#ranktab')
-,   $rankheader = $rank.find('#rankheader')
-,   $ranktable = $rank.find('#tablediv')
-,   $ranktbody = $ranktable.find('tbody')
-,   $ranklist = $rank.find('#ranklist')
-,   $ranklist_a
-,   $removebtn
-,   $rank_refresh = $rank.find('#rank_refresh')
-,   rankQ = {cid:cid, page:1}
-,   rank = 1
-,   rankTimeout
-,   FB = {}
-,   rankAjax
-,   rankInterval;
+var $rank = $div.find('#ranktab');
+var $rankheader = $rank.find('#rankheader');
+var $ranktable = $rank.find('#tablediv');
+var $ranktbody = $ranktable.find('tbody');
+var $ranklist = $rank.find('#ranklist');
+var $ranklist_a;
+var $removebtn;
+var $rank_refresh = $rank.find('#rank_refresh');
+var rankQ = {cid:cid, page:1};
+var rank = 1;
+var rankTimeout;
+var FB = {};
+var rankAjax;
+var rankInterval;
+var total; //提交过代码的人数
 
 $(document).ready(function(){
 	//deal with overflow rank table
@@ -529,10 +529,10 @@ function buildRank(U) {
 
 	html += '"><td';
 	if (user.solved > 0) {
-		if (rank < 31) {
+		if (rank < total*0.6 + 0.9) {
 			html += ' class="';
-			if (rank < 6) html += 'gold';
-			else if (rank < 16) html += 'silver';
+			if (rank < total*0.1 + 0.9) html += 'gold';
+			else if (rank < total*0.3 + 0.9) html += 'silver';
 			else html += 'bronze';
 			html += '"';
 		}
@@ -596,7 +596,8 @@ function buildRank(U) {
 
 function RankResponse(json) {
 	if (!rankAjax || !json || !isActive(3)) return ;
-	rank = parseInt(json.pop(), 10);
+	total = json.pop();
+	rank = json.pop();
 	FB = json.pop();
 	$ranklist.html( buildPager(rankQ.page, json.pop()) );
 	I = json.pop();

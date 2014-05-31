@@ -521,7 +521,13 @@ exports.getRanklist = function(req, res) {
               });
             }
             var Resp = function() {
-              res.json([Users, rt, I, n, con.FB, rank]);
+              ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}}, function(err, cnt){
+                if (err) {
+                  OE(err);
+                  return res.end();
+                }
+                return res.json([Users, rt, I, n, con.FB, rank, cnt]);
+              });
             };
             if (req.session.user && !hasMe) {
               ContestRank.findOne({'_id.cid': cid, '_id.name': req.session.user.name}, function(err, u){
