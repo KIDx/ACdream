@@ -26,7 +26,7 @@
     "ejs": "*",
     "express-partials": "*",
     "canvas": "*",
-    "socket.io": "*",
+    "socket.io": "0.9.x",
     "gm": "*",
     "csv": "*",
     "xss":"*",
