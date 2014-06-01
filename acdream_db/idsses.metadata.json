@@ -1,1 +1,1 @@
-{ "indexes" : [ { "v" : 1, "name" : "_id_", "key" : { "_id" : 1 }, "ns" : "gzhu_db.idsses" }, { "v" : 1, "name" : "name_1", "key" : { "name" : 1 }, "unique" : true, "ns" : "gzhu_db.idsses", "background" : true, "safe" : null } ] }
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "name" : "_id_", "ns" : "acdream_db.idsses" }, { "v" : 1, "unique" : true, "key" : { "name" : 1 }, "name" : "name_1", "ns" : "acdream_db.idsses", "background" : true, "safe" : null } ] }
