@@ -1038,10 +1038,10 @@ $(document).ready(function(){
 			}
 			$del.addClass('disabled');
 			$.ajax({
-				type : 'POST',
-				url : '/contestDelete',
-				data : { cid : cid },
-				dataType : 'text',
+				type: 'POST',
+				url: '/contestDelete',
+				data: { cid : cid },
+				dataType: 'text',
 				error: function() {
 					$del.removeClass('disabled');
 					ShowMessage('无法连接到服务器！');
@@ -1067,21 +1067,21 @@ $(document).ready(function(){
 			$p.addClass('disabled');
 			var pid = $p.attr('pid');
 			$.ajax({
-				type : 'POST',
-				url : '/toggleHide',
-				data : { pid: pid },
-				dataType : 'text',
+				type: 'POST',
+				url: '/toggleHide',
+				data: { pid: pid },
+				dataType: 'text',
 				error: function() {
 					$p.removeClass('disabled');
 					ShowMessage('无法连接到服务器！');
 				}
 			})
 			.done(function(res){
-				if (res == '1') {
-					ShowMessage('系统错误！');
-				} else if (res == '2') {
+				if (!res) {
 					window.location.reload(true);
 					return ;
+				} else if (res == '3') {
+					ShowMessage('系统错误！');
 				} else {
 					if (res == 'h') {
 						$p.text('显示到题库');
@@ -1114,14 +1114,14 @@ $(document).ready(function(){
 			}
 			$star.addClass('disabled');
 			$.ajax({
-				type : 'POST',
-				url : '/toggleStar',
-				data : {
-					cid : cid,
-					str : str,
-					type : $('#type').val()
+				type: 'POST',
+				url: '/toggleStar',
+				data: {
+					cid: cid,
+					str: str,
+					type: $('#type').val()
 				}, 
-				dataType : 'text',
+				dataType: 'text',
 				error: function() {
 					$star.removeClass('disabled');
 					ShowMessage('无法连接到服务器！');

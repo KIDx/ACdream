@@ -3634,31 +3634,36 @@ exports.toggleTop = function(req, res) {
 
 exports.toggleHide = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  if (!req.session.user || req.session.user.name != 'admin') {
-    req.session.msg = 'You have no permission to do that!';
-    return res.end('2');  //not allow
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.end();
   }
   var pid = parseInt(req.body.pid, 10);
   if (!pid) {
-    return res.end();   //not allow
+    return res.end(); //not allow
   }
   Problem.watch(pid, function(err, problem){
     if (err) {
       OE(err);
-      return res.end('1');
+      return res.end('3');
     }
     if (!problem) {
-      return res.end();  //not allow
+      return res.end(); //not allow
+    }
+    var name = req.session.user.name;
+    if (name != 'admin' && name != problem.manager) {
+      req.session.msg = 'You have no permission to do that!';
+      return res.end();
     }
     problem.hide = !problem.hide;
     problem.save(function(err){
       if (err) {
         OE(err);
-        return res.end('1');
+        return res.end('3');
       }
       if (problem.hide)
         return res.end('h');
-      return res.end();
+      return res.end('s');
     });
   });
 };

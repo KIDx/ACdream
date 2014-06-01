@@ -136,9 +136,7 @@ $(document).ready(function(){
 	}
 });
 
-var $phide = $('#phide')
-,	$star = $('#easy_star')
-,	success_msg = 'Problem '+pid+' has been updated successfully!';
+var $phide = $('#phide');
 
 $(document).ready(function(){
 	if ($phide.length) {
@@ -150,12 +148,12 @@ $(document).ready(function(){
 				dataType : 'text'
 			})
 			.done(function(res){
-				if (res == '1') {
-					ShowMessage('系统错误！');
-				} else if (res == '2') {
+				if (!res) {
 					window.location.reload(true);
+				} else if (res == '3') {
+					ShowMessage('系统错误！');
 				} else {
-					ShowMessage(success_msg);
+					ShowMessage('Problem '+pid+' has been Updated successfully!');
 				}
 			});
 		});
