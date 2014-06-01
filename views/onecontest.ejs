@@ -137,7 +137,7 @@
                     <%= F[i] %>
                   </td>
                   <td>
-                    <% if (user && user.name == 'admin') { %>
+                    <% if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager)) { %>
                     <a class="fr uibtn uibtn-mini toggleHide" href="javascript:;" pid="<%= p[0] %>"><% if (Pt[p[0]].hide) { %>显示到题库<% } else { %>隐藏<% } %></a>
                     <% } %>
                     <a href="#problem-<%= F[i] %>"><%= p[1] ? p[1] : Pt[p[0]].title %></a>
