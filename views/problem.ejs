@@ -13,12 +13,12 @@
         <div class="side-header">→ Information</div>
         <ul class="info">
           <li>
-            <span class="user user-gray">Solved Number:</span>
-            <a href="/status?pid=<%= problem.problemID %>&result=2"><%= problem.AC %></a>
+            <span>Solved Number</span>
+            <a class="user-green" href="/status?pid=<%= problem.problemID %>&result=2"><%= problem.AC %></a>
           </li>
           <li>
-            <span class="user user-gray">Submit Number:</span>
-            <a href="/status?pid=<%= problem.problemID %>"><%= problem.submit %></a>
+            <span>Submit Number</span>
+            <a class="user-green" href="/status?pid=<%= problem.problemID %>"><%= problem.submit %></a>
           </li>
         </ul>
       </div>
