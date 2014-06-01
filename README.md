@@ -16,6 +16,9 @@ $ sudo apt-get update
 $ sudo apt-get install nodejs
 ```
 
+### 安装redis数据库
+http://blog.csdn.net/kidx_/article/details/26167091
+
 ### 安装mongodb数据库
 http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
 
