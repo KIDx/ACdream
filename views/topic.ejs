@@ -68,7 +68,7 @@
               <% if (now - p.inDate < 86400000) { %>
                 <img class="top" src="/img/new.gif" />
               <% } %>
-              <% if (p.lastReviewer && now - p.lastReviewTime < 3600000) { %>
+              <% if (p.lastReviewer && now - p.lastReviewTime < 86400000) { %>
                 <img class="top" src="/img/hot.gif" />
               <% } %>
             </td>

@@ -17,7 +17,10 @@
 						<span class="fr user-gray"><%= getTime(A[i].inDate) %></span>
 						<a href="/topic/<%= A[i].id %>"><%= A[i].title %></a>
 						<% if (now - A[i].inDate < 86400000) { %>
-						<img class="top" src="/img/new.gif" />
+						<img class="top" src="/img/new.gif">
+						<% } %>
+						<% if (A[i].lastReviewer && now - A[i].lastReviewTime < 86400000) { %>
+						<img class="top" src="/img/hot.gif">
 						<% } %>
 					<% } else { %>
 						<span class="user-gray">暂无</span>
@@ -36,17 +39,17 @@
 				<ul class="publish_list">
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
-						<img class="icon" src="/img/arrow.png"/>
+						<img class="icon" src="/img/arrow.png">
 					<% if (i < B.length) { %>
 						<% var pass = now - B[i].startTime; %>
 						<% if (pass < 0) { %>
 						<span class="fr text-info">即将开始，敬请期待</span>
 						<a href="/onecontest/<%= B[i].contestID %>"><%= B[i].title %></a>
-						<img class="top" src="/img/new.gif" />
+						<img class="top" src="/img/new.gif">
 						<% } else if (pass < B[i].len*60000) { %>
 						<span class="fr user-red">火热进行中</span>
 						<a href="/onecontest/<%= B[i].contestID %>"><%= B[i].title %></a>
-						<img class="top" src="/img/hot.gif" />
+						<img class="top" src="/img/hot.gif">
 						<% } else { %>
 						<span class="fr user-gray">已结束</span>
 						<a href="/onecontest/<%= B[i].contestID %>"><%= B[i].title %></a>
@@ -70,12 +73,15 @@
 				<ul class="publish_list">
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
-						<img class="icon" src="/img/arrow.png"/>
+						<img class="icon" src="/img/arrow.png">
 					<% if (i < C.length) { %>
 						<span class="fr user-gray"><%= getTime(C[i].inDate) %></span>
 						<a href="/topic/<%= C[i].id %>"><%= C[i].title %></a>
 						<% if (now - C[i].inDate < 86400000) { %>
-						<img class="top" src="/img/new.gif" />
+						<img class="top" src="/img/new.gif">
+						<% } %>
+						<% if (C[i].lastReviewer && now - C[i].lastReviewTime < 86400000) { %>
+						<img class="top" src="/img/hot.gif">
 						<% } %>
 					<% } else { %>
 						<span class="user-gray">暂无</span>
@@ -117,7 +123,7 @@
 				<ul class="publish_list">
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
-						<img class="icon" src="/img/arrow.png"/>
+						<img class="icon" src="/img/arrow.png">
 						<a target="_blank" href="<%= oj_url[i] %>"><%= oj[i] %></a>
 					</li>
 					<% } %>
@@ -132,7 +138,7 @@
 				<ul class="publish_list">
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
-						<img class="icon" src="/img/arrow.png"/>
+						<img class="icon" src="/img/arrow.png">
 						<a target="_blank" href="<%= blog_url[i] %>"><%= blog[i] %></a>
 					</li>
 					<% } %>
