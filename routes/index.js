@@ -1575,7 +1575,9 @@ exports.index = function(req, res){
                                 B: B,
                                 C: C,
                                 D: D,
-                                getTime: getTime
+                                getTime: getTime,
+                                UT: UserTitle,
+                                UC: UserCol
           });
         });
       });

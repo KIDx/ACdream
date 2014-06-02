@@ -100,10 +100,10 @@
 				<ul class="publish_list">
 					<% for (var i = 0; i < 5; i++) { %>
 					<li>
-						<img class="icon" src="/img/arrow.png"/>
+						<img class="icon" src="/img/arrow.png">
 					<% if (i < D.length) { %>
-						<span class="fr user-gray"><%= D[i].rating %></span>
-						<a href="/user/<%= D[i].name %>"><%= D[i].name %></a>
+						<span class="fr user user-<%= UC(D[i].rating) %>"><%= D[i].rating %></span>
+						<a href="/user/<%= D[i].name %>" title="<%= UT(D[i].rating) %>" class="user user-<%= UC(D[i].rating) %>"><%= D[i].name %></a>
 					<% } else { %>
 						<span class="user-gray">暂无</span>
 					<% } %>
