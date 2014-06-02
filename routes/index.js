@@ -126,12 +126,7 @@ function escapeHtml(s) {
 }
 
 function IsRegCon(s, name) {
-  if (!s || !s.length) return false;
-  for (var i = 0; i < s.length; i++) {
-    if (s[i] == name)
-      return true;
-  }
-  return false;
+  return s.indexOf(name) >= 0 ? true : false;
 }
 
 function gao(n, type) {
@@ -2966,8 +2961,7 @@ exports.doSubmit = function(req, res) {
         if (!contest) {
           return res.end(); //not allow
         }
-        if (contest.type == 2 && name != contest.userName &&
-          (!contest.contestants || !IsRegCon(contest.contestants, name))) {
+        if (contest.type == 2 && name != contest.userName && !IsRegCon(contest.contestants, name)) {
           req.session.msg = 'You can not submit because you have not registered the contest yet!';
           return res.end('2');
         }
