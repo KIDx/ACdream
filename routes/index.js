@@ -473,7 +473,7 @@ exports.getRanklist = function(req, res) {
           return res.end();
         }
         if (!users || users.length == 0) {
-          return res.json([null, {}, {}, n, {}, 0]);
+          return res.json([null, {}, {}, n, {}, 0, 0]);
         }
         var has = {}, names = new Array()
         ,  rt = {}, I = {}, Users = new Array()
