@@ -38,16 +38,16 @@
           <tr>
             <th>Begin Time: </th>
             <td>
-              <input id="datepicker" type="text" class="input-small" value="<% if (str) { %><%= str[0] %><% } %>" />
-              <input id="hour" maxlength="2" type="text" class="input-mini" value="<% if (time && time[0]) { %><%= time[0] %><% } else { %>0<% } %>" /> :
-              <input id="min" maxlength="2" type="text" class="input-mini" value="<% if (time && time[1]) { %><%= time[1] %><% } else { %>0<% } %>" /> : 00
+              <input id="datepicker" type="text" class="input-small" value="<% if (str) { %><%= str[0] %><% } %>">
+              <input id="hour" maxlength="2" type="text" class="input-mini" value="<% if (time && time[0]) { %><%= time[0] %><% } else { %>0<% } %>"> :
+              <input id="min" maxlength="2" type="text" class="input-mini" value="<% if (time && time[1]) { %><%= time[1] %><% } else { %>0<% } %>"> : 00
             </td>
           </tr>
           <tr>
             <th>Length: </th>
             <td>
               <input id="dd" maxlength="2" type="text" class="input-mini" value="<% if (cday) { %><%= cday %><% } else { %>0<% } %>"> 天
-              <input id="hh" maxlength="2" type="text" class="input-mini" value="<% if (chour) { %><%= chour %><% } else { %>5<% } %>"> :
+              <input id="hh" maxlength="2" type="text" class="input-mini" value="<% if (chour >= 0) { %><%= chour %><% } else { %>5<% } %>"> :
               <input id="mm" maxlength="2" type="text" class="input-mini" value="<% if (cmin) { %><%= cmin %><% } else { %>0<% } %>"> : 00
             </td>
           </tr>
