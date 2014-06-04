@@ -464,7 +464,7 @@ div.sidebox > ul {
 
 div.istyle em {
     font-size: 125%;
-    font-family: times new roman, sans-serif; 
+    font-family: times new roman, sans-serif;
 }
 
 div.sidegroup {
@@ -1469,18 +1469,18 @@ table th img {
 
 .jqmWindow {
     display: none;
-    
+
     position: fixed;
     bottom: 2%;
     right: 1%;
-    
+
     height: 50px;
     width: 260px;
-    
+
     background-color: #000;
     background: rgba(0,0,0,0.85);
 
-    
+
     color: #fff;
     border: 0;
     border-radius: 4px 4px 4px 4px;
@@ -1537,7 +1537,7 @@ table th img {
     padding-left: 10px;
     margin: 0;
     position: absolute;
-    overflow: auto; 
+    overflow: auto;
 }
 
 div.jqcontent > small.error-text {
@@ -1618,6 +1618,10 @@ div.jqfoot .btn {
 .jqclose {
     width: 16px;
     height: 16px;
+    padding: 0;
+    display: block;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
     background: url('img/delete.png');
     position: absolute;
     top: 6px;
@@ -1626,7 +1630,8 @@ div.jqfoot .btn {
 }
 
 .jqclose:hover {
-    background: url('img/_delete.png');
+    opacity: 0.6;
+    filter: alpha(opacity=60);
 }
 
 .jqmClose {
