@@ -79,7 +79,7 @@ Rank.count = function(Q, callback) {
 Rank.clear = function(Q, callback) {
   ranks.update(Q, {value: initialValue}, {multi:true}, function(err){
     if (err) {
-      OE('Rank.update failed!');
+      OE('Rank.clear failed!');
     }
     return callback(err);
   });
