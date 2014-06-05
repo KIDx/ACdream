@@ -398,23 +398,23 @@ $(document).ready(function(){
                 }
             })
             .done(function(res){
-                    if (res == '1') {
-                        errAnimate($loginerr, 'the user is not exist!');
-                    } else if (res == '2') {
-                        errAnimate($loginerr, 'username and password do not match!');
-                    } else if (res == '3') {
-                        errAnimate($loginerr, '系统错误！');
+                if (!res) {
+                    $dialog_lg.jqmHide();
+                    if (!nextURL) {
+                        window.location.reload(true);
                     } else {
-                        $dialog_lg.jqmHide();
-                        if (!nextURL) {
-                            window.location.reload(true);
-                        } else {
-                            window.location.href = nextURL;
-                            nextURL = '';
-                        }
-                        return ;
+                        window.location.href = nextURL;
+                        nextURL = '';
                     }
-                    $loginsubmit.text('Login').removeClass('disabled');
+                    return ;
+                } else if (res == '1') {
+                    errAnimate($loginerr, 'the user is not exist!');
+                } else if (res == '2') {
+                    errAnimate($loginerr, 'username and password do not match!');
+                } else if (res == '3') {
+                    errAnimate($loginerr, '系统错误！');
+                }
+                $loginsubmit.text('Login').removeClass('disabled');
             });
         });
 
@@ -471,6 +471,17 @@ $(document).ready(function(){
         ,   $regsubmit = $regdialog.find('a#reg_submit')
         ,   $regerr = $regdialog.find('small#reg_error');
 
+        function getVerifycode() {
+            $.ajax({
+                type : 'POST',
+                url : '/createVerifycode',
+                dataType : 'text'
+            })
+            .done(function(res){
+                $regimg.html(res);
+            });
+        }
+
         $('a#reg').click(function(){
             $regdialog.jqm({
                 overlay: 30,
@@ -486,26 +497,10 @@ $(document).ready(function(){
                     h.o.fadeOut(200);
                 }
             }).jqDrag('.jqDrag').jqResize('.jqResize').jqmShow();
-            $.ajax({
-                type : 'POST',
-                url : '/createVerifycode',
-                dataType : 'text'
-            })
-            .done(function(res){
-                $regimg.html(res);
-            });
+            getVerifycode();
         });
 
-        $regimg.click(function(){
-            $.ajax({
-                type: 'POST',
-                url : '/createVerifycode',
-                dataType : 'text'
-            })
-            .done(function(res){
-                $regimg.html(res);
-            });
-        });
+        $regimg.click(getVerifycode);
 
         $regsubmit.click(function(){
             if ($(this).hasClass('disabled')) {
