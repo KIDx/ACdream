@@ -169,6 +169,8 @@ app.post('/review', routes.review);
 app.post('/delComment', routes.delComment);
 //编辑回复
 app.post('/editComment', routes.editComment);
+//设置指定题目的管理员(for admin)
+app.post('/setProblemManager', routes.setProblemManager);
 
 //清除服务器消息
 app.post('/getMessage', function(req, res){
@@ -225,7 +227,7 @@ io.configure('production', function(){
 
 io.configure('development', function(){
   console.log('development env');
-  io.set('transports', [ 
+  io.set('transports', [
     'xhr-polling',
     'jsonp-polling'
   ]);

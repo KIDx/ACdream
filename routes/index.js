@@ -2440,7 +2440,7 @@ exports.doAddcontest = function(req, res) {
     var md5 = crypto.createHash('md5');
     psw = md5.update(req.body.psw).digest('base64');
   }
-  
+
   var pids = new Array();
   if (req.body.pids && req.body.pids.length) {
     req.body.pids.forEach(function(p){
@@ -2714,7 +2714,7 @@ exports.contest = function(req, res) {
   if (!page || page < 0) {
     return res.redirect('/contest/'+type);
   }
-  
+
   var q1 = {type: type}, q2 = {type: type}, search = req.query.search;
 
   if (search) {
@@ -3872,6 +3872,49 @@ exports.addContestant = function(req, res) {
             });
           });
         });
+      });
+    });
+  });
+};
+
+exports.setProblemManager = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.end();
+  }
+  if (req.session.user.name != 'admin') {
+    return res.end(); //not allow
+  }
+  var pid = parseInt(req.body.pid, 10);
+  var name = String(req.body.name);
+  if (!pid || !name) {
+    return res.end(); //not allow
+  }
+  User.watch(name, function(err, user){
+    if (err) {
+      OE(err);
+      return res.end('3');
+    }
+    if (!user) {
+      return res.end('1');
+    }
+    Problem.watch(pid, function(err, prob){
+      if (err) {
+        OE(err);
+        return res.end('3');
+      }
+      if (!prob) {
+        return res.end(); //not allow
+      }
+      prob.manager = name;
+      prob.save(function(err){
+        if (err) {
+          OE(err);
+          return res.end('3');
+        }
+        req.session.msg = 'The manager has been changed successfully!';
+        return res.end();
       });
     });
   });

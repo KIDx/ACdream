@@ -79,14 +79,14 @@ $(document).ready(function(){
 			$selectdiv.show();
 			$select.change(function(res){
 				$.ajax({
-					type : 'POST',
-					url : '/editTag',
-					data : {
-						tag : $(this).val(),
-						pid : pid,
-						add : true
+					type: 'POST',
+					url: '/editTag',
+					data: {
+						tag: $(this).val(),
+						pid: pid,
+						add: true
 					},
-					dataType : 'text'
+					dataType: 'text'
 				})
 				.done(function(){
 					window.location.reload(true);
@@ -95,13 +95,13 @@ $(document).ready(function(){
 		});
 		$del_tag.click(function(){
 			$.ajax({
-				type : 'POST',
-				url : '/editTag',
-				data : {
-					tag : $(this).attr('tag'),
-					pid : pid
+				type: 'POST',
+				url: '/editTag',
+				data: {
+					tag: $(this).attr('tag'),
+					pid: pid
 				},
-				dataType : 'text'
+				dataType: 'text'
 			})
 			.done(function(){
 				window.location.reload(true);
@@ -120,10 +120,10 @@ $(document).ready(function(){
 			}
 			$rejudge.addClass('disabled');
 			$.ajax({
-				type : 'POST',
-				url : '/rejudge',
-				data : { pid : pid },
-				dataType : 'text',
+				type: 'POST',
+				url: '/rejudge',
+				data: { pid : pid },
+				dataType: 'text',
 				error: function() {
 					$rejudge.removeClass('disabled');
 					ShowMessage('无法连接到服务器！');
@@ -131,7 +131,7 @@ $(document).ready(function(){
 			})
 			.done(function(){
 				window.location.href = '/status?pid='+pid;
-			})
+			});
 		});
 	}
 });
@@ -142,10 +142,10 @@ $(document).ready(function(){
 	if ($phide.length) {
 		$phide.change(function(){
 			$.ajax({
-				type : 'POST',
-				url : '/toggleHide',
-				data : { pid : pid },
-				dataType : 'text'
+				type: 'POST',
+				url: '/toggleHide',
+				data: { pid: pid },
+				dataType: 'text'
 			})
 			.done(function(res){
 				if (!res) {
@@ -157,5 +157,13 @@ $(document).ready(function(){
 				}
 			});
 		});
+	}
+});
+
+var $edit_btn = $('#edit_btn');
+
+$(document).ready(function(){
+	if ($edit_btn.length) {
+		bindChange();
 	}
 });
