@@ -14,7 +14,7 @@ $(document).ready(function(){
 			modal: true,
 			closeClass: 'bc_close',
 			onShow: function(h) {
-			$broadcast.removeClass('disabled');
+				$broadcast.removeClass('disabled');
 				h.o.fadeIn(200);
 				h.w.fadeIn(200);
 			},
@@ -39,11 +39,11 @@ $(document).ready(function(){
 				errAnimate($msg_err, '消息不能为空！');
 				return false;
 			}
-			$msg.val('');
 			$(this).addClass('disabled');
 			socket.emit('broadcast', {room: cid, msg: msg}, function(res){
 				if (res) {
 					$bc_content.text('消息广播成功！');
+					$msg.val('');
 				} else {
 					$bc_content.text('系统错误！');
 				}
@@ -568,7 +568,7 @@ function buildRank(U) {
 	}
 	html += '</td><td>'+user.solved+'</td>';
 	html += '<td>'+parseInt((user.penalty-user.solved*startTime)/60000, 10)+'</td>';
-	
+
 	for (i = 0; i < prob_num; i++) {
 		var pid = fmap[F.charAt(i)];
 		html += '<td';
@@ -581,7 +581,7 @@ function buildRank(U) {
 					style = 'accept-text'; st = 'accept'; pt = 'cell-time';
 				}
 				html += ' class="'+st+'">'
-				
+
 				html += '<span class="'+style+'">+';
 				if (WA > 0) html += WA;
 				html += '</span>';
@@ -645,7 +645,7 @@ function RankResponse(json) {
 				data : {
 					cid : cid,
 					name : $(this).attr('user')
-				}, 
+				},
 				dataType : 'text',
 				error: function() {
 					$removebtn.removeClass('disabled');
@@ -1127,7 +1127,7 @@ $(document).ready(function(){
 					cid: cid,
 					str: str,
 					type: $('#type').val()
-				}, 
+				},
 				dataType: 'text',
 				error: function() {
 					$star.removeClass('disabled');
