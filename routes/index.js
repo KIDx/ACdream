@@ -699,10 +699,27 @@ exports.getTopic = function(req, res) {
       if (n < 0) {
         return res.end(); //not allow
       }
-      var names = new Array(), I = {};
+      var names = new Array(), tps = new Array(), I = {}, has = {};
       if (topics) {
         topics.forEach(function(p){
-          names.push(p.user);
+          if (!has[p.user]) {
+            names.push(p.user);
+            has[p.user] = true;
+          }
+          if (p.lastReviewer && !has[p.lastReviewer]) {
+            names.push(p.lastReviewer);
+            has[p.lastReviewer] = true;
+          }
+          tps.push({
+            id: p.id,
+            title: p.title,
+            user: p.user,
+            reviewsQty: p.reviewsQty,
+            browseQty: p.browseQty,
+            lastReviewer: p.lastReviewer,
+            lastReviewTime: getTime(p.lastReviewTime),
+            lastComment: p.lastComment
+          });
         });
       }
       User.find({name: {$in: names}}, function(err, users){
@@ -715,7 +732,7 @@ exports.getTopic = function(req, res) {
             I[p.name] = p.imgType;
           });
         }
-        res.json([topics, n, I]);
+        res.json([tps, n, I]);
       });
     });
   });
