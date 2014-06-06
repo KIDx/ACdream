@@ -1,23 +1,23 @@
 /*
-* Module dependencies.
-*/
-var express = require('express')
-,	routes = require('./routes')
-,	http = require('http')
-,	path = require('path')
-,	partials = require('express-partials')
-,	session = require('express-session')
-,	redisStore = require('connect-redis')(session)
-,	settings = require('./settings')
-,	OE = settings.outputErr
-,	app = express()
-,	server = http.createServer(app)
-,	io = require('socket.io').listen(server)
-,	fs = require('fs')
-,	cookie = require('express/node_modules/cookie')
-,	utils = require('connect/lib/utils')
-,	sessionStore = new redisStore()
-,	Contest = require('./models/contest.js');
+ * Module dependencies.
+ */
+var express = require('express');
+var routes = require('./routes');
+var http = require('http');
+var path = require('path');
+var partials = require('express-partials');
+var session = require('express-session');
+var redisStore = require('connect-redis')(session);
+var settings = require('./settings');
+var OE = settings.outputErr;
+var app = express();
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+var fs = require('fs');
+var cookie = require('express/node_modules/cookie');
+var utils = require('connect/lib/utils');
+var sessionStore = new redisStore();
+var Contest = require('./models/contest.js');
 
 //服务器配置
 app.enable('trust proxy');
@@ -28,22 +28,32 @@ app.set('view engine', 'ejs');
 app.use(partials());
 app.use(require('body-parser')());
 app.use(require('multer')({
-	dest: './uploads/',
-	rename: function(fieldname, filename) {
-		return filename;
-	}
+  dest: './uploads/',
+  rename: function(fieldname, filename) {
+    return filename;
+  }
 }));
-app.use(require('compression')()); 		//gzip压缩传输
+
+app.use(require('compression')()); //gzip压缩传输
 app.use(require('method-override')());
 app.use(require('cookie-parser')());
 app.use(session({
-	secret: settings.cookie_secret,
-	store: sessionStore
+  secret: settings.cookie_secret,
+  store: sessionStore
 }));
-app.use(express.static(__dirname+'/public', {maxAge: 259200000}));	//使用静态资源服务以及设置缓存(三天)
-app.use(require('serve-favicon')(__dirname+'/public/favicon.ico', {maxAge: 2592000000}));
+
+//使用静态资源服务以及设置缓存(三天)
+app.use(express.static(__dirname + '/public', {
+  maxAge: 259200000
+}));
+
+//favicon.ico缓存(30天)
+app.use(require('serve-favicon')(__dirname + '/public/favicon.ico', {
+  maxAge: 2592000000
+}));
 
 app.use(require('morgan')('dev'));
+
 app.use(function(req, res, next){
   req.session.reload(function(){
     next();
@@ -94,7 +104,9 @@ app.get('/sourcecode/:runid', routes.sourcecode);
 //statistic页面
 app.get('/statistic/:pid', routes.statistic);
 app.get('*', function(req, res){
-	res.render('404', {layout: null});
+  res.render('404', {
+    layout: null
+  });
 });
 
 //#####jquery ajax
@@ -174,52 +186,50 @@ app.post('/setProblemManager', routes.setProblemManager);
 
 //清除服务器消息
 app.post('/getMessage', function(req, res){
-	res.header('Content-Type', 'text/plain');
-	var msg = req.session.msg;
-	req.session.msg = '';
-	if (!msg)
-		return res.end();
-	return res.end(msg);
+  res.header('Content-Type', 'text/plain');
+  var msg = req.session.msg;
+  req.session.msg = '';
+  if (!msg) {
+    return res.end();
+  }
+  return res.end(msg);
 });
 
 //connect mongodb
 routes.connectMongodb();
 //disconnect mongodb
 app.on('close', function(err){
-	if (err) {
-		OE(err);
-	}
-	routes.disconnectMongodb();
+  if (err) {
+    OE(err);
+  }
+  routes.disconnectMongodb();
 });
 
 //running server
 server.listen(app.get('port'), function(){
-	console.log("Server running at http://localhost:3000");
+  console.log("Server running at http://localhost:3000");
 });
 
+//socket.io env
 io.configure('production', function(){
   console.log('production env');
-  var RedisStore = require('socket.io/lib/stores/redis')
-  ,   redis  = require('socket.io/node_modules/redis')
-  ,   pub    = redis.createClient()
-  ,   sub    = redis.createClient()
-  ,   client = redis.createClient();
+  var RedisStore = require('socket.io/lib/stores/redis');
+  var redis = require('socket.io/node_modules/redis');
+  var pub = redis.createClient();
+  var sub = redis.createClient();
+  var client = redis.createClient();
   io.set('store', new RedisStore({
-    redisPub : pub
-  , redisSub : sub
-  , redisClient : client
+    redisPub: pub,
+    redisSub: sub,
+    redisClient: client
   }));
   //socket settings
-  io.enable('browser client minification');  // send minified client
-  io.enable('browser client etag');          // apply etag caching logic based on version number
-  io.enable('browser client gzip');          // gzip the file
-  io.set('log level', 1);                    // reduce logging
+  io.enable('browser client minification'); // send minified client
+  io.enable('browser client etag'); // apply etag caching logic based on version number
+  io.enable('browser client gzip'); // gzip the file
+  io.set('log level', 1); // reduce logging
   io.set('transports', [
-    'websocket'
-  , 'flashsocket'
-  , 'htmlfile'
-  , 'xhr-polling'
-  , 'jsonp-polling'
+    'websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'
   ]);
   //set trusted hosts
   io.set('origins', 'acdream.info:80 115.28.76.232:80');
@@ -235,61 +245,63 @@ io.configure('development', function(){
 
 //websocket设置session
 io.set('authorization', function(handshakeData, accept){
-	if (!handshakeData.headers.cookie) {
-		return accept('no cookie.', false);
-	}
-	handshakeData.cookies = utils.parseSignedCookies(
-			cookie.parse(handshakeData.headers.cookie),
-			settings.cookie_secret);
-	sessionStore.get(handshakeData.cookies['connect.sid'], function(err, session){
-		if (err || !session) {
-			return accept('no session.', false);
-		}
-		handshakeData.session = session;
-		return accept(null, true);
-	});
+  if (!handshakeData.headers.cookie) {
+    return accept('no cookie.', false);
+  }
+  handshakeData.cookies = utils.parseSignedCookies(
+    cookie.parse(handshakeData.headers.cookie),
+    settings.cookie_secret);
+  sessionStore.get(handshakeData.cookies['connect.sid'], function(err, session){
+    if (err || !session) {
+      return accept('no session.', false);
+    }
+    handshakeData.session = session;
+    return accept(null, true);
+  });
 });
 
 //socket
 io.sockets.on('connection', function(socket){
-	var session = socket.handshake.session;
-	if (session && session.user) {
-		socket.on('broadcast', function(data, fn){
-			if (data) {
-				var cid = parseInt(data.room, 10);
-				if (!cid) {
-					return ;	//not allow
-				}
-				var RP = function() {
-					socket.broadcast.to(data.room).emit('broadcast', data.msg);
-          if (fn)
+  var session = socket.handshake.session;
+  if (session && session.user) {
+    socket.on('broadcast', function(data, fn){
+      if (data) {
+        var cid = parseInt(data.room, 10);
+        if (!cid) {
+          return; //not allow
+        }
+        var RP = function() {
+          socket.broadcast.to(data.room).emit('broadcast', data.msg);
+          if (fn) {
             fn(true);
-				};
-				if (session.user.name == 'admin') {
-					return RP();
-				}
-				Contest.watch(cid, function(err, con){
-					if (err) {
-						OE(err);
-            if (fn)
+          }
+        };
+        if (session.user.name == 'admin') {
+          return RP();
+        }
+        Contest.watch(cid, function(err, con){
+          if (err) {
+            OE(err);
+            if (fn) {
               fn(false);
-						return ;
-					}
-					if (con && con.userName == session.user.name) {
-						return RP();
-					}
-				});
-			}
-		});
-	}
-	socket.on('login', function(room){
-		if (room) {
-			socket.join(room.toString());
-		}
-	});
-	socket.on('addDiscuss', function(room){
-		if (room) {
-			socket.broadcast.to(room).emit('addDiscuss');
-		}
-	});
+            }
+            return;
+          }
+          if (con && con.userName == session.user.name) {
+            return RP();
+          }
+        });
+      }
+    });
+  }
+  socket.on('login', function(room){
+    if (room) {
+      socket.join(room.toString());
+    }
+  });
+  socket.on('addDiscuss', function(room){
+    if (room) {
+      socket.broadcast.to(room).emit('addDiscuss');
+    }
+  });
 });
