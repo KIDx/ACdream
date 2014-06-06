@@ -1,6 +1,6 @@
-# ACdream Online Judge v1.1.4
+# ACdream Online Judge v1.1.5
 
-## 如何快速搭建(ubuntu下测试通过)
+## ubuntu下快速搭建开发环境
 
 ### 安装依赖
 ```
