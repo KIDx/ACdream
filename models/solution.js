@@ -1,10 +1,10 @@
 
-var mongoose = require('mongoose')
-,   settings = require('../settings')
-,   dburl = settings.dburl
-,   pageNum = settings.status_pageNum
-,   OE = settings.outputErr
-,   Schema = mongoose.Schema;
+var mongoose = require('mongoose');
+var settings = require('../settings');
+var dburl = settings.dburl;
+var pageNum = settings.status_pageNum;
+var OE = settings.outputErr;
+var Schema = mongoose.Schema;
 
 function Solution(solution) {
   this.runID = solution.runID;

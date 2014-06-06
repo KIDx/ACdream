@@ -1,9 +1,9 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   settings = require('../settings')
-,   pageNum = settings.comment_pageNum
-,   OE = settings.outputErr;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var settings = require('../settings');
+var pageNum = settings.comment_pageNum;
+var OE = settings.outputErr;
 
 function Comment(comment) {
   this.id = comment.id;

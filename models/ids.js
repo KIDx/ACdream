@@ -1,7 +1,7 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   OE = require('../settings').outputErr;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var OE = require('../settings').outputErr;
 
 function IDs (ids){
   this.name = ids.name;

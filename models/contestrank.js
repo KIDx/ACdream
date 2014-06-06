@@ -1,10 +1,10 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   settings = require('../settings')
-,   pageNum = settings.contestRank_pageNum
-,   OE = settings.outputErr
-,   initialValue = { penalty: 0, solved: 0, submitTime: 0 };
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var settings = require('../settings');
+var pageNum = settings.contestRank_pageNum;
+var OE = settings.outputErr;
+var initialValue = { penalty: 0, solved: 0, submitTime: 0 };
 
 function Rank(cid, name) {
   this.cid = cid;
@@ -48,8 +48,12 @@ Rank.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.submitTime':-1, '_id.name':1})
-    .skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs) {
+    ranks.find(Q).sort({
+      'value.solved': -1,
+      'value.penalty': 1,
+      'value.submitTime': -1,
+      '_id.name': 1
+    }).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs) {
       if (err) {
         OE('Rank.get failed!');
       }
@@ -59,7 +63,12 @@ Rank.get = function(Q, page, callback) {
 };
 
 Rank.getAll = function(Q, callback) {
-  ranks.find(Q).sort({'value.solved':-1, 'value.penalty':1, 'value.submitTime':-1, '_id.name':1}).exec(function(err, docs){
+  ranks.find(Q).sort({
+    'value.solved': -1,
+    'value.penalty': 1,
+    'value.submitTime': -1,
+    '_id.name': 1
+  }).exec(function(err, docs){
     if (err) {
       OE('Rank.getAll failed!');
     }

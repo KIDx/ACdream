@@ -1,9 +1,9 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   settings = require('../settings')
-,   pageNum = settings.contest_pageNum
-,   OE = settings.outputErr;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var settings = require('../settings');
+var pageNum = settings.contest_pageNum;
+var OE = settings.outputErr;
 
 function Contest(contest) {
   this.contestID = contest.contestID;
@@ -82,7 +82,8 @@ Contest.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    contests.find(Q).sort({startTime:-1, contestID:-1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    contests.find(Q).sort({startTime:-1, contestID:-1}).skip((page-1)*pageNum)
+      .limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('Contest.get failed!');
       }
@@ -137,7 +138,8 @@ Contest.remove = function(cid, callback) {
 };
 
 Contest.topFive = function(Q, callback) {
-  contests.find(Q).sort({startTime:-1, contestID: -1}).limit(5).exec(function(err, docs){
+  contests.find(Q).sort({startTime:-1, contestID: -1})
+    .limit(5).exec(function(err, docs){
     if (err) {
       OE('Contest.topFive failed!');
     }

@@ -1,9 +1,9 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   settings = require('../settings')
-,   pageNum = settings.problemset_pageNum
-,   OE = settings.outputErr;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var settings = require('../settings');
+var pageNum = settings.problemset_pageNum;
+var OE = settings.outputErr;
 
 function Problem(problem) {
   this.problemID = problem.problemID;
@@ -82,7 +82,8 @@ Problem.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    problems.find(Q).sort({problemID:1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    problems.find(Q).sort({problemID:1}).skip((page-1)*pageNum).limit(pageNum)
+      .exec(function(err, docs){
       if (err) {
         OE('Problem.get failed!');
       }

@@ -1,9 +1,9 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   settings = require('../settings')
-,   pageNum = settings.topic_pageNum
-,   OE = settings.outputErr;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var settings = require('../settings');
+var pageNum = settings.topic_pageNum;
+var OE = settings.outputErr;
 
 function Topic(topic) {
   this.id = topic.id;
@@ -57,7 +57,8 @@ Topic.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    topics.find(Q).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    topics.find(Q).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum)
+      .limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('Topic.get failed!');
       }

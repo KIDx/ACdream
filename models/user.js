@@ -1,9 +1,9 @@
 
-var mongoose = require('mongoose')
-,   Schema = mongoose.Schema
-,   settings = require('../settings')
-,   pageNum = settings.ranklist_pageNum
-,   OE = settings.outputErr;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var settings = require('../settings');
+var pageNum = settings.ranklist_pageNum;
+var OE = settings.outputErr;
 
 function User(user) {
   this.name = user.name;
@@ -95,7 +95,8 @@ User.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1}).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1})
+      .skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('User.get failed!');
       }
@@ -105,7 +106,8 @@ User.get = function(Q, page, callback) {
 };
 
 User.topFive = function(Q, callback) {
-  users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1}).limit(5).exec(function(err, docs){
+  users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1}).limit(5)
+    .exec(function(err, docs){
     if (err) {
       OE('User.topFive failed!');
     }
