@@ -7,115 +7,115 @@
 <% } %>
 <% var add = (topic.cid > 0 && user && user.name == 'admin') ? true : false; %>
 <fieldset>
-	<div>
-		<legend id="onetopic" tid="<%= topic.id %>">论坛</legend>
-	</div>
-	<div class="content">
-		<div class="topic_box">
-			<div class="header">
-				<% if (user && (user.name == 'admin' || user.name == topic.user)) { %>
-				<a style="margin-left:10px;" title="编辑" class="img_link edit fr" href="/addtopic?tid=<%= topic.id %>"></a>
-				<% } %>
-				<span class="fr user user-black">浏览次数：<%= topic.browseQty %></span>
-				<a href="/topic">论坛主页</a>
-				>>
-				话题详情
-			</div>
-			<div class="inner_topic">
-				<h3>
-					<a class="user" href="/user/<%= topic.user %>">
-						<img class="img_m topic_img" title="<%= topic.user %>" alt="<%= topic.user %>" src="<%= img %>" />
-					</a>
-					<% if (topic.top) { %><span class="put_top">置顶</span><% } %>
-					<%= topic.title %>
-				</h3>
-				<hr />
-				<%- topic.content %>
-				<hr />
-				<span class="fr">Added by <a href="/user/<%= topic.user %>" title="<%= UT[topic.user] %>" class="user user-<%= UC[topic.user] %>"><%= topic.user %>.</a></span>
-				<span class="user-gray">最后一次编辑是 <%= getDate(topic.inDate) %></span> 
-			</div>
-		</div>
-	<% if (comments && comments.length) { %>
-		<div class="topic_box">
-			<div class="header">
-				<span class="user-green"><%= N %></span> 条回复
-			</div>
-		<% comments.forEach(function(p, i){ %>
-			<% if (IT[p.user]) { %>
-			<% img = '/img/avatar/'+p.user+'/4.'+IT[p.user]; %>
-			<% } else { %>
-			<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
-			<% } %>
-			<div id="<%= p.id %>" class="reply_area">
-				<%- partial('comment', {isParent: true, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC, add: add, cid: topic.cid}) %>
-		<% var fa = p.id; %>
-		<% if (sub[p.id] && sub[p.id].length) { %>
-			<% sub[p.id].forEach(function(p){ %>
-				<% if (IT[p.user]) { %>
-				<% img = '/img/avatar/'+p.user+'/4.'+IT[p.user]; %>
-				<% } else { %>
-				<% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
-				<% } %>
-				<div id="<%= p.id %>" class="reply_sub">
-					<%- partial('comment', {isParent: false, fa: fa, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC, add: add, cid: topic.cid}) %>
-				</div>
-			<% }); %>
-		<% } %>
-			</div>
-		<% }); %>
-		</div>
-	<% } %>
-	<% if (user) { %>
-		<div class="topic_box form-horizontal" style="min-height:400px;">
-			<div class="header">添加回复</div>
-			<div class="inner_topic">
-				<textarea id="content"></textarea>
-				<div>
-					<a class="uibtn" style="margin:10px 0;" href="javascript:;" id="reply">回复</a>
-					<span class="error-text" id="err"></span>
-				</div>
-			</div>
-		</div>
-	<% } %>
-	</div>
+  <div>
+    <legend id="onetopic" tid="<%= topic.id %>">论坛</legend>
+  </div>
+  <div class="content">
+    <div class="topic_box">
+      <div class="header">
+        <% if (user && (user.name == 'admin' || user.name == topic.user)) { %>
+        <a style="margin-left:10px;" title="编辑" class="img_link edit fr" href="/addtopic?tid=<%= topic.id %>"></a>
+        <% } %>
+        <span class="fr user user-black">浏览次数：<%= topic.browseQty %></span>
+        <a href="/topic">论坛主页</a>
+        >>
+        话题详情
+      </div>
+      <div class="inner_topic">
+        <h3>
+          <a class="user" href="/user/<%= topic.user %>">
+            <img class="img_m topic_img" title="<%= topic.user %>" alt="<%= topic.user %>" src="<%= img %>" />
+          </a>
+          <% if (topic.top) { %><span class="put_top">置顶</span><% } %>
+          <%= topic.title %>
+        </h3>
+        <hr />
+        <%- topic.content %>
+        <hr />
+        <span class="fr">Added by <a href="/user/<%= topic.user %>" title="<%= UT[topic.user] %>" class="user user-<%= UC[topic.user] %>"><%= topic.user %>.</a></span>
+        <span class="user-gray">最后一次编辑是 <%= getDate(topic.inDate) %></span>
+      </div>
+    </div>
+  <% if (comments && comments.length) { %>
+    <div class="topic_box">
+      <div class="header">
+        <span class="user-green"><%= N %></span> 条回复
+      </div>
+    <% comments.forEach(function(p, i){ %>
+      <% if (IT[p.user]) { %>
+      <% img = '/img/avatar/'+p.user+'/4.'+IT[p.user]; %>
+      <% } else { %>
+      <% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
+      <% } %>
+      <div id="<%= p.id %>" class="reply_area">
+        <%- partial('comment', {isParent: true, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC, add: add, cid: topic.cid}) %>
+    <% var fa = p.id; %>
+    <% if (sub[p.id] && sub[p.id].length) { %>
+      <% sub[p.id].forEach(function(p){ %>
+        <% if (IT[p.user]) { %>
+        <% img = '/img/avatar/'+p.user+'/4.'+IT[p.user]; %>
+        <% } else { %>
+        <% img = '/img/avatar/%3Ddefault%3D/4.jpeg'; %>
+        <% } %>
+        <div id="<%= p.id %>" class="reply_sub">
+          <%- partial('comment', {isParent: false, fa: fa, user: user, p: p, img: img, num: i+1, getDate: getDate, UT: UT, UC: UC, add: add, cid: topic.cid}) %>
+        </div>
+      <% }); %>
+    <% } %>
+      </div>
+    <% }); %>
+    </div>
+  <% } %>
+  <% if (user) { %>
+    <div class="topic_box form-horizontal" style="min-height:400px;">
+      <div class="header">添加回复</div>
+      <div class="inner_topic">
+        <textarea id="content"></textarea>
+        <div>
+          <a class="uibtn" style="margin:10px 0;" href="javascript:;" id="reply">回复</a>
+          <span class="error-text" id="err"></span>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  </div>
 </fieldset>
 <% if (add) { %>
 <script type="text/javascript">
 function bindAdd($add) {
-	$add.click(function(){
-		var $p = $(this);
-		if ($p.hasClass('disabled')) {
-			return false;
-		}
-		$p.addClass('disabled');
-		$.ajax({
-			type: 'POST',
-			url: '/addContestant',
-			data: {
-				tid: <%= topic.id %>,
-				cid: <%= topic.cid %>,
-				name: $p.attr('data-user'),
-				fa: $p.attr('data-id')
-			},
-			dataType: 'text',
-			error: function() {
-				$p.removeClass('disabled');
-				ShowMessage('无法连接到服务器！');
-			}
-		})
-		.done(function(res){
-			if (!res) {
-				window.location.reload(true);
-				return ;
-			} else if (res == '1') {
-				ShowMessage($p.attr('data-user')+'已是该比赛的参赛者，无需添加。');
-			} else if (res == '3') {
-				ShowMessage('系统错误！');
-			}
-			$p.removeClass('disabled');
-		});
-	});
+  $add.click(function(){
+    var $p = $(this);
+    if ($p.hasClass('disabled')) {
+      return false;
+    }
+    $p.addClass('disabled');
+    $.ajax({
+      type: 'POST',
+      url: '/addContestant',
+      data: {
+        tid: <%= topic.id %>,
+        cid: <%= topic.cid %>,
+        name: $p.attr('data-user'),
+        fa: $p.attr('data-id')
+      },
+      dataType: 'text',
+      error: function() {
+        $p.removeClass('disabled');
+        ShowMessage('无法连接到服务器！');
+      }
+    })
+    .done(function(res){
+      if (!res) {
+        window.location.reload(true);
+        return ;
+      } else if (res == '1') {
+        ShowMessage($p.attr('data-user')+'已是该比赛的参赛者，无需添加。');
+      } else if (res == '3') {
+        ShowMessage('系统错误！');
+      }
+      $p.removeClass('disabled');
+    });
+  });
 }
 </script>
 <% } %>

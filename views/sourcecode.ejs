@@ -1,10 +1,10 @@
 <!--<html>-->
 <fieldset>
-	<div><legend>源码</legend></div>
+  <div><legend>源码</legend></div>
 <% if (flg) { %>
-	<% var lang = 'c'; %>
-	<% if (solution.language == 2) lang = 'cpp'; else if (solution.language == 3) lang = 'java'; %>
-	<pre class="brush: <%= lang %>;">/*
+  <% var lang = 'c'; %>
+  <% if (solution.language == 2) lang = 'cpp'; else if (solution.language == 3) lang = 'java'; %>
+  <pre class="brush: <%= lang %>;">/*
 * this code is made by <%= solution.userName %>
 * Problem: <%= solution.problemID %>
 * Verdict: <%= Res(solution.result) %>
@@ -14,9 +14,8 @@
 */
 <%= solution.code %></pre>
 <% } else { %>
-	<div class="alert alert-error" style="padding:100px;">
-		<h1 align="center">Sorry, You have no permission to see this code.</h1>
-	</div>
+  <div class="alert alert-error" style="padding:100px;">
+    <h1 align="center">Sorry, You have no permission to see this code.</h1>
+  </div>
 <% } %>
 </fieldset>
-
