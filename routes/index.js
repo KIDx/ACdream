@@ -1,72 +1,73 @@
 /*
 ~key~
--1    : index
- 0    : user
- 1    : statistic
- 3    : problemset
- 4    : status
- 5    : ranklist
- 6    : contest
- 8    : problem
- 9    : onecontest
- 10  : submit
- 11  : sourcecode
- 12  : avatar
- 17  : topic
- 18  : onetopic
- 1000/1001: addproblem
- 1002 : addcontest
- 1004 : addtopic
+  -1: index
+  0: user
+  1: statistic
+  3: problemset
+  4: status
+  5: ranklist
+  6: contest
+  8: problem
+  9: onecontest
+  10: submit
+  11: sourcecode
+  12: avatar
+  17: topic
+  18: onetopic
+  1000/1001: addproblem
+  1002: addcontest
+  1004: addtopic
 
 ~addcontest~
- !cid   : add a new contest
- cid < 0  : clone a contest(clone a contest to DIY Contest)
- cid > 0  : edit a contest
+  !cid: add a new contest
+  cid < 0: clone a contest(clone a contest to DIY Contest)
+  cid > 0: edit a contest
 
 ~contest.type~
- 1 : DIY Contest (all registered users can add)
- 2 : VIP Contest (only admin can add)
+  1: DIY Contest (all registered users can add)
+  2: VIP Contest (only admin can add)
 
 ~session~
- req.session.user : current user
- req.session.cid : if current user has enter a private contest before, remember it, no need to wirte password again
+  req.session.user: current user
+  req.session.cid: if current user has enter a private contest before,
+    remember it, no need to wirte password again
 */
 
-var crypto = require('crypto')
-,   fs = require('fs')
-,   csv = require('csv')
-,   gm = require('gm')
-,   imageMagick = gm.subClass({ imageMagick : true })
-,   exec = require('child_process').exec
-,   IDs = require('../models/ids.js')
-,   ContestRank = require('../models/contestrank.js')
-,   User = require('../models/user.js')
-,   Solution = require('../models/solution.js')
-,   Problem = require('../models/problem.js')
-,   Contest = require('../models/contest.js')
-,   Topic = require('../models/topic.js')
-,   Comment = require('../models/comment.js')
-,   tCan = require('../models/can.js')
-,   xss = require('xss');
+var crypto = require('crypto');
+var fs = require('fs');
+var csv = require('csv');
+var gm = require('gm');
+var imageMagick = gm.subClass({ imageMagick : true });
+var exec = require('child_process').exec;
+var IDs = require('../models/ids.js');
+var ContestRank = require('../models/contestrank.js');
+var User = require('../models/user.js');
+var Solution = require('../models/solution.js');
+var Problem = require('../models/problem.js');
+var Contest = require('../models/contest.js');
+var Topic = require('../models/topic.js');
+var Comment = require('../models/comment.js');
+var tCan = require('../models/can.js');
+var xss = require('xss');
 
-var settings = require('../settings')
-,   ranklist_pageNum = settings.ranklist_pageNum
-,   stats_pageNum = settings.stats_pageNum
-,   contestRank_pageNum = settings.contestRank_pageNum
-,   Tag = settings.T
-,   ProTil = settings.P
-,   Col = settings.C
-,   Res = settings.R
-,   UserCol = settings.UC
-,   UserTitle = settings.UT
-,   OE = settings.outputErr
-,   addZero = settings.addZero
-,   getDate = settings.getDate
-,   languages = settings.languages
-,   xss_options = settings.xss_options;
+var settings = require('../settings');
+var ranklist_pageNum = settings.ranklist_pageNum;
+var stats_pageNum = settings.stats_pageNum;
+var contestRank_pageNum = settings.contestRank_pageNum;
+var Tag = settings.T;
+var ProTil = settings.P;
+var Col = settings.C;
+var Res = settings.R;
+var UserCol = settings.UC;
+var UserTitle = settings.UT;
+var OE = settings.outputErr;
+var addZero = settings.addZero;
+var getDate = settings.getDate;
+var languages = settings.languages;
+var xss_options = settings.xss_options;
 
-var data_path = settings.data_path
-,   root_path = settings.root_path;
+var data_path = settings.data_path;
+var root_path = settings.root_path;
 
 function nan(n) {
   return n != n;
@@ -171,8 +172,9 @@ function getAboutTime(n) {
 function getTime(n) {
   n = parseInt(n, 10);
   if (!n) return '';
-  var date = new Date(n)
-  ,  RP = addZero(date.getMonth()+1)+'-'+addZero(date.getDate())+' '+addZero(date.getHours())+':'+addZero(date.getMinutes());
+  var date = new Date(n);
+  var RP = addZero(date.getMonth()+1)+'-'+addZero(date.getDate())+' '
+    +addZero(date.getHours())+':'+addZero(date.getMinutes());
   n = (new Date()).getTime() - n
   var y = (new Date()).getFullYear() - date.getFullYear();
   if (y > 0) {
@@ -475,9 +477,9 @@ exports.getRanklist = function(req, res) {
         if (!users || users.length == 0) {
           return res.json([null, {}, {}, n, {}, 0, 0]);
         }
-        var has = {}, names = new Array()
-        ,  rt = {}, I = {}, Users = new Array()
-        ,  V = users[0].value, T = users[0]._id.name;
+        var has = {}, names = new Array();
+        var rt = {}, I = {}, Users = new Array();
+        var V = users[0].value, T = users[0]._id.name;
         if (con.stars) {
           con.stars.forEach(function(p){
             has[p] = true;
@@ -744,10 +746,10 @@ exports.addDiscuss = function(req, res) {
     req.session.msg = '请先登录！';
     return res.end('2');    //refresh
   }
-  var title = clearSpace(req.body.title)
-  ,  content = clearSpace(req.body.content)
-  ,  name = req.session.user.name
-  ,  cid = parseInt(req.body.cid, 10);
+  var title = clearSpace(req.body.title);
+  var content = clearSpace(req.body.content);
+  var name = req.session.user.name;
+  var cid = parseInt(req.body.cid, 10);
   if (!title || !content || !name || ! cid) {
     return res.end();    //not allow
   }
@@ -787,8 +789,8 @@ exports.getCE = function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user)
     return res.end('Please login first!');
-  var rid = parseInt(req.body.rid, 10)
-  ,  name = req.session.user.name;
+  var rid = parseInt(req.body.rid, 10);
+  var name = req.session.user.name;
   if (!rid) {
     return res.end();  //not allow
   }
@@ -875,20 +877,20 @@ exports.changeInfo = function(req, res) {
     return res.end();
   }
 
-  var name = clearSpace(req.body.name)
-  ,  nick = clearSpace(req.body.nick)
-  ,  oldpsw = req.body.oldpassword
-  ,  psw = req.body.password
-  ,  school = clearSpace(req.body.school)
-  ,  email = clearSpace(req.body.email)
-  ,  sig = clearSpace(req.body.signature);
+  var name = clearSpace(req.body.name);
+  var nick = clearSpace(req.body.nick);
+  var oldpsw = req.body.oldpassword;
+  var psw = req.body.password;
+  var school = clearSpace(req.body.school);
+  var email = clearSpace(req.body.email);
+  var sig = clearSpace(req.body.signature);
   if (!name || !nick || !oldpsw ||
       school.length > 50 || email.length > 50 || sig.length > 200) {
     return res.end();  //not allow
   }
 
-  var md5 = crypto.createHash('md5')
-  ,  oldpassword = md5.update(oldpsw).digest('base64');
+  var md5 = crypto.createHash('md5');
+  var oldpassword = md5.update(oldpsw).digest('base64');
 
   User.watch(name, function(err, user){
     if (err) {
@@ -991,13 +993,13 @@ exports.editTag = function(req, res) {
     req.session.msg = 'Please login first!';
     return res.end();
   }
-  var pid = parseInt(req.body.pid, 10)
-  ,  tag = parseInt(req.body.tag, 10);
+  var pid = parseInt(req.body.pid, 10);
+  var tag = parseInt(req.body.tag, 10);
   if (!pid || !tag) {
     return res.end();  //not allow
   }
-  var name = req.session.user.name
-  ,  RP = function(){
+  var name = req.session.user.name;
+  var RP = function(){
     var Q;
     if (req.body.add) {
       Q = {$addToSet: {tags:tag}};
@@ -1050,13 +1052,13 @@ exports.editTag = function(req, res) {
 
 exports.doReg = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  var name = clearSpace(req.body.username)
-  ,  nick = clearSpace(req.body.nick)
-  ,  password = req.body.password
-  ,  vcode = clearSpace(req.body.vcode)
-  ,  school = clearSpace(req.body.school)
-  ,  email = clearSpace(req.body.email)
-  ,  sig = clearSpace(req.body.signature);
+  var name = clearSpace(req.body.username);
+  var nick = clearSpace(req.body.nick);
+  var password = req.body.password;
+  var vcode = clearSpace(req.body.vcode);
+  var school = clearSpace(req.body.school);
+  var email = clearSpace(req.body.email);
+  var sig = clearSpace(req.body.signature);
   if (!name || !nick || !password || !vcode ||
       school.length > 50 || email.length > 50 || sig.length > 200) {
     return res.end();  //not allow
@@ -1077,8 +1079,8 @@ exports.doReg = function(req, res) {
     if (user) {
       return res.end('2');
     }
-    var md5 = crypto.createHash('md5')
-    ,  psw = md5.update(password).digest('base64');
+    var md5 = crypto.createHash('md5');
+    var psw = md5.update(password).digest('base64');
     (new User({
       name      : name,
       password  : psw,
@@ -1101,14 +1103,14 @@ exports.doReg = function(req, res) {
 
 exports.doLogin = function(req, res) {
   res.header('Content-Type', 'text/plain');
-  var name = String(req.body.username)
-  ,  psw = String(req.body.password);
+  var name = String(req.body.username);
+  var psw = String(req.body.password);
   if (!name || !psw) {
     return res.end();  //not allow
   }
   //生成密码散列值
-  var md5 = crypto.createHash('md5')
-  ,  password = md5.update(psw).digest('base64');
+  var md5 = crypto.createHash('md5');
+  var password = md5.update(psw).digest('base64');
   User.watch(name, function(err, user) {
     if (err) {
       OE(err);
@@ -1171,8 +1173,8 @@ exports.upload = function(req, res) {
   if (!req.files || !req.files.info) {
     return res.end();  //not allow
   }
-  var path = req.files.info.path
-  ,   sz = req.files.info.size;
+  var path = req.files.info.path;
+  var sz = req.files.info.size;
   var RP = function(s) {
     fs.unlink(path, function(){
       return res.end(s);
@@ -1436,8 +1438,8 @@ exports.recal = function(req, res) {
     if (!U) {
       return res.end();
     }
-    var k = U.length
-    , dfs = function(x) {
+    var k = U.length;
+    var dfs = function(x) {
       if (x == k) {
         req.session.msg = '统计完成！';
         return res.end();
@@ -1693,10 +1695,10 @@ exports.avatarUpload = function(req, res) {
   if (!req.files || !req.files.img || !req.files.img.mimetype) {
     return res.end();   //not allow
   }
-  var path = req.files.img.path
-  ,   sz = req.files.img.size
-  ,   tmp = req.files.img.mimetype.split('/')
-  ,   imgType = tmp[1];
+  var path = req.files.img.path;
+  var sz = req.files.img.size;
+  var tmp = req.files.img.mimetype.split('/');
+  var imgType = tmp[1];
   var RP = function(s) {
     fs.unlink(path, function(){
       return res.end(s);
@@ -1711,8 +1713,8 @@ exports.avatarUpload = function(req, res) {
   if (tmp[0] != 'image') {
     return RP('2');
   }
-  var pre = root_path+'public/img/avatar/' + req.session.user.name
-  ,   originImg = imageMagick(path);
+  var pre = root_path+'public/img/avatar/' + req.session.user.name;
+  var originImg = imageMagick(path);
   exec('rm -rf '+pre, function(err){
     if (err) {
       OE(err);
@@ -1780,8 +1782,8 @@ exports.addproblem = function(req, res) {
     req.session.msg = 'You have no permission to Add or Edit problem!';
     return res.redirect('/');
   }
-  var tk = 1000, pid = parseInt(req.query.pID)
-  ,  RP = function(P, F, I) {
+  var tk = 1000, pid = parseInt(req.query.pID);
+  var RP = function(P, F, I) {
     if (P) {
       P.description = escapeHtml(P.description);
       P.input = escapeHtml(P.input);
@@ -1796,7 +1798,7 @@ exports.addproblem = function(req, res) {
                                files: F,
                                imgs: I
     });
-  }
+  };
   if (!pid) {
     return RP(null, null, null);
   } else {
@@ -1908,9 +1910,9 @@ exports.imgUpload = function(req, res) {
   if (!req.files || !req.files.info || !req.files.info.mimetype) {
     return res.end();   //not allow
   }
-  var path = req.files.info.path
-  ,   sz = req.files.info.size
-  ,   pid = parseInt(req.query.pid, 10);
+  var path = req.files.info.path;
+  var sz = req.files.info.size;
+  var pid = parseInt(req.query.pid, 10);
   var RP = function(s) {
     fs.unlink(path, function(){
       return res.end(s);
@@ -1960,10 +1962,10 @@ exports.dataUpload = function(req, res) {
   if (!req.files || !req.files.data) {
     return res.end();   //not allow
   }
-  var path = req.files.data.path
-  ,   fname = req.files.data.name
-  ,   sz = req.files.data.size
-  ,   pid = parseInt(req.query.pid, 10);
+  var path = req.files.data.path;
+  var fname = req.files.data.name;
+  var sz = req.files.data.size;
+  var pid = parseInt(req.query.pid, 10);
   var RP = function(s) {
     fs.unlink(path, function(){
       return res.end(s);
@@ -2275,9 +2277,9 @@ exports.status = function(req, res) {
     if (n < 0) {
       return res.redirect('/status');
     }
-    var flg = false, has = {}
-    ,  names = new Array()
-    ,  R = new Array(), C = new Array();
+    var flg = false, has = {};
+    var names = new Array();
+    var R = new Array(), C = new Array();
     if (sols) {
       sols.forEach(function(p, i){
         R.push(Res(p.result));
@@ -2422,18 +2424,18 @@ exports.addcontest = function(req, res) {
 exports.doAddcontest = function(req, res) {
   res.header('Content-Type', 'text/plain');
 
-  var psw = ''
-  ,   title = clearSpace(req.body.title)
-  ,   date = clearSpace(req.body.date)
-  ,   hour = addZero(req.body.hour)
-  ,   min = addZero(req.body.min)
-  ,   dd = parseInt(req.body.dd, 10)
-  ,   hh = parseInt(req.body.hh, 10)
-  ,   mm = parseInt(req.body.mm, 10)
-  ,   penalty = parseInt(req.body.penalty, 10)
-  ,   desc = clearSpace(req.body.desc)
-  ,   anc = clearSpace(req.body.anc)
-  ,   type = parseInt(req.body.type, 10);
+  var psw = '';
+  var title = clearSpace(req.body.title);
+  var date = clearSpace(req.body.date);
+  var hour = addZero(req.body.hour);
+  var min = addZero(req.body.min);
+  var dd = parseInt(req.body.dd, 10);
+  var hh = parseInt(req.body.hh, 10);
+  var mm = parseInt(req.body.mm, 10);
+  var penalty = parseInt(req.body.penalty, 10);
+  var desc = clearSpace(req.body.desc);
+  var anc = clearSpace(req.body.anc);
+  var type = parseInt(req.body.type, 10);
 
   if (!title || !date || !hour || !min ||
       nan(dd) || nan(hh) || nan(mm) || !penalty ||
@@ -2464,11 +2466,11 @@ exports.doAddcontest = function(req, res) {
       pids.push(p);
     });
   }
-  var alias = req.body.alias ? req.body.alias : {}
-  , RP = function(ary) {
-    var startTime = (new Date(date+' '+hour+':'+min)).getTime()
-    ,  len = dd*1440 + hh*60 + mm
-    ,  cid = parseInt(req.body.cid, 10);
+  var alias = req.body.alias ? req.body.alias : {};
+  var RP = function(ary) {
+    var startTime = (new Date(date+' '+hour+':'+min)).getTime();
+    var len = dd*1440 + hh*60 + mm;
+    var cid = parseInt(req.body.cid, 10);
     if (cid) {
       Contest.watch(cid, function(err, con) {
         if (err) {
@@ -2680,8 +2682,8 @@ exports.contestDelete = function(req, res) {
   if (!req.session.user) {
     return res.end();  //not allow
   }
-  var cid = parseInt(req.body.cid, 10)
-  ,  name = req.session.user.name;
+  var cid = parseInt(req.body.cid, 10);
+  var name = req.session.user.name;
   if (!cid || !name) {
     return res.end();  //not allow
   }
@@ -2747,8 +2749,8 @@ exports.contest = function(req, res) {
     if (n < 0) {
       return res.redirect('/contest/'+type);
     }
-    var T = new Array(), R = {}, now = (new Date()).getTime(),
-        CS = {}, names = new Array();
+    var T = new Array(), R = {}, now = (new Date()).getTime();
+    var CS = {}, names = new Array();
     if (contests) {
       if (req.session.cid) {
         CS = req.session.cid;
@@ -2802,7 +2804,6 @@ exports.ranklist = function(req, res) {
   }
 
   var cid = parseInt(req.query.cid, 10);
-
   var RP = function(Q) {
     User.get(Q, page, function(err, users, n){
       if (err) {
@@ -2904,11 +2905,11 @@ exports.doSubmit = function(req, res) {
     return res.end('6');
   }
   req.session.submitTime = now;
-  var cid = parseInt(req.body.cid, 10)
-  ,  name = clearSpace(req.session.user.name)
-  ,  pid = parseInt(req.body.pid, 10)
-  ,  Str = String(req.body.code)
-  ,  lang = parseInt(req.body.lang, 10);
+  var cid = parseInt(req.body.cid, 10);
+  var name = clearSpace(req.session.user.name);
+  var pid = parseInt(req.body.pid, 10);
+  var Str = String(req.body.code);
+  var lang = parseInt(req.body.lang, 10);
   if (!name) {
     return res.end();  //not allow
   }
@@ -3298,9 +3299,9 @@ exports.toggleStar = function(req, res) {
     req.session.msg = 'Please login first!';
     return res.end();
   }
-  var cid = parseInt(req.body.cid, 10)
-  ,  str = clearSpace(req.body.str)
-  ,  type = parseInt(req.body.type, 10);
+  var cid = parseInt(req.body.cid, 10);
+  var str = clearSpace(req.body.str);
+  var type = parseInt(req.body.type, 10);
   if (!cid || !str || !type) {
     return res.end();    //not allow!
   }
@@ -3536,11 +3537,11 @@ exports.doAddtopic = function(req, res) {
     req.session.msg = '请先登录！';
     return res.end();
   }
-  var tid = parseInt(req.body.tid, 10)
-  ,  title = clearSpace(req.body.title)
-  ,  content = req.body.content        //can not do clearSpace because it is content
-  ,  name = req.session.user.name
-  ,  cid = parseInt(req.body.cid, 10);
+  var tid = parseInt(req.body.tid, 10);
+  var title = clearSpace(req.body.title);
+  var content = req.body.content; //can not do clearSpace because it is content
+  var name = req.session.user.name;
+  var cid = parseInt(req.body.cid, 10);
   if (!title || !content || !name) {
     return res.end();   //not allow!
   }
@@ -3687,11 +3688,11 @@ exports.review = function(req, res) {
     req.session.msg = '请先登录！';
     return res.end();
   }
-  var user = req.session.user.name
-  ,  tid = parseInt(req.body.tid, 10)
-  ,  content = String(req.body.content)      //can not do clearSpace because it is content
-  ,  fa = parseInt(req.body.fa, 10)
-  ,  at = clearSpace(req.body.at);
+  var user = req.session.user.name;
+  var tid = parseInt(req.body.tid, 10);
+  var content = String(req.body.content); //can not do clearSpace because it is content
+  var fa = parseInt(req.body.fa, 10);
+  var at = clearSpace(req.body.at);
   if (!user || !tid || !content || !fa) {
     return res.end();   //not allow!
   }
