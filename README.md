@@ -1,5 +1,9 @@
 # ACdream Online Judge v1.1.5
 
+## 关于pull request
+
+温馨提示，所有提交都要严格遵循[代码规范](https://github.com/dead-horse/node-style-guide)。
+
 ## ubuntu下快速搭建开发环境
 
 ### 安装依赖
@@ -9,6 +13,7 @@ $ sudo apt-get install imagemagick
 $ sudo apt-get install python-software-properties python g++ make
 $ sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential
 ```
+
 ### 安装node.js
 ```
 $ sudo add-apt-repository ppa:chris-lea/node.js
