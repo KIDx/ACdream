@@ -1581,17 +1581,18 @@ exports.index = function(req, res){
             req.session.msg = '系统错误！';
             return res.redirect('/404');
           }
-          res.render('index', { title: 'ACdream Online Judge',
-                                user: req.session.user,
-                                time: (new Date()).getTime(),
-                                key: -1,
-                                A: A,
-                                B: B,
-                                C: C,
-                                D: D,
-                                getTime: getTime,
-                                UT: UserTitle,
-                                UC: UserCol
+          res.render('index', {
+            title: 'ACdream Online Judge',
+            user: req.session.user,
+            time: (new Date()).getTime(),
+            key: -1,
+            A: A,
+            B: B,
+            C: C,
+            D: D,
+            getTime: getTime,
+            UT: UserTitle,
+            UC: UserCol
           });
         });
       });
@@ -1640,18 +1641,19 @@ exports.user = function(req, res) {
               mins = p.rating;
             }
         });
-        res.render('user', {title: 'User',
-                            user: req.session.user,
-                            time: (new Date()).getTime(),
-                            key: 0,
-                            u: user,
-                            A: A,
-                            B: B,
-                            H: H,
-                            UC: UserCol,
-                            UT: UserTitle,
-                            getTime: getAboutTime,
-                            minRating: mins
+        res.render('user', {
+          title: 'User',
+          user: req.session.user,
+          time: (new Date()).getTime(),
+          key: 0,
+          u: user,
+          A: A,
+          B: B,
+          H: H,
+          UC: UserCol,
+          UT: UserTitle,
+          getTime: getAboutTime,
+          minRating: mins
         });
       };
       if (user.name != 'admin') {
@@ -1683,10 +1685,11 @@ exports.avatar = function(req, res) {
     req.session.msg = 'Please login first!';
     return res.redirect('/');
   }
-  res.render('avatar', {title: 'Avatar Setting',
-                        user: req.session.user,
-                        time: (new Date()).getTime(),
-                        key: 12
+  res.render('avatar', {
+    title: 'Avatar Setting',
+    user: req.session.user,
+    time: (new Date()).getTime(),
+    key: 12
   });
 };
 
@@ -1790,13 +1793,14 @@ exports.addproblem = function(req, res) {
       P.output = escapeHtml(P.output);
       P.hint = escapeHtml(P.hint);
     }
-    res.render('addproblem', { title: 'addproblem',
-                               user: req.session.user,
-                               time: (new Date()).getTime(),
-                               problem: P,
-                               key: tk,
-                               files: F,
-                               imgs: I
+    res.render('addproblem', {
+      title: 'AddProblem',
+      user: req.session.user,
+      time: (new Date()).getTime(),
+      problem: P,
+      key: tk,
+      files: F,
+      imgs: I
     });
   };
   if (!pid) {
@@ -2072,11 +2076,12 @@ exports.logout = function(req, res) {
 exports.problem = function(req, res) {
   var pid = parseInt(req.query.pid, 10);
   if (!pid) {
-    res.render('problem', {title: 'Problem',
-                            user: req.session.user,
-                            time: (new Date()).getTime(),
-                            key: -1,
-                            problem: null
+    res.render('problem', {
+      title: 'Problem',
+      user: req.session.user,
+      time: (new Date()).getTime(),
+      key: -1,
+      problem: null
     });
   } else {
     var name = '', cid = parseInt(req.query.cid, 10);
@@ -2105,18 +2110,19 @@ exports.problem = function(req, res) {
             UT = UserTitle(U.rating);
             UC = UserCol(U.rating);
           }
-          res.render('problem', { title: 'Problem '+pid,
-                                  user: req.session.user,
-                                  time: (new Date()).getTime(),
-                                  key: 8,
-                                  problem: problem,
-                                  pvl: pvl,
-                                  Tag: Tag,
-                                  PT: ProTil,
-                                  cid: cid,
-                                  UT: UT,
-                                  UC: UC,
-                                  langs: languages
+          res.render('problem', {
+            title: 'Problem ' + pid,
+            user: req.session.user,
+            time: (new Date()).getTime(),
+            key: 8,
+            problem: problem,
+            pvl: pvl,
+            Tag: Tag,
+            PT: ProTil,
+            cid: cid,
+            UT: UT,
+            UC: UC,
+            langs: languages
           });
         };
         if (problem) {
@@ -2184,18 +2190,18 @@ exports.problemset = function(req, res) {
       return res.redirect('/problemset');
     }
     var RP = function(R){
-      res.render('problemset', {title: 'ProblemSet',
-                                user: req.session.user,
-                                time: (new Date()).getTime(),
-                                key: 3,
-                                n: n,
-                                problems: problems,
-                                page: page,
-                                search: search,
-                                Tag: Tag,
-                                Pt: ProTil,
-                                R: R
-
+      res.render('problemset', {
+        title: 'ProblemSet',
+        user: req.session.user,
+        time: (new Date()).getTime(),
+        key: 3,
+        n: n,
+        problems: problems,
+        page: page,
+        search: search,
+        Tag: Tag,
+        Pt: ProTil,
+        R: R
       });
     };
     if (req.session.user && problems && problems.length > 0) {
@@ -2310,26 +2316,27 @@ exports.status = function(req, res) {
         probs.forEach(function(p){
           P[p.problemID] = p;
         });
-        res.render('status', {title: 'Status',
-                              user: req.session.user,
-                              time: (new Date()).getTime(),
-                              key: 4,
-                              n: n,
-                              sols: sols,
-                              getDate: getDate,
-                              name: name,
-                              pid: pid,
-                              result: result,
-                              lang: lang,
-                              Res: Res,
-                              Col: Col,
-                              P: P,
-                              R: R,
-                              C: C,
-                              UC: UC,
-                              UT: UT,
-                              page: page,
-                              langs: languages
+        res.render('status', {
+          title: 'Status',
+          user: req.session.user,
+          time: (new Date()).getTime(),
+          key: 4,
+          n: n,
+          sols: sols,
+          getDate: getDate,
+          name: name,
+          pid: pid,
+          result: result,
+          lang: lang,
+          Res: Res,
+          Col: Col,
+          P: P,
+          R: R,
+          C: C,
+          UC: UC,
+          UT: UT,
+          page: page,
+          langs: languages
         });
       });
     });
@@ -2346,16 +2353,17 @@ exports.addcontest = function(req, res) {
     return res.redirect('/contest/'+type);
   }
   var RP = function(C, clone, type, E, P) {
-    res.render('addcontest', {title: 'AddContest',
-                              user: req.session.user,
-                              time: (new Date()).getTime(),
-                              contest: C,
-                              getDate: getDate,
-                              key: 1002,
-                              clone: clone,
-                              type: type,
-                              edit: E,
-                              P: P
+    res.render('addcontest', {
+      title: 'AddContest',
+      user: req.session.user,
+      time: (new Date()).getTime(),
+      contest: C,
+      getDate: getDate,
+      key: 1002,
+      clone: clone,
+      type: type,
+      edit: E,
+      P: P
     });
   }
   ,  name = req.session.user.name
@@ -2666,20 +2674,21 @@ exports.onecontest = function(req, res) {
         if (!user) {
           return res.end();  //not allow
         }
-        res.render('onecontest', {title: 'OneContest',
-                                  user: req.session.user,
-                                  time: (new Date()).getTime(),
-                                  key: 9,
-                                  contest: contest,
-                                  getDate: getDate,
-                                  isContestant: isContestant,
-                                  pageNum: contestRank_pageNum,
-                                  MC: UserCol(user.rating),
-                                  MT: UserTitle(user.rating),
-                                  Pt: Pt,
-                                  Col: Col,
-                                  Res: Res,
-                                  langs: languages
+        res.render('onecontest', {
+          title: 'OneContest',
+          user: req.session.user,
+          time: (new Date()).getTime(),
+          key: 9,
+          contest: contest,
+          getDate: getDate,
+          isContestant: isContestant,
+          pageNum: contestRank_pageNum,
+          MC: UserCol(user.rating),
+          MT: UserTitle(user.rating),
+          Pt: Pt,
+          Col: Col,
+          Res: Res,
+          langs: languages
         });
       });
     });
@@ -2784,21 +2793,22 @@ exports.contest = function(req, res) {
           UT[p.name] = UserTitle(p.rating);
         });
       }
-      res.render ('contest', {title: 'Contest',
-                              user: req.session.user,
-                              time: now,
-                              key: 6,
-                              type: type,
-                              contests: contests,
-                              getDate: getDate,
-                              n: n,
-                              search: search,
-                              page: page,
-                              T: T,
-                              R: R,
-                              CS: CS,
-                              UC: UC,
-                              UT: UT
+      res.render('contest', {
+        title: 'Contest',
+        user: req.session.user,
+        time: now,
+        key: 6,
+        type: type,
+        contests: contests,
+        getDate: getDate,
+        n: n,
+        search: search,
+        page: page,
+        T: T,
+        R: R,
+        CS: CS,
+        UC: UC,
+        UT: UT
       });
     });
   });
@@ -2831,18 +2841,19 @@ exports.ranklist = function(req, res) {
         });
       }
       var Render = function() {
-        res.render('ranklist', {title: 'Ranklist',
-                                user: req.session.user,
-                                time: (new Date()).getTime(),
-                                key: 5,
-                                n: n,
-                                users: users,
-                                page: page,
-                                pageNum: ranklist_pageNum,
-                                search: search,
-                                UC: UC,
-                                UT: UT,
-                                cid: cid
+        res.render('ranklist', {
+          title: 'Ranklist',
+          user: req.session.user,
+          time: (new Date()).getTime(),
+          key: 5,
+          n: n,
+          users: users,
+          page: page,
+          pageNum: ranklist_pageNum,
+          search: search,
+          UC: UC,
+          UT: UT,
+          cid: cid
         });
       };
       if (req.session.user) {
@@ -2894,12 +2905,13 @@ exports.ranklist = function(req, res) {
 };
 
 exports.submit = function(req, res) {
-  res.render('submit', {title: 'Submit',
-                        user: req.session.user,
-                        time: (new Date()).getTime(),
-                        key: 10,
-                        id: req.query.pid,
-                        langs: languages
+  res.render('submit', {
+    title: 'Submit',
+    user: req.session.user,
+    time: (new Date()).getTime(),
+    key: 10,
+    id: req.query.pid,
+    langs: languages
   });
 };
 
@@ -3013,14 +3025,15 @@ exports.sourcecode = function(req, res) {
       return res.redirect('/404');
     }
     var RP = function(flg){
-      res.render('sourcecode', {title: 'Sourcecode',
-                                user: req.session.user,
-                                time: (new Date()).getTime(),
-                                key: 11,
-                                solution: sol,
-                                getDate: getDate,
-                                flg: flg,
-                                Res: Res
+      res.render('sourcecode', {
+        title: 'Sourcecode',
+        user: req.session.user,
+        time: (new Date()).getTime(),
+        key: 11,
+        solution: sol,
+        getDate: getDate,
+        flg: flg,
+        Res: Res
       });
     };
     if (!req.session.user) {
@@ -3179,23 +3192,24 @@ exports.statistic = function(req, res) {
                 UT[p.name] = UserTitle(p.rating);
               });
             }
-            res.render('statistic', { title: 'Problem Statistic',
-                                      user: req.session.user,
-                                      time: (new Date()).getTime(),
-                                      key: 1,
-                                      pid: pid,
-                                      sols: sols,
-                                      getDate: getDate,
-                                      N: N,
-                                      Res: Res,
-                                      page: page,
-                                      pageNum: stats_pageNum,
-                                      n: parseInt((n+stats_pageNum-1)/stats_pageNum, 10),
-                                      lang: lang,
-                                      sort_key: sort_key,
-                                      UC: UC,
-                                      UT: UT,
-                                      langs: languages
+            res.render('statistic', {
+              title: 'Problem Statistic',
+              user: req.session.user,
+              time: (new Date()).getTime(),
+              key: 1,
+              pid: pid,
+              sols: sols,
+              getDate: getDate,
+              N: N,
+              Res: Res,
+              page: page,
+              pageNum: stats_pageNum,
+              n: parseInt((n + stats_pageNum - 1) / stats_pageNum, 10),
+              lang: lang,
+              sort_key: sort_key,
+              UC: UC,
+              UT: UT,
+              langs: languages
             });
           });
         });
@@ -3405,16 +3419,17 @@ exports.topic = function(req, res) {
           I[p.name] = p.imgType;
         });
       }
-      res.render('topic', { title: 'Topic',
-                            user: req.session.user,
-                            time: (new Date()).getTime(),
-                            key: 17,
-                            topics: topics,
-                            page: page,
-                            search: search,
-                            n: n,
-                            I: I,
-                            getDate: getTime
+      res.render('topic', {
+        title: 'Topic',
+        user: req.session.user,
+        time: (new Date()).getTime(),
+        key: 17,
+        topics: topics,
+        page: page,
+        search: search,
+        n: n,
+        I: I,
+        getDate: getTime
       });
     });
   });
@@ -3481,18 +3496,19 @@ exports.onetopic = function(req, res) {
               IT[p.name] = p.imgType;
             });
           }
-          res.render('onetopic', {title: 'OneTopic',
-                                  user: req.session.user,
-                                  time: (new Date()).getTime(),
-                                  key: 18,
-                                  topic: topic,
-                                  comments: com,
-                                  N: N,
-                                  sub: sub,
-                                  getDate: getTime,
-                                  UT: UT,
-                                  UC: UC,
-                                  IT: IT
+          res.render('onetopic', {
+            title: 'OneTopic',
+            user: req.session.user,
+            time: (new Date()).getTime(),
+            key: 18,
+            topic: topic,
+            comments: com,
+            N: N,
+            sub: sub,
+            getDate: getTime,
+            UT: UT,
+            UC: UC,
+            IT: IT
           });
         });
       });
@@ -3511,12 +3527,13 @@ exports.addtopic = function(req, res) {
     }
     tCan.Can(function(vcode, img){
       req.session.verifycode = vcode;
-      res.render('addtopic', {title: type+'Topic',
-                              user: req.session.user,
-                              time: (new Date()).getTime(),
-                              topic: T,
-                              key: 1004,
-                              vcode: img
+      res.render('addtopic', {
+        title: type + 'Topic',
+        user: req.session.user,
+        time: (new Date()).getTime(),
+        topic: T,
+        key: 1004,
+        vcode: img
       });
     });
   };
