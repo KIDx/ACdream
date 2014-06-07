@@ -213,7 +213,8 @@ $(document).ready(function(){
         ShowMessage('数据上传完成！');
         return ;
       }
-      if (res == '3') tp = '异常错误！';
+      if (res == '2') tp = '存在超过50m的文件，已忽略！';
+      else if (res == '3') tp = '异常错误！';
       if (tp) {
         errAnimate($dataerr, tp);
       }

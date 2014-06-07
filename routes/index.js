@@ -1989,7 +1989,7 @@ exports.dataUpload = function(req, res) {
   if (!pid || !req.session.user) {
     return RP();  //not allow
   }
-  if (sz > 10*1024*1024) {
+  if (sz > 50*1024*1024) {
     return RP('2');
   }
   User.watch(req.session.user.name, function(err, user){
