@@ -175,16 +175,8 @@ function BindCE() {
   }
 }
 
-var nextURL = "";
-
 var $footTime = $('span#timer');
 var $contest_current = $('#contest_current');
-
-var current_user = $footTime.attr('user');
-
-var current_time;
-var contest_type = $footTime.attr('type');
-var curren_second = parseInt($footTime.attr('time'));
 
 var $finput = $('input[type="text"], textarea').eq(1);
 
@@ -599,8 +591,8 @@ $(document).ready(function(){
 });
 
 //the Go button, go to a problem at once
-var $Go = $('a#Go')
-,   $Goinput = $Go.prev();
+var $Go = $('a#Go');
+var $Goinput = $Go.prev();
 
 $(document).ready(function(){
   $Go.click(function(){

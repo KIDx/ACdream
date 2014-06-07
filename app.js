@@ -60,7 +60,7 @@ app.use(function(req, res, next){
     res.locals.time = (new Date()).getTime();
     res.locals.msg = req.session.msg;
     if (res.locals.msg) {
-      req.session.msg = "";
+      req.session.msg = null;
     }
     next();
   });

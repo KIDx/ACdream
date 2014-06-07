@@ -78,7 +78,7 @@
     <div class="w" id="footer">
       <div><a href="/">ACdream v1.1.5</a> 2013-2014 KIDx(网站), TTLast(评测机)</div>
       <div>Any bug please contact 972169909@qq.com</div>
-      <div>Server time: <span <% if(key == 6) { %>type="<%= type %>"<% } %> <% if (user) { %>user="<%= user.name %>"<% } %> time="<%= time %>" id="timer"></span></div>
+      <div>Server time: <span id="timer"></span></div>
       <div><a href="http://www.miitbeian.gov.cn/ ">浙ICP备14013846号</a></div>
     </div>
     <div id="go_top" title="Go to top"></div>
@@ -106,11 +106,16 @@
   <!--****************Dialogs****************-->
   <!-- js Placed at the end of the document so the pages load faster -->
     <script type="text/javascript">
-      var globalMessage = "<%= msg %>";
+      var globalMessage = "<%= msg ? msg : '' %>";
+      var nextURL = "";
+      var current_user = "<%= user ? user.name : '' %>";
+      var current_time;
+      var curren_second = <%= time %>;
+      var contest_type = <%= key == 6 ? type : 1 %>;
     </script>
     <script src="/javascripts/jquery_uieffect_jqdnr.js"></script>
     <script src="/javascripts/jquery.cookie.js"></script>
-    <script src="/javascripts/Global.js"></script>
+    <script src="/javascripts/global.js"></script>
   <% var highlight = '<script src="/highlighter/scripts/shCore_brushCpp_brushJava.js"></script><script type="text/javascript">SyntaxHighlighter.defaults[\'toolbar\'] = false;SyntaxHighlighter.all();</script>'; %>
   <% if (key == 0) { %>
     <script src="/Highcharts-4.0.1/highcharts.js"></script>
