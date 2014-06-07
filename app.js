@@ -56,6 +56,12 @@ app.use(require('morgan')('dev'));
 
 app.use(function(req, res, next){
   req.session.reload(function(){
+    res.locals.user = req.session.user;
+    res.locals.time = (new Date()).getTime();
+    res.locals.msg = req.session.msg;
+    if (res.locals.msg) {
+      req.session.msg = "";
+    }
     next();
   });
 });
@@ -183,17 +189,6 @@ app.post('/delComment', routes.delComment);
 app.post('/editComment', routes.editComment);
 //设置指定题目的管理员(for admin)
 app.post('/setProblemManager', routes.setProblemManager);
-
-//清除服务器消息
-app.post('/getMessage', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  var msg = req.session.msg;
-  req.session.msg = '';
-  if (!msg) {
-    return res.end();
-  }
-  return res.end(msg);
-});
 
 //connect mongodb
 routes.connectMongodb();

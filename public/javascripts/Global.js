@@ -328,16 +328,9 @@ $(document).ready(function(){
   setInterval(SetCurrentTime, 1000);
 
   //message
-  $.ajax({
-    type : 'POST',
-    url : '/getMessage',
-    dataType : 'text'
-  })
-  .done(function(res){
-    if (res) {
-      ShowMessage(res);
-    }
-  });
+  if (globalMessage) {
+    ShowMessage(globalMessage);
+  }
 
   //login
   if ($dialog_lg.length) {

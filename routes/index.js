@@ -130,6 +130,25 @@ function IsRegCon(s, name) {
   return s.indexOf(name) >= 0 ? true : false;
 }
 
+function regContestAndUpdate(cid, name, callback) {
+  Contest.update(cid, {$addToSet: {contestants:name}}, function(err){
+    if (err) {
+      return callback(err);
+    }
+    ContestRank.findOne({'_id.cid': cid, '_id.name': name}, function(err, doc){
+      if (err) {
+        return callback(err);
+      }
+      if (doc) {
+        return callback();
+      }
+      (new ContestRank(cid, name)).save(function(err){
+        return callback(err);
+      });
+    });
+  });
+}
+
 function gao(n, type) {
   if (n == 1) {
     if (type == 'hour')
@@ -1583,8 +1602,6 @@ exports.index = function(req, res){
           }
           res.render('index', {
             title: 'ACdream Online Judge',
-            user: req.session.user,
-            time: (new Date()).getTime(),
             key: -1,
             A: A,
             B: B,
@@ -1643,8 +1660,6 @@ exports.user = function(req, res) {
         });
         res.render('user', {
           title: 'User',
-          user: req.session.user,
-          time: (new Date()).getTime(),
           key: 0,
           u: user,
           A: A,
@@ -1687,8 +1702,6 @@ exports.avatar = function(req, res) {
   }
   res.render('avatar', {
     title: 'Avatar Setting',
-    user: req.session.user,
-    time: (new Date()).getTime(),
     key: 12
   });
 };
@@ -1795,8 +1808,6 @@ exports.addproblem = function(req, res) {
     }
     res.render('addproblem', {
       title: 'AddProblem',
-      user: req.session.user,
-      time: (new Date()).getTime(),
       problem: P,
       key: tk,
       files: F,
@@ -2078,8 +2089,6 @@ exports.problem = function(req, res) {
   if (!pid) {
     res.render('problem', {
       title: 'Problem',
-      user: req.session.user,
-      time: (new Date()).getTime(),
       key: -1,
       problem: null
     });
@@ -2112,8 +2121,6 @@ exports.problem = function(req, res) {
           }
           res.render('problem', {
             title: 'Problem ' + pid,
-            user: req.session.user,
-            time: (new Date()).getTime(),
             key: 8,
             problem: problem,
             pvl: pvl,
@@ -2192,8 +2199,6 @@ exports.problemset = function(req, res) {
     var RP = function(R){
       res.render('problemset', {
         title: 'ProblemSet',
-        user: req.session.user,
-        time: (new Date()).getTime(),
         key: 3,
         n: n,
         problems: problems,
@@ -2318,8 +2323,6 @@ exports.status = function(req, res) {
         });
         res.render('status', {
           title: 'Status',
-          user: req.session.user,
-          time: (new Date()).getTime(),
           key: 4,
           n: n,
           sols: sols,
@@ -2355,8 +2358,6 @@ exports.addcontest = function(req, res) {
   var RP = function(C, clone, type, E, P) {
     res.render('addcontest', {
       title: 'AddContest',
-      user: req.session.user,
-      time: (new Date()).getTime(),
       contest: C,
       getDate: getDate,
       key: 1002,
@@ -2676,8 +2677,6 @@ exports.onecontest = function(req, res) {
         }
         res.render('onecontest', {
           title: 'OneContest',
-          user: req.session.user,
-          time: (new Date()).getTime(),
           key: 9,
           contest: contest,
           getDate: getDate,
@@ -2795,8 +2794,6 @@ exports.contest = function(req, res) {
       }
       res.render('contest', {
         title: 'Contest',
-        user: req.session.user,
-        time: now,
         key: 6,
         type: type,
         contests: contests,
@@ -2843,8 +2840,6 @@ exports.ranklist = function(req, res) {
       var Render = function() {
         res.render('ranklist', {
           title: 'Ranklist',
-          user: req.session.user,
-          time: (new Date()).getTime(),
           key: 5,
           n: n,
           users: users,
@@ -2907,8 +2902,6 @@ exports.ranklist = function(req, res) {
 exports.submit = function(req, res) {
   res.render('submit', {
     title: 'Submit',
-    user: req.session.user,
-    time: (new Date()).getTime(),
     key: 10,
     id: req.query.pid,
     langs: languages
@@ -3027,8 +3020,6 @@ exports.sourcecode = function(req, res) {
     var RP = function(flg){
       res.render('sourcecode', {
         title: 'Sourcecode',
-        user: req.session.user,
-        time: (new Date()).getTime(),
         key: 11,
         solution: sol,
         getDate: getDate,
@@ -3194,8 +3185,6 @@ exports.statistic = function(req, res) {
             }
             res.render('statistic', {
               title: 'Problem Statistic',
-              user: req.session.user,
-              time: (new Date()).getTime(),
               key: 1,
               pid: pid,
               sols: sols,
@@ -3217,25 +3206,6 @@ exports.statistic = function(req, res) {
     });
   });
 };
-
-function regContestAndUpdate(cid, name, callback) {
-  Contest.update(cid, {$addToSet: {contestants:name}}, function(err){
-    if (err) {
-      return callback(err);  //no need to output err, because of callback
-    }
-    ContestRank.findOne({'_id.cid': cid, '_id.name': name}, function(err, doc){
-      if (err) {
-        return callback(err);
-      }
-      if (doc) {
-        return callback();
-      }
-      (new ContestRank(cid, name)).save(function(err){
-        return callback(err);
-      });
-    });
-  });
-}
 
 exports.contestReg = function(req, res) {
   res.header('Content-Type', 'text/plain');
@@ -3421,8 +3391,6 @@ exports.topic = function(req, res) {
       }
       res.render('topic', {
         title: 'Topic',
-        user: req.session.user,
-        time: (new Date()).getTime(),
         key: 17,
         topics: topics,
         page: page,
@@ -3498,8 +3466,6 @@ exports.onetopic = function(req, res) {
           }
           res.render('onetopic', {
             title: 'OneTopic',
-            user: req.session.user,
-            time: (new Date()).getTime(),
             key: 18,
             topic: topic,
             comments: com,
@@ -3529,8 +3495,6 @@ exports.addtopic = function(req, res) {
       req.session.verifycode = vcode;
       res.render('addtopic', {
         title: type + 'Topic',
-        user: req.session.user,
-        time: (new Date()).getTime(),
         topic: T,
         key: 1004,
         vcode: img
