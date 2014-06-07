@@ -77,15 +77,15 @@
             <% if (p.result < 2) { %>
             <% vc = 'unknow'; %>
             <% } %>
-            <% if ((p.cID != -1 || p.userName == 'admin') && (!user || (p.userName != user.name && user.name != 'admin'))) { %>
+            <% if ((p.cID != -1 || P[p.problemID].hide) && (!user || (user.name != p.userName && user.name != 'admin' && user.name != P[p.problemID].manager))) { %>
             <% time = memory = len = '<span class="user user-gray">---</span>'; %>
             <% } else { %>
             <% time = p.time+' MS'; memory = p.memory+' KB'; len = p.code.length+' B'; %>
             <% } %>
             <% if (p.result == 0) { %>
-            <% time = '<img src="img/pending.gif" style="width:16px;height:16px;" />'; %>
+            <% time = '<img src="img/pending.gif" style="width:16px;height:16px;">'; %>
             <% } else if (p.result == 1) { %>
-            <% time = '<img src="img/running.gif" style="width:16px;height:16px;" />'; %>
+            <% time = '<img src="img/running.gif" style="width:16px;height:16px;">'; %>
             <% } %>
             <% if (p.result == 8 && user && (user.name == p.userName || user.name == 'admin')) { %>
             <% v = '<a href="javascript:;" title="more information" rid="'+p.runID+'" class="CE special-text">Compilation Error</a>'; %>

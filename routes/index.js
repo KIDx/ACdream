@@ -2278,7 +2278,7 @@ exports.status = function(req, res) {
       return res.redirect('/status');
     }
     var flg = false, has = {};
-    var names = new Array();
+    var names = new Array(), pids = new Array();
     var R = new Array(), C = new Array();
     if (sols) {
       sols.forEach(function(p, i){
@@ -2288,40 +2288,49 @@ exports.status = function(req, res) {
           has[p.userName] = true;
           names.push(p.userName);
         }
+        if (!has[p.problemID]) {
+          has[p.problemID] = true;
+          pids.push(p.problemID);
+        }
       });
     }
-    User.find({name: {$in:names}}, function(err, users){
+    User.find({name: {$in: names}}, function(err, users){
       if (err) {
         OE(err);
         req.session.msg = '系统错误！';
         return res.redirect('/');
       }
       var UC = {}, UT = {};
-      if (users) {
-        users.forEach(function(p){
-          UC[p.name] = UserCol(p.rating);
-          UT[p.name] = UserTitle(p.rating);
+      users.forEach(function(p){
+        UC[p.name] = UserCol(p.rating);
+        UT[p.name] = UserTitle(p.rating);
+      });
+      Problem.find({problemID: {$in: pids}}, function(err, probs){
+        var P = {};
+        probs.forEach(function(p){
+          P[p.problemID] = p;
         });
-      }
-      res.render('status', {title: 'Status',
-                            user: req.session.user,
-                            time: (new Date()).getTime(),
-                            key: 4,
-                            n: n,
-                            sols: sols,
-                            getDate: getDate,
-                            name: name,
-                            pid: pid,
-                            result: result,
-                            lang: lang,
-                            Res: Res,
-                            Col: Col,
-                            R: R,
-                            C: C,
-                            UC: UC,
-                            UT: UT,
-                            page: page,
-                            langs: languages
+        res.render('status', {title: 'Status',
+                              user: req.session.user,
+                              time: (new Date()).getTime(),
+                              key: 4,
+                              n: n,
+                              sols: sols,
+                              getDate: getDate,
+                              name: name,
+                              pid: pid,
+                              result: result,
+                              lang: lang,
+                              Res: Res,
+                              Col: Col,
+                              P: P,
+                              R: R,
+                              C: C,
+                              UC: UC,
+                              UT: UT,
+                              page: page,
+                              langs: languages
+        });
       });
     });
   });
