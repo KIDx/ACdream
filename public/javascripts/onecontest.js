@@ -715,7 +715,7 @@ function buildDiscuss(p) {
   html += '<a target="_blank" href="/topic/'+p.id+'">'+p.title+'</a></td>';
   html += '<td>';
   if (p.lastReviewer) {
-    html += '<a class="topic_timer" href="/topic/'+p.id+'#'+p.lastComment+'">';
+    html += '<a class="topic_timer" target="_blank" href="/topic/'+p.id+'#'+p.lastComment+'">';
     html += '<img class="img_ss" title="'+p.lastReviewer+'" alt="'+p.lastReviewer+'" src="'+getImg(p.lastReviewer)+'">';
     html += '<span>'+p.lastReviewTime+'</span>';
     html += '</a>';

@@ -19,7 +19,7 @@
             <% if (now - A[i].inDate < 86400000) { %>
             <img class="top" src="/img/new.gif">
             <% } %>
-            <% if (A[i].lastReviewer && now - A[i].lastReviewTime < 86400000) { %>
+            <% if (A[i].lastReviewer && now - A[i].lastReviewTime < 28800000) { %>
             <img class="top" src="/img/hot.gif">
             <% } %>
           <% } else { %>
