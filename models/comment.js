@@ -28,6 +28,8 @@ var commentObj = new Schema({
   hide: Boolean
 });
 
+commentObj.index({tid: 1, id: 1});
+
 mongoose.model('comments', commentObj);
 var comments = mongoose.model('comments');
 
@@ -61,7 +63,7 @@ Comment.get = function(Q, callback){
 };
 
 Comment.watch = function(tid, callback) {
-  comments.findOne({id:tid}, function(err, doc){
+  comments.findOne({id: tid}, function(err, doc){
     if (err) {
       OE('Comment.watch failed!');
     }

@@ -2757,7 +2757,7 @@ exports.contest = function(req, res) {
     q1.title = q2.userName = new RegExp("^.*"+toEscape(search)+".*$", 'i');
   }
 
-  Contest.get ({$or:[q1, q2]}, page, function(err, contests, n) {
+  Contest.get({$or:[q1, q2]}, page, function(err, contests, n){
     if (err) {
       OE(err);
       req.session.msg = '系统错误！';
