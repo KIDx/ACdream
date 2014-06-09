@@ -40,6 +40,8 @@ var contestObj = new Schema({
   FB: Object
 });
 
+contestObj.index({startTime: -1, contestID: -1});
+
 mongoose.model('contests', contestObj);
 var contests = mongoose.model('contests');
 
@@ -82,7 +84,7 @@ Contest.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    contests.find(Q).sort({startTime:-1, contestID:-1}).skip((page-1)*pageNum)
+    contests.find(Q).sort({startTime: -1, contestID: -1}).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('Contest.get failed!');
@@ -93,7 +95,7 @@ Contest.get = function(Q, page, callback) {
 };
 
 Contest.watch = function(cid, callback) {
-  contests.findOne({contestID:cid}, function(err, doc){
+  contests.findOne({contestID: cid}, function(err, doc){
     if (err) {
       OE('Contest.watch failed!');
     }
@@ -111,7 +113,7 @@ Contest.findOneAndUpdate = function(Q, H, O, callback) {
 };
 
 Contest.update = function(cid, H, callback) {
-  contests.update({contestID:cid}, H, function(err){
+  contests.update({contestID: cid}, H, function(err){
     if (err) {
       OE('Contest.update failed!');
     }
