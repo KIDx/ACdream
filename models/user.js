@@ -38,6 +38,8 @@ var userObj = new Schema({
   imgType: String
 });
 
+userObj.index({rating: -1, solved: -1, submit: 1, name: 1});
+
 mongoose.model('users', userObj);
 var users = mongoose.model('users');
 
@@ -95,7 +97,7 @@ User.get = function(Q, page, callback) {
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1})
+    users.find(Q).sort({rating: -1, solved: -1, submit: 1, name: 1})
       .skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
       if (err) {
         OE('User.get failed!');
@@ -106,8 +108,8 @@ User.get = function(Q, page, callback) {
 };
 
 User.topFive = function(Q, callback) {
-  users.find(Q).sort({rating:-1,solved:-1,submit:1,name:1}).limit(5)
-    .exec(function(err, docs){
+  users.find(Q).sort({rating: -1, solved: -1, submit: 1, name: 1})
+    .limit(5).exec(function(err, docs){
     if (err) {
       OE('User.topFive failed!');
     }
