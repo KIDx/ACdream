@@ -3107,13 +3107,14 @@ exports.statistic = function(req, res) {
         return res.redirect('/statistic/'+pid);
       }
       if (!sort_key) {
-        sq = {time:1, memory:1, length:1, inDate:1};
+        sq = {time: 1, memory: 1, length: 1, inDate: 1};
       } else if (sort_key == 1) {
-        sq = {memory:1, time:1, length:1, inDate:1};
+        sq = {memory: 1, time: 1, length: 1, inDate: 1};
       } else if (sort_key == 2) {
-        sq = {length:1, time:1, memory:1, inDate:1};
+        sq = {length: 1, time: 1, memory: 1, inDate: 1};
       }
-      var Q1 = { problemID: pid, result: 2 }, Q2 = { problemID: pid, result: {$gt:1} };
+      var Q1 = {problemID: pid, result: 2};
+      var Q2 = {problemID: pid, result: {$gt: 1}};
       if (lang) {
         Q1.language = Q2.language = lang;
       }
@@ -3121,14 +3122,14 @@ exports.statistic = function(req, res) {
         $match: Q1
       }, {$sort: sq}, {
         $group: {
-          _id    : '$userName',
-          runID   : { $first : '$runID' },
-          cid    : { $first : '$cID' },
-          time      : { $first : '$time' },
-          memory    : { $first : '$memory' },
-          length    : { $first : '$length' },
-          language  : { $first : '$language' },
-          inDate    : { $first : '$inDate' }
+          _id: '$userName',
+          runID: {$first: '$runID'},
+          cid: {$first: '$cID'},
+          time: {$first: '$time'},
+          memory: {$first: '$memory'},
+          length: {$first: '$length'},
+          language: {$first: '$language'},
+          inDate: {$first: '$inDate'}
         }
       }, {$sort: sq}, {$skip: (page-1)*stats_pageNum}, {$limit: 20}
       ], function(err, sols){

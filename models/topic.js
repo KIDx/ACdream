@@ -31,6 +31,9 @@ var topicObj = new Schema({
   lastComment: Number
 });
 
+topicObj.index({lastReviewTime: -1});
+topicObj.index({top: -1, lastReviewTime: -1});
+
 mongoose.model('topics', topicObj);
 var topics = mongoose.model('topics');
 
