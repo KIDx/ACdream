@@ -283,8 +283,7 @@ $(document).ready(function(){
       tickPositions: tickPositions,
       showFirstLabel: false,
       endOnTick: false,
-      maxPadding: 0.8,
-      minRange: 1000,
+      maxPadding: 1,
       plotBands: plotBands
     },
     tooltip: {
@@ -321,7 +320,7 @@ $(document).ready(function(){
   });
   var chart = $chart.highcharts();
   var y = chart.yAxis[0];
-  if (y.getExtremes().dataMax < 1950) {
+  if (y.getExtremes().dataMax+100 < 1950) {
     y.setExtremes(tickPositions[0], 1950);
   }
 });
