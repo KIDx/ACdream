@@ -42,6 +42,12 @@ var solutionObj = new Schema({
   CE: String
 });
 
+solutionObj.index({result: 1});
+solutionObj.index({userName: 1, runID: -1});
+solutionObj.index({problemID: 1, runID: -1});
+solutionObj.index({language: 1, runID: -1});
+solutionObj.index({result: 1, runID: -1});
+
 mongoose.model('solutions', solutionObj);
 var solutions = mongoose.model('solutions');
 
