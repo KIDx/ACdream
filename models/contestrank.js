@@ -18,6 +18,14 @@ var rankObj = new Schema({
   value: Object
 });
 
+rankObj.index({
+  '_id.cid': 1,
+  'value.solved': -1,
+  'value.penalty': 1,
+  'value.submitTime': -1,
+  '_id.name': 1
+});
+
 mongoose.model('ranks', rankObj);
 var ranks = mongoose.model('ranks');
 
