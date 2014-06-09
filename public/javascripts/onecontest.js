@@ -1015,6 +1015,7 @@ $(document).ready(function(){
         $dialog_sm.jqmHide();
         if (!err) {
           ShowMessage('Your code for problem '+pmap[pid_index]+' has been submited successfully!');
+          window.location.hash = '#status';
         } else if (err == '6') {
           ShowMessage('同一个会话在5秒内只能交一次代码，请稍候再交。');
         } else if (err == '1') {
@@ -1029,7 +1030,6 @@ $(document).ready(function(){
         } else if (err == '5') {
           ShowMessage('The language is not exit!');
         }
-        window.location.hash = '#status';
       });
     });
   }
