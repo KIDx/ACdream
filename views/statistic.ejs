@@ -100,14 +100,19 @@
                 <tr class="odd">
                   <td class="error-text center" colspan="7">No Status are matched.</td>
                 </tr>
-              <% } else { %>
-                <% sols.forEach(function(p, i){ %>
-                <% var c; %>
-                <% if (i % 2 == 1) { %>
-                <% c = 'even'; %>
-                <% } else { %>
-                <% c = 'odd'; %>
-                <% } %>
+              <%
+                } else {
+                  sols.forEach(function(p, i){
+                    var c;
+                    if (i % 2 == 1) {
+                      c = 'even';
+                    } else {
+                      c = 'odd';
+                    }
+                    if (user && user.name == p._id) {
+                      c += ' highlight';
+                    }
+              %>
                 <tr class="<%= c %>">
                   <td><%= (page-1)*pageNum + i + 1 %></td>
                   <td>
@@ -121,8 +126,10 @@
                   <td><a href="/sourcecode/<%= p.runID %>"><%= langs[p.language] %></a></td>
                   <td><%= getDate(p.inDate) %></td>
                 </tr>
-                <% }); %>
-              <% } %>
+              <%
+                  });
+                }
+              %>
               </tbody>
             </table>
           </div>
