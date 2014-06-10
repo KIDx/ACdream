@@ -1,4 +1,4 @@
-# ACdream Online Judge v1.1.5
+# ACdream Online Judge v1.2.0
 
 ## 关于pull request
 
