@@ -96,6 +96,8 @@ app.get('/onecontest/:cid', routes.onecontest);
 app.get('/status', routes.status);
 //ranklist页面
 app.get('/ranklist', routes.ranklist);
+//standings页面
+app.get('/standings', routes.standings);
 //contest页面
 app.get('/contest/:type', routes.contest);
 //topic页面

@@ -126,7 +126,7 @@
             </td>
             <td>
               <% if (type == 2) { %>
-              <img src="/img/user.png" /><a href="/ranklist?cid=<%= p.contestID %>">×<%= p.contestants.length %></a>
+              <img src="/img/user.png" /><a href="/standings?cid=<%= p.contestID %>">×<%= p.contestants.length %></a>
               <% } else { %>
               <a class="user user-<%= UC[p.userName] %>" title="<%= UT[p.userName] %>" href="/user/<%= p.userName %>"><%= p.userName %></a>
               <% } %>

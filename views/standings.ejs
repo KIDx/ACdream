@@ -1,5 +1,5 @@
-<fieldset id="ranklist">
-  <div><legend>Ranklist</legend></div>
+<fieldset id="standings" <% if (cid) { %>cid="<%= cid %>"<% } %>>
+  <div><legend><% if (cid) { %>Contestants of Contest <%= cid %><% } else { %>Standings<% } %></legend></div>
   <div class="tablebg">
     <div id="pager">
       <%- partial('pager', {page:page, n:n}) %>
@@ -12,7 +12,7 @@
           <a href="javascript:;" class="uibtn uibtn-mini" id="fil">Filter</a>
         </div>
         <div>
-          <a href="/ranklist" class="uibtn uibtn-mini">Reset</a>
+          <a href="/standings<% if (cid) { %>?cid=<%= cid %><% } %>" class="uibtn uibtn-mini">Reset</a>
         </div>
       </div>
     </div>
@@ -24,8 +24,8 @@
             <th style="width:150px;">User</th>
             <th style="width:150px;">Nickname</th>
             <th>Signature</th>
-            <th style="width:70px;">Solved</th>
-            <th style="width:70px;">Submit</th>
+            <th style="width:35px;"><span title="Number of participations">#</span></th>
+            <th style="width:70px;"><span title="Rating">=</span></th>
           </tr>
         </thead>
         <tbody>
@@ -72,15 +72,13 @@
               <span class="user-gray" title="<%= p.signature %>"><%= p.signature %></span>
               <% } %>
             </td>
+            <td><%= p.ratedRecord.length %></td>
             <td>
-              <a href="/status?name=<%= p.name %>&result=2">
-                <%= p.solved %>
-              </a>
-            </td>
-            <td>
-              <a href="/status?name=<%= p.name %>">
-                <%= p.submit %>
-              </a>
+              <% if (p.lastRatedContest) { %>
+                <%= p.rating %>
+              <% } else { %>
+                <span class="user user-gray">-</span>
+              <% } %>
             </td>
           </tr>
         <%

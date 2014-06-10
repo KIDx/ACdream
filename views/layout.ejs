@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<% var nvgurl = ['/', '/problemset', '/status', '/ranklist', '/contest/1', '/contest/2', '/topic/100', '/topic'], nvgname = ['Home', 'Problemset', 'Status', 'Ranklist', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum']; %>
+<% var nvgurl = ['/', '/problemset', '/status', '/ranklist', '/standings', '/contest/1', '/contest/2', '/topic/100', '/topic'], nvgname = ['Home', 'Problemset', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum']; %>
 <% var stc = partial('post_list').split('\n'); %>
 <html>
   <head>
@@ -130,6 +130,8 @@
     <script src="/javascripts/ranklist.js"></script>
   <% } else if (key == 6) { %>
     <script src="/javascripts/contest.js"></script>
+  <% } else if (key == 7) { %>
+    <script src="/javascripts/standings.js"></script>
   <% } else if (key == 8) { %>
     <%- highlight %>
     <script src="/javascripts/fileUpload.js"></script>

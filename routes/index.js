@@ -7,6 +7,7 @@
   4: status
   5: ranklist
   6: contest
+  7: standings
   8: problem
   9: onecontest
   10: submit
@@ -52,6 +53,7 @@ var xss = require('xss');
 
 var settings = require('../settings');
 var ranklist_pageNum = settings.ranklist_pageNum;
+var standings_pageNum = settings.standings_pageNum;
 var stats_pageNum = settings.stats_pageNum;
 var contestRank_pageNum = settings.contestRank_pageNum;
 var Tag = settings.T;
@@ -214,14 +216,25 @@ function getTime(n) {
   return '刚刚';
 }
 
-function getRank(user, callback) {
+function getRatingRank(user, callback) {
   User.count({
     name: {$ne: 'admin'},
     $or:[
       { rating: {$gt: user.rating} },
-      { rating: user.rating, solved: {$gt: user.solved} },
-      { rating: user.rating, solved: user.solved, submit: {$lt: user.submit} },
-      { rating: user.rating, solved: user.solved, submit: user.submit, name: {$lt: user.name} }
+      { rating: user.rating, name: {$lt: user.name} }
+    ]
+  }, function(err, rank) {
+    return callback(err, rank+1);
+  });
+}
+
+function getRank(user, callback) {
+  User.count({
+    name: {$ne: 'admin'},
+    $or:[
+      { solved: {$gt: user.solved} },
+      { solved: user.solved, submit: {$lt: user.submit} },
+      { solved: user.solved, submit: user.submit, name: {$lt: user.name} }
     ]
   }, function(err, rank) {
     return callback(err, rank+1);
@@ -2818,17 +2831,88 @@ exports.ranklist = function(req, res) {
   } else if (page < 0) {
     return res.redirect('/ranklist');
   }
+  var q1 = {}, q2 = {};
+  var search = clearSpace(req.query.search);
+  if (search) {
+    q1.name = q2.nick = new RegExp("^.*"+toEscape(search)+".*$", 'i');
+  }
+  var Q = { $or: [q1, q2], name: {$ne: 'admin'} };
+  User.get(Q, {solved: -1, submit: 1, name: 1}, page, ranklist_pageNum, function(err, users, n){
+    if (err) {
+      OE(err);
+      req.session.msg = '系统错误！';
+      return res.redirect('/');
+    }
+    if (n < 0) {
+      return res.redirect('/ranklist');
+    }
+    var UC = {}, UT = {};
+    if (users) {
+      users.forEach(function(p, i){
+        UC[p.name] = UserCol(p.rating);
+        UT[p.name] = UserTitle(p.rating);
+      });
+    }
+    var Render = function() {
+      res.render('ranklist', {
+        title: 'Ranklist',
+        key: 5,
+        n: n,
+        users: users,
+        page: page,
+        pageNum: ranklist_pageNum,
+        search: search,
+        UC: UC,
+        UT: UT
+      });
+    };
+    if (req.session.user) {
+      User.watch(req.session.user.name, function(err, user){
+        if (err) {
+          OE(err);
+          req.session.msg = '系统错误！';
+          return res.redirect('/');
+        }
+        if (!user) {
+          return Render();
+        }
+        UC[user.name] = UserCol(user.rating);
+        UT[user.name] = UserTitle(user.rating);
+        getRank(user, function(err, rank){
+          res.locals.user = {
+            name: user.name,
+            nick: user.nick,
+            signature: user.signature,
+            solved: user.solved,
+            submit: user.submit,
+            rank: rank
+          };
+          return Render();
+        });
+      });
+    } else {
+      return Render();
+    }
+  });
+};
 
+exports.standings = function(req, res) {
+  var page = parseInt(req.query.page, 10);
+  if (!page) {
+    page = 1;
+  } else if (page < 0) {
+    return res.redirect('/standings');
+  }
   var cid = parseInt(req.query.cid, 10);
   var RP = function(Q) {
-    User.get(Q, page, function(err, users, n){
+    User.get(Q, {rating: -1, name: 1}, page, standings_pageNum, function(err, users, n){
       if (err) {
         OE(err);
         req.session.msg = '系统错误！';
         return res.redirect('/');
       }
       if (n < 0) {
-        return res.redirect('/ranklist');
+        return res.redirect('/standings');
       }
       var UC = {}, UT = {};
       if (users) {
@@ -2838,13 +2922,13 @@ exports.ranklist = function(req, res) {
         });
       }
       var Render = function() {
-        res.render('ranklist', {
-          title: 'Ranklist',
-          key: 5,
+        res.render('standings', {
+          title: 'Standings',
+          key: 7,
           n: n,
           users: users,
           page: page,
-          pageNum: ranklist_pageNum,
+          pageNum: standings_pageNum,
           search: search,
           UC: UC,
           UT: UT,
@@ -2863,9 +2947,15 @@ exports.ranklist = function(req, res) {
           }
           UC[user.name] = UserCol(user.rating);
           UT[user.name] = UserTitle(user.rating);
-          getRank(user, function(err, rank){
-            req.session.user = user;
-            req.session.user.rank = rank;
+          getRatingRank(user, function(err, rank){
+            res.locals.user = {
+              name: user.name,
+              nick: user.nick,
+              signature: user.signature,
+              ratedRecord: user.ratedRecord,
+              rating: user.rating,
+              rank: rank
+            };
             return Render();
           });
         });
@@ -2874,7 +2964,6 @@ exports.ranklist = function(req, res) {
       }
     });
   };
-
   var q1 = {}, q2 = {};
   var search = clearSpace(req.query.search);
   if (search) {

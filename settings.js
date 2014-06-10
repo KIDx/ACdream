@@ -68,6 +68,7 @@ module.exports = {
   problemset_pageNum: 50,
   status_pageNum: 20,
   ranklist_pageNum: 20,
+  standings_pageNum: 50,
   contest_pageNum: 20,
   regform_pageNum: 20,
   stats_pageNum: 20,

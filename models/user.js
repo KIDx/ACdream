@@ -2,7 +2,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var settings = require('../settings');
-var pageNum = settings.ranklist_pageNum;
 var OE = settings.outputErr;
 
 function User(user) {
@@ -38,7 +37,8 @@ var userObj = new Schema({
   imgType: String
 });
 
-userObj.index({rating: -1, solved: -1, submit: 1, name: 1});
+userObj.index({rating: -1, name: 1});
+userObj.index({solved: -1, submit: 1, name: 1});
 
 mongoose.model('users', userObj);
 var users = mongoose.model('users');
@@ -66,7 +66,7 @@ User.prototype.save = function(callback) {
 };
 
 User.watch = function(username, callback) {
-  users.findOne({name:username}, function(err, doc){
+  users.findOne({name: username}, function(err, doc){
     if (err) {
       OE('User.watch failed!');
     }
@@ -92,13 +92,13 @@ User.find = function(Q, callback){
   });
 };
 
-User.get = function(Q, page, callback) {
+User.get = function(Q, sq, page, pageNum, callback) {
   users.count(Q, function(err, count){
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    users.find(Q).sort({rating: -1, solved: -1, submit: 1, name: 1})
-      .skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs){
+    users.find(Q).sort(sq).skip((page-1)*pageNum).limit(pageNum)
+      .exec(function(err, docs){
       if (err) {
         OE('User.get failed!');
       }
@@ -108,8 +108,7 @@ User.get = function(Q, page, callback) {
 };
 
 User.topFive = function(Q, callback) {
-  users.find(Q).sort({rating: -1, solved: -1, submit: 1, name: 1})
-    .limit(5).exec(function(err, docs){
+  users.find(Q).sort({rating: -1, name: 1}).limit(5).exec(function(err, docs){
     if (err) {
       OE('User.topFive failed!');
     }
