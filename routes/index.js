@@ -2952,6 +2952,7 @@ exports.standings = function(req, res) {
               name: user.name,
               nick: user.nick,
               signature: user.signature,
+              lastRatedContest: user.lastRatedContest,
               ratedRecord: user.ratedRecord,
               rating: user.rating,
               rank: rank
