@@ -245,11 +245,16 @@ io.set('authorization', function(handshakeData, accept){
   if (!handshakeData.headers.cookie) {
     return accept('no cookie.', false);
   }
-  handshakeData.cookies = utils.parseSignedCookies(
-    cookie.parse(handshakeData.headers.cookie),
-    settings.cookie_secret);
-  sessionStore.get(handshakeData.cookies['connect.sid'], function(err, session){
-    if (err || !session) {
+  handshakeData.cookie = cookie.parse(handshakeData.headers.cookie);
+  var sid = handshakeData.cookie['connect.sid'];
+  if (!sid) {
+    return accept('no sid.', false);
+  }
+  sessionStore.get(sid.split(':')[1].split('.')[0], function(err, session){
+    if (err) {
+      return accept(err, false);
+    }
+    if (!session) {
       return accept('no session.', false);
     }
     handshakeData.session = session;
