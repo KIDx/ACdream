@@ -1496,6 +1496,9 @@ exports.calRating = function(req, res) {
     return res.end('-2');
   }
   var cid = parseInt(req.body.cid, 10);
+  if (!cid) {
+    return res.end(); //not allow
+  }
   Contest.watch(cid, function(err, contest){
     if (err) {
       OE(err);
@@ -1588,6 +1591,60 @@ exports.calRating = function(req, res) {
             return res.end(String(cnt));
           });
         });
+      });
+    });
+  });
+};
+
+exports.resetRating = function(req, res) {
+  res.header('Content-Type', 'text/plain');
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.end('-1');
+  }
+  if (req.session.user.name != 'admin') {
+    req.session.msg = 'Failed! You have no permission to Calculate Ratings.';
+    return res.end('-2');
+  }
+  var cid = parseInt(req.body.cid, 10);
+  if (!cid) {
+    return res.end(); //not allow
+  }
+  User.findOne({lastRatedContest: {$gt: cid}}, function(err, user){
+    if (err) {
+      OE(err);
+      return res.end('-3');
+    }
+    if (user) {
+      return res.end('-4');
+    }
+    User.find({lastRatedContest: cid}, function(err, users){
+      if (err) {
+        OE(err);
+        return res.end('-3');
+      }
+      var cnt = 0;
+      async.each(users, function(p, cb){
+        p.ratedRecord.pop();
+        if (p.ratedRecord.length) {
+          p.lastRatedContest = p.ratedRecord[p.ratedRecord.length - 1].cid;
+          p.rating = p.ratedRecord[p.ratedRecord.length - 1].rating;
+        } else {
+          p.lastRatedContest = null;
+          p.rating = null;
+        }
+        p.save(function(err){
+          if (!err) {
+            ++cnt;
+          }
+          cb(err);
+        });
+      }, function(err){
+        if (err) {
+          OE(err);
+          return res.end('-3');
+        }
+        return res.end(String(cnt));
       });
     });
   });

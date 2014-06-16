@@ -262,7 +262,8 @@
       <% if (watch) { %>
         <% if (contest.type == 2) { %>
         <div class="form-inline">
-          <button class="btn" id="calrating">统计rating</button>
+          <button class="btn" id="calrating">统计本场比赛Rating</button>
+          <button class="btn" id="resetrating">撤销本场比赛Rating</button>
         </div>
         <% } %>
         <div class="form-inline">
@@ -372,3 +373,78 @@
     </div>
   </div>
 </fieldset>
+<% if (user && user.name == 'admin') { %>
+<script type="text/javascript">
+function bindCalRating($p) {
+  $p.click(function(){
+    if ($p.hasClass('disabled')) {
+      return false;
+    }
+    if (!confirm('确定要统计本场比赛的Rating吗？')) {
+      return false;
+    }
+    $p.addClass('disabled').text('请稍候...');
+    $.ajax({
+      type: 'POST',
+      url: '/calRating',
+      data: { cid: cid },
+      dataType: 'text',
+      error: function() {
+        $p.text('统计rating').removeClass('disabled');
+        ShowMessage('无法连接到服务器！');
+      }
+    }).done(function(res){
+      if (res == '-1' || res == '-2') {
+        window.location.reload(true);
+        return ;
+      }
+      if (res == '-3') {
+        ShowMessage('系统错误！');
+      } else if (res == '-4') {
+        ShowMessage('比赛还没结束，无法统计rating！');
+      } else {
+        GetRanklist();
+        ShowMessage('成功计算了'+res+'个用户的rating！');
+      }
+      $p.text('统计本场比赛Rating').removeClass('disabled');
+    });
+  });
+}
+
+function bindResetRating($p) {
+  $p.click(function(){
+    if ($p.hasClass('disabled')) {
+      return false;
+    }
+    if (!confirm('确定要撤销本场比赛的Rating吗？')) {
+      return false;
+    }
+    $p.addClass('disabled').text('请稍候...');
+    $.ajax({
+      type: 'POST',
+      url: '/resetRating',
+      data: { cid: cid },
+      dataType: 'text',
+      error: function() {
+        $p.text('统计rating').removeClass('disabled');
+        ShowMessage('无法连接到服务器！');
+      }
+    }).done(function(res){
+      if (res == '-1' || res == '-2') {
+        window.location.reload(true);
+        return ;
+      }
+      if (res == '-3') {
+        ShowMessage('系统错误！');
+      } else if (res == '-4') {
+        ShowMessage('检测到存在参赛者拥有比这场比赛更新的比赛的记录，操作已被服务器拒绝。');
+      } else {
+        GetRanklist();
+        ShowMessage('成功撤销了'+res+'个用户的rating！');
+      }
+      $p.text('撤销本场比赛Rating').removeClass('disabled');
+    });
+  });
+}
+</script>
+<% } %>

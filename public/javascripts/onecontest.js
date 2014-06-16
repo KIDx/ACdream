@@ -1228,39 +1228,13 @@ function clearAjax() {
 
 //calculate ratings
 var $cal = $('#calrating');
+var $resetRating = $('#resetrating');
 
 $(document).ready(function(){
-  $cal.click(function(){
-    if ($cal.hasClass('disabled')) {
-      return false;
-    }
-    if (!confirm('确定要统计rating吗？')) {
-      return false;
-    }
-    $cal.addClass('disabled').text('请稍候...');
-    $.ajax({
-      type: 'POST',
-      url: '/calRating',
-      data: { cid: cid },
-      dataType: 'text',
-      error: function() {
-        $cal.text('统计rating').removeClass('disabled');
-        ShowMessage('无法连接到服务器！');
-      }
-    }).done(function(res){
-      if (res == '-1' || res == '-2') {
-        window.location.reload(true);
-        return ;
-      }
-      if (res == '-3') {
-        ShowMessage('系统错误！');
-      } else if (res == '-4') {
-        ShowMessage('比赛还没结束，无法统计rating！');
-      } else {
-        GetRanklist();
-        ShowMessage('成功计算了'+res+'个用户的rating！');
-      }
-      $cal.text('统计rating').removeClass('disabled');
-    });
-  });
+  if ($cal.length) {
+    bindCalRating($cal);
+  }
+  if ($resetRating.length) {
+    bindResetRating($resetRating);
+  }
 });

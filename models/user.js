@@ -83,6 +83,15 @@ User.distinct = function(key, Q, callback) {
   });
 };
 
+User.findOne = function(Q, callback){
+  users.findOne(Q, function(err, docs){
+    if (err) {
+      OE('User.findOne failed!');
+    }
+    return callback(err, docs);
+  });
+};
+
 User.find = function(Q, callback){
   users.find(Q, function(err, docs){
     if (err) {

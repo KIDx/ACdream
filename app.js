@@ -179,6 +179,8 @@ app.post('/getCE', routes.getCE);
 app.post('/recal', routes.recal);
 //统计比赛rating
 app.post('/calRating', routes.calRating);
+//撤销某场比赛的rating
+app.post('/resetRating', routes.resetRating);
 //切换指定用户打星状态
 app.post('/toggleStar', routes.toggleStar);
 //切换话题置顶状态
