@@ -34,6 +34,7 @@
     remember it, no need to wirte password again
 */
 
+var async = require('async')
 var crypto = require('crypto');
 var fs = require('fs');
 var csv = require('csv');
@@ -1470,22 +1471,17 @@ exports.recal = function(req, res) {
     if (!U) {
       return res.end();
     }
-    var k = U.length;
-    var dfs = function(x) {
-      if (x == k) {
-        req.session.msg = '统计完成！';
+    async.each(U, function(p, cb){
+      User.update({name: p._id}, {$set: p.value}, cb);
+    }, function(err){
+      if (err) {
+        OE(err);
+        req.session.msg = '系统错误！';
         return res.end();
       }
-      User.update({name:U[x]._id}, {$set:U[x].value}, function(err){
-        if (err) {
-          OE(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
-        dfs(x+1);
-      });
-    };
-    return dfs(0);
+      req.session.msg = '统计完成！';
+      return res.end();
+    });
   });
 };
 
@@ -1546,15 +1542,15 @@ exports.calRating = function(req, res) {
             return res.end('-3');
           }
           var cnt = 0;
-          U.forEach(function(pi, i){
+          async.each(U, function(pi, cb){
             if (pi.lastRatedContest && cid <= pi.lastRatedContest) {
-              return true;
+              return cb();
             }
             var old = pi.lastRatedContest ? pi.rating : 1500;
             var exp = 0;
             if (pi.lastRatedContest) {
-              U.forEach(function(pj, j){
-                if (j != i) {
+              U.forEach(function(pj){
+                if (pj.name != pi.name) {
                   exp += 1.0/(1.0 + Math.pow(10.0, ((pj.lastRatedContest ? pj.rating : 1500)-old)/400.0));
                 }
               });
@@ -1578,10 +1574,19 @@ exports.calRating = function(req, res) {
               $push: {
                 ratedRecord: { cid: cid, title: contest.title, rank: rank[pi.name], rating: newRating, inDate: endTime }
               }
+            }, function(err){
+              if (!err) {
+                ++cnt;
+              }
+              return cb(err);
             });
-            ++cnt;
+          }, function(err){
+            if (err) {
+              OE(err);
+              return res.end('-3');
+            }
+            return res.end(String(cnt));
           });
-          return res.end(String(cnt));
         });
       });
     });

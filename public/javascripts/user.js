@@ -35,7 +35,7 @@ $(document).ready(function(){
       $recal.text('处理中...').addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/changeAddprob',
+        url: '/recal',
         data: { name : name },
         dataType: 'text',
         error: function() {

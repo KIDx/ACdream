@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "express": "4.x",
+    "async": "*",
     "compression": "*",
     "morgan": "*",
     "body-parser": "*",

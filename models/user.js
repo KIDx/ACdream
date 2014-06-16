@@ -126,16 +126,12 @@ User.count = function(Q, callback) {
 };
 
 User.update = function(Q, H, callback) {
-  if (callback) {
-    users.update(Q, H, function(err){
-      if (err) {
-        OE('User.update failed!');
-      }
-      return callback(err);
-    });
-  } else {
-    users.update(Q, H).exec();
-  }
+  users.update(Q, H, function(err){
+    if (err) {
+      OE('User.update failed!');
+    }
+    return callback(err);
+  });
 };
 
 User.multiUpdate = function(Q, H, callback) {
