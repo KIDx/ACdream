@@ -1,0 +1,85 @@
+fieldset
+  div
+    legend 状态
+  .tablebg
+    #pager
+      include pager
+      +pager(page, n)
+      #filter.fr
+        .input-prepend
+          span.add-on Name
+          input#name(type="text" placeholder=" userName" value=name ? name : "")
+        .input-prepend
+          span.add-on prob#
+          input#pid(type="text" placeholder=" problemID" value=pid ? pid : "")
+        .input-prepend
+          span.add-on lang
+          select#lang(style="width:60px")
+            each name, i in langs
+              option(value=i selected=(lang == i ? true : false))= name
+        .input-prepend
+          span.add-on Verdict
+          select#result(style="width:180px")
+            option(value="") All
+            each p in [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]
+              option(class=Col(p) value=p selected=result == p ? true : false)= Res(p)
+        div
+          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
+        div
+          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
+    #tablediv
+      table#statustable.table.table-cf
+        thead
+          tr
+            th(style="width:7%;") RunID
+            th(style="width:14%;") User
+            th(style="width:10%;") Problem
+            th Verdict
+            th(style="width:9%;") Time
+            th(style="width:9%;") Memory
+            th(style="width:8%;") Lang
+            th(style="width:8%;") Length
+            th(style="width:15%;") Submit Time
+        tbody
+          if (!sols || sols.length == 0)
+            tr.odd
+              td.error-text.center(colspan="9") No Status are matched.
+          else
+            each p, i in sols
+              - var c, v, vc = '', time, memory, len;
+              if (user && user.name == p.userName)
+                - c = 'highlight';
+              else if (i % 2 == 1)
+                - c = 'even';
+              else
+                - c = 'odd';
+              if (p.result < 2)
+                - vc = 'unknow';
+              if ((p.cID != -1 || P[p.problemID].hide) && (!user || (user.name != p.userName && user.name != 'admin' && user.name != P[p.problemID].manager)))
+                - time = memory = len = '<span class="user user-gray">---</span>';
+              else
+                - time = p.time+' MS'; memory = p.memory+' KB'; len = p.code.length+' B';
+              if (p.result == 0)
+                - time = '<img src="img/pending.gif" style="width:16px;height:16px;">';
+              else if (p.result == 1)
+                - time = '<img src="img/running.gif" style="width:16px;height:16px;">';
+              if (p.result == 8 && user && (user.name == p.userName || user.name == 'admin'))
+                - v = '<a href="javascript:;" title="more information" rid="'+p.runID+'" class="CE special-text">Compilation Error</a>';
+              else
+                - v = R[i];
+              tr(class=c)
+                td= p.runID
+                td
+                  a(class="user user-"+UC[p.userName] title=UT[p.userName]+" "+p.userName href="/user/"+p.userName)= p.userName
+                td
+                  a(href="/problem?pid="+p.problemID)= p.problemID
+                td(class="bold "+vc+" "+C[i] rid=p.runID)!= v
+                  if (user && user.name == 'admin' && p.result > 2)
+                    div(style="position:relative;")
+                    a.rejudge.img_link(href="javascript:;" title="rejudge")
+                td!= time
+                td!= memory
+                td
+                  a(href="/sourcecode/"+p.runID)= langs[p.language] ? langs[p.language] : ''
+                td!= len
+                td!= getDate(p.inDate)

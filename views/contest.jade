@@ -1,0 +1,104 @@
+- var cname = 'Contest';
+fieldset
+  div
+    legend#contest(type=type)
+      if (type == 1)
+        | DIY Contest
+      else if (type == 2)
+        | VIP Contest
+      else
+        | 考试
+  .tablebg
+    div#pager
+      include pager
+      +pager(page, n)
+      #filter.fr
+        div
+          if (user)
+            a.uibtn.uibtn-mini(href="/addcontest?type="+type) Add #{cname}
+          else
+            a#addcontest.uibtn.uibtn-mini.checklogin(href="javascript:;") Add #{cname}
+        .input-prepend
+          span.add-on
+            i.icon-search
+          input#search(type="text" value=search ? search : "" title="Title or Manager" placeholder=" title or manager")
+        div
+          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
+        div
+          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
+    #tablediv
+      table#contest.table.table-cf
+        thead
+          tr
+            th(style="width:65px;") #
+            th Title
+            th(style="width:180px;") Start Time
+            th(style="width:100px;") Duration
+            th(style="width:100px;") Type
+            th(style="width:125px;")
+              if (type != 2)
+                = Manager
+        tbody
+          if (!contests || contests.length == 0)
+            tr.odd
+              td.error-text(colspan="6") No Contests are matched.
+          else
+            each p, i in contests
+              - var c, dd, hh, mm, s;
+              if (i % 2 == 1)
+                - c = 'even';
+              else
+                - c = 'odd';
+              - dd = parseInt(p.len/1440, 10); hh = parseInt(p.len%1440/60, 10); mm = p.len%1440%60;
+              - if (hh < 10) hh = '0'+hh;
+              - if (mm < 10) mm = '0'+mm;
+              if (T[i] > 0)
+                - s = '';
+              else if (T[i] + p.len*60000 > 0)
+                - s = 'progress-danger';
+              else
+                - s = 'progress-success';
+              tr(class=c)
+                td= p.contestID
+                td(style="text-align:left;")
+                  if (type != 2 && p.password && (!user || (user.name != p.userName && user.name != 'admin')) && !CS[p.contestID])
+                    a.cid(href="javascript:;" id=p.contestID)= p.title
+                  else
+                    a(href="/onecontest/"+p.contestID)= p.title
+                  if (type == 2)
+                    .table-tab
+                      if (s || user && user.name == 'admin')
+                        a.standings(href="/onecontest/"+p.contestID+"#rank" title="查看排名") Standings
+                      else 
+                        if (R[i])
+                          span.user.user-green Registration Completed
+                        else
+                          if (p.password)
+                            span.user.user-gray Not Registered
+                          else
+                            - T[i] -= 300000;
+                            if (T[i] < 0)
+                              span.user-gray Registration Closed
+                            else
+                              - T[i] /= 1000;
+                              | Until Closed:&nbsp;
+                              span.user-gray(style="margin-right:20px;")
+                              a.public.register(href="javascript:;" id=p.contestID left=T[i])= "Register >>"
+                td= getDate(p.startTime)
+                  div(class="progress progress-striped active "+s)
+                    .bar
+                td
+                  if (dd > 0)
+                    | #{dd}天
+                  | #{hh}:#{mm}:00
+                td
+                  if (p.password)
+                    span.user-green Private
+                  else
+                    span.user-blue Public
+                td
+                  if (type == 2)
+                    img(src="/img/user.png")
+                    a(href="/standings?cid="+p.contestID) ×#{p.contestants.length}
+                  else
+                    a(class="user user-"+UC[p.userName] title=UT[p.userName] href="/user/"+p.userName)= p.userName

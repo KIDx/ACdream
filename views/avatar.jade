@@ -1,0 +1,33 @@
+- var img = 'img/avatar/%3Ddefault%3D/', imgType = 'jpeg';
+if (user.imgType)
+  - img = 'img/avatar/'+user.name+'/';
+  - imgType = user.imgType;
+fieldset
+  div
+    legend 修改头像
+  .avatar_setting
+    .left(style="background: none")
+      img(src=img+"1."+imgType)
+    .right.fixed
+      .avatar_b
+        .img
+          img(src=img+"2."+imgType)
+        | 150X150像素
+      .avatar_m
+        .img
+          img(src=img+"3."+imgType)
+        | 75X75像素
+      .avatar_s
+        .img
+          img(src=img+"4."+imgType)
+        | 50X50像素
+  div(style="margin-left:350px;")
+    span.uibtn.upload-btn
+      span 选择文件
+      input#file(type="file" name="img" data-url="/avatarUpload")
+    span#upload-info.upload-info 未选择文件 (支持jpeg, jpg, png格式)
+  .form-horizontal
+    .form-actions
+      button#upload.uibtn 确认上传
+      span#imgerr.error-text
+      img#imgload.hide(style="height:22px;width=22px;" src="/img/loading.gif")

@@ -1,0 +1,126 @@
+- var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", ProbNum = 1;
+- var str, time, cday, chour, cmin, name, tp;
+
+if (contest && clone == 0)
+  - str = getDate(contest.startTime).split(' ');
+  - cday = parseInt(contest.len/1440, 10);
+  - chour = parseInt(contest.len%1440/60, 10);
+  - cmin = contest.len%1440%60;
+
+- if (str && str[1]) time = str[1].split(':');
+
+if (contest && clone == 0)
+  - name = 'Edit';
+else
+  - name = 'Add';
+
+if (clone == 1)
+  - tp = 1;
+else if (contest)
+  - tp = contest.type;
+else
+  - tp = type;
+
+- var cname = 'Contest';
+- if (tp == 3) cname = 'Exam';
+
+- var probs;
+if (contest)
+  - probs = contest.probs;
+else
+  - probs = [['', '']];
+
+fieldset
+  div
+    legend#addcontest(cid=(contest && clone == 0 ? contest.contestID : "") type=tp)= name+' '+cname
+  #form.orm-horizontal
+    .row-fluid(style="min-height:460px;")
+      .span6
+        table.table.table-bordered.thright(style="background:#f9f9f9;")
+          tr
+            th Title:&nbsp;
+            td
+              input#Title.input-xlarge(type="text" value=(contest && clone == 0 ? contest.title : ""))
+          tr
+            th Begin Time:&nbsp;
+            td
+              input#datepicker.input-small(type="text" value=str ? str[0] : "")
+              = ' '
+              input#hour.input-mini(maxlength="2" type="text" value=(time && time[0] ? time[0] : 0))
+              = ' : '
+              input#min.input-mini(maxlength="2" type="text" value=(time && time[1] ? time[1] : 0))
+              = ' : 00'
+          tr
+            th= 'Length: '
+            td
+              input#dd.input-mini(maxlength="2" type="text" value=cday ? cday : 0)
+              = ' 天 '
+              input#hh.input-mini(maxlength="2" type="text" value=chour >= 0 ? chour : 5)
+              = ' : '
+              input#mm.input-mini(maxlength="2" type="text" value=cmin ? cmin : 0)
+              = ' : 00'
+          if ((!contest && type != 2) || (contest && (clone == 1 || contest.type != 2)))
+            tr
+              th= 'Password: '
+              td
+                input#psw.input-large(type="password" value=(contest && contest.password && clone == 0 ? contest.password : ""))
+                span.text-info= ' Leave blank to make it Public.'
+          else
+            tr
+              th
+              td
+                .my-radio
+                  input#private(type="radio" value="1" name="psw" checked=(contest && contest.password ? true : false))
+                  label.user-green(for="private" title="Codeforce的注册模式") private
+                  input#public(type="radio" value="" name="psw" checked=(!contest || !contest.password ? true : false))
+                  label.user-blue(for="public" title="校内注册模式(需要填报名表)") public
+          tr
+            th= 'Penalty: '
+            td
+              select#penalty
+                - for (var i = 2; i <= 6; ++i)
+                  option(value=i*10 selected=(contest && contest.penalty == i * 10 ? true : false)) #{i*10} 分钟/次
+          tr
+            th= 'Description: '
+            td
+              textarea#desc.input-xlarge(type="text" rows="5")
+                if (contest && clone == 0)
+                  = contest.description
+          tr
+            th= 'Announcement: '
+            td
+              textarea#anc.input-xlarge(type="text" rows="4")
+                if (contest && clone == 0)
+                  = contest.msg
+      .span6
+        if (!edit)
+          .alert.alert-error 由于该contest已存在提交，有些部分不可编辑
+        table#addprob.table.table-condensed.tdcenter
+          tr
+            th(style="width:5%;")
+              if (edit)
+                a#add.img_link.add(title="add" href="javascript:;" style="display:block;")
+            th(style="width:20%;") ProbNum
+            th(style="width:30%;") Alias
+            th(style="width:5%;")
+            th(style="text-align:left;") Title
+          each p, i in probs
+            tr
+              td
+                if (edit)
+                  a.img_link.delete(title="delete" href="javascript:;")
+              td
+                input.probnum.input-mini(type="text" value=(p[0] ? p[0] : "") disabled=(edit ? false : true))
+              td
+                input.alias.input-medium(type="text" value=(p[1] ? p[1] : ""))
+              td.bold.p_index= F[i]
+              td(class="title "+(p[0] ? "success-text" : "error-text") style="text-align:left;")
+                if (p[0])
+                  = P[p[0]].title
+                else
+                  | No Such Problem!
+    .form-actions
+      a#submit.uibtn(style="margin-left:50%;" href="javascript:;") Submit
+      if (contest && clone == 0)
+        a.uibtn(href="/onecontest/"+contest.contestID) back
+      span#err.error-text

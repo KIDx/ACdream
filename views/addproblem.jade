@@ -1,0 +1,18 @@
+mixin div
+  if (problem)
+    div#addproblem(pid=problem.problemID )
+      block
+  else
+    div
+      block
+fieldset
+  +div
+    legend 管理
+      if (problem)
+        a(href="/problem?pid="+problem.problemID)= ' problem '+problem.problemID
+  if (problem)
+    include editproblem
+    +editproblem(problem, user, partial, files, imgs)
+  else
+    form.form-horizontal(method="post")
+      button.btn.btn-large(type="submit") 快速新建题目

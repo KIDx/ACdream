@@ -79,7 +79,7 @@ module.exports = {
   data_path: __dirname + '/data/',
   T: Tag,
   P: ProTil,
-  languages: ['', 'C', 'C++'], //, 'Java'],
+  languages: ['All', 'C', 'C++'], //, 'Java'],
   C: function(n) { //return status' color
     switch (n) {
       case 0:

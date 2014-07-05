@@ -1,0 +1,24 @@
+mixin pager(page, n)
+  #list.pagination.pagination-small.fl
+    ul
+      - var cp = 5, i = page - 2; if (i <= 0) i = 1;
+      li(class=page == 1 ? "disabled" : "")
+        a#1(href="javascript:;")= "<<"
+      if (i > 1)
+        li.disabled
+          a(href="javascript:;") ...
+      - while (i < page)
+        li
+          a(id=i href="javascript:;")= i
+        - ++i; --cp;
+      li.active
+        a(href="javascript:;")= i
+      - while (i < n && cp > 1)
+        - ++i; --cp;
+        li
+          a(id=i href="javascript:;")= i
+      if (i < n)
+        li.disabled
+          a(href="javascript:;") ...
+      li(class=(n == 0 || page == n) ? "disabled" : "")
+        a(id=n href="javascript:;")= ">>"

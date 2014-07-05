@@ -1,0 +1,65 @@
+fieldset
+  div
+    legend 题库
+  .tablebg
+    #pager
+      include pager
+      +pager(page, n)
+      #filter.fr
+        .input-prepend
+          span.add-on
+            i.icon-search
+          input#search(type="text" style="width:160px;" value=search ? search : "" title="Title or Tag or Source" placeholder=" title or tag or source")
+        div
+          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
+        div
+          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
+    #tablediv
+      table#problemset.table.table-cf(style="table-layout:fixed;")
+        thead
+          tr
+            th(style="width:65px;") #
+            th Title
+            th(style="width:70px;")
+            th(style="width:150px;") Source
+            th(style="width:150px;") Ratio(AC/submit)
+        tbody
+          if (!problems || problems.length == 0)
+            tr.odd
+              td.error-text.center(colspan="5") No Problems are matched.
+          else
+            each p, i in problems
+              - var c, s;
+              if (i % 2 == 1)
+                - c = 'even';
+              else
+                - c = 'odd';
+              if (R[p.problemID] == 1)
+                - s = 'WA';
+              else if (R[p.problemID] == 2)
+                - s = 'AC';
+              tr(class=c)
+                td(class="center "+s)= p.problemID
+                td
+                  if (p.tags && p.tags.length > 0)
+                    .table-tab.prob-tag
+                      each t, i in p.tags.sort(function(a, b){return a-b;})
+                        if (i > 0)
+                          | ,&nbsp;
+                        a.tag(href="javascript:;" title=Pt[t])= Tag[t]
+                  a(href="/problem?pid="+p.problemID)= p.title
+                td(class=s ? s+"-fill" : "")
+                  span.act-item
+                    a#gotosubmit.checklogin(href="javascript:;" pid=p.problemID)
+                      img(src="/img/submit.png" title="Submit" alt="submit")
+                td.ellipsis
+                  a.tag(href="javascript:;" style="font-size:12px;" title=p.source)= p.source
+                - var res = '0.00';
+                if (p.submit > 0)
+                  - res = (p.AC/p.submit*100).toFixed(2);
+                td.center
+                  | #{res}% (
+                  a(href="/status?pid="+p.problemID+"&result=2")= p.AC
+                  | /
+                  a(href="/status?pid="+p.problemID)= p.submit
+                  | )

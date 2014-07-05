@@ -1,0 +1,22 @@
+mixin comment(isParent, fa, user, p, img, num, getDate, UT, UC, add, cid)
+  .reply_avatar
+    a(href="/user/"+p.user)
+      img.img_s.topic_img(title=p.user alt=p.user src=img)
+  .reply_right
+    div
+      a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
+      if (add && p.user != 'admin')
+        a.img_link.add(href="javascript:;" data-id=p.id data-user=p.user title="将"+p.user+"添加到参赛者")
+      if (isParent)
+        span.user-gray.fr= '#'+num
+      else
+        span.user.user-gray= '@'+p.at
+    .reply_content!= p.content
+    .reply_foot
+      span.user-gray= getDate(p.inDate)
+      if (user)
+        if (user.name != p.user)
+          a.fr.reply.img_link(title="回复" fa=(isParent ? p.id : fa) at=p.user href="javascript:;")
+        if (user.name == 'admin' || user.name == p.user)
+          a.fr.trash.img_link(title="删除" data-id=p.id href="javascript:;")
+          a.fr.edit.img_link(title="编辑" data-id=p.id href="javascript:;")

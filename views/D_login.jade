@@ -1,0 +1,18 @@
+#dialog_lg.jqmSubmit(style="width:350px;height:250px;top:15%;")
+  .jqDrag.jqtop Login
+  .jqcontent(style="width:340px;height:160px;padding-left:10px;")
+    div
+      label(for="login_username") User Name *
+      input#login_username.jqtext(type="text", style="width:320px;")
+    div
+      label(for="login_password") Password *
+      input#login_password.jqtext(type="password", style="width:320px;")
+    small#login_error.error-text
+  .jqfoot
+    a#login_submit.uibtn(href="javascript:;") Login
+    a.uibtn.loginclose(href="javascript:;") Cancel
+  .jqcheck
+    input#remember(type="checkbox")
+    label.user-gray(for="remember", title="Remember ME For A Month.") &nbsp;Remember ME
+  .jqResize
+  i.loginclose.jqclose

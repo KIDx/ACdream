@@ -1,0 +1,102 @@
+- var img = '/img/avatar/%3Ddefault%3D/1.jpeg';
+if (u.imgType)
+  - img = '/img/avatar/'+u.name+'/1.'+u.imgType;
+fieldset
+  div
+    legend#user(name=u.name) 用户
+  div(style="position:relative;")
+    .menu-list
+      ul
+        li
+          a(href="/user/"+u.name)= u.name
+        if (user && user.name == u.name)
+          li
+            a(href="/avatar") 设置头像
+        li
+          a(href="/status?name="+u.name) submissions
+    .roundbox
+      .img.avatar
+        img(alt="avatar" src=img)
+      h3
+        - var ut = UT(u.rating), uc = UC(u.rating);
+        span(class="user user-"+uc title=ut+" "+u.name)= ut+' '+u.name
+      if (user && user.name == 'admin')
+        div(style="margin:10px 0;")
+          a#addprob.uibtn(style="margin:0 10px 0 0;" href="javascript:;")
+            if(u.addprob == 1)
+              | 回收
+            else
+              | 赋予
+             #{u.name} 加题权限
+          if (u.name == 'admin')
+            a#recal.uibtn(style="margin:0 10px 0 0;" href="javascript:;") 重新统计所有用户提交数和AC数
+          a#restore.uibtn(style="margin:0;" href="javascript:;") 将 #{u.name} 的密码恢复默认
+      div
+        span.user-gray(title="nick name")= u.nick
+      ul.user-info
+        if(u.signature)
+          li(style="word-break:break-all;")
+            img.icon(src="/img/sig.png")
+            | Signature: #{u.signature}
+        if (user && user.name == u.name)
+          li
+            img.icon(src="/img/settings.png")
+            a#set(href="javascript:;") Change settings
+        if (u.name != 'admin')
+          li
+            img.icon(src="/img/rank.png")
+            = 'Rank: '
+            span.user.user-green= u.rank
+        if (u.lastRatedContest)
+          li
+            img.icon(src="/img/rating.png")
+            = 'Rating: '
+            span(class="user user-"+uc)= u.rating
+        li
+          img.icon(src="/img/yes.png")
+          = 'Solved: '
+          span.user.user-green= u.solved
+        li
+          img.icon(src="/img/submit.png")
+          = 'Submissions: '
+          span.user.user-green= u.submit
+        if(u.email)
+          li
+            img.icon(src="/img/mail.png")
+            | Email: #{u.email}
+        if(u.school)
+          li
+            img.icon(src="/img/school.png")
+            | School: #{u.school}
+        li
+          img.icon(src="/img/add.png")
+          = 'AddProblem: '
+          if(u.addprob)
+            span.user.user-green YES
+          else
+            span.error-text NO
+        li Last Visit: #{getTime(u.visTime)}
+        li Registered: #{getTime(u.regTime)}
+    #chart(style="margin-bottom:10px;")
+    mixin box(name, ary, info, flg)
+      .topic_box
+        .header List of
+          span.success-text= ' '+name+' '
+          | problems
+        .inner_topic.prob_list
+          if (ary.length == 0)
+            span(class=flg ? "error-text" : "success-text")= info
+          else
+            each pid in ary 
+              a(href="/problem?pid="+pid)= pid
+    +box("solved", A, "No problems has been solved :(", true)
+    +box("unsolved", B, "No unsolved problems :)")
+    if (u.name == 'admin')
+      +box("hidden", H, "No hidden problems :)")
+script(type="text/javascript")
+  | var minRating = 
+  = minRating
+  | ;
+  | var ratedRecord =
+  != JSON.stringify(u.ratedRecord)
+  | ;

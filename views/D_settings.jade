@@ -1,0 +1,36 @@
+mixin D_settings(u)
+  #dialog_st.jqmSubmit(name=u.name style="width:490px;height:470px;top:12%;")
+    .jqDrag.jqtop Settings
+    .jqcontent(style="width:490px;height:380px;padding-left:10px;")
+      .group(style="min-width:460px;")
+        div(style="width:250px;")
+          div
+            label(for="oldpassword") Old Password *
+            input#oldpassword(maxlength="50" type="password")
+          div
+            label(for="newpassword") New Password
+            input#newpassword(maxlength="50" type="password")
+            small.help-block.user-green(style="margin:0;") Leave it blank if not to change password
+          div
+            label(for="password_repeat") Confirm New Password
+            input#password_repeat(maxlength="50" type="password")
+          div
+            label(for="set_nick") Nick Name *
+            input#set_nick(maxlength="50" type="text" value=u.nick ? u.nick : "")
+          div
+            label(for="set_school") School
+            input#set_school(maxlength="50" type="text" value=u.school ? u.school : "asdf")
+          div
+            label(for="set_email") Email
+            input#set_email(maxlength="50" type="text" value=u.email ? u.email : "")
+        div
+          label(for="signature") Signature
+          textarea#signature(maxlength="300" style="width:190px;height:280px;resize:none;")
+            if (u.signature)
+              = u.signature
+      small#set_error.error-text
+    .jqfoot
+      a#set_submit.uibtn(href="javascript:;") Submit
+      a.uibtn.setclose(href="javascript:;") Cancel
+    .jqResize
+    i.setclose.jqclose

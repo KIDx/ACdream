@@ -1,0 +1,71 @@
+- var now = (new Date()).getTime();
+- var oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'BNUOJ(北京师范大学)'];
+- var oj_url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.bnu.edu.cn/'];
+- var blog = ['cxlove', '夏天的风', 'kuangbin', 'shoutmon', 'NotOnlySuccess'];
+- var blog_url = ['http://blog.csdn.net/ACM_cxlove', 'http://blog.csdn.net/shahdza', 'http://www.cnblogs.com/kuangbin', 'http://www.shoutmon.com', 'http://www.notonlysuccess.com'];
+mixin more
+  img.icon(src="/img/arrow.png")
+mixin box(url, name, n)
+  .span6.publish_box
+    .publish_header
+      if (url)
+        a(href=url title="更多" class="fr more")
+      div= name
+    .inner_topic
+      ul.publish_list
+        block
+        - for (var i = 5-n; i > 0; i--)
+          li
+            span.user-gray 暂无
+mixin buildTopic(ary)
+  each o in ary
+    li
+      +more
+      span.fr.user-gray= getTime(o.inDate)
+      a(href="/topic/"+o.id)= o.title
+      if (now - o.inDate < 86400000)
+        img.top(src="/img/new.gif")
+      if (o.lastReviewer && now - o.lastReviewTime < 28800000)
+        img.top(src="/img/hot.gif")
+fieldset
+  div
+    legend 主页
+  .row-fluid
+    +box("/topic", "公告", A.length)
+      +buildTopic(A)
+    +box("/contest/2", "最近比赛", B.length)
+      each o in B
+        li
+          +more
+          - var pass = now - o.startTime;
+          if (pass < 0)
+            span.fr.text-info 即将开始，敬请期待
+            a(href="/onecontest/"+o.contestID)= o.title
+            img.top(src="/img/new.gif")
+          else if (pass < o.len*60000)
+            span.fr.user-red 火热进行中
+            a(href="/onecontest/"+o.contestID)= o.title
+            img.top(src="/img/hot.gif")
+          else
+            span.fr.user-gray 已结束
+            a(href="/onecontest/"+o.contestID)= o.title
+  .row-fluid
+    +box("/topic", "最新话题", C.length)
+      +buildTopic(C)
+    +box("/standings", "ACdream英雄版", D)
+      each o in D
+        li
+          +more
+          span(class="fr user user-"+UC(o.rating))= o.rating
+          a(href="/user/"+o.name, title=UT(o.rating), class="user user-"+UC(o.rating))= o.name
+  .row-fluid
+    +box("/topic/101", "推荐 Online Judge", oj.length)
+      each name, i in oj
+        li
+          +more
+          a(target="_blank", href=oj_url[i])= name
+    +box(null, "ACMer's Blog", blog.length)
+      each name, i in blog
+        li
+          +more
+          a(target="_blank", href=blog_url[i])= name

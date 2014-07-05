@@ -1,0 +1,37 @@
+#regdialog.jqmSubmit(style="width:460px;height:480px;top:12%;")
+  .jqDrag.jqtop Register
+  .jqcontent(style="width:460px;height:390px;padding-left:10px;")
+    .group(style="min-width:460px;")
+      div(style="width:230px;")
+        div
+          label(for="reg_username") User Name *
+          input#reg_username(maxlength="50", type="text")
+        div
+          label(for="reg_password") Password *
+          input#reg_password(maxlength="50", type="password")
+        div
+          label(for="password_repeat") Repeat *
+          input#password_repeat(maxlength="50", type="password")
+        div
+          label(for="reg_nick") Nick Name *
+          input#reg_nick(maxlength="50", type="text")
+        div
+          label(for="reg_school") School
+          input#reg_school(maxlength="50", type="text")
+        div
+          label(for="reg_email") Email
+          input#reg_email(maxlength="50", type="text")
+      div
+        label(for="signature") Signature
+        textarea#signature(maxlength="300", style="width:190px;height:250px;resize:none;")
+    .group(style="padding-top:20px;width:410px;height:35px;")
+      .input-prepend
+        span.add-on 验证码 *
+        input#reg_vcode(maxlength="4", type="text", style="width:120px;")
+      #vcode.img.topic_img.vcode(title="点击换一张")
+    small#reg_error.error-text
+  .jqfoot
+    a#reg_submit.uibtn(href="javascript:;") Submit
+    a.uibtn.regclose(href="javascript:;") Cancel
+  .jqResize
+  i.regclose.jqclose

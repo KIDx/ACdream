@@ -1,0 +1,12 @@
+mixin rankheader(probNum, F)
+  tr
+    th.rank(style="border-left:0;") #
+    th.name Name
+    th.nick Nick
+    th.solved(title="solved")
+      span.user-green S
+    th.penalty(title="penalty(罚时)")
+      span.user-red P
+    - for(var i = 0; i < probNum; i++)
+      th.standing_status
+        a(href="#problem-"+F[i])= F[i]

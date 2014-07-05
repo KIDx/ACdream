@@ -23,7 +23,7 @@ var Contest = require('./models/contest.js');
 app.enable('trust proxy');
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
+app.set('view engine', 'jade');
 
 app.use(partials());
 app.use(require('body-parser')());

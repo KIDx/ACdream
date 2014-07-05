@@ -1,0 +1,59 @@
+fieldset#ranklist
+  div
+    legend Ranklist
+  .tablebg
+    #pager
+      include pager
+      +pager(page, n)
+      #filter.fr
+        div.input-prepend
+          span.add-on
+            i.icon-search
+          input#search(type="text" value=search ? search : "" title="User or Nickname" placeholder=" user or nick")
+        div
+          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
+        div
+          a.uibtn.uibtn-mini(href="/ranklist") Reset
+    div#tablediv
+      table#rank.table.table-cf.tdcenter(style="table-layout:fixed;")
+        thead
+          tr
+            th(style="width:60px;") Rank
+            th(style="width:150px;") User
+            th(style="width:150px;") Nickname
+            th Signature
+            th(style="width:70px;") Solved
+            th(style="width:70px;") Submit
+        tbody
+          if (!users || users.length == 0)
+            tr.odd
+              td.error-text.center(colspan="6") No Users are matched.
+          else
+            - var d = 1;
+            if (user)
+              if (user.rank < (page-1)*pageNum+1)
+                - users.unshift(user);
+                - d = 0;
+              else if (user.rank > (page-1)*pageNum+users.length)
+                - users.push(user);
+            each p, i in users
+              - var c, h = '';
+              if (i % 2 == 1)
+                - c = 'even';
+              else
+                - c = 'odd';
+              if (user && user.name == p.name)
+                - h = ' highlight';
+              tr(class=c+h)
+                td= p.rank ? p.rank : (page-1)*pageNum+i+d
+                td
+                  a(class="user user-"+UC[p.name] href="/user/"+p.name title=UT[p.name]+" "+p.name)= p.name
+                td
+                  span.user.user-gray= p.nick
+                td.ellipsis
+                  if (p.signature)
+                    span.user-gray(title=p.signature)= p.signature
+                td
+                  a(href="/status?name="+p.name+"&result=2")= p.solved
+                td
+                  a(href="/status?name="+p.name)= p.submit

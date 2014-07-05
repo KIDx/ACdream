@@ -1,0 +1,25 @@
+fieldset
+  div
+    legend 源码
+  if (flg)
+    - var lang;
+    case solution.language
+      when 2
+        - lang = 'cpp';
+      when 1
+        - lang = 'c';
+      default
+        - lang = 'java';
+    pre(class="brush: "+lang)
+      | /*
+      | * this code is made by #{solution.userName}
+      | * Problem: #{solution.problemID}
+      | * Verdict: #{Res(solution.result)}
+      | * Submission Date: #{getDate(solution.inDate)}
+      | * Time: #{solution.time}MS
+      | * Memory: #{solution.memory}KB
+      | */
+      = "\n"+solution.code
+  else
+    .alert.alert-error(style="padding:100px;")
+      h1(align="center") Sorry, You have no permission to see this code.

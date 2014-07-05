@@ -1757,13 +1757,13 @@ exports.user = function(req, res) {
           return RP(null);
         });
       } else {
-        Problem.find({hide:true}, function(err, problems){
+        Problem.distinct("problemID", {hide:true}, function(err, pids){
           if (err) {
             req.session.msg = '系统错误！';
             OE(err);
             return res.redirect('/');
           }
-          return RP(problems);
+          return RP(pids);
         });
       }
     });

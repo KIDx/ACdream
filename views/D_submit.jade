@@ -1,0 +1,22 @@
+mixin D_submit(langs)
+  #dialog_sm.jqmSubmit(style="height:595px;width:510px;top:6%;")
+    .jqDrag.jqtop Submit your code here
+    .jqcontent(style="height:500px;width:510px;")
+      div(style="width:500px;overflow:hidden;margin-bottom:5px;")
+        div(style="width:290px;float:left;")
+          | Problem:
+          span#pid.user-green
+        div(style="width:200px;float:right;")
+          | Language:
+          include lang
+          +lang(langs, null)
+      span#error.error-text
+      div(style="padding-top:5px;") Source Code
+      textarea.jqtext(style="width:450px;height:370px;margin:10px 10px 0 10px;")
+    .alert.alert-error(style="position:absolute;margin:0 50px 0 40px;bottom:100px;")
+      include i64_info
+    .jqfoot(align="right")
+      a#jqcodesubmit.uibtn(href="javascript:;") Submit
+      a.uibtn.submitclose(href="javascript:;") Cancel
+    .jqResize
+    i.submitclose.jqclose

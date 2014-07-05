@@ -118,3 +118,12 @@ Problem.multiUpdate = function(Q, H, callback) {
     return callback(err);
   });
 };
+
+Problem.distinct = function(key, Q, callback) {
+  problems.distinct(key, Q, function(err, ary){
+    if (err) {
+      OE('Problem.distinct failed!');
+    }
+    return callback(err, ary);
+  });
+};

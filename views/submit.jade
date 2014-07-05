@@ -1,0 +1,24 @@
+fieldset
+  .form-horizontal
+    div
+      legend 代码提交
+    .control-group
+      label.control-label(for="pid") Problem:
+      .controls
+        input#pid.input-mini(type="search" value=id)
+        span#error.help-inline.error-text
+    .control-group
+      label.control-label(for="lang") Language:
+      .controls
+        include lang
+        +lang(langs, null)
+    .control-group
+      label.control-label(for="code") Source Code:
+      .controls
+        textarea#code.span7(rows="25")
+    #alert.control-group.hide
+      label.control-label
+      .alert.alert-error.span7
+        include i64_info
+    .form-actions
+      a#submit.uibtn(href="javascript:;") Submit

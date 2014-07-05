@@ -1,0 +1,164 @@
+doctype HTML
+- var nvgurl = ['/', '/problemset', '/status', '/ranklist', '/standings', '/contest/1', '/contest/2', '/topic/100', '/topic'];
+- var nvgname = ['Home', 'Problemset', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum'];
+include post_list
+html
+  head
+    meta(name="description" content="ACdream. Programming competitions and contests, programming community")
+    meta(name="keywords" content="ACdream OnlineJudge OJ ACM ICPC Contest online judge programming")
+    title#title= title
+    link(href="/stylesheets/bootstrap.css" rel="stylesheet" type="text/css")
+    link(href="/stylesheets/style.css" rel="stylesheet" type="text/css")
+    if (key == 8 || key == 11 || key == 18)
+      link(rel="stylesheet" type="text/css" href="/highlighter/styles/shCoreEclipse.css")
+    else if (key == 1002)
+      link(rel="stylesheet" type="text/css" href="/zd/css/zebra_datepicker.css")
+    //if lt IE 9
+      link(rel="stylesheet" type="text/css" href="/stylesheets/ie.css")
+  body#wrapper
+    div.w
+      marquee#marquee(style="float:left;width:50%;" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
+        span.user.user-green= stc[Math.round(Math.random()*(stc.length - 1))]
+      mixin line
+        li
+          span.user-gray |
+      ul.navigation
+        if (user)
+          li
+            a#logout(href="javascript:;") Logout
+          +line
+          if (user.addprob == 1)
+            if (key == 1000)
+              li.active Add Problem
+            else
+              li
+                a(href="/addproblem") Add Problem
+            +line
+          li
+            a(href="/user/"+user.name)= user.name
+        else
+          li
+            a#reg(href="javascript:;") Register
+          +line
+          li
+            a#login(href="javascript:;") Enter
+    div#preload_logo.w
+      if (user)
+        - var img = '/img/avatar/%3Ddefault%3D/3.jpeg';
+        if (user.imgType)
+          - img = '/img/avatar/'+user.name+'/3.'+user.imgType;
+        a.fr(href="/avatar" style="margin-top:5px;")
+          img.img_m.topic_img(title="change picture" alt="change picture" src=img)
+      else
+        a.fr(target="_blank" href="https://github.com/KIDx/ACdream" style="margin-top:5px;")
+          img.img_m.topic_img(title="Fork me on Github." alt="Fork me on Github." src="/img/git.png")
+      a.logo(href="/" title="ACdream Online Judge")
+        img(src="/img/logo.png" alt="ACdream Online Judge")
+    div.w
+      div.fr
+        input.input-small(type="text" style="padding:2px;margin:0;font-size:12px;" placeholder=" Problem ID" title="Problem ID")
+        a#Go.uibtn(href="javascript:;") Go
+      ul.navigation.menu
+        each url, i in nvgurl
+          li
+            a(href=url)= nvgname[i]
+    div#xbody.w
+      != body
+    div#footer.w
+      div
+        a(href="/") ACdream v1.2.0
+        | &nbsp;2013-2014 KIDx(网站), TTLast(评测机)
+      div Any bug please contact 972169909@qq.com
+      div Server time:
+        span#timer
+      div
+        a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
+    div#go_top(title="Go to top")
+    //Dialogs
+    if (!user)
+      include D_login
+      include D_register
+    if (key == 0)
+      if (user && u && user.name == u.name)
+        include D_settings
+        +D_settings(u)
+    else if (key == 4)
+      include D_ce
+    else if (key == 6)
+      if (type != 2)
+        include D_logincontest
+    else if (key == 9)
+      include D_ce
+      include D_broadcast
+      if (user)
+        include D_submit
+        +D_submit(langs)
+    //js Placed at the end of the document so the pages load faster
+    script(type="text/javascript").
+      var globalMessage = "#{msg ? msg : ''}";
+      var nextURL = "";
+      var current_user = "#{user ? user.name : ''}";
+      var current_time;
+      var curren_second = #{time};
+      var contest_type = #{key == 6 ? type : 1};
+    script(src="/javascripts/jquery_uieffect_jqdnr.js")
+    script(src="/javascripts/jquery.cookie.js")
+    script(src="/javascripts/global.js")
+    mixin highlight
+      script(src="/highlighter/scripts/shCore_brushCpp_brushJava.js")
+      script(type="text/javascript") SyntaxHighlighter.defaults['toolbar'] = false; SyntaxHighlighter.all();
+    if (key == 0)
+      script(src="/Highcharts-4.0.1/highcharts.js")
+      script(src="/javascripts/user.js")
+    else if (key == 1)
+      script(src="/Highcharts-4.0.1/highcharts.js")
+      script(src="/Highcharts-4.0.1/main.js")
+      script(src="/javascripts/statistic.js")
+    else if (key == 3)
+      script(src="/javascripts/problemset.js")
+    else if (key == 5)
+      script(src="/javascripts/ranklist.js")
+    else if (key == 6)
+      script(src="/javascripts/contest.js")
+    else if (key == 7)
+      script(src="/javascripts/standings.js")
+    else if (key == 8)
+      +highlight
+      script(src="/javascripts/fileUpload.js")
+      script(src="/javascripts/problem.js")
+    else if (key == 9)
+      script(src="/javascripts/jquery.hashchange.js")
+      script(src="/javascripts/updatestatus.js")
+      if (user && user.name == 'admin')
+        script(src="/javascripts/singleRejudge.js")
+      script(src="/socket.io/socket.io.js")
+      script(src="/javascripts/onecontest.js")
+    else if (key == 4)
+      script(src="/javascripts/updatestatus.js")
+      if (user && user.name == 'admin')
+        script(src="/javascripts/singleRejudge.js")
+      script(src="/javascripts/status.js")
+    else if (key == 10)
+      script(src="/javascripts/submit.js")
+    else if (key == 11)
+      +highlight
+    else if (key == 12)
+      script(src="/javascripts/fileUpload.js")
+      script(src="/javascripts/avatar.js")
+    else if (key == 17)
+      script(src="/javascripts/topic.js")
+    else if (key == 18)
+      +highlight
+      if (user)
+        script(src="/ckeditor/ckeditor.js")
+      script(src="/javascripts/onetopic.js")
+    else if (key == 1002)
+      script(src="/javascripts/addcontest.js")
+      script(src="/zd/javascript/zebra_datepicker.js")
+    else if (key == 1000 || key == 1001)
+      script(src="/javascripts/fileUpload.js")
+      script(src="/ckeditor/ckeditor.js")
+      script(src="/javascripts/addproblem.js")
+    else if (key == 1004)
+      script(src="/ckeditor/ckeditor.js")
+      script(src="/javascripts/addtopic.js")
