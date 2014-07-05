@@ -13,7 +13,8 @@ mixin editproblem(p, u, partial, f, imgs)
         .ibox.user-gray (支持jpeg, jpg, png格式)
           br
           | 目前已保存了
-          span#imgnum= imgs.length+'个张图片'
+          span#imgnum= imgs.length
+          | 张图片
         #imgdiv.limitbox
           each p in imgs
             .cb(fname=p)
@@ -37,7 +38,8 @@ mixin editproblem(p, u, partial, f, imgs)
         span#dataerr.error-text= ' '
         .ibox.user-gray
           | 目前已保存了
-          span#datanum= f.length+'个数据文件'
+          span#datanum= f.length
+          | 个数据文件
         #datadiv.limitbox
           each p in f
             .cb(fname=p)
