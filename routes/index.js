@@ -2940,14 +2940,8 @@ exports.ranklist = function(req, res) {
         UC[user.name] = UserCol(user.rating);
         UT[user.name] = UserTitle(user.rating);
         getRank(user, function(err, rank){
-          res.locals.user = {
-            name: user.name,
-            nick: user.nick,
-            signature: user.signature,
-            solved: user.solved,
-            submit: user.submit,
-            rank: rank
-          };
+          res.locals.user = user;
+          res.locals.user.rank = rank;
           return Render();
         });
       });
@@ -3009,15 +3003,8 @@ exports.standings = function(req, res) {
           UC[user.name] = UserCol(user.rating);
           UT[user.name] = UserTitle(user.rating);
           getRatingRank(user, function(err, rank){
-            res.locals.user = {
-              name: user.name,
-              nick: user.nick,
-              signature: user.signature,
-              lastRatedContest: user.lastRatedContest,
-              ratedRecord: user.ratedRecord,
-              rating: user.rating,
-              rank: rank
-            };
+            res.locals.user = user;
+            res.locals.user.rank = rank;
             return Render();
           });
         });
