@@ -27,7 +27,7 @@ fieldset
               | 回收
             else
               | 赋予
-             #{u.name} 加题权限
+            = ' '+u.name+' 加题权限'
           if (u.name == 'admin')
             a#recal.uibtn(style="margin:0 10px 0 0;" href="javascript:;") 重新统计所有用户提交数和AC数
           a#restore.uibtn(style="margin:0;" href="javascript:;") 将 #{u.name} 的密码恢复默认
