@@ -37,7 +37,6 @@
 var async = require('async')
 var crypto = require('crypto');
 var fs = require('fs');
-var csv = require('csv');
 var gm = require('gm');
 var imageMagick = gm.subClass({ imageMagick : true });
 var exec = require('child_process').exec;
