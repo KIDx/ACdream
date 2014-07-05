@@ -375,10 +375,13 @@ a.user {
   height: 38px;
   display: block;
   background: url('/img/more.png');
+  opacity: 0.5;
+  filter: alpha(opacity=50);
 }
 
 .publish_header > a.more:hover {
-  background: url('/img/more_hover.png');
+  opacity: 1;
+  filter: alpha(opacity=100);
 }
 
 ul.publish_list {
