@@ -21,7 +21,6 @@
     "method-override": "*",
     "serve-favicon": "*",
     "express-session": "*",
-    "connect": "*",
     "mongoose": "*",
     "jade": "*",
     "express-partials": "*",
