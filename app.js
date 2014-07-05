@@ -37,7 +37,9 @@ app.use(require('method-override')());
 app.use(require('cookie-parser')());
 app.use(session({
   secret: settings.cookie_secret,
-  store: sessionStore
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false
 }));
 
 //使用静态资源服务以及设置缓存(三天)
