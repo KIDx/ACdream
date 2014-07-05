@@ -29,7 +29,6 @@
     "canvas": "*",
     "socket.io": "0.9.x",
     "gm": "*",
-    "csv": "*",
     "xss":"*",
     "connect-redis": "*"
   }
