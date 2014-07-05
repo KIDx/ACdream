@@ -1631,7 +1631,7 @@ exports.resetRating = function(req, res) {
           p.rating = p.ratedRecord[p.ratedRecord.length - 1].rating;
         } else {
           p.lastRatedContest = null;
-          p.rating = null;
+          p.rating = 0;
         }
         p.save(function(err){
           if (!err) {
