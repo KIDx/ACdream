@@ -17,7 +17,6 @@
     "morgan": "*",
     "body-parser": "*",
     "multer": "*",
-    "method-override": "*",
     "serve-favicon": "*",
     "express-session": "*",
     "mongoose": "*",

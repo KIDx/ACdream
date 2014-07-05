@@ -33,7 +33,6 @@ app.use(require('multer')({
 }));
 
 app.use(require('compression')()); //gzip压缩传输
-app.use(require('method-override')());
 app.use(session({
   secret: settings.cookie_secret,
   store: sessionStore,
