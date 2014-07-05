@@ -190,7 +190,7 @@ $(document).ready(function(){
 
 function DeltaSpan(x) {
   var html = ' (<span style="font-weight:bold;color:';
-  if (x > 0) {
+  if (x >= 0) {
     html += 'green">+';
   } else {
     html += 'red">';
