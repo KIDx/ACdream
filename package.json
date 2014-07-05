@@ -21,13 +21,13 @@
     "method-override": "*",
     "serve-favicon": "*",
     "express-session": "*",
-
     "connect": "*",
     "mongoose": "*",
     "jade": "*",
     "express-partials": "*",
     "canvas": "*",
-    "socket.io": "0.9.x",
+    "socket.io": "*",
+    "socket.io-redis": "*",
     "gm": "*",
     "xss":"*",
     "connect-redis": "*"

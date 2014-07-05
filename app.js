@@ -11,11 +11,9 @@ var redisStore = require('connect-redis')(session);
 var settings = require('./settings');
 var OE = settings.outputErr;
 var app = express();
-var server = http.createServer(app);
-var io = require('socket.io').listen(server);
+var server = http.Server(app);
 var fs = require('fs');
 var cookie = require('express/node_modules/cookie');
-var utils = require('connect/lib/utils');
 var sessionStore = new redisStore();
 var Contest = require('./models/contest.js');
 
@@ -209,64 +207,55 @@ server.listen(app.get('port'), function(){
   console.log("Server running at http://localhost:3000");
 });
 
-//socket.io env
-io.configure('production', function(){
-  console.log('production env');
-  var RedisStore = require('socket.io/lib/stores/redis');
-  var redis = require('socket.io/node_modules/redis');
-  var pub = redis.createClient();
-  var sub = redis.createClient();
-  var client = redis.createClient();
-  io.set('store', new RedisStore({
-    redisPub: pub,
-    redisSub: sub,
-    redisClient: client
-  }));
-  //socket settings
-  io.enable('browser client minification'); // send minified client
-  io.enable('browser client etag'); // apply etag caching logic based on version number
-  io.enable('browser client gzip'); // gzip the file
-  io.set('log level', 1); // reduce logging
-  io.set('transports', [
-    'websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'
-  ]);
-  //set trusted hosts
-  io.set('origins', 'acdream.info:80 115.28.76.232:80');
-});
+//socket settings
+var opt = {};
 
-io.configure('development', function(){
-  console.log('development env');
-  io.set('transports', [
-    'xhr-polling',
-    'jsonp-polling'
-  ]);
-});
+if (process.env.NODE_ENV == 'production') {
+  console.log('production env.');
+  opt = {
+    'browser client minification': true,
+    'browser client etag': true,
+    'browser client gzip': true,
+    'origins': 'acdream.info:80 115.28.76.232:80'
+  };
+} else {
+  console.log('development env.');
+}
 
-//websocket设置session
-io.set('authorization', function(handshakeData, accept){
+//socket server
+var io = require('socket.io')(server, opt);
+
+io.adapter(require('socket.io-redis')({
+  host: 'localhost',
+  port: 6379
+}));
+
+//socket authentication and getting session
+io.use(function(socket, next){
+  var handshakeData = socket.request;
   if (!handshakeData.headers.cookie) {
-    return accept('no cookie.', false);
+    return next(new Error('no cookie.'));
   }
   handshakeData.cookie = cookie.parse(handshakeData.headers.cookie);
   var sid = handshakeData.cookie['connect.sid'];
   if (!sid) {
-    return accept('no sid.', false);
+    return next(new Error('no sid.'));
   }
   sessionStore.get(sid.split(':')[1].split('.')[0], function(err, session){
     if (err) {
-      return accept(err, false);
+      return next(err);
     }
     if (!session) {
-      return accept('no session.', false);
+      return next('no session.');
     }
-    handshakeData.session = session;
-    return accept(null, true);
+    socket.session = session;
+    next();
   });
 });
 
-//socket
+//socket connection
 io.sockets.on('connection', function(socket){
-  var session = socket.handshake.session;
+  var session = socket.session;
   if (session && session.user) {
     socket.on('broadcast', function(data, fn){
       if (data) {

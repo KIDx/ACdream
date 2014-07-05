@@ -24,10 +24,12 @@ $(document).ready(function(){
       }
     }).jqDrag('.jqDrag');
   }
-  socket.emit('login', cid);
-  socket.on('broadcast', function(data){
-    $bc_content.text(data);
-    $dialog_bc.jqmShow();
+  socket.on('connect', function(){
+    socket.emit('login', cid);
+    socket.on('broadcast', function(data){
+      $bc_content.text(data);
+      $dialog_bc.jqmShow();
+    });
   });
   if ($broadcast.length) {
     $broadcast.click(function(){
