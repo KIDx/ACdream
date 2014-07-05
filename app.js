@@ -24,7 +24,9 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
 app.use(partials());
-app.use(require('body-parser')());
+app.use(require('body-parser').urlencoded({
+  extended: false
+}));
 app.use(require('multer')({
   dest: './uploads/',
   rename: function(fieldname, filename) {
