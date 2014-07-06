@@ -4,11 +4,17 @@
 - var c, s, ts, ps;
 
 if (pending > 0)
-  - c = 'info'; s = 'Pending'; ts = 0;
+  - c = 'info';
+  - s = 'Pending';
+  - ts = 0;
 else if (pending + contest.len*60 > 0)
-  - c = 'wrong'; s = 'Running'; ts = 1;
+  - c = 'wrong';
+  - s = 'Running';
+  - ts = 1;
 else
-  - c = 'accept'; s = 'Ended'; ts = 2;
+  - c = 'accept';
+  - s = 'Ended';
+  - ts = 2;
 
 if (ts == 1)
   - ps = 'progress-danger';
@@ -88,7 +94,7 @@ fieldset#widthfix
             a#clone.uibtn.checklogin(href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
           if (ts == 0 && !watch)
             .user-gray(style="text-align:center;font-size:1.75em;margin:100px;")
-              | Before Contest
+              = 'Before Contest '
               span#lefttime
         #problemsview.hidden
           .tablebg
@@ -98,12 +104,17 @@ fieldset#widthfix
                 thead
                   tr
                     th(style="width:70px;") #
+                    if (s == 'Ended')
+                      th(style="width:50px;")
                     th Name
                     th(style="width:70px;")
                     th(style="width:90px;") Solved
                   each p, i in contest.probs
                     tr(class=i % 2 == 0 ? "odd" : "even")
                       td.center.bold.o_index= F[i]
+                      if (s == 'Ended')
+                        td.center
+                          a(href="/problem?pid="+p[0])= p[0]
                       td
                         if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
                           a.fr.uibtn.uibtn-mini.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
