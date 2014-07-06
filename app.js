@@ -1,6 +1,3 @@
-/*
- * Module dependencies.
- */
 var express = require('express');
 var routes = require('./routes');
 var http = require('http');
@@ -13,20 +10,35 @@ var OE = settings.outputErr;
 var app = express();
 var server = http.Server(app);
 var fs = require('fs');
-var cookie = require('express/node_modules/cookie');
 var sessionStore = new redisStore();
 var Contest = require('./models/contest.js');
+var socket_opt = {};
+
+if (app.get('env') == 'production') {
+  console.log('production env.');
+  socket_opt  = {
+    'browser client minification': true,
+    'browser client etag': true,
+    'browser client gzip': true,
+    'origins': 'acdream.info:80 115.28.76.232:80'
+  };
+  app.enable('trust proxy');
+} else {
+  console.log('development env.');
+}
 
 //服务器配置
-app.enable('trust proxy');
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
 app.use(partials());
+
 app.use(require('body-parser').urlencoded({
   extended: false
 }));
+
+//文件上传
 app.use(require('multer')({
   dest: './uploads/',
   rename: function(fieldname, filename) {
@@ -34,7 +46,10 @@ app.use(require('multer')({
   }
 }));
 
-app.use(require('compression')()); //gzip压缩传输
+//gzip压缩传输
+app.use(require('compression')());
+
+//express-session
 app.use(session({
   secret: settings.cookie_secret,
   store: sessionStore,
@@ -52,6 +67,7 @@ app.use(require('serve-favicon')(__dirname + '/public/favicon.ico', {
   maxAge: 2592000000
 }));
 
+//控制台日志
 app.use(require('morgan')('dev'));
 
 app.use(function(req, res, next){
@@ -196,6 +212,7 @@ app.post('/setProblemManager', routes.setProblemManager);
 
 //connect mongodb
 routes.connectMongodb();
+
 //disconnect mongodb
 app.on('close', function(err){
   if (err) {
@@ -209,94 +226,5 @@ server.listen(app.get('port'), function(){
   console.log("Server running at http://localhost:3000");
 });
 
-//socket settings
-var opt = {};
-
-if (process.env.NODE_ENV == 'production') {
-  console.log('production env.');
-  opt = {
-    'browser client minification': true,
-    'browser client etag': true,
-    'browser client gzip': true,
-    'origins': 'acdream.info:80 115.28.76.232:80'
-  };
-} else {
-  console.log('development env.');
-}
-
-//socket server
-var io = require('socket.io')(server, opt);
-
-io.adapter(require('socket.io-redis')({
-  host: 'localhost',
-  port: 6379
-}));
-
-//socket authentication and getting session
-io.use(function(socket, next){
-  var handshakeData = socket.request;
-  if (!handshakeData.headers.cookie) {
-    return next(new Error('no cookie.'));
-  }
-  handshakeData.cookie = cookie.parse(handshakeData.headers.cookie);
-  var sid = handshakeData.cookie['connect.sid'];
-  if (!sid) {
-    return next(new Error('no sid.'));
-  }
-  sessionStore.get(sid.split(':')[1].split('.')[0], function(err, session){
-    if (err) {
-      return next(err);
-    }
-    if (!session) {
-      return next('no session.');
-    }
-    socket.session = session;
-    next();
-  });
-});
-
-//socket connection
-io.sockets.on('connection', function(socket){
-  var session = socket.session;
-  if (session && session.user) {
-    socket.on('broadcast', function(data, fn){
-      if (data) {
-        var cid = parseInt(data.room, 10);
-        if (!cid) {
-          return; //not allow
-        }
-        var RP = function() {
-          socket.broadcast.to(data.room).emit('broadcast', data.msg);
-          if (fn) {
-            fn(true);
-          }
-        };
-        if (session.user.name == 'admin') {
-          return RP();
-        }
-        Contest.watch(cid, function(err, con){
-          if (err) {
-            OE(err);
-            if (fn) {
-              fn(false);
-            }
-            return;
-          }
-          if (con && con.userName == session.user.name) {
-            return RP();
-          }
-        });
-      }
-    });
-  }
-  socket.on('login', function(room){
-    if (room) {
-      socket.join(room.toString());
-    }
-  });
-  socket.on('addDiscuss', function(room){
-    if (room) {
-      socket.broadcast.to(room).emit('addDiscuss');
-    }
-  });
-});
+//socket
+require('./socket')(require('socket.io')(server, socket_opt), sessionStore);
