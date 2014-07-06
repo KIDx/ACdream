@@ -23,6 +23,7 @@ if (app.get('env') == 'production') {
     'origins': 'acdream.info:80 115.28.76.232:80'
   };
   app.enable('trust proxy');
+  app.enable('view cache');
 } else {
   console.log('development env.');
 }
