@@ -254,26 +254,6 @@ function getContestRank(cid, stars, name, V, callback) {
   });
 }
 
-exports.connectMongodb = function() {
-  Solution.connect(function(err){
-    if (err) {
-      OE('connect failed');
-      OE(err);
-      throw err;
-    }
-  });
-};
-
-exports.disconnectMongodb = function() {
-  Solution.disconnect(function(err){
-    if (err) {
-      OE('disconnect failed');
-      OE(err);
-      throw err;
-    }
-  });
-};
-
 exports.updateStatus = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var id = parseInt(req.body.rid, 10);

@@ -19,14 +19,6 @@ function Solution(solution) {
 
 module.exports = Solution;
 
-Solution.connect = function(callback) {
-  mongoose.connect(dburl);
-};
-
-Solution.disconnect = function(callback) {
-  mongoose.disconnect(callback);
-};
-
 var solutionObj = new Schema({
   runID: {type: Number, index: {unique: true}},
   problemID: Number,

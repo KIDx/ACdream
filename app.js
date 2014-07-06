@@ -1,3 +1,4 @@
+var settings = require('./settings');
 var express = require('express');
 var routes = require('./routes');
 var http = require('http');
@@ -5,14 +6,14 @@ var path = require('path');
 var partials = require('express-partials');
 var session = require('express-session');
 var redisStore = require('connect-redis')(session);
-var settings = require('./settings');
-var OE = settings.outputErr;
 var app = express();
 var server = http.Server(app);
-var fs = require('fs');
 var sessionStore = new redisStore();
 var Contest = require('./models/contest.js');
 var socket_opt = {};
+
+//connect mongodb
+require('./models/connect');
 
 if (app.get('env') == 'production') {
   console.log('production env.');
@@ -210,17 +211,6 @@ app.post('/delComment', routes.delComment);
 app.post('/editComment', routes.editComment);
 //设置指定题目的管理员(for admin)
 app.post('/setProblemManager', routes.setProblemManager);
-
-//connect mongodb
-routes.connectMongodb();
-
-//disconnect mongodb
-app.on('close', function(err){
-  if (err) {
-    OE(err);
-  }
-  routes.disconnectMongodb();
-});
 
 //running server
 server.listen(app.get('port'), function(){
