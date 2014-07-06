@@ -22,12 +22,13 @@ fieldset#ranklist
             th(style="width:150px;") User
             th(style="width:150px;") Nickname
             th Signature
+            th(style="width:70px;") AC_Ratio
             th(style="width:70px;") Solved
             th(style="width:70px;") Submit
         tbody
           if (!users || users.length == 0)
             tr.odd
-              td.error-text.center(colspan="6") No Users are matched.
+              td.error-text.center(colspan="7") No Users are matched.
           else
             - var d = 1;
             if (user)
@@ -44,6 +45,7 @@ fieldset#ranklist
                 - c = 'odd';
               if (user && user.name == p.name)
                 - h = ' highlight';
+              - p.ratio = p.submit?Math.round(p.solved*10000/p.submit)/100.:0
               tr(class=c+h)
                 td= p.rank ? p.rank : (page-1)*pageNum+i+d
                 td
@@ -53,6 +55,8 @@ fieldset#ranklist
                 td.ellipsis
                   if (p.signature)
                     span.user-gray(title=p.signature)= p.signature
+                td
+                  a(href="/status?name="+p.name)= p.ratio+'%'
                 td
                   a(href="/status?name="+p.name+"&result=2")= p.solved
                 td
