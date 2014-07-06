@@ -403,7 +403,7 @@ ul.publish_list > li > img.icon {
   float: left;
 }
 
-ul.publish_list > li > img.top {
+img.top {
   vertical-align: top;
 }
 
