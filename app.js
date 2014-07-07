@@ -56,7 +56,7 @@ app.use(session({
   secret: settings.cookie_secret,
   store: sessionStore,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: true
 }));
 
 //使用静态资源服务以及设置缓存(三天)
