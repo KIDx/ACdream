@@ -1018,13 +1018,16 @@ $(document).ready(function(){
         if (!err) {
           ShowMessage('Your code for problem '+pmap[pid_index]+' has been submited successfully!');
           window.location.hash = '#status-'+current_user;
+        } else if (err == '7') {
+          ShowMessage('比赛已结束，请点击对应题号到外面提交。');
+          window.location.hash = '#overview';
+        } else if (err == '2') {
+          ShowMessage('You can not submit because you have not registered the contest yet!');
         } else if (err == '6') {
           ShowMessage('同一个会话在5秒内只能交一次代码，请稍候再交。');
         } else if (err == '1') {
           window.location.reload(true);
           return ;
-        } else if (err == '2') {
-          ShowMessage('You can not submit because you have not registered the contest yet!');
         } else if (err == '3') {
           ShowMessage('系统错误！');
         } else if (err == '4') {

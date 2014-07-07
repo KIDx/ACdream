@@ -3051,6 +3051,7 @@ exports.doSubmit = function(req, res) {
   if (!lang || lang < 1 || lang >= languages.length) {
     return res.end('5');
   }
+  var now = (new Date()).getTime();
   var RP = function(){
     IDs.get('runID', function(err, id){
       if (err) {
@@ -3061,7 +3062,7 @@ exports.doSubmit = function(req, res) {
         runID: id,
         problemID: pid,
         userName: name,
-        inDate: (new Date()).getTime(),
+        inDate: now,
         language: lang,
         length: Str.length,
         cID: cid,
@@ -3111,9 +3112,13 @@ exports.doSubmit = function(req, res) {
         if (!contest) {
           return res.end(); //not allow
         }
-        if (contest.type == 2 && name != contest.userName && !IsRegCon(contest.contestants, name)) {
-          req.session.msg = 'You can not submit because you have not registered the contest yet!';
-          return res.end('2');
+        if (contest.type == 2) {
+          if (now > contest.startTime+contest.len*60000) {
+            return res.end('7');
+          }
+          if (name != contest.userName && !IsRegCon(contest.contestants, name)) {
+            return res.end('2');
+          }
         }
         return RP();
       });
