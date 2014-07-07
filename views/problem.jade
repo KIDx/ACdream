@@ -108,12 +108,13 @@ fieldset
           - tmp += '<input id="manager_input" type="text" class="input-medium" style="display:none;margin:0;padding:2px;"><a href="javascript:;" id="edit_btn" class="img_link edit" title="change" style="display:inline-block;margin-left:8px;"></a>';
         - var q = [problem.description, problem.input, problem.output, problem.sampleInput, problem.sampleOutput, problem.hint, problem.source, tmp];
         each name, i in S
-          h4= name
-          div.accordion-inner
-            if (i == 3 || i == 4)
-              pre.sample= q[i]
-            else
-              != q[i]
+          if (q[i])
+            h4= name
+            div.accordion-inner
+              if (i == 3 || i == 4)
+                pre.sample= q[i]
+              else
+                != q[i]
         div(align="center" style="padding-bottom: 20px;")
           +submit
 if (user && user.name == 'admin')
