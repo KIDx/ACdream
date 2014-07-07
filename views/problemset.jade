@@ -34,10 +34,13 @@ fieldset
                 - c = 'even';
               else
                 - c = 'odd';
-              if (R[p.problemID] == 1)
-                - s = 'WA';
-              else if (R[p.problemID] == 2)
-                - s = 'AC';
+              case R[p.problemID]
+                when 1
+                  - s = 'WA';
+                when 2
+                  - s = 'AC';
+                default
+                  - s = '';
               tr(class=c)
                 td(class="center "+s)= p.problemID
                 td
