@@ -63,8 +63,10 @@ fieldset
                     each p, i in Tag
                       option(value=i title=PT[i])= p
                 a#add-tag(href="javascript:;") Add tag
+                div.alert.alert-success(style="margin:0;") 温馨提示：你可以编辑标签啦~
               else
                 span.user-gray No tag edit access
+                div.alert.alert-success(style="margin:0;") 温馨提示：AC后可以编辑标签哦. ^-^
         if (user && (user.name == problem.manager || user.name == 'admin'))
           .sidebox
             .side-header → Edit Problem
