@@ -735,7 +735,7 @@ function DiscussResponse(json) {
   $dislist.html(buildPager(discussQ.page, n));
   var html;
   if (!tps || tps.length == 0) {
-    html = '<tr><td class="error-text" colspan="6">No Records are matched.</td></tr>';
+    html = '<tr class="odd"><td class="error-text" colspan="6">No Records are matched.</td></tr>';
   } else {
     cnt = 1;
     html = $.map(tps, buildDiscuss).join('');
