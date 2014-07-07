@@ -84,8 +84,6 @@ app.use(function(req, res, next){
   });
 });
 
-routes.fixDB();
-
 //#####server response
 //主页
 app.get('/', routes.index);

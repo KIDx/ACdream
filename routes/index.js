@@ -71,40 +71,6 @@ var xss_options = settings.xss_options;
 var data_path = settings.data_path;
 var root_path = settings.root_path;
 
-exports.fixDB = function() {
-  Contest.find({type: 2}, function(err, cons){
-    if (err) {
-      console.error(err);
-      return ;
-    }
-    var cids = new Array(), contest = {};
-    cons.forEach(function(p){
-      cids.push(p.contestID);
-      contest[p.contestID] = p;
-    });
-    console.log(cids);
-    Solution.find({cID: {$in: cids}}, function(err, sols){
-      if (err) {
-        console.error(err);
-        return ;
-      }
-      console.log(sols.length);
-      sols.forEach(function(p){
-        if (p.inDate > contest[p.cID].startTime+contest[p.cID].len*60000) {
-          p.cID = -1;
-          p.save(function(err){
-            if (err) {
-              console.error(err);
-              return ;
-            }
-            console.log("yes.");
-          });
-        }
-      });
-    });
-  });
-}
-
 function nan(n) {
   return n != n;
 }
