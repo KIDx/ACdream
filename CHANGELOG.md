@@ -1,3 +1,13 @@
+## 1.3.1 / 2014-07-07
+* 修复ranklist以及standings页面右上角个人信息不正确的bug
+* 调整了生产环境和开发环境，把socket核心代码独立出来
+* 重构数据库连接
+* Ranklist增加一列AC_Ratio
+* 比赛结束后看到题目的problemID
+* 比赛通过提交代码跳转到status后显示自己的记录
+* VIP Contest结束后不可提交
+* problem页面增加标签编辑提示
+
 ## 1.3.0 / 2014-07-05
 * statistic页面自己的记录增加高亮
 * 修复standings页面不显示自己rating的bug
