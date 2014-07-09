@@ -37,7 +37,7 @@ app.set('view engine', 'jade');
 app.use(partials());
 
 app.use(require('body-parser').urlencoded({
-  extended: false
+  extended: true
 }));
 
 //文件上传
