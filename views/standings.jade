@@ -18,7 +18,7 @@ fieldset#standings(cid=cid ? cid : "")
         div
           a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
         div
-          a(href="/standings<% if (cid) { %>?cid=<%= cid %><% } %>" class="uibtn uibtn-mini") Reset
+          a.uibtn.uibtn-mini(href="/standings"+(cid ? "?cid="+cid : "")) Reset
     div#tablediv
       table#rank.table.table-cf.tdcenter(style="table-layout:fixed;")
         thead
