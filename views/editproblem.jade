@@ -25,7 +25,7 @@ mixin editproblem(p, u, partial, f, imgs)
         span.success-text
           | 注意：图片大小不得超过1M！
           br
-          | 使用方法：在下面编辑器中点击图象，源文件路径："/img/prob/#{p.problemID}/"+"文件名"
+          | 使用：在下面编辑器中点击图象，源文件路径： "/img/prob/#{p.problemID}/"+"文件名"
     .roundbox.upload.row-fluid
       .span5.uploaddiv
         span.success-text 上传数据：
@@ -49,12 +49,17 @@ mixin editproblem(p, u, partial, f, imgs)
       .span7
         span.success-text
           | 注意：
+          br
           | 1. 大于50m的文件将会被忽略
+          br
           | 2. 若数据有错请点击删除
+          br
           | 3. 可以上传任何格式文件，但是评测机只认识格式为".in", ".out"的数据文件
+          br
           span.error-text
             | 4. 请务必统一使用："1.in, 1.out, 2.in, 2.out..."命名方式
-            | 5. 每个数据文件尽量不要超过100组测试
+            br
+            | 5. 每个数据文件尽量不超过100组测试
   form.form-horizontal(method="post")
     .roundbox(style="margin-top:10px;width:40%;")
       h4
