@@ -3120,6 +3120,18 @@ exports.doSubmit = function(req, res) {
             return res.end('2');
           }
         }
+        var check = function() {
+          for (var i = 0; i < contest.probs.length; i++) {
+            if (pid == contest.probs[i][0]) {
+              return true;
+            }
+          }
+          return false;
+        };
+        if (!check()) {
+          req.session.msg = 'The problem is not exist!';
+          return res.end('1'); //refresh
+        }
         return RP();
       });
     }

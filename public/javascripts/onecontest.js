@@ -1033,7 +1033,7 @@ $(document).ready(function(){
         } else if (err == '4') {
           ShowMessage('The problem is not exist!');
         } else if (err == '5') {
-          ShowMessage('The language is not exit!');
+          ShowMessage('The language is not exist!');
         }
       });
     });
