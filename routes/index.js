@@ -310,43 +310,55 @@ exports.getOverview = function(req, res) {
   if (!cid) {
     return res.end();  //not allow!
   }
-  Solution.mapReduce({
-    map: function(){
-      var val = { AC:0, all:1 };
-      if (this.result == 2) {
-        val.AC = 1;
-      }
-      emit(this.problemID, val);
-    },
-    reduce: function(key, vals){
-      val = { AC:0, all:0, result:null };
-      vals.forEach(function(p, i){
-        val.all += p.all;
-        val.AC += p.AC;
+  var results = null, sols = null;
+  var arr = new Array();
+  arr.push(
+    function(cb) {
+      Solution.mapReduce({
+        map: function(){
+          var val = { AC: 0, all: 1 };
+          if (this.result == 2) {
+            val.AC = 1;
+          }
+          emit(this.problemID, val);
+        },
+        reduce: function(key, vals){
+          val = { AC: 0, all: 0, result: null };
+          vals.forEach(function(p, i){
+            val.all += p.all;
+            val.AC += p.AC;
+          });
+          return val;
+        },
+        query: {userName: {$ne: 'admin'}, cID: cid},
+        sort: {runID: 1}
+      }, function(err, res){
+        results = res;
+        return cb(err);
       });
-      return val;
-    },
-    query: {userName: {$ne: 'admin'}, cID: cid},
-    sort: {runID: 1}
-  }, function(err, results){
+    }
+  );
+  if (req.session.user) {
+    arr.push(
+      function(cb) {
+        Solution.aggregate([
+          { $match: { userName: req.session.user.name, cID: cid, result: {$gt: 1} } }
+        , { $group: { _id: '$problemID', result: {$min: '$result'} } }
+        ], function(err, res){
+          sols = res;
+          return cb(err);
+        });
+      }
+    );
+  }
+  async.each(arr, function(f, cb){
+    f(cb);
+  }, function(err){
     if (err) {
       OE(err);
       return res.end();  //not refresh!
     }
-    if (req.session.user) {
-      Solution.aggregate([
-      { $match: { userName: req.session.user.name, cID: cid, result:{$gt:1} } }
-    , { $group: { _id: '$problemID', result: {$min: '$result'} } }
-      ], function(err, sols){
-        if (err) {
-          OE(err);
-          return res.end();  //not refresh!
-        }
-        return res.json([results, sols]);
-      });
-    } else {
-      return res.json([results, null]);
-    }
+    return res.json([results, sols]);
   });
 };
 
