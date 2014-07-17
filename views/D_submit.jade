@@ -4,10 +4,10 @@ mixin D_submit(langs)
     .jqcontent(style="height:500px;width:510px;")
       div(style="width:500px;overflow:hidden;margin-bottom:5px;")
         div(style="width:290px;float:left;")
-          | Problem:
+          = 'Problem: '
           span#pid.user-green
         div(style="width:200px;float:right;")
-          | Language:
+          = 'Language: '
           include lang
           +lang(langs, null)
       span#error.error-text
