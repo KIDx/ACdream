@@ -308,7 +308,7 @@ exports.getOverview = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();  //not allow!
+    return res.end(); //not allow!
   }
   var results = null, sols = null;
   var arr = new Array();
@@ -366,100 +366,110 @@ exports.getStatus = function(req, res) {
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
   if (!cid) {
-    return res.end();   //not allow!
+    return res.end(); //not allow!
   }
-  Contest.watch(cid, function(err, contest){
+
+  var Q = {cID: cid}, page, name, pid, result, lang;
+
+  page = parseInt(req.body.page, 10);
+  if (!page) {
+    page = 1;
+  } else if (page < 0) {
+    return res.end(); //not allow!
+  }
+
+  name = String(req.body.name);
+  if (name) {
+    Q.userName = String(req.body.name);
+  }
+
+  pid = parseInt(req.body.pid, 10);
+  if (pid) {
+    Q.problemID = pid;
+  }
+
+  result = parseInt(req.body.result, 10);
+  if (result >= 0) {
+    if (result == 9) {
+      Q.result = { $in : [9, 10, 11, 12, 15] };
+    } else {
+      Q.result = result;
+    }
+  }
+
+  lang = parseInt(req.body.lang, 10);
+  if (lang) {
+    Q.language = lang;
+  }
+
+  name = '';
+  if (req.session.user) {
+    name = req.session.user.name;
+  }
+  if (name != 'admin') {
+    Q.$nor = [{userName: 'admin'}];
+  }
+
+  var contest, solutions, cnt;
+  var arr = [
+    function(cb) {
+      Contest.watch(cid, function(err, con){
+        contest = con;
+        return cb(err);
+      });
+    },
+    function(cb) {
+      Solution.get(Q, page, function(err, sols, n) {
+        solutions = sols;
+        cnt = n;
+        return cb(err);
+      });
+    }
+  ];
+
+  async.each(arr, function(func, cb){
+    func(cb);
+  }, function(err){
     if (err) {
       OE(err);
-      return res.end();  //not refresh!
+      return res.end();
     }
-    if (!contest) {
-      return res.end();  //not allow
+    if (!contest || cnt < 0) {
+      return res.end(); //not allow
     }
-    var Q = {cID: cid}, page, name, pid, result, lang;
-    page = parseInt(req.body.page, 10);
-    if (!page) {
-      page = 1;
-    } else if (page < 0) {
-      return res.end();   //not allow!
-    }
-
-    name = String(req.body.name);
-    if (name) {
-      Q.userName = String(req.body.name);
-    }
-
-    pid = parseInt(req.body.pid, 10);
-    if (pid) {
-      Q.problemID = pid;
-    }
-
-    result = parseInt(req.body.result, 10);
-    if (result >= 0) {
-      if (result == 9) {
-        Q.result = { $in : [9, 10, 11, 12, 15] };
-      } else {
-        Q.result = result;
+    var sols = new Array(), names = new Array(), has = {};
+    solutions.forEach(function(p, i){
+      var T = '', M = '', L = '';
+      if (name == p.userName || name == contest.userName ||
+          (new Date()).getTime() - contest.startTime > contest.len*60000) {
+        T = p.time; M = p.memory; L = p.length;
       }
-    }
-
-    lang = parseInt(req.body.lang, 10);
-    if (lang) {
-      Q.language = lang;
-    }
-    var name = '';
-    if (req.session.user) {
-      name = req.session.user.name;
-    }
-    if (name != 'admin') {
-      Q.$nor = [{userName: 'admin'}];
-    }
-    Solution.get(Q, page, function(err, solutions, n) {
+      sols.push({
+        runID   : p.runID,
+        userName  : p.userName,
+        problemID : p.problemID,
+        result    : p.result,
+        time      : T,
+        memory    : M,
+        language  : p.language,
+        length    : L,
+        inDate    : p.inDate
+      });
+      if (!has[p.userName]) {
+        has[p.userName] = true;
+        names.push(p.userName);
+      }
+    });
+    User.find({name: {$in: names}}, function(err, users){
       if (err) {
         OE(err);
-        return res.end();   //not refresh!
+        return res.end();
       }
-      if (n < 0) {
-        return res.end();   //not allow
-      }
-      var sols = new Array(), names = new Array(), has = {};
-      if (solutions) {
-        solutions.forEach(function(p, i){
-          var T = '', M = '', L = '';
-          if (name == p.userName || name == contest.userName ||
-              (new Date()).getTime() - contest.startTime > contest.len*60000) {
-            T = p.time; M = p.memory; L = p.length;
-          }
-          sols.push({
-            runID   : p.runID,
-            userName  : p.userName,
-            problemID : p.problemID,
-            result    : p.result,
-            time      : T,
-            memory    : M,
-            language  : p.language,
-            length    : L,
-            inDate    : p.inDate
-          });
-          if (!has[p.userName]) {
-            has[p.userName] = true;
-            names.push(p.userName);
-          }
-        });
-      }
-      User.find({name: {$in: names}}, function(err, users){
-        if (err) {
-          OE(err);
-          return res.end();   //not refresh
-        }
-        var rt = {};
-        if (users) {
-          users.forEach(function(p){
-            rt[p.name] = p.rating;
-          });
-        }
-        return res.json([sols, n, rt]);
+      var rt = {};
+      users.forEach(function(p){
+        rt[p.name] = p.rating;
       });
+      return res.json([sols, cnt, rt]);
     });
   });
 };
