@@ -3138,21 +3138,29 @@ exports.doSubmit = function(req, res) {
           OE(err);
           return res.end('3');
         }
-        Problem.update(pid, {$inc: {submit: 1}}, function(err){
+        var arr = [
+          function(cb) {
+            Problem.update(pid, {$inc: {submit: 1}}, function(err){
+              return cb(err);
+            });
+          },
+          function(cb) {
+            User.update({name: name}, {$inc: {submit: 1}}, function(err){
+              return cb(err);
+            });
+          }
+        ];
+        async.each(arr, function(func, cb){
+          func(cb);
+        }, function(err){
           if (err) {
             OE(err);
             return res.end('3');
           }
-          User.update({name: name}, {$inc: {submit: 1}}, function(err){
-            if (err) {
-              OE(err);
-              return res.end('3');
-            }
-            if (cid < 0) {
-              req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-            }
-            return res.end();
-          });
+          if (cid < 0) {
+            req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+          }
+          return res.end();
         });
       });
     });
