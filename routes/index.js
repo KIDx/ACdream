@@ -488,12 +488,12 @@ exports.getRanklist = function(req, res) {
   }
   var now = (new Date()).getTime();
   Contest.findOneAndUpdate({
-    contestID  : cid,
-    updateTime  : { $lt: now-30000 }    //距离上次聚合>=30秒, 聚合一次排名
+    contestID: cid,
+    updateTime: { $lt: now-30000 }    //距离上次聚合>=30秒, 聚合一次排名
   }, {
     $set: { updateTime: now }
   }, {
-    new : false
+    new: false
   }, function(err, contest){
     if (err) {
       OE(err);
@@ -512,7 +512,7 @@ exports.getRanklist = function(req, res) {
           return res.json([null, {}, {}, n, {}, 0, 0]);
         }
         var has = {}, names = new Array();
-        var rt = {}, I = {}, Users = new Array();
+        var Users = new Array();
         var V = users[0].value, T = users[0]._id.name;
         if (con.stars) {
           con.stars.forEach(function(p){
@@ -520,6 +520,10 @@ exports.getRanklist = function(req, res) {
           });
         }
         var hasMe = false;
+        var currentUser = '';
+        if (req.session.user) {
+          currentUser = req.session.user.name;
+        }
         users.forEach(function(p, i){
           var tmp = {name: p._id.name, value: p.value};
           if (has[tmp.name]) {
@@ -527,61 +531,71 @@ exports.getRanklist = function(req, res) {
           }
           Users.push(tmp);
           names.push(tmp.name);
-          if (req.session.user && !hasMe && req.session.user.name == tmp.name) {
+          if (!hasMe && currentUser == tmp.name) {
             hasMe = true;
           }
         });
-        getContestRank(cid, con.stars, T, V, function(err, rank){
-          if (err) {
-            OE(err);
-            return res.end();
+        var rank, rt = {}, I = {}, me, cnt;
+        var arr = [
+          function(cb) {
+            getContestRank(cid, con.stars, T, V, function(err, res){
+              rank = res;
+              return cb(err);
+            });
+          },
+          function(cb) {
+            User.find({name: {$in: names}}, function(err, U){
+              if (U) {
+                U.forEach(function(p){
+                  rt[p.name] = p.rating;
+                  I[p.name] = p.nick;
+                });
+              }
+              return cb(err);
+            });
+          },
+          function(cb) {
+            ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}}, function(err, res){
+              cnt = res;
+              return cb(err);
+            });
           }
-          if (req.session.user && !hasMe) {
-            names.push(req.session.user.name);
-          }
-          User.find({name: {$in:names}}, function(err, U){
-            if (err) {
-              OE(err);
-              return res.end();
-            }
-            if (U) {
-              U.forEach(function(p){
-                rt[p.name] = p.rating;
-                I[p.name] = p.nick;
-              });
-            }
-            var Resp = function() {
-              ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}}, function(err, cnt){
+        ];
+        if (currentUser && !hasMe) {
+          names.push(currentUser);
+          arr.push(
+            function(cb) {
+              ContestRank.findOne({'_id.cid': cid, '_id.name': currentUser}, function(err, u){
                 if (err) {
-                  OE(err);
-                  return res.end();
-                }
-                return res.json([Users, rt, I, n, con.FB, rank, cnt]);
-              });
-            };
-            if (req.session.user && !hasMe) {
-              ContestRank.findOne({'_id.cid': cid, '_id.name': req.session.user.name}, function(err, u){
-                if (err) {
-                  OE(err);
-                  return res.end();
+                  return cb(err);
                 }
                 if (!u) {
-                  return Resp();
+                  return cb();
                 }
                 getContestRank(cid, con.stars, u._id.name, u.value, function(err, rk){
+                  if (err) {
+                    return cb(err);
+                  }
                   var tp = {name: u._id.name, value: u.value, rank: rk};
                   if (rk <= rank) {
                     Users.unshift(tp);
                   } else {
                     Users.push(tp);
                   }
-                  return Resp();
+                  return cb();
                 });
               });
-            } else {
-              return Resp();
             }
-          });
+          );
+        }
+        async.each(arr, function(func, cb){
+          func(cb);
+        }, function(err){
+          if (err) {
+            OE(err);
+            return res.end();
+          }
+          return res.json([Users, rt, I, n, con.FB, rank, cnt]);
         });
       });
     };
@@ -604,25 +618,9 @@ exports.getRanklist = function(req, res) {
         inDate: indate,
         runID: {$gt: contest.maxRunID}
       };
-      Solution.findOne(Q, {runID: -1}, function(err, doc){
-        if (err) {
-          OE(err);
-          return res.end();
-        }
-        if (!doc) {
-          return RP(contest);
-        }
-        Solution.findOne({$and: [Q, {result: {$lt: 2}}]}, {runID: 1}, function(err, sol){
-          if (err) {
-            OE(err);
-            return res.end();
-          }
-          var maxRunID;
-          if (sol) {
-            maxRunID = sol.runID - 1;
-          } else {
-            maxRunID = doc.runID;
-          }
+      var maxRunID;
+      var arr = [
+        function(cb) {
           Solution.mapReduce({
             query: {$and: [Q, {runID: {$lte: maxRunID}}]},
             sort: {runID: -1},
@@ -668,37 +666,64 @@ exports.getRanklist = function(req, res) {
             scope: { penalty : contest.penalty },
             out: { reduce : 'ranks' }
           }, function(err){
+            return cb(err);
+          });
+        },
+        function(cb) {
+          Solution.aggregate([{
+            $match: {
+              cID: cid,
+              userName: {$ne: 'admin'},
+              inDate: indate,
+              result: 2
+            }
+          }, {$sort: {runID: 1}}, { $group: { _id: '$problemID', userName: {$first: '$userName'} } }
+          ], function(err, results){
+            if (err) {
+              return cb(err);
+            }
+            var FB = {};
+            if (results) {
+              results.forEach(function(p){
+                FB[p._id] = p.userName;
+              });
+            }
+            Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true}, function(err, con){
+              contest = con; //update contest because of the FB
+              return cb(err);
+            });
+          });
+        }
+      ];
+      Solution.findOne(Q, {runID: -1}, function(err, doc){
+        if (err) {
+          OE(err);
+          return res.end();
+        }
+        if (!doc) {
+          return RP(contest);
+        }
+        Solution.findOne({$and: [Q, {result: {$lt: 2}}]}, {runID: 1}, function(err, sol){
+          if (err) {
+            OE(err);
+            return res.end();
+          }
+          if (sol) {
+            maxRunID = sol.runID - 1;
+          } else {
+            maxRunID = doc.runID;
+          }
+          async.each(arr, function(func, cb){
+            func(cb);
+          }, function(err){
             if (err) {
               OE(err);
               return res.end();
             }
-            Solution.aggregate([{
-              $match: {
-                cID: cid,
-                userName: {$ne: 'admin'},
-                inDate: indate,
-                result: 2
-              }
-            }, {$sort: {runID: 1}}, { $group: { _id: '$problemID', userName: {$first: '$userName'} } }
-            ], function(err, results){
-              if (err) {
-                OE(err);
-                return res.end();
-              }
-              var FB = {};
-              if (results) {
-                results.forEach(function(p){
-                  FB[p._id] = p.userName;
-                });
-              }
-              Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true}, function(err, con){
-                if (err) {
-                  OE(err);
-                  return res.end();
-                }
-                return RP(con);
-              });
-            });
+            if (!contest) {
+              return res.end();
+            }
+            return RP(contest);
           });
         });
       });
