@@ -966,57 +966,75 @@ exports.getProblem = function(req, res) {
   if (!pid) {
     return res.end();  //not allow!
   }
+
   var name = '';
   if (req.session.user) {
     name = req.session.user.name;
   }
-  Problem.watch(pid, function(err, problem){
+
+  var cid = parseInt(req.body.cid, 10);
+  var prob, con;
+  var arr = [
+    function(cb) {
+      Problem.watch(pid, function(err, problem){
+        prob = problem;
+        return cb(err);
+      });
+    },
+  ];
+  if (cid) {
+    arr.push(
+      function(cb) {
+        Contest.watch(cid, function(err, contest){
+          con = contest;
+          return cb(err);
+        });
+      }
+    );
+  }
+  async.each(arr, function(func, cb){
+    func(cb);
+  }, function(err){
     if (err) {
       OE(err);
       return res.end();
     }
-    if (!problem) {
+
+    if (!prob) {
       return res.end(); //not allow
     }
-    var cid = parseInt(req.body.cid, 10);
 
     //get problem title for addcontest page
     if (!cid) {
-      if (problem.hide == true && name != 'admin' && name != problem.manager) {
+      if (prob.hide == true && name != 'admin' && name != prob.manager) {
         return res.end();
       }
-      return res.end(problem.title);
+      return res.end(prob.title);
     }
 
     //get a problem for onecontest page
-    Contest.watch(cid, function(err, con){
-      if (err) {
-        OE(err);
-        return res.end();
-      }
-      if (!con || (name != con.userName && name != 'admin' &&
-        (new Date()).getTime() < con.startTime)) {
-        return res.end();
-      }
-      var lm = parseInt(req.body.lastmodified, 10);
-      if (lm && lm == problem.lastmodified) {  //problem cache is ok.
-        return res.end();
-      }
-      return res.json({
-        problemID: problem.problemID,
-        title: problem.title,
-        timeLimit: problem.timeLimit,
-        memoryLimit: problem.memoryLimit,
-        description: problem.description,
-        input: problem.input,
-        output: problem.output,
-        sampleInput: problem.sampleInput,
-        sampleOutput: problem.sampleOutput,
-        hint: problem.hint,
-        spj: problem.spj,
-        TC: problem.TC,
-        lastmodified: problem.lastmodified
-      });
+    if (!con || (name != con.userName && name != 'admin' &&
+      (new Date()).getTime() < con.startTime)) {
+      return res.end();
+    }
+    var lm = parseInt(req.body.lastmodified, 10);
+    if (lm && lm == prob.lastmodified) { //problem cache is ok.
+      return res.end();
+    }
+    return res.json({
+      problemID: prob.problemID,
+      title: prob.title,
+      timeLimit: prob.timeLimit,
+      memoryLimit: prob.memoryLimit,
+      description: prob.description,
+      input: prob.input,
+      output: prob.output,
+      sampleInput: prob.sampleInput,
+      sampleOutput: prob.sampleOutput,
+      hint: prob.hint,
+      spj: prob.spj,
+      TC: prob.TC,
+      lastmodified: prob.lastmodified
     });
   });
 };
