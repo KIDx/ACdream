@@ -18,7 +18,7 @@ html
   body#wrapper
     div.w
       marquee#marquee(style="float:left;width:50%;" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
-        span.user.user-green= stc[Math.round(Math.random()*(stc.length - 1))]
+        span.user.user-green= stc[Math.floor(Math.random()*stc.length)]
       mixin line
         li
           span.user-gray |
