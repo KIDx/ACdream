@@ -33,6 +33,11 @@ $ cd ACdream
 $ mongorestore -h localhost -d acdream_db --directoryperdb acdream_db -drop
 ```
 
+### 安装grunt
+```
+$ sudo npm i -g grunt-cli
+```
+
 ### 安装依赖模块
 ```
 $ cd ACdream
@@ -42,5 +47,6 @@ $ sudo npm i
 ### 运行app
 ```
 $ cd ACdream
+$ grunt
 $ node app.js
 ```
