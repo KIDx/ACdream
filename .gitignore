@@ -5,8 +5,9 @@
 !/data/1000
 
 /public/img/prob/*
-
 /public/img/avatar/*
+/public/js/
+/public/css/*.css
 !/public/img/avatar/=default=
 
 ~*

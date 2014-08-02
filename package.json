@@ -27,6 +27,11 @@
     "socket.io-redis": "*",
     "gm": "*",
     "xss":"*",
-    "connect-redis": "*"
+    "connect-redis": "*",
+    "grunt": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-nodeunit": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-cssmin": "*"
   }
 }
