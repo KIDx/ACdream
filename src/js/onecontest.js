@@ -64,7 +64,6 @@ var $p_span = $('span.cpid');
 var pids = new Array();
 var alias = new Array();
 var ctype = parseInt($contest.attr('ctype'), 10);
-var pageNum = $contest.attr('pageNum');
 var contest_private = $contest.attr('psw');
 var startTime = parseInt($contest.attr('startTime'), 10);
 var status = parseInt($contest.attr('status'), 10);
@@ -260,7 +259,7 @@ function GetStatus() {
     statusQ.result = tr;
     statusAjax = $.ajax({
       type: 'POST',
-      url: '/getStatus',
+      url: '/status/get',
       dataType: 'json',
       data: statusQ,
       timeout: 5000,
@@ -345,7 +344,7 @@ function GetOverview() {
   overviewTimeout = setTimeout(function(){
     overviewAjax = $.ajax({
       type: 'POST',
-      url: '/getOverview',
+      url: '/contest/overview',
       dataType: 'json',
       data: {cid: cid},
       timeout: 5000,
@@ -425,7 +424,7 @@ function ShowProblem(prob) {
       $rejudge.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/rejudge',
+        url: '/rejudge/problem',
         data: {
           pid: prob.problemID,
           cid: '1'
@@ -469,7 +468,7 @@ function GetProblem() {
   problemTimeout = setTimeout(function(){
     problemAjax = $.ajax({
       type: 'POST',
-      url: '/getProblem',
+      url: '/problem/get',
       dataType: 'json',
       data: {
         cid: cid,
@@ -640,7 +639,7 @@ function RankResponse(json) {
       $removebtn.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/regContestRemove',
+        url: '/contest/removeContestant',
         data: {
           cid: cid,
           name: $(this).attr('user')
@@ -665,7 +664,7 @@ function GetRanklist(flg) {
   rankTimeout = setTimeout(function(){
     rankAjax = $.ajax({
       type: 'POST',
-      url: '/getRanklist',
+      url: '/contest/ranklist',
       dataType: 'json',
       data: rankQ,
       timeout: 5000,
@@ -714,10 +713,10 @@ function buildDiscuss(p) {
   html += '</a></td><td>';
   html += '<span class="user-green">'+p.reviewsQty+'</span><span class="user-gray">/'+p.browseQty+'</span>';
   html += '</td><td style="text-align:left;" class="ellipsis">';
-  html += '<a target="_blank" href="/topic/'+p.id+'">'+p.title+'</a></td>';
+  html += '<a target="_blank" href="/topic?tid='+p.id+'">'+p.title+'</a></td>';
   html += '<td>';
   if (p.lastReviewer) {
-    html += '<a class="topic_timer" target="_blank" href="/topic/'+p.id+'#'+p.lastComment+'">';
+    html += '<a class="topic_timer" target="_blank" href="/topic?tid='+p.id+'#'+p.lastComment+'">';
     html += '<img class="img_ss" title="'+p.lastReviewer+'" alt="'+p.lastReviewer+'" src="'+getImg(p.lastReviewer)+'">';
     html += '<span>'+p.lastReviewTime+'</span>';
     html += '</a>';
@@ -761,7 +760,7 @@ function GetDiscuss() {
   discussTimeout = setTimeout(function(){
     discussAjax = $.ajax({
       type: 'POST',
-      url: '/getTopic',
+      url: '/contest/discuss',
       dataType: 'json',
       data: discussQ,
       timeout: 5000,
@@ -1054,7 +1053,7 @@ $(document).ready(function(){
       $del.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/contestDelete',
+        url: '/contest/del',
         data: { cid : cid },
         dataType: 'text',
         error: function() {
@@ -1062,7 +1061,7 @@ $(document).ready(function(){
           ShowMessage('无法连接到服务器！');
         }
       }).done(function(){
-        window.location.href = '/contest/'+ctype;
+        window.location.href = '/contest/list?type='+ctype;
       });
     });
   }
@@ -1082,7 +1081,7 @@ $(document).ready(function(){
       var pid = $p.attr('pid');
       $.ajax({
         type: 'POST',
-        url: '/toggleHide',
+        url: '/problem/toggleHide',
         data: { pid: pid },
         dataType: 'text',
         error: function() {
@@ -1128,7 +1127,7 @@ $(document).ready(function(){
       $star.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/toggleStar',
+        url: '/contest/toggleStar',
         data: {
           cid: cid,
           str: str,
@@ -1171,7 +1170,7 @@ $(document).ready(function(){
     $publish.addClass('disabled');
     $.ajax({
       type: 'POST',
-      url: '/addDiscuss',
+      url: '/contest/addDiscuss',
       data: {
         cid: cid,
         title: $publish_pid.val()+'题：'+title,

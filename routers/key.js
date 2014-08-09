@@ -1,0 +1,29 @@
+
+module.exports = {
+
+  HOME: 0,
+  USER: 1,
+  AVATAR: 2,
+
+  ADD_PROBLEM: 3,
+  EDIT_PROBLEM: 103,
+  PROBLEM: 4,
+  PROBLEM_LIST: 5,
+
+  SUBMIT: 6,
+  STATUS: 7,
+  SOURCE_CODE: 8,
+
+  ADD_CONTEST: 9,
+  CONTEST: 10,
+  CONTEST_LIST: 11,
+
+  ADD_TOPIC: 12,
+  TOPIC: 13,
+  TOPIC_LIST: 14,
+
+  STATISTIC: 15,
+  RANKLIST: 16,
+  STANDINGS: 17,
+
+};

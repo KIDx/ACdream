@@ -1,18 +1,3 @@
-function addZero(n) {
-  n = parseInt(n, 10);
-  if (n != n) {
-    return '';
-  }
-  return (n < 10 ? '0' : '') + n;
-}
-
-function getDate(s) {
-  var date = s ? new Date(s) : new Date();
-  if (!date) {
-    return '';
-  }
-  return date.getFullYear() + '-' + addZero(date.getMonth() + 1) + '-' + addZero(date.getDate()) + ' ' + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ':' + addZero(date.getSeconds());
-}
 
 var Tag = ['', '2-sat', 'binary search', 'bitmasks', 'brute force',
   'chinese remainder theorem', 'combinatorics', 'constructive algorithms',
@@ -43,26 +28,7 @@ var ProTil = ['', '2-satisfiability', 'Binary search', 'Bitmasks', 'Brute force'
   'Ternary search', 'Trees', 'Two pointers'
 ];
 
-var fs = require('fs');
-var errlog = fs.createWriteStream(__dirname + '/error.log', {
-  flags: 'a'
-});
-
-function getpos() {
-  try {
-    throw new Error();
-  } catch (e) {
-    return e.stack.split('\n')[3].split(process.cwd() + '/')[1].replace(')', '');
-  }
-}
-
 module.exports = {
-  outputErr: function(err) {
-    console.log(err);
-    errlog.write(getDate() + ' [' + getpos() + ']\n' + err + '\n\n');
-  },
-  addZero: addZero,
-  getDate: getDate,
   cookie_secret: 'gzhu',
   db: 'mongodb://127.0.0.1:27017/acdream_db',
   problemset_pageNum: 50,
@@ -80,94 +46,6 @@ module.exports = {
   T: Tag,
   P: ProTil,
   languages: ['All', 'C', 'C++'], //, 'Java'],
-  C: function(n) { //return status' color
-    switch (n) {
-      case 0:
-      case 1:
-        return 'info-text';
-      case 2:
-        return 'accept-text';
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 9:
-      case 10:
-      case 11:
-      case 12:
-      case 15:
-        return 'wrong-text';
-      default:
-        return 'special-text';
-    }
-  },
-  R: function(n) { //return status' result
-    switch (n) {
-      case 0:
-        return 'Pending...';
-      case 1:
-        return 'Running...';
-      case 2:
-        return 'Accepted';
-      case 3:
-        return 'Presentation Error';
-      case 4:
-        return 'Time Limit Exceeded';
-      case 5:
-        return 'Memory Limit Exceeded';
-      case 6:
-        return 'Wrong Answer';
-      case 7:
-        return 'Output Limit Exceeded';
-      case 8:
-        return 'Compilation Error';
-      case 13:
-        return 'Dangerous Code';
-      case 14:
-        return 'System Error';
-      default:
-        return 'Runtime Error';
-    }
-  },
-  UC: function(n) { //return user color style
-    n = parseInt(n, 10);
-    if (!n) return 'unrated';
-    if (n >= 2200) {
-      return 'red';
-    } else if (n >= 1900) {
-      return 'orange';
-    } else if (n >= 1700) {
-      return 'violet';
-    } else if (n >= 1500) {
-      return 'blue';
-    } else if (n >= 1200) {
-      return 'green';
-    }
-    return 'black';
-  },
-  UT: function(n) { //return user title
-    n = parseInt(n, 10);
-    if (!n) return 'Unrated';
-    if (n >= 2600) {
-      return 'International Grandmaster';
-    } else if (n >= 2200) {
-      return 'Grandmaster';
-    } else if (n >= 2050) {
-      return 'International Master';
-    } else if (n >= 1900) {
-      return 'Master';
-    } else if (n >= 1700) {
-      return 'Candidate Master';
-    } else if (n >= 1500) {
-      return 'Expert';
-    } else if (n >= 1350) {
-      return 'Specialist';
-    } else if (n >= 1200) {
-      return 'Pupil';
-    }
-    return 'Newbie';
-  },
   xss_options: {
     whiteList: {
       a: ['target', 'href', 'title', 'id', 'name'],

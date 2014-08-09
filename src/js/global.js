@@ -163,9 +163,12 @@ function BindCE() {
       $text.html('<img src="/img/loading.gif">');
       $.ajax({
         type: 'POST',
-        url: '/getCE',
+        url: '/status/CE',
         data: { rid: rid },
-        dataType: 'text'
+        dataType: 'text',
+        error: function() {
+          $text.text('无法连接到服务器！');
+        }
       })
       .done(function(res){
         CE[rid] = res;
@@ -372,7 +375,7 @@ $(document).ready(function(){
       $loginsubmit.text('Logging in...').addClass('disabled');
       $.ajax({
         type : 'POST',
-        url : '/doLogin',
+        url : '/login',
         data : {
           username: name,
           password: psw
@@ -555,7 +558,7 @@ $(document).ready(function(){
       $regsubmit.text('Submitting...').addClass('disabled');
       $.ajax({
         type : 'POST',
-        url : '/doReg',
+        url : '/register',
         dataType : 'text',
         data: {
           username: username,

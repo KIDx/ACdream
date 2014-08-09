@@ -10,7 +10,7 @@ function go(page){
   if (page) F.push('page'), G.push(page);
   if (search) F.push('search'), G.push(search);
 
-  var url = '/problemset', flg = true;
+  var url = '/problem/list', flg = true;
   for (var i = 0; i < F.length; i++) {
     if (flg) {
       url += '?';
@@ -45,6 +45,6 @@ $(document).ready(function(){
   });
   simulateClick($search, $fil);
   $('#reset').click(function(){
-    window.location.href = '/problemset';
+    window.location.href = '/problem/list';
   });
 });

@@ -29,7 +29,7 @@ if (user && (user.name == contest.userName || user.name == 'admin'))
 
 fieldset#widthfix
   div
-    legend#contest(ctype=contest.type pageNum=pageNum startTime=startTime cid=contest.contestID len=contest.len pending=pending status=ts watch=watch ? "1" : "") 比赛
+    legend#contest(ctype=contest.type startTime=startTime cid=contest.contestID len=contest.len pending=pending status=ts watch=watch ? "1" : "") 比赛
   each p, i in contest.probs
     - ++probNum;
     span.cpid(pid=p[0] alias=p[1] ? p[1] : "")
@@ -295,14 +295,15 @@ if (user && user.name == 'admin')
         if (!confirm('确定要统计本场比赛的Rating吗？')) {
           return false;
         }
+        var txt = '统计本场比赛Rating';
         $p.addClass('disabled').text('请稍候...');
         $.ajax({
           type: 'POST',
-          url: '/calRating',
+          url: '/rating/cal',
           data: { cid: cid },
           dataType: 'text',
           error: function() {
-            $p.text('统计rating').removeClass('disabled');
+            $p.text(txt).removeClass('disabled');
             ShowMessage('无法连接到服务器！');
           }
         }).done(function(res){
@@ -318,7 +319,7 @@ if (user && user.name == 'admin')
             GetRanklist();
             ShowMessage('成功计算了'+res+'个用户的rating！');
           }
-          $p.text('统计本场比赛Rating').removeClass('disabled');
+          $p.text(txt).removeClass('disabled');
         });
       });
     }
@@ -334,7 +335,7 @@ if (user && user.name == 'admin')
         $p.addClass('disabled').text('请稍候...');
         $.ajax({
           type: 'POST',
-          url: '/resetRating',
+          url: '/rating/reset',
           data: { cid: cid },
           dataType: 'text',
           error: function() {

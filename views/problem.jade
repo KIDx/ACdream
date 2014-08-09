@@ -34,7 +34,7 @@ fieldset
                   td
                     span.uibtn.upload-btn
                       span 选择文件
-                      input#file(type="file" name="info" data-url="/problem?pid="+problem.problemID)
+                      input#file(type="file" name="info" data-url="/problem/uploadCode?pid="+problem.problemID)
                     span#upload-info.upload-info 未选择文件
                 tr
                   td
@@ -127,7 +127,7 @@ if (user && user.name == 'admin')
           $input.attr('disabled', true);
           $.ajax({
             type: 'POST',
-            url: '/setProblemManager',
+            url: '/problem/setManager',
             data: { pid: pid, name: $input.val() },
             dataType: 'text',
             error: function() {

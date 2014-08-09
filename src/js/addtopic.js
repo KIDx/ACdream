@@ -69,7 +69,7 @@ $(document).ready(function(){
       } else if (res == '2') {
         errAnimate($err, '系统错误！');
       } else {
-        window.location.href = '/topic/'+res;
+        window.location.href = '/topic?tid='+res;
         return ;
       }
       $submit.removeClass('disabled');

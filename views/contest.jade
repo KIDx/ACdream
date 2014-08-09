@@ -64,11 +64,11 @@ fieldset
                   if (type != 2 && p.password && (!user || (user.name != p.userName && user.name != 'admin')) && !CS[p.contestID])
                     a.cid(href="javascript:;" id=p.contestID)= p.title
                   else
-                    a(href="/onecontest/"+p.contestID)= p.title
+                    a(href="/contest?cid="+p.contestID)= p.title
                   if (type == 2)
                     .table-tab
                       if (s || user && user.name == 'admin')
-                        a.standings(href="/onecontest/"+p.contestID+"#rank" title="查看排名") Standings
+                        a.standings(href="/contest?cid="+p.contestID+"#rank" title="查看排名") Standings
                       else 
                         if (R[i])
                           span.user.user-green Registration Completed

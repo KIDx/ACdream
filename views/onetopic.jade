@@ -77,7 +77,7 @@ if (add)
         $p.addClass('disabled');
         $.ajax({
           type: 'POST',
-          url: '/addContestant',
+          url: '/contest/addContestant',
           data: {
             tid: #{topic.id},
             cid: #{topic.cid},

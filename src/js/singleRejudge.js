@@ -14,7 +14,7 @@ function bindSingleRejudge($ps) {
     var rid = $td.attr('rid');
     $.ajax({
       type: 'POST',
-      url: '/singleRejudge',
+      url: '/rejudge/single',
       data: {
         rid: rid
       },

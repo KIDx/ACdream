@@ -25,7 +25,7 @@ $(document).ready(function(){
     $reply.addClass('disabled');
     $.ajax({
       type: 'POST',
-      url: '/review',
+      url: '/comment/add',
       data: {
         tid: tid,
         content: content.getData(),
@@ -78,7 +78,7 @@ function bindEdit(id) {
   bind($edit_submit, edit_content, function(){
     $.ajax({
       type: 'POST',
-      url: '/editComment',
+      url: '/comment/edit',
       data: {
         id: id,
         content: edit_content.getData()
@@ -104,7 +104,7 @@ function bindReply(fa, at) {
   bind($reply_submit, reply_content, function(){
     $.ajax({
       type: 'POST',
-      url: '/review',
+      url: '/comment/add',
       data: {
         tid: tid,
         content: reply_content.getData(),
@@ -184,7 +184,7 @@ $(document).ready(function(){
       }
       $.ajax({
         type: 'POST',
-        url: '/delComment',
+        url: '/comment/del',
         data: {
           id: $(this).attr('data-id')
         },

@@ -10,7 +10,7 @@ function go(page){
 
   if (page) F.push('page'), G.push(page);
   if (search) F.push('search'), G.push(search);
-  var url = '/contest/'+type, flg = true;
+  var url = '/contest/list?type='+type, flg = true;
   for (var i = 0; i < F.length; i++) {
     if (flg) {
       url += '?';
@@ -39,7 +39,7 @@ $(document).ready(function(){
   });
   simulateClick($search, $fil);
   $('#reset').click(function(){
-    window.location.href = '/contest/'+type;
+    window.location.href = '/contest/list?type='+type;
   });
 });
 
@@ -83,7 +83,7 @@ $(document).ready(function(){
           $clickreg.addClass('disabled');
           $.ajax({
             type: 'POST',
-            url: '/contestReg',
+            url: '/contest/register',
             data: { cid:cid },
             dataType: 'text',
             error: function() {
@@ -135,7 +135,7 @@ $(document).ready(function(){
           $submit.text('Logging in...').addClass('disabled');
           $.ajax({
             type: 'POST',
-            url: '/loginContest',
+            url: '/contest/login',
             data: {
               cid: cid,
               psw: $psw.val()
@@ -147,7 +147,7 @@ $(document).ready(function(){
             }
           }).done(function(res){
             if (res) {
-              window.location.href = '/onecontest/'+cid;
+              window.location.href = '/contest?cid='+cid;
               return ;
             }
             $submit.text('Login').removeClass('disabled');
@@ -183,7 +183,7 @@ $(document).ready(function(){
   if ($dialog_lg.length) {
     $.each($('a.check'), function(){
       $(this).click(function(){
-        nextURL = '/onecontest/'+$(this).attr('id');
+        nextURL = '/contest?cid='+$(this).attr('id');
         $dialog_lg.jqmShow();
       });
     })

@@ -6,7 +6,7 @@ mixin editproblem(p, u, partial, f, imgs)
         br
         span.uibtn.upload-btn
           span 选择并上传图片
-          input#image(type="file" name="info" data-url="/imgUpload?pid="+p.problemID)
+          input#image(type="file" name="info" data-url="/addproblem/imgUpload?pid="+p.problemID)
         span#submit-info.upload-info 未选择文件
         br
         span#imgerr.error-text= ' '
@@ -32,7 +32,7 @@ mixin editproblem(p, u, partial, f, imgs)
         br
         span.uibtn.upload-btn
           span 选择并上传数据
-          input#data(type="file" name="data" data-url="/dataUpload?pid="+p.problemID multiple)
+          input#data(type="file" name="data" data-url="/addproblem/dataUpload?pid="+p.problemID multiple)
         span#upload-info.upload-info 未选择文件
         br
         span#dataerr.error-text= ' '

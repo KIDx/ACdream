@@ -80,7 +80,7 @@ $(document).ready(function(){
       $select.change(function(res){
         $.ajax({
           type: 'POST',
-          url: '/editTag',
+          url: '/problem/editTag',
           data: {
             tag: $(this).val(),
             pid: pid,
@@ -95,7 +95,7 @@ $(document).ready(function(){
     $del_tag.click(function(){
       $.ajax({
         type: 'POST',
-        url: '/editTag',
+        url: '/problem/editTag',
         data: {
           tag: $(this).attr('tag'),
           pid: pid
@@ -119,7 +119,7 @@ $(document).ready(function(){
       $rejudge.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/rejudge',
+        url: '/rejudge/problem',
         data: { pid : pid },
         dataType: 'text',
         error: function() {
@@ -140,7 +140,7 @@ $(document).ready(function(){
     $phide.change(function(){
       $.ajax({
         type: 'POST',
-        url: '/toggleHide',
+        url: '/problem/toggleHide',
         data: { pid: pid },
         dataType: 'text'
       }).done(function(res){

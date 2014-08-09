@@ -10,7 +10,7 @@ $(document).ready(function(){
       $ap.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/changeAddprob',
+        url: '/user/changeAddprob',
         data: { name : name },
         dataType: 'text',
         error: function() {
@@ -35,14 +35,14 @@ $(document).ready(function(){
       $recal.text('处理中...').addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/recal',
+        url: '/admin/stat',
         data: { name : name },
         dataType: 'text',
         error: function() {
           $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
-      }).done('/recal', function(res){
+      }).done(function(res){
         window.location.href = '/ranklist';
       });
     });
@@ -63,7 +63,7 @@ $(document).ready(function(){
       $restore.addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/restorePsw',
+        url: '/user/restorePsw',
         data: { name : name },
         dataType: 'text',
         error: function() {
@@ -154,7 +154,7 @@ $(document).ready(function(){
       $setsubmit.text('Submitting...').addClass('disabled');
       $.ajax({
         type: 'POST',
-        url: '/changeInfo',
+        url: '/user/changeInfo',
         data: {
           name: $dialog_st.attr('name'),
           oldpassword: oldpassword,

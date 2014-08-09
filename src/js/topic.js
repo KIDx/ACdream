@@ -9,7 +9,7 @@ function go(page){
 
   if (page) F.push('page'), G.push(page);
   if (search) F.push('search'), G.push(search);
-  var url = '/topic', flg = true;
+  var url = '/topic/list', flg = true;
   for (var i = 0; i < F.length; i++) {
     if (flg) {
       url += '?';
@@ -38,7 +38,7 @@ $(document).ready(function(){
   });
   simulateClick($search, $fil);
   $('#reset').click(function(){
-    window.location.href = '/topic';
+    window.location.href = '/topic/list';
   });
 });
 
@@ -54,7 +54,7 @@ $(document).ready(function(){
         $(p).addClass('disabled');
         $.ajax({
           type: 'POST',
-          url: '/toggleTop',
+          url: '/topic/toggleTop',
           data: { tid : $(p).attr('tid') },
           dataType: 'text',
           error: function() {

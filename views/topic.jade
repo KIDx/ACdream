@@ -55,7 +55,7 @@ fieldset
                       | 置顶
                   if (p.top)
                     span.put_top 置顶
-                  a(href="/topic/"+p.id)= ' '+p.title
+                  a(href="/topic?tid="+p.id)= ' '+p.title
                   if (now - p.inDate < 86400000)
                     img.top(src="/img/new.gif")
                   if (p.lastReviewer && now - p.lastReviewTime < 28800000)
@@ -66,7 +66,7 @@ fieldset
                       - img = '/img/avatar/'+p.lastReviewer+'/4.'+I[p.lastReviewer];
                     else
                       - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
-                    a.topic_timer(href="/topic/"+p.id+"#"+p.lastComment)
+                    a.topic_timer(href="/topic?tid="+p.id+"#"+p.lastComment)
                       img.img_ss(title=p.lastReviewer alt=p.lastReviewer src=img)
                       span= getDate(p.lastReviewTime)
                   else

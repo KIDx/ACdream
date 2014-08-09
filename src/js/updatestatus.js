@@ -7,7 +7,7 @@ var pendingImg = '<img src="/img/pending.gif" style="width:16px;height:16px;">';
 function updateStatus($p) {
   $.ajax({
     type: 'POST',
-    url: '/updateStatus',
+    url: '/status/info',
     dataType: 'json',
     data: {
       rid: $p.attr('rid')

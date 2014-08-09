@@ -22,7 +22,7 @@ mixin buildTopic(ary)
     li
       +more
       span.fr.user-gray= getTime(o.inDate)
-      a(href="/topic/"+o.id)= o.title
+      a(href="/topic?tid="+o.id)= o.title
       if (now - o.inDate < 86400000)
         img.top(src="/img/new.gif")
       if (o.lastReviewer && now - o.lastReviewTime < 28800000)
@@ -31,26 +31,26 @@ fieldset
   div
     legend 主页
   .row-fluid
-    +box("/topic", "公告", A.length)
+    +box("/topic/list", "公告", A.length)
       +buildTopic(A)
-    +box("/contest/2", "最近比赛", B.length)
+    +box("/contest/list?type=2", "最近比赛", B.length)
       each o in B
         li
           +more
           - var pass = now - o.startTime;
           if (pass < 0)
             span.fr.text-info 即将开始，敬请期待
-            a(href="/onecontest/"+o.contestID)= o.title
+            a(href="/contest?cid="+o.contestID)= o.title
             img.top(src="/img/new.gif")
           else if (pass < o.len*60000)
             span.fr.user-red 火热进行中
-            a(href="/onecontest/"+o.contestID)= o.title
+            a(href="/contest?cid="+o.contestID)= o.title
             img.top(src="/img/hot.gif")
           else
             span.fr.user-gray 已结束
-            a(href="/onecontest/"+o.contestID)= o.title
+            a(href="/contest?cid="+o.contestID)= o.title
   .row-fluid
-    +box("/topic", "最新话题", C.length)
+    +box("/topic/list", "最新话题", C.length)
       +buildTopic(C)
     +box("/standings", "ACdream英雄版", D)
       each o in D
@@ -59,7 +59,7 @@ fieldset
           span(class="fr user user-"+UC(o.rating))= o.rating
           a(href="/user/"+o.name, title=UT(o.rating), class="user user-"+UC(o.rating))= o.name
   .row-fluid
-    +box("/topic/101", "推荐 Online Judge", oj.length)
+    +box("/topic?tid=101", "推荐 Online Judge", oj.length)
       each name, i in oj
         li
           +more

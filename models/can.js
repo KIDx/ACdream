@@ -8,7 +8,7 @@ var rand = function(a, b) {
   return Math.round(Math.random() * (b - a)) + a;
 }
 
-exports.Can = function(callback) {
+exports.getCode = function(callback) {
   var W = 90;
   var H = 30;
   var canvas = new Canvas(W, H);

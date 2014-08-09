@@ -44,7 +44,7 @@ function bindDel () {
       $(p).text('删除中...');
       $.ajax({
         type: 'POST',
-        url: '/delData',
+        url: '/addproblem/delData',
         data: {
           pid: pid,
           fname: $(p).parent().prev().text()
@@ -86,7 +86,7 @@ function bindImgDel () {
       $(p).text('删除中...');
       $.ajax({
         type: 'POST',
-        url: '/delImg',
+        url: '/addproblem/delImg',
         data: {
           pid: pid,
           fname: $(p).parent().prev().text()

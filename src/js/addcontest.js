@@ -75,7 +75,7 @@ var timeout, ajax;
 function getProblem($p, $t) {
   return ($.ajax({
     type: 'POST',
-    url: '/getProblem',
+    url: '/problem/get',
     data: { pid: $p.val() },
     dataType: 'text',
     error: function() {
@@ -223,7 +223,7 @@ $(document).ready(function(){
         errAnimate($err, '无法连接到服务器！');
       }
     }).done(function(res){
-      window.location.href = '/onecontest/' + res;
+      window.location.href = '/contest?cid=' + res;
     });
   });
 });

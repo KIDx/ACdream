@@ -1,5 +1,5 @@
 doctype HTML
-- var nvgurl = ['/', '/problemset', '/status', '/ranklist', '/standings', '/contest/1', '/contest/2', '/topic/100', '/topic'];
+- var nvgurl = ['/', '/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/contest/list?type=2', '/topic?tid=100', '/topic/list'];
 - var nvgname = ['Home', 'Problemset', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum'];
 include post_list
 html
@@ -9,9 +9,9 @@ html
     title#title= title
     link(href="/bootstrap/bootstrap.css" rel="stylesheet" type="text/css")
     link(href="/css/style.css" rel="stylesheet" type="text/css")
-    if (key == 8 || key == 11 || key == 18)
+    if (key == KEY.PROBLEM || key == KEY.SOURCE_CODE || key == KEY.TOPIC)
       link(rel="stylesheet" type="text/css" href="/highlighter/styles/shCoreEclipse.css")
-    else if (key == 1002)
+    else if (key == KEY.ADD_CONTEST)
       link(rel="stylesheet" type="text/css" href="/zd/css/zebra_datepicker.css")
     //if lt IE 9
       link(rel="stylesheet" type="text/css" href="/css/ie.css")
@@ -28,7 +28,7 @@ html
             a#logout(href="javascript:;") Logout
           +line
           if (user.addprob == 1)
-            if (key == 1000)
+            if (key == ADD_PROBLEM)
               li.active Add Problem
             else
               li
@@ -69,7 +69,7 @@ html
         a(target="_blank" href="https://github.com/KIDx/ACdream") ACdream v1.3.2
         | &nbsp;2013-2014 KIDx(网站), TTLast(评测机)
       div Any bug please contact 972169909@qq.com
-      div Server time:
+      div= 'Server time: '
         span#timer
       div
         a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
@@ -78,16 +78,16 @@ html
     if (!user)
       include D_login
       include D_register
-    if (key == 0)
+    if (key == KEY.USER)
       if (user && u && user.name == u.name)
         include D_settings
         +D_settings(u)
-    else if (key == 4)
+    else if (key == KEY.STATUS)
       include D_ce
-    else if (key == 6)
+    else if (key == KEY.CONTEST_LIST)
       if (type != 2)
         include D_logincontest
-    else if (key == 9)
+    else if (key == KEY.CONTEST)
       include D_ce
       include D_broadcast
       if (user)
@@ -100,65 +100,65 @@ html
       var current_user = "#{user ? user.name : ''}";
       var current_time;
       var curren_second = #{time};
-      var contest_type = #{key == 6 ? type : 1};
+      var contest_type = #{key == KEY.CONTEST_LIST ? type : 1};
     script(src="/plugins/jquery_uieffect_jqdnr.js")
     script(src="/plugins/jquery.cookie.js")
     script(src="/js/global.js")
     mixin highlight
       script(src="/highlighter/scripts/shCore_brushCpp_brushJava.js")
       script(type="text/javascript") SyntaxHighlighter.defaults['toolbar'] = false; SyntaxHighlighter.all();
-    if (key == 0)
+    if (key == KEY.USER)
       script(src="/Highcharts-4.0.1/highcharts.js")
       script(src="/js/user.js")
-    else if (key == 1)
+    else if (key == KEY.STATISTIC)
       script(src="/Highcharts-4.0.1/highcharts.js")
       script(src="/Highcharts-4.0.1/main.js")
       script(src="/js/statistic.js")
-    else if (key == 3)
+    else if (key == KEY.PROBLEM_LIST)
       script(src="/js/problemset.js")
-    else if (key == 5)
+    else if (key == KEY.RANKLIST)
       script(src="/js/ranklist.js")
-    else if (key == 6)
+    else if (key == KEY.CONTEST_LIST)
       script(src="/js/contest.js")
-    else if (key == 7)
+    else if (key == KEY.STANDINGS)
       script(src="/js/standings.js")
-    else if (key == 8)
+    else if (key == KEY.PROBLEM)
       +highlight
       script(src="/plugins/fileUpload.js")
       script(src="/js/problem.js")
-    else if (key == 9)
+    else if (key == KEY.CONTEST)
       script(src="/plugins/jquery.hashchange.js")
       script(src="/js/updatestatus.js")
       if (user && user.name == 'admin')
         script(src="/js/singleRejudge.js")
       script(src="/socket.io/socket.io.js")
       script(src="/js/onecontest.js")
-    else if (key == 4)
+    else if (key == KEY.STATUS)
       script(src="/js/updatestatus.js")
       if (user && user.name == 'admin')
         script(src="/js/singleRejudge.js")
       script(src="/js/status.js")
-    else if (key == 10)
+    else if (key == KEY.SUBMIT)
       script(src="/js/submit.js")
-    else if (key == 11)
+    else if (key == KEY.SOURCE_CODE)
       +highlight
-    else if (key == 12)
+    else if (key == KEY.AVATAR)
       script(src="/plugins/fileUpload.js")
       script(src="/js/avatar.js")
-    else if (key == 17)
+    else if (key == KEY.TOPIC_LIST)
       script(src="/js/topic.js")
-    else if (key == 18)
+    else if (key == KEY.TOPIC)
       +highlight
       if (user)
         script(src="/ckeditor/ckeditor.js")
       script(src="/js/onetopic.js")
-    else if (key == 1002)
+    else if (key == KEY.ADD_CONTEST)
       script(src="/js/addcontest.js")
       script(src="/zd/javascript/zebra_datepicker.js")
-    else if (key == 1000 || key == 1001)
+    else if (key == KEY.ADD_PROBLEM || key == KEY.EDIT_PROBLEM)
       script(src="/plugins/fileUpload.js")
       script(src="/ckeditor/ckeditor.js")
       script(src="/js/addproblem.js")
-    else if (key == 1004)
+    else if (key == KEY.ADD_TOPIC)
       script(src="/ckeditor/ckeditor.js")
       script(src="/js/addtopic.js")
