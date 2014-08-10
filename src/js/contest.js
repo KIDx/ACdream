@@ -63,13 +63,7 @@ var $contest = $('#contest');
 var $p_span = $('span.cpid');
 var pids = new Array();
 var alias = new Array();
-var ctype = parseInt($contest.attr('ctype'), 10);
 var contest_private = $contest.attr('psw');
-var startTime = parseInt($contest.attr('startTime'), 10);
-var status = parseInt($contest.attr('status'), 10);
-var pending = $contest.attr('pending');
-var TotalTime = parseInt($contest.attr('len'), 10)*60;
-var cid = $contest.attr('cid');
 var passTime = -pending;
 
 var $progress = $('#progress');
@@ -872,7 +866,7 @@ function runContest() {
     fmap[F.charAt(i)] = pids[i];
   });
 
-  if (status > 0 || $contest.attr('watch')) {
+  if (status > 0 || isManager) {
     $hid.removeClass('hidden');
     run();
     $(window).hashchange(function(){

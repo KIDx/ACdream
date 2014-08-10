@@ -1,4 +1,5 @@
 - var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", probNum = 0;
+- var isManager = (user && (user.name == contest.userName || user.name == 'admin'));
 - var startTime = contest.startTime;
 - var pending = parseInt((startTime - time)/1000, 10);
 - var c, s, ts, ps;
@@ -23,13 +24,9 @@ else if (ts == 2)
 else
   - ps = '';
 
-- var watch;
-if (user && (user.name == contest.userName || user.name == 'admin'))
-  - watch = true;
-
 fieldset#widthfix
   div
-    legend#contest(ctype=contest.type startTime=startTime cid=contest.contestID len=contest.len pending=pending status=ts watch=watch ? "1" : "") 比赛
+    legend#contest 比赛
   each p, i in contest.probs
     - ++probNum;
     span.cpid(pid=p[0] alias=p[1] ? p[1] : "")
@@ -87,12 +84,12 @@ fieldset#widthfix
                 a(class="user user-"+MC title=MT+" "+contest.userName href="/user/"+contest.userName)
                   = contest.userName
         .row-fluid(align="center" style="margin-bottom:15px;")
-          if (watch)
+          if (isManager)
             a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type) Edit
             a#delete.uibtn(href="javascript:;") Delete
           if (s == 'Ended')
             a#clone.uibtn.checklogin(href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
-          if (ts == 0 && !watch)
+          if (ts == 0 && !isManager)
             .user-gray(style="text-align:center;font-size:1.75em;margin:100px;")
               = 'Before Contest '
               span#lefttime
@@ -104,7 +101,7 @@ fieldset#widthfix
                 thead
                   tr
                     th(style="width:70px;") #
-                    if (s == 'Ended')
+                    if (s == 'Ended' || isManager)
                       th(style="width:50px;")
                     th Name
                     th(style="width:70px;")
@@ -112,9 +109,9 @@ fieldset#widthfix
                   each p, i in contest.probs
                     tr(class=i % 2 == 0 ? "odd" : "even")
                       td.center.bold.o_index= F[i]
-                      if (s == 'Ended')
+                      if (s == 'Ended' || isManager)
                         td.center
-                          a(href="/problem?pid="+p[0])= p[0]
+                          a(target="_blank" href="/problem?pid="+p[0])= p[0]
                       td
                         if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
                           a.fr.uibtn.uibtn-mini.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
@@ -203,7 +200,7 @@ fieldset#widthfix
           table.table.table-rank
             include rankheader
             +rankheader(probNum, F)
-        if (watch)
+        if (isManager)
           if (contest.type == 2)
             .form-inline
               button#calrating.btn 统计本场比赛Rating
@@ -285,6 +282,14 @@ fieldset#widthfix
       #retry.mc.hide.alert.alert-error(style="width:287px;font-size:32px;padding:100px;text-align:center;")
         | 请求失败，
         a(href="javascript:;") 重试
+script(type="text/javascript").
+  var cid = #{contest.contestID};
+  var ctype = #{contest.type};
+  var startTime = #{startTime};
+  var TotalTime = #{contest.len * 60};
+  var pending = #{pending};
+  var status = #{ts};
+  var isManager = #{isManager ? true : false};
 if (user && user.name == 'admin')
   script(type="text/javascript").
     function bindCalRating($p) {
