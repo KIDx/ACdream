@@ -20,7 +20,7 @@ var LogErr = Comm.LogErr;
  * post: 增加或修改一个contest
  */
 router.route('/')
-.get(function(req, res) {
+.get(function(req, res){
   var type = parseInt(req.query.type, 10);
   if (!type || type < 1 || type > 2) {
     return res.redirect('/404');
@@ -116,7 +116,7 @@ router.route('/')
     });
   }
 })
-.post(function(req, res) {
+.post(function(req, res){
   res.header('Content-Type', 'text/plain');
 
   var psw = '';

@@ -18,7 +18,7 @@ var clearSpace = Comm.clearSpace;
  * post: 增加或修改一个topic
  */
 router.route('/')
-.get(function(req, res) {
+.get(function(req, res){
   if (!req.session.user) {
     req.session.msg = '请先登录！';
     return res.redirect('/topic/list');
@@ -56,7 +56,7 @@ router.route('/')
     });
   }
 })
-.post(function(req, res) {
+.post(function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
     req.session.msg = '请先登录！';

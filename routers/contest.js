@@ -23,6 +23,7 @@ var Settings = require('../settings');
 var languages = Settings.languages;
 var xss_options = Settings.xss_options;
 var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 var clearSpace = Comm.clearSpace;
 var isRegCon = Comm.isRegCon;
 var getDate = Comm.getDate;
@@ -31,7 +32,6 @@ var userTit = Comm.userTit;
 var solCol = Comm.solCol;
 var solRes = Comm.solRes;
 var getContestRank = Comm.getContestRank;
-var LogErr = Comm.LogErr;
 
 /*
  * 注册比赛并且初始化该用户的ContestRank

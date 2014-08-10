@@ -32,7 +32,7 @@ router.route('/')
   }
   nxt();
 })
-.get(function(req, res) {
+.get(function(req, res){
   var pid = parseInt(req.query.pID, 10);
   var RP = function(P, F, I, K) {
     if (P) {
@@ -79,7 +79,7 @@ router.route('/')
     });
   }
 })
-.post(function(req, res) {
+.post(function(req, res){
   var pid = parseInt(req.body.pid, 10);
   if (pid) {
     var title = clearSpace(req.body.Title);
