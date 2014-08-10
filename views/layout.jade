@@ -107,58 +107,60 @@ html
     mixin highlight
       script(src="/highlighter/scripts/shCore_brushCpp_brushJava.js")
       script(type="text/javascript") SyntaxHighlighter.defaults['toolbar'] = false; SyntaxHighlighter.all();
-    if (key == KEY.USER)
-      script(src="/Highcharts-4.0.1/highcharts.js")
-      script(src="/js/user.js")
-    else if (key == KEY.STATISTIC)
-      script(src="/Highcharts-4.0.1/highcharts.js")
-      script(src="/Highcharts-4.0.1/main.js")
-      script(src="/js/statistic.js")
-    else if (key == KEY.PROBLEM_LIST)
-      script(src="/js/problemlist.js")
-    else if (key == KEY.RANKLIST)
-      script(src="/js/ranklist.js")
-    else if (key == KEY.CONTEST_LIST)
-      script(src="/js/contestlist.js")
-    else if (key == KEY.STANDINGS)
-      script(src="/js/standings.js")
-    else if (key == KEY.PROBLEM)
-      +highlight
-      script(src="/plugins/fileUpload.js")
-      script(src="/js/problem.js")
-    else if (key == KEY.CONTEST)
-      script(src="/plugins/jquery.hashchange.js")
-      script(src="/js/updatestatus.js")
-      if (user && user.name == 'admin')
-        script(src="/js/singleRejudge.js")
-      script(src="/socket.io/socket.io.js")
-      script(src="/js/contest.js")
-    else if (key == KEY.STATUS)
-      script(src="/js/updatestatus.js")
-      if (user && user.name == 'admin')
-        script(src="/js/singleRejudge.js")
-      script(src="/js/status.js")
-    else if (key == KEY.SUBMIT)
-      script(src="/js/submit.js")
-    else if (key == KEY.SOURCE_CODE)
-      +highlight
-    else if (key == KEY.AVATAR)
-      script(src="/plugins/fileUpload.js")
-      script(src="/js/avatar.js")
-    else if (key == KEY.TOPIC_LIST)
-      script(src="/js/topiclist.js")
-    else if (key == KEY.TOPIC)
-      +highlight
-      if (user)
+    case key
+      when KEY.USER
+        script(src="/Highcharts-4.0.1/highcharts.js")
+        script(src="/js/user.js")
+      when KEY.STATISTIC
+        script(src="/Highcharts-4.0.1/highcharts.js")
+        script(src="/Highcharts-4.0.1/main.js")
+        script(src="/js/statistic.js")
+      when KEY.PROBLEM_LIST
+        script(src="/js/problemlist.js")
+      when KEY.RANKLIST
+        script(src="/js/ranklist.js")
+      when KEY.CONTEST_LIST
+        script(src="/js/contestlist.js")
+      when KEY.STANDINGS
+        script(src="/js/standings.js")
+      when KEY.PROBLEM
+        +highlight
+        script(src="/plugins/fileUpload.js")
+        script(src="/js/problem.js")
+      when KEY.CONTEST
+        script(src="/plugins/jquery.hashchange.js")
+        script(src="/js/updatestatus.js")
+        if (user && user.name == 'admin')
+          script(src="/js/singleRejudge.js")
+        script(src="/socket.io/socket.io.js")
+        script(src="/js/contest.js")
+      when KEY.STATUS
+        script(src="/js/updatestatus.js")
+        if (user && user.name == 'admin')
+          script(src="/js/singleRejudge.js")
+        script(src="/js/status.js")
+      when KEY.SUBMIT
+        script(src="/js/submit.js")
+      when KEY.SOURCE_CODE
+        +highlight
+      when KEY.AVATAR
+        script(src="/plugins/fileUpload.js")
+        script(src="/js/avatar.js")
+      when KEY.TOPIC_LIST
+        script(src="/js/topiclist.js")
+      when KEY.TOPIC
+        +highlight
+        if (user)
+          script(src="/ckeditor/ckeditor.js")
+        script(src="/js/topic.js")
+      when KEY.ADD_CONTEST
+        script(src="/js/addcontest.js")
+        script(src="/zd/javascript/zebra_datepicker.js")
+      when KEY.ADD_PROBLEM
+      when KEY.EDIT_PROBLEM
+        script(src="/plugins/fileUpload.js")
         script(src="/ckeditor/ckeditor.js")
-      script(src="/js/topic.js")
-    else if (key == KEY.ADD_CONTEST)
-      script(src="/js/addcontest.js")
-      script(src="/zd/javascript/zebra_datepicker.js")
-    else if (key == KEY.ADD_PROBLEM || key == KEY.EDIT_PROBLEM)
-      script(src="/plugins/fileUpload.js")
-      script(src="/ckeditor/ckeditor.js")
-      script(src="/js/addproblem.js")
-    else if (key == KEY.ADD_TOPIC)
-      script(src="/ckeditor/ckeditor.js")
-      script(src="/js/addtopic.js")
+        script(src="/js/addproblem.js")
+      when KEY.ADD_TOPIC
+        script(src="/ckeditor/ckeditor.js")
+        script(src="/js/addtopic.js")
