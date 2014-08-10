@@ -172,14 +172,3 @@ $(document).ready(function(){
     }).jqDrag('.jqDrag').jqResize('.jqResize');
   }
 });
-
-$(document).ready(function(){
-  if ($dialog_lg.length) {
-    $.each($('a.check'), function(){
-      $(this).click(function(){
-        nextURL = '/contest?cid='+$(this).attr('id');
-        $dialog_lg.jqmShow();
-      });
-    })
-  }
-});
