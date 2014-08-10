@@ -140,10 +140,8 @@ router.route('/')
           req.session.msg = '系统错误！';
           return res.redirect('/');
         }
-        fs.mkdir(data_path+id, function(){
-          req.session.msg = 'Problem '+id+' has been created successfully!';
-          return res.redirect('/addproblem?pID='+id);
-        });
+        req.session.msg = 'Problem '+id+' has been created successfully!';
+        return res.redirect('/addproblem?pID='+id);
       });
     });
   }
