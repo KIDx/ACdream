@@ -10,6 +10,9 @@ var Solution = require('../models/solution.js');
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * 将某个题目的所有提交rejudge
+ */
 router.post('/problem', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -92,6 +95,9 @@ router.post('/problem', function(req, res){
   });
 });
 
+/*
+ * rejudge一个结果不是AC的提交
+ */
 router.post('/single', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

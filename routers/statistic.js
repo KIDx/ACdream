@@ -12,6 +12,9 @@ var stats_pageNum = Settings.stats_pageNum;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * Statistic页面
+ */
 router.get('/:pid', function(req, res) {
   var pid = parseInt(req.params.pid, 10);
   if (!pid) {

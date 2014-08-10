@@ -33,6 +33,9 @@ var solRes = Comm.solRes;
 var getContestRank = Comm.getContestRank;
 var LogErr = Comm.LogErr;
 
+/*
+ * 注册比赛并且初始化该用户的ContestRank
+ */
 function regContestAndUpdate(cid, name, callback) {
   Contest.update(cid, {$addToSet: {contestants: name}}, function(err){
     if (err) {
@@ -52,6 +55,9 @@ function regContestAndUpdate(cid, name, callback) {
   });
 }
 
+/*
+ * 一个比赛的页面
+ */
 router.get('/', function(req, res){
   var cid = parseInt(req.query.cid, 10);
   if (!cid) {
@@ -128,6 +134,9 @@ router.get('/', function(req, res){
   });
 });
 
+/*
+ * 比赛列表页面
+ */
 router.get('/list', function(req, res){
   var type = parseInt(req.query.type, 10);
   if (!type || type < 1 || type > 2) {
@@ -203,6 +212,9 @@ router.get('/list', function(req, res){
   });
 });
 
+/*
+ * 比赛的overview页的AC/submit数以及当前用户AC状态的聚合
+ */
 router.post('/overview', function(req, res){
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
@@ -261,6 +273,9 @@ router.post('/overview', function(req, res){
   });
 });
 
+/*
+ * 比赛排名的聚合
+ */
 router.post('/ranklist', function(req, res){
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
@@ -518,6 +533,9 @@ router.post('/ranklist', function(req, res){
   });
 });
 
+/*
+ * 在一个比赛中发帖
+ */
 router.post('/addDiscuss', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -563,6 +581,9 @@ router.post('/addDiscuss', function(req, res){
   });
 });
 
+/*
+ * 显示一个比赛的所有帖子
+ */
 router.post('/discuss', function(req, res){
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
@@ -631,6 +652,9 @@ router.post('/discuss', function(req, res){
   });
 });
 
+/*
+ * 密码登录私有比赛(DIY Contest)
+ */
 router.post('/login', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.body.psw) {
@@ -656,6 +680,9 @@ router.post('/login', function(req, res){
   });
 });
 
+/*
+ * 删除一个比赛
+ */
 router.post('/del', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -699,6 +726,9 @@ router.post('/del', function(req, res){
   });
 });
 
+/*
+ * 注册一个比赛(VIP Contest)
+ */
 router.post('/register', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -731,6 +761,9 @@ router.post('/register', function(req, res){
   });
 });
 
+/*
+ * 添加一个用户到参赛者
+ */
 router.post('/addContestant', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -804,6 +837,9 @@ router.post('/addContestant', function(req, res){
   });
 });
 
+/*
+ * 移除一个参赛者
+ */
 router.post('/removeContestant', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -851,6 +887,9 @@ router.post('/removeContestant', function(req, res){
   });
 });
 
+/*
+ * 切换打星状态
+ */
 router.post('/toggleStar', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

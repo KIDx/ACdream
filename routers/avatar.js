@@ -11,6 +11,9 @@ var Settings = require('../settings');
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * 修改头像的页面
+ */
 router.get('/', function(req, res) {
   if (!req.session.user) {
     req.session.msg = 'Please login first!';
@@ -22,6 +25,9 @@ router.get('/', function(req, res) {
   });
 });
 
+/*
+ * 上传头像
+ */
 router.post('/upload', function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.img || !req.files.img.mimetype) {

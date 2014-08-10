@@ -13,6 +13,9 @@ var Comm = require('../comm');
 var getTime = Comm.getTime;
 var LogErr = Comm.LogErr;
 
+/*
+ * 显示一个帖子的页面
+ */
 router.get('/', function(req, res) {
   var tid = parseInt(req.query.tid, 10);
   if (!tid) {
@@ -92,6 +95,9 @@ router.get('/', function(req, res) {
   });
 });
 
+/*
+ * 显示帖子列表的页面
+ */
 router.get('/list', function(req, res){
   if (!req.query.page) {
     page = 1;
@@ -153,6 +159,9 @@ router.get('/list', function(req, res){
   });
 });
 
+/*
+ * 切换置顶状态
+ */
 router.post('/toggleTop', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user || req.session.user.name != 'admin') {
@@ -180,54 +189,6 @@ router.post('/toggleTop', function(req, res){
       }
       req.session.msg = '操作成功！';
       return res.end();
-    });
-  });
-});
-
-router.post('/addComment', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = '请先登录！';
-    return res.end();
-  }
-  var user = req.session.user.name;
-  var tid = parseInt(req.body.tid, 10);
-  var content = String(req.body.content); //can not do clearSpace because it is content
-  var fa = parseInt(req.body.fa, 10);
-  var at = Comm.clearSpace(req.body.at);
-  if (!user || !tid || !content || !fa) {
-    return res.end();   //not allow!
-  }
-  IDs.get('topicID', function(err, id){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
-    var now = (new Date()).getTime();
-    (new Comment({
-      id: id,
-      content: xss(content, xss_options),
-      user: user,
-      tid: tid,
-      fa: fa,
-      at: at,
-      inDate: now
-    })).save(function(err){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      Topic.update(tid, {
-        $set: {lastReviewer: user, lastReviewTime: now, lastComment: id},
-        $inc: {reviewsQty: 1}
-      }, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        req.session.msg = '回复成功！';
-        return res.end();
-      });
     });
   });
 });

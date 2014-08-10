@@ -9,6 +9,9 @@ var KEY = require('./key');
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * 查看源代码的页面
+ */
 router.get('/:rid', function(req, res){
   var rid = parseInt(req.params.rid, 10);
   if (!rid) {

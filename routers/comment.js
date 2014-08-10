@@ -12,6 +12,9 @@ var xss_options = Settings.xss_options;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * 增加评论(帖子)
+ */
 router.post('/add', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -60,6 +63,9 @@ router.post('/add', function(req, res){
   });
 });
 
+/*
+ * 删除评论(同时把此评论的子评论删掉)
+ */
 router.post('/del', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -127,6 +133,9 @@ router.post('/del', function(req, res){
   });
 });
 
+/*
+ * 修改评论内容
+ */
 router.post('/edit', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

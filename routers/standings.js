@@ -12,6 +12,9 @@ var userCol = Comm.userCol;
 var userTit = Comm.userTit;
 var LogErr = Comm.LogErr;
 
+/*
+ * Standings页面
+ */
 router.get('/', function(req, res){
   var page = parseInt(req.query.page, 10);
   if (!page) {

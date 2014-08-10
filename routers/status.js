@@ -18,6 +18,9 @@ var solCol = Comm.solCol;
 var solRes = Comm.solRes;
 var LogErr = Comm.LogErr;
 
+/*
+ * Status页面
+ */
 router.get('/', function(req, res){
   var Q = {}, page, name, pid, result, lang;
 
@@ -123,6 +126,9 @@ router.get('/', function(req, res){
   });
 });
 
+/*
+ * 获取某个提交的CE信息
+ */
 router.post('/CE', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user)
@@ -147,6 +153,9 @@ router.post('/CE', function(req, res){
   });
 });
 
+/*
+ * 获取某个提交的评测结果
+ */
 router.post('/info', function(req, res){
   res.header('Content-Type', 'text/plain');
   var id = parseInt(req.body.rid, 10);
@@ -197,6 +206,9 @@ router.post('/info', function(req, res){
   });
 });
 
+/*
+ * 获取某个比赛的提交(列表)
+ */
 router.post('/get', function(req, res){
   res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);

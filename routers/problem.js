@@ -17,6 +17,9 @@ var languages = Settings.languages;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * problem页面
+ */
 router.get('/', function(req, res){
   var pid = parseInt(req.query.pid, 10);
   if (!pid) {
@@ -93,6 +96,9 @@ router.get('/', function(req, res){
   }
 })
 
+/*
+ * 上传代码
+ */
 router.post('/uploadCode', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.info) {
@@ -186,6 +192,9 @@ router.post('/uploadCode', function(req, res){
   });
 });
 
+/*
+ * 题目列表页面
+ */
 router.get('/list', function(req, res){
   var page = parseInt(req.query.page, 10);
   if (!page) {
@@ -267,8 +276,10 @@ router.get('/list', function(req, res){
   });
 });
 
-//1.获取题目, addcontest.js引用;
-//2.获取题目全部信息, onecontest.js引用
+/*
+ * 如果cid为空，获取一个题目的title (addcontest)
+ * 否则，获取一个题目的全部信息，供比赛使用
+ */
 router.post('/get', function(req, res){
   res.header('Content-Type', 'text/plain');
   var pid = parseInt(req.body.pid, 10);
@@ -348,6 +359,9 @@ router.post('/get', function(req, res){
   });
 });
 
+/*
+ * 切换一个题目的隐藏状态
+ */
 router.post('/toggleHide', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -384,6 +398,9 @@ router.post('/toggleHide', function(req, res){
   });
 });
 
+/*
+ * 编辑一个题目的标签
+ */
 router.post('/editTag', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -447,6 +464,9 @@ router.post('/editTag', function(req, res){
   });
 });
 
+/*
+ * 设置某个题目的管理员
+ */
 router.post('/setManager', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

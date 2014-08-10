@@ -12,6 +12,9 @@ var Comm = require('../comm');
 var clearSpace = Comm.clearSpace;
 var LogErr = Comm.LogErr;
 
+/*
+ * 主页
+ */
 router.get('/', function(req, res){
   Topic.topFive({top: true, cid: -1}, function(err, A){
     if (err) {
@@ -54,6 +57,9 @@ router.get('/', function(req, res){
   });
 });
 
+/*
+ * 生成并返回验证码
+ */
 router.post('/createVerifycode', function(req, res) {
   res.header('Content-Type', 'text/plain');
 
@@ -63,6 +69,9 @@ router.post('/createVerifycode', function(req, res) {
   });
 });
 
+/*
+ * 登录
+ */
 router.post('/login', function(req, res) {
   res.header('Content-Type', 'text/plain');
 
@@ -99,6 +108,9 @@ router.post('/login', function(req, res) {
   });
 });
 
+/*
+ * 退出登录
+ */
 router.post('/logout', function(req, res) {
   res.header('Content-Type', 'text/plain');
 
@@ -111,6 +123,9 @@ router.post('/logout', function(req, res) {
   return res.end();
 });
 
+/*
+ * 注册
+ */
 router.post('/register', function(req, res) {
   res.header('Content-Type', 'text/plain');
 

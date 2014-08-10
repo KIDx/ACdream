@@ -15,6 +15,10 @@ var clearSpace = Comm.clearSpace;
 var nan = Comm.nan;
 var LogErr = Comm.LogErr;
 
+/*
+ * get: addcontest页面
+ * post: 增加或修改一个contest
+ */
 router.route('/')
 .get(function(req, res) {
   var type = parseInt(req.query.type, 10);

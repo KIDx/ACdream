@@ -10,6 +10,9 @@ var Solution = require('../models/solution.js');
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * 计算某个比赛的Rating
+ */
 router.post('/cal', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -121,6 +124,9 @@ router.post('/cal', function(req, res){
   });
 });
 
+/*
+ * 回退一个比赛的Rating(以栈的形式回退，如果某用户的最后一场比赛不是这场，则忽略该用户)
+ */
 router.post('/reset', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

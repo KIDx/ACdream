@@ -11,6 +11,9 @@ var Comm = require('../comm');
 var clearSpace = Comm.clearSpace;
 var LogErr = Comm.LogErr;
 
+/*
+ * 显示某个用户具体信息的页面
+ */
 router.get('/:name', function(req, res){
   var name = req.params.name;
   if (!name) {
@@ -89,6 +92,9 @@ router.get('/:name', function(req, res){
   });
 });
 
+/*
+ * 赋予或回收某个用户的加题权限
+ */
 router.post('/changeAddprob', function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -126,6 +132,9 @@ router.post('/changeAddprob', function(req, res) {
   });
 });
 
+/*
+ * 用户修改自己的基本信息
+ */
 router.post('/changeInfo', function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -186,6 +195,9 @@ router.post('/changeInfo', function(req, res) {
   });
 });
 
+/*
+ * 将某个用户的密码重置为123456
+ */
 router.post('/restorePsw', function(req, res) {
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

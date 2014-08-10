@@ -13,6 +13,10 @@ var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 var clearSpace = Comm.clearSpace;
 
+/*
+ * get: addtopic页面
+ * post: 增加或修改一个topic
+ */
 router.route('/')
 .get(function(req, res) {
   if (!req.session.user) {

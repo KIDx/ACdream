@@ -1,5 +1,8 @@
 
-exports.solRes = function(n) { //return status' result
+/*
+ * 返回评测结果描述
+ */
+exports.solRes = function(n) {
   switch (n) {
     case 0:
       return 'Pending...';
@@ -28,7 +31,10 @@ exports.solRes = function(n) { //return status' result
   }
 };
 
-exports.solCol = function(n) { //return status' color
+/*
+ * 返回评测结果对应的CSS类(颜色)
+ */
+exports.solCol = function(n) {
   switch (n) {
     case 0:
     case 1:
@@ -51,7 +57,10 @@ exports.solCol = function(n) { //return status' color
   }
 };
 
-exports.userCol = function(n) { //return user color style
+/*
+ * 返回用户对应的CSS类(颜色)
+ */
+exports.userCol = function(n) {
   n = parseInt(n, 10);
   if (!n) return 'unrated';
   if (n >= 2200) {
@@ -68,7 +77,10 @@ exports.userCol = function(n) { //return user color style
   return 'black';
 };
 
-exports.userTit = function(n) { //return user title
+/*
+ * 返回用户描述
+ */
+exports.userTit = function(n) {
   n = parseInt(n, 10);
   if (!n) {
     return 'Unrated';
@@ -92,6 +104,9 @@ exports.userTit = function(n) { //return user title
   return 'Newbie';
 }
 
+/*
+ * 判断一个数是否为NAN
+ */
 exports.nan = function(n) {
   return n != n;
 }
@@ -110,11 +125,16 @@ function drim(s) {
   return String(s).replace(/(\s+)/g, ' ');
 }
 
-//delete unuseful ' ', '\t', '\n' ect...
+/*
+ * 把头尾的空格全去掉，然后把连续的空格变成一个空格
+ */
 exports.clearSpace = function(s) {
   return drim(trim(s));
 }
 
+/*
+ * 判断s是否为合法的username
+ */
 exports.isUsername = function(s) {
   return (new RegExp("^[a-zA-Z0-9_]{2,15}$")).test(s);
 }
@@ -127,6 +147,9 @@ function checkEscape(ch) {
   return false;
 }
 
+/*
+ * 把str的所有特殊字符转义
+ */
 exports.toEscape = function(str) {
   var res = '';
   for (var i = 0; i < str.length; i++) {
@@ -136,6 +159,9 @@ exports.toEscape = function(str) {
   return res;
 }
 
+/*
+ * 把html代码转义
+ */
 exports.escapeHtml = function(s) {
   return s.toString()
     .replace(/&/g, '&amp;')
@@ -145,19 +171,16 @@ exports.escapeHtml = function(s) {
     .replace(/'/g, '&#39;');
 }
 
+/*
+ * 判断name是否在数组s(参赛列表)中
+ */
 exports.isRegCon = function(s, name) {
   return s.indexOf(name) >= 0 ? true : false;
 }
 
-function gao(n, type) {
-  if (n == 1) {
-    if (type == 'hour')
-      return 'an '+type+' ago';
-    return 'a '+type+' ago';
-  }
-  return n+' '+type+'s ago';
-}
-
+/*
+ * 如果n<10，补前零
+ */
 var addZero = function(n) {
   n = parseInt(n, 10);
   if (n != n) {
@@ -168,6 +191,9 @@ var addZero = function(n) {
 
 exports.addZero = addZero;
 
+/*
+ * 传入毫秒数，返回时间描述(YYYY-MM-DD hh:mm:ss)
+ */
 var getDate = function(s) {
   var date = s ? new Date(s) : new Date();
   if (!date) {
@@ -180,10 +206,18 @@ var getDate = function(s) {
 
 exports.getDate = getDate;
 
-exports.calDate = function(startTime, len) {
-  return getDate((new Date(startTime)).getTime()+len*60000);
-};
+function gao(n, type) {
+  if (n == 1) {
+    if (type == 'hour')
+      return 'an '+type+' ago';
+    return 'a '+type+' ago';
+  }
+  return n+' '+type+'s ago';
+}
 
+/*
+ * 根据n(毫秒数)返回大概时间描述
+ */
 exports.getAboutTime = function(n) {
   n = parseInt(n, 10);
   if (!n) return '';
@@ -214,6 +248,9 @@ exports.getAboutTime = function(n) {
   return 'just now';
 };
 
+/*
+ * 根据n(毫秒数)返回大概时间描述()
+ */
 exports.getTime = function(n) {
   n = parseInt(n, 10);
   if (!n) return '';
@@ -244,6 +281,9 @@ exports.getTime = function(n) {
 var ContestRank = require('../models/contestrank.js');
 var User = require('../models/user.js');
 
+/*
+ * 传入user(user.rating, user.name)，返回其rating排名
+ */
 exports.getRatingRank = function(user, callback) {
   User.count({
     name: {$ne: 'admin'},
@@ -256,6 +296,9 @@ exports.getRatingRank = function(user, callback) {
   });
 };
 
+/*
+ * 传入user(user.solved...)，返回其ranklist排名
+ */
 exports.getRank = function(user, callback) {
   User.count({
     name: {$ne: 'admin'},
@@ -269,6 +312,10 @@ exports.getRank = function(user, callback) {
   });
 };
 
+/*
+ * cid(contestID), stars(打星列表), name(用户名), V(ContestRank.vaule)
+ * 返回某用户在某个比赛中的排名
+ */
 exports.getContestRank = function(cid, stars, name, V, callback) {
   ContestRank.count({
     '_id.cid': cid,
@@ -297,6 +344,9 @@ function getpos() {
   }
 }
 
+/*
+ * 错误日志
+ */
 exports.LogErr = function(err) {
   var res = getDate() + ' [' + getpos() + ']\n' + err + '\n\n';
   console.log(res);

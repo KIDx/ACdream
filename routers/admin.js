@@ -7,6 +7,9 @@ var User = require('../models/user.js');
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * 重新统计用户AC数和submit数
+ */
 router.post('/stat', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {

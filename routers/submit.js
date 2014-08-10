@@ -14,6 +14,10 @@ var languages = Settings.languages;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
+/*
+ * get: submit页面
+ * post: 提交代码
+ */
 router.route('/')
 .get(function(req, res) {
   res.render('submit', {
@@ -30,6 +34,7 @@ router.route('/')
     return res.end('1');
   }
   var now = (new Date()).getTime();
+  //5秒内只能提交一次
   if (req.session.submitTime && now - req.session.submitTime <= 5000) {
     return res.end('6');
   }

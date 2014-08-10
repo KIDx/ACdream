@@ -15,6 +15,11 @@ var escapeHtml = Comm.escapeHtml;
 var clearSpace = Comm.clearSpace;
 var LogErr = Comm.LogErr;
 
+/*
+ * all: 验证登录态
+ * get: addproblem页面
+ * post: 增加或修改一个problem
+ */
 router.route('/')
 .all(function(req, res, nxt){
   if (!req.session.user) {
@@ -144,6 +149,9 @@ router.route('/')
   }
 });
 
+/*
+ * 题目图片上传
+ */
 router.post('/imgUpload', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.info || !req.files.info.mimetype) {
@@ -196,6 +204,9 @@ router.post('/imgUpload', function(req, res){
   });
 });
 
+/*
+ * 题目数据上传
+ */
 router.post('/dataUpload', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.files || !req.files.data) {
@@ -242,6 +253,9 @@ router.post('/dataUpload', function(req, res){
   });
 });
 
+/*
+ * 删除一个数据文件
+ */
 router.post('/delData', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
@@ -270,6 +284,9 @@ router.post('/delData', function(req, res){
   });
 });
 
+/*
+ * 删除一个图片
+ */
 router.post('/delImg', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
