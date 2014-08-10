@@ -116,8 +116,8 @@ router.get('/', function(req, res){
         if (!user) {
           return res.end();  //not allow
         }
-        res.render('onecontest', {
-          title: 'OneContest',
+        res.render('contest', {
+          title: 'Contest '+cid,
           key: KEY.CONTEST,
           contest: contest,
           getDate: getDate,
@@ -193,8 +193,8 @@ router.get('/list', function(req, res){
           UT[p.name] = userTit(p.rating);
         });
       }
-      res.render('contest', {
-        title: 'Contest',
+      res.render('contestlist', {
+        title: 'ContestList',
         key: KEY.CONTEST_LIST,
         type: type,
         contests: contests,

@@ -232,8 +232,8 @@ router.get('/list', function(req, res){
       return res.redirect('/problem/list');
     }
     var RP = function(R){
-      res.render('problemset', {
-        title: 'ProblemSet',
+      res.render('problemlist', {
+        title: 'ProblemList',
         key: KEY.PROBLEM_LIST,
         n: n,
         problems: problems,

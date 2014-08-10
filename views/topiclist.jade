@@ -1,0 +1,73 @@
+- var now = (new Date()).getTime();
+fieldset
+  div
+    legend#topic 论坛
+  .tablebg
+    #pager
+      include pager
+      +pager(page, n)
+      #filter.fr
+        div
+          if (user)
+            a.uibtn.uibtn-mini(href="/addtopic") 发布话题
+          else
+            a#addtopic.uibtn.uibtn-mini.checklogin(href="javascript:;") 发布话题
+        .input-prepend
+          span.add-on
+            i.icon-search
+          input#search(type="text" value=(search ? search : "") title="标题或作者" placeholder=" 标题或作者")
+        div
+          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
+        div
+          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
+    #tablediv
+      table#contest.table(style="table-layout:fixed;")
+        thead
+          tr
+            th(style="width:60px;")
+            th(style="width:100px;") 回复/浏览
+            th(style="text-align:left;") 标题
+            th(style="text-align:right;width:160px")
+        tbody
+          if (!topics || topics.length == 0)
+            tr.odd
+              td.error-text(colspan="4") No Topics are matched.
+          else
+            each p, i in topics
+              - var img;
+              if (I[p.user])
+                - img = '/img/avatar/'+p.user+'/4.'+I[p.user];
+              else
+                - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
+              tr
+                td
+                  a(href="/user/"+p.user)
+                    img.img_s.topic_img(title=p.user alt=p.user src=img)
+                td
+                  span.user-green= p.reviewsQty
+                  | /
+                  span.user-gray= p.browseQty
+                td.ellipsis(style="text-align:left;")
+                  if (user && user.name == 'admin')
+                    a.uibtn(tid=p.id href="javascript:;")
+                      if (p.top)
+                        | 取消
+                      | 置顶
+                  if (p.top)
+                    span.put_top 置顶
+                  a(href="/topic?tid="+p.id)= ' '+p.title
+                  if (now - p.inDate < 86400000)
+                    img.top(src="/img/new.gif")
+                  if (p.lastReviewer && now - p.lastReviewTime < 28800000)
+                    img.top(src="/img/hot.gif")
+                td
+                  if (p.lastReviewer)
+                    if (I[p.lastReviewer])
+                      - img = '/img/avatar/'+p.lastReviewer+'/4.'+I[p.lastReviewer];
+                    else
+                      - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
+                    a.topic_timer(href="/topic?tid="+p.id+"#"+p.lastComment)
+                      img.img_ss(title=p.lastReviewer alt=p.lastReviewer src=img)
+                      span= getDate(p.lastReviewTime)
+                  else
+                    span.user-gray.fr= getDate(p.lastReviewTime)

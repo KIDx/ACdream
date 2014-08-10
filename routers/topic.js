@@ -77,8 +77,8 @@ router.get('/', function(req, res) {
               IT[p.name] = p.imgType;
             });
           }
-          res.render('onetopic', {
-            title: 'OneTopic',
+          res.render('topic', {
+            title: 'Topic '+tid,
             key: KEY.TOPIC,
             topic: topic,
             comments: com,
@@ -145,8 +145,8 @@ router.get('/list', function(req, res){
           I[p.name] = p.imgType;
         });
       }
-      res.render('topic', {
-        title: 'Topic',
+      res.render('topiclist', {
+        title: 'TopicList',
         key: KEY.TOPIC_LIST,
         topics: topics,
         page: page,

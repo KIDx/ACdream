@@ -1,6 +1,6 @@
 doctype HTML
 - var nvgurl = ['/', '/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/contest/list?type=2', '/topic?tid=100', '/topic/list'];
-- var nvgname = ['Home', 'Problemset', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum'];
+- var nvgname = ['Home', 'ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum'];
 include post_list
 html
   head
@@ -119,7 +119,7 @@ html
     else if (key == KEY.RANKLIST)
       script(src="/js/ranklist.js")
     else if (key == KEY.CONTEST_LIST)
-      script(src="/js/contest.js")
+      script(src="/js/contestlist.js")
     else if (key == KEY.STANDINGS)
       script(src="/js/standings.js")
     else if (key == KEY.PROBLEM)
@@ -132,7 +132,7 @@ html
       if (user && user.name == 'admin')
         script(src="/js/singleRejudge.js")
       script(src="/socket.io/socket.io.js")
-      script(src="/js/onecontest.js")
+      script(src="/js/contest.js")
     else if (key == KEY.STATUS)
       script(src="/js/updatestatus.js")
       if (user && user.name == 'admin')
@@ -146,12 +146,12 @@ html
       script(src="/plugins/fileUpload.js")
       script(src="/js/avatar.js")
     else if (key == KEY.TOPIC_LIST)
-      script(src="/js/topic.js")
+      script(src="/js/topiclist.js")
     else if (key == KEY.TOPIC)
       +highlight
       if (user)
         script(src="/ckeditor/ckeditor.js")
-      script(src="/js/onetopic.js")
+      script(src="/js/topic.js")
     else if (key == KEY.ADD_CONTEST)
       script(src="/js/addcontest.js")
       script(src="/zd/javascript/zebra_datepicker.js")
