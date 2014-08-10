@@ -1,3 +1,17 @@
+## 1.4.0 / 2014-08-10
+* 增加gruntfile压缩js和css
+* 使用express4.x的router令功能模块化，方便多人开发
+* URL路径变更：
+```
+/problemset -> /problem/list
+/contest/xxx -> /contest/list?type=xxx
+/onecontest/xxx -> /contest?cid=xxx
+/topic -> /topic/list
+/topic/xxx -> /topic?tid=xxx
+...
+```
+* 增加addrouter脚本，方便开发者新增页面或功能模块
+
 ## 1.3.2 / 2014-07-18
 * 修复部分bug
 * 比赛提交代码时检查所交题目是否属于该比赛
