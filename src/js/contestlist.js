@@ -12,13 +12,7 @@ function go(page){
   if (search) F.push('search'), G.push(search);
   var url = '/contest/list?type='+type, flg = true;
   for (var i = 0; i < F.length; i++) {
-    if (flg) {
-      url += '?';
-      flg = false;
-    } else {
-      url += '&';
-    }
-    url += F[i] + '=' + G[i];
+    url += '&' + F[i] + '=' + G[i];
   }
 
   window.location.href = url;

@@ -155,7 +155,7 @@ router.get('/list', function(req, res){
   var q1 = {type: type}, q2 = {type: type}, search = req.query.search;
 
   if (search) {
-    q1.title = q2.userName = new RegExp("^.*"+toEscape(search)+".*$", 'i');
+    q1.title = q2.userName = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
   }
 
   Contest.get({$or:[q1, q2]}, page, function(err, contests, n){

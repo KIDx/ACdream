@@ -71,7 +71,7 @@ router.route('/')
       }
       if (clone == 0 && name != contest.userName && name != 'admin') {
         req.session.msg = 'You are not the manager of this contest!';
-        return res.redirect('/onecontest/'+cid);
+        return res.redirect('/contest?cid='+cid);
       }
       if (clone == 1 && name != contest.userName && name != 'admin') {
         if ((new Date()).getTime() - contest.startTime < contest.len*60000) {
