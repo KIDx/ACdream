@@ -205,7 +205,10 @@ function buildRow(sol) {
 }
 
 function Response(json) {
-  if (!statusAjax || !json || !isActive(2)) return ;
+  if (!statusAjax || !json || !isActive(2)) {
+    setRetry(GetStatus);
+    return ;
+  }
   Users = json.pop();
   var n = json.pop(), sols = json.pop();
   $list.html(buildPager(statusQ.page, n));
@@ -298,7 +301,9 @@ var overviewTimeout;
 var overviewAjax;
 
 function OverviewResponse(json) {
-  if (!overviewAjax || !json || !isActive(0)) return ;
+  if (!overviewAjax || !json || !isActive(0)) {
+    return ;
+  }
   var sols = json.pop(), res = json.pop();
   if (sols) {
     $.each(sols, function(i, p){
@@ -594,7 +599,10 @@ function buildRank(U) {
 }
 
 function RankResponse(json) {
-  if (!rankAjax || !json || !isActive(3)) return ;
+  if (!rankAjax || !json || !isActive(3)) {
+    setRetry(GetRanklist);
+    return ;
+  }
   total = json.pop();
   rank = json.pop();
   FB = json.pop();
@@ -653,7 +661,7 @@ function RankResponse(json) {
   $rank.fadeIn(100);
 }
 
-function GetRanklist(flg) {
+function GetRanklist(notRetry) {
   clearTimeout(rankTimeout);
   rankTimeout = setTimeout(function(){
     rankAjax = $.ajax({
@@ -665,7 +673,7 @@ function GetRanklist(flg) {
       error: function() {
         if (rankAjax)
           rankAjax.abort();
-        if (!flg)
+        if (!notRetry)
           setRetry(GetRanklist);
       }
     }).done(RankResponse);
@@ -722,7 +730,10 @@ function buildDiscuss(p) {
 }
 
 function DiscussResponse(json) {
-  if (!discussAjax || !json || !isActive(4)) return ;
+  if (!discussAjax || !json || !isActive(4)) {
+    setRetry(GetDiscuss);
+    return ;
+  }
   Imgtype = json.pop();
   var n = json.pop(), tps = json.pop();
   $dislist.html(buildPager(discussQ.page, n));
@@ -785,6 +796,10 @@ function run() {
   for (var i = 0; i < 5; i++) {
     noActive(i);
   }
+  function getPage(x) {
+    var p = parseInt(x, 10);
+    return p > 0 ? p : 1;
+  }
   switch(a) {
     case '#problem': {
       if (b) ID = b.charCodeAt(0)-65;
@@ -798,7 +813,7 @@ function run() {
       $search.val(b ? b : '');
       $pid.val(c ? c : 'nil');
       $result.val(d ? d : 'nil');
-      statusQ.page = e ? parseInt(e, 10) : 1;
+      statusQ.page = getPage(e);
       GetStatus();
       PreTab = 0;
       break;
@@ -808,14 +823,14 @@ function run() {
       rankInterval = setInterval(function(){
         GetRanklist(true);
       }, 30000);
-      rankQ.page = b ? parseInt(b, 10) : 1;
+      rankQ.page = getPage(b);
       GetRanklist();
       PreTab = 0;
       break;
     }
     case '#discuss': {
       doActive(4);
-      discussQ.page = b ? parseInt(b, 10) : 1;
+      discussQ.page = getPage(b);
       GetDiscuss();
       PreTab = 0;
       break;
