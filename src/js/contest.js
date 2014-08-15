@@ -277,6 +277,7 @@ function index(pid) {
 }
 
 var $hid = $('div.hidden, li.hidden');
+var $end = $('th.end, td.end');
 var $tablink = $div.find('a.tablink');
 
 function isActive(i) {
@@ -844,6 +845,26 @@ function run() {
   }
 }
 
+function forNotPending() {
+  $hid.removeClass('hidden');
+  run();
+  $(window).hashchange(function(){
+    run();
+  });
+}
+
+function forRunning() {
+  runningTimer();
+  runningInterval = setInterval(runningTimer, 1000);
+}
+
+function forEnded() {
+  $end.removeClass('hidden');
+  $clone.show();
+}
+
+var pendingInterval;
+
 function pendingTimer() {
   var left = deal(pending);
   var infoleft = '-'+left;
@@ -855,13 +876,26 @@ function pendingTimer() {
   }
   --pending;
   if (pending < 0) {
-    window.location.reload(true);
+    clearInterval(pendingInterval);
+    passTime = 0;
+    forRunning();
+    $('#beforecontest').hide();
+    $('#conteststatus').text('Running').removeClass('info-text').addClass('wrong-text');
+    $progress.addClass('progress-danger');
+    $bar.css({width: 0});
+    forNotPending();
   }
 }
 
+var runningInterval;
+
 function runningTimer() {
   if (passTime > TotalTime) {
-    window.location.reload(true);
+    clearInterval(runningInterval);
+    $('#conteststatus').text('Ended').removeClass('wrong-text').addClass('accept-text');
+    $progress.addClass('progress-success');
+    forEnded();
+    $info.remove();
   } else {
     var tp = passTime*100.0/TotalTime;
     if (tp > 50) $contain.css({'text-align':'left'});
@@ -881,12 +915,19 @@ function runContest() {
     fmap[F.charAt(i)] = pids[i];
   });
 
-  if (status > 0 || isManager) {
-    $hid.removeClass('hidden');
-    run();
-    $(window).hashchange(function(){
-      run();
-    });
+  if (status == 'Pending') {
+    pendingTimer();
+    pendingInterval = setInterval(pendingTimer, 1000);
+  } else if (status == 'Running') {
+    forRunning();
+  }
+
+  if (status == 'Ended' || isManager) {
+    forEnded();
+  }
+
+  if (status != 'Pending' || isManager) {
+    forNotPending();
   } else {
     doActive(0);
     $overview.fadeIn(100);
@@ -908,13 +949,6 @@ $(document).ready(function(){
     $problemlink.removeClass('active');
     $(this).addClass('active');
   });
-  if (status == 0) {
-    pendingTimer();
-    setInterval(pendingTimer, 1000);
-  } else if (status == 1) {
-    runningTimer();
-    setInterval(runningTimer, 1000);
-  }
   runContest();
 });
 

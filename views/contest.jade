@@ -2,27 +2,20 @@
 - var isManager = (user && (user.name == contest.userName || user.name == 'admin'));
 - var startTime = contest.startTime;
 - var pending = parseInt((startTime - time)/1000, 10);
-- var c, s, ts, ps;
+- var c, s, ps;
 
 if (pending > 0)
   - c = 'info';
   - s = 'Pending';
-  - ts = 0;
+  - ps = '';
 else if (pending + contest.len*60 > 0)
   - c = 'wrong';
   - s = 'Running';
-  - ts = 1;
+  - ps = 'progress-danger';
 else
   - c = 'accept';
   - s = 'Ended';
-  - ts = 2;
-
-if (ts == 1)
-  - ps = 'progress-danger';
-else if (ts == 2)
   - ps = 'progress-success';
-else
-  - ps = '';
 
 fieldset#widthfix
   div
@@ -75,7 +68,7 @@ fieldset#widthfix
               th Start Time:
               td.bold.user-gray= getDate(startTime)
               th Contest Status:
-              td(class="bold "+c+"-text")= s
+              td#conteststatus(class="bold "+c+"-text")= s
             tr
               th End Time:
               td.bold.user-gray= getDate(startTime+contest.len*60000)
@@ -87,10 +80,9 @@ fieldset#widthfix
           if (isManager)
             a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type) Edit
             a#delete.uibtn(href="javascript:;") Delete
-          if (s == 'Ended')
-            a#clone.uibtn.checklogin(href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
-          if (ts == 0 && !isManager)
-            .user-gray(style="text-align:center;font-size:1.75em;margin:100px;")
+          a#clone.uibtn.checklogin(style="display:none;" href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
+          if (s == 'Pending' && !isManager)
+            #beforecontest.user-gray(style="text-align:center;font-size:1.75em;margin:100px;")
               = 'Before Contest '
               span#lefttime
         #problemsview.hidden
@@ -101,17 +93,15 @@ fieldset#widthfix
                 thead
                   tr
                     th(style="width:70px;") #
-                    if (s == 'Ended' || isManager)
-                      th(style="width:50px;")
+                    th.end.hidden(style="width:50px;")
                     th Name
                     th(style="width:70px;")
                     th(style="width:90px;") Solved
                   each p, i in contest.probs
                     tr(class=i % 2 == 0 ? "odd" : "even")
                       td.center.bold.o_index= F[i]
-                      if (s == 'Ended' || isManager)
-                        td.center
-                          a(target="_blank" href="/problem?pid="+p[0])= p[0]
+                      td.center.end.hidden
+                        a(target="_blank" href="/problem?pid="+p[0])= p[0]
                       td
                         if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
                           a.fr.uibtn.uibtn-mini.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
@@ -288,7 +278,7 @@ script(type="text/javascript").
   var startTime = #{startTime};
   var TotalTime = #{contest.len * 60};
   var pending = #{pending};
-  var status = #{ts};
+  var status = '#{s}';
   var isManager = #{isManager ? true : false};
 if (user && user.name == 'admin')
   script(type="text/javascript").
