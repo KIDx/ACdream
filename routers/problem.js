@@ -332,16 +332,31 @@ router.post('/get', function(req, res){
       return res.end(prob.title);
     }
 
-    //get a problem for onecontest page
-    if (!con || (name != con.userName && name != 'admin' &&
-      (new Date()).getTime() < con.startTime)) {
+    //get a problem for contest page
+    if (!con) {
       return res.end();
     }
+
+    var now = (new Date()).getTime();
+    var resp = {
+      startTime: con.startTime,
+      duration: con.len * 60,
+      svrTime: now
+    };
+
+    if (name != con.userName && name != 'admin' && now < con.startTime) {
+      resp.ret = 2;
+      return res.json(resp);
+    }
+
     var lm = parseInt(req.body.lastmodified, 10);
     if (lm && lm == prob.lastmodified) { //problem cache is ok.
-      return res.end();
+      resp.ret = 0;
+      return res.json(resp);
     }
-    return res.json({
+
+    resp.ret = 1;
+    resp.prob = {
       problemID: prob.problemID,
       title: prob.title,
       timeLimit: prob.timeLimit,
@@ -354,8 +369,9 @@ router.post('/get', function(req, res){
       hint: prob.hint,
       spj: prob.spj,
       TC: prob.TC,
-      lastmodified: prob.lastmodified
-    });
+      lastmodified: prob.lastmodified,
+    };
+    return res.json(resp);
   });
 });
 

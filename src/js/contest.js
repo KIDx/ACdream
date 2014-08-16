@@ -110,7 +110,7 @@ var $Filter = $('#fil');
 var $singleRejudge;
 var statusQ = { cid:cid, page:1 };
 var searchTimeout;
-var Users;
+var Ratings;
 var statusAjax;
 
 var $loading = $('#loading');
@@ -155,7 +155,7 @@ function buildRow(sol) {
   html += '">';
 
   html += '<td>'+sol.runID+'</td>';
-  var pvl = parseInt(Users[sol.userName], 10);
+  var pvl = parseInt(Ratings[sol.userName], 10);
   html += '<td><a target="_blank" href="/user/'+sol.userName+'" class="user user-';
   html += UserCol(pvl)+'" title="'+UserTitle(pvl)+' '+sol.userName+'">'+sol.userName+'</a></td>';
   html += '<td><a href="#problem-'+pmap[sol.problemID]+'">'+pmap[sol.problemID]+'</a></td>';
@@ -204,14 +204,18 @@ function buildRow(sol) {
   return html;
 }
 
-function Response(json) {
-  if (!statusAjax || !json || !isActive(2)) {
+function Response(res) {
+  if (!statusAjax || !res || !isActive(2)) {
     setRetry(GetStatus);
     return ;
   }
-  Users = json.pop();
-  var n = json.pop(), sols = json.pop();
-  $list.html(buildPager(statusQ.page, n));
+
+  updateTime(res.svrTime, res.startTime, res.duration);
+
+  var sols = res.sols;
+  $list.html(buildPager(statusQ.page, res.pageNum));
+  Ratings = res.ratings;
+
   var html;
   if (!sols || sols.length == 0) {
     html = '<tr class="odd"><td class="error-text center" colspan="9">No Status are matched.</td></tr>';
@@ -454,9 +458,18 @@ function ShowProblem(prob) {
   $tablink.eq(1).attr('href', '#problem-'+F.charAt(ID));
 }
 
-function ProblemResponse(prob) {
-  if (!problemAjax || !prob || !isActive(1)) return ;
-  ShowProblem(ProblemCache[ID] = prob);
+function ProblemResponse(res) {
+  if (!problemAjax || !res || !isActive(1)) {
+    setRetry(GetProblem);
+    return ;
+  }
+
+  if (res.ret == 1) {
+    ShowProblem(ProblemCache[ID] = res.prob);
+  }
+
+  updateTime(res.svrTime, res.startTime, res.duration);
+
 }
 
 function GetProblem() {
@@ -497,7 +510,7 @@ var $rank_refresh = $rank.find('#rank_refresh');
 var rankQ = {cid:cid, page:1};
 var rank = 1;
 var rankTimeout;
-var FB = {};
+var FB;
 var rankAjax;
 var rankInterval;
 var total; //提交过代码的人数
@@ -553,7 +566,7 @@ function buildRank(U) {
   }
   html += '</td>';
 
-  var pvl = parseInt(Users[U.name], 10);
+  var pvl = parseInt(Ratings[U.name], 10);
   html += '<td><a target="_blank" href="/user/'+U.name+'" class="user user-'+UserCol(pvl);
   html += '" title="'+UserTitle(pvl)+' '+U.name+'">';
   html += U.name+'</a>';
@@ -599,18 +612,22 @@ function buildRank(U) {
   return html;
 }
 
-function RankResponse(json) {
-  if (!rankAjax || !json || !isActive(3)) {
+function RankResponse(res) {
+  if (!rankAjax || !res || !isActive(3)) {
     setRetry(GetRanklist);
     return ;
   }
-  total = json.pop();
-  rank = json.pop();
-  FB = json.pop();
-  $ranklist.html( buildPager(rankQ.page, json.pop()) );
-  I = json.pop();
-  Users = json.pop();
-  var users = json.pop();
+
+  updateTime(res.svrTime, res.startTime, res.duration);
+
+  var users = res.users;
+  Ratings = res.ratings || {};
+  I = res.I || {};
+  $ranklist.html( buildPager(rankQ.page, res.pageNum) );
+  FB = res.fb || {};
+  rank = res.rank;
+  total = res.total;
+
   if (!users || users.length == 0) {
     html = '<tr class="odd"><td class="error-text center" colspan="'+(5+prob_num)+'">No Records till Now.</tr>';
   } else {
@@ -845,15 +862,33 @@ function run() {
   }
 }
 
+var hasBound = false;
+
+function bindHashChange() {
+  if (!hasBound)
+  {
+    hasBound = true;
+    run();
+    $(window).hashchange(function(){
+      run();
+    });
+  }
+}
+
 function forNotPending() {
   $hid.removeClass('hidden');
-  run();
-  $(window).hashchange(function(){
-    run();
-  });
+  bindHashChange();
+}
+
+function forPending() {
+  clearInterval(pendingInterval);
+  pendingTimer();
+  pendingInterval = setInterval(pendingTimer, 1000);
+  $('#beforecontest').show();
 }
 
 function forRunning() {
+  clearInterval(runningInterval);
   runningTimer();
   runningInterval = setInterval(runningTimer, 1000);
 }
@@ -861,6 +896,25 @@ function forRunning() {
 function forEnded() {
   $end.removeClass('hidden');
   $clone.show();
+  $bar.css({width: '100%'});
+}
+
+function toRunning() {
+  clearInterval(pendingInterval);
+  forRunning();
+  $('#beforecontest').hide();
+  $('#conteststatus').text('Running').removeClass('info-text').addClass('wrong-text');
+  $progress.removeClass('progress-success').addClass('progress-danger');
+  forNotPending();
+}
+
+function toEnded() {
+  clearInterval(pendingInterval);
+  clearInterval(runningInterval);
+  $('#conteststatus').text('Ended').removeClass('wrong-text').addClass('accept-text');
+  $progress.removeClass('progress-danger').addClass('progress-success');
+  forEnded();
+  $info.remove();
 }
 
 var pendingInterval;
@@ -876,33 +930,49 @@ function pendingTimer() {
   }
   --pending;
   if (pending < 0) {
-    clearInterval(pendingInterval);
     passTime = 0;
-    forRunning();
-    $('#beforecontest').hide();
-    $('#conteststatus').text('Running').removeClass('info-text').addClass('wrong-text');
-    $progress.addClass('progress-danger');
-    $bar.css({width: 0});
-    forNotPending();
+    toRunning();
   }
 }
 
 var runningInterval;
 
 function runningTimer() {
-  if (passTime > TotalTime) {
-    clearInterval(runningInterval);
-    $('#conteststatus').text('Ended').removeClass('wrong-text').addClass('accept-text');
-    $progress.addClass('progress-success');
-    forEnded();
-    $info.remove();
+  if (passTime > duration) {
+    toEnded();
   } else {
-    var tp = passTime*100.0/TotalTime;
+    var tp = passTime*100.0/duration;
     if (tp > 50) $contain.css({'text-align':'left'});
     $bar.css({width:tp+'%'});
     $info.css({width:(100<=tp+2.5)?'100%':tp+2.5+'%'});
-    $info.text('-'+deal(TotalTime - passTime));
+    $info.text('-'+deal(duration - passTime));
     ++passTime;
+  }
+}
+
+function updateTime(iSvrTime, iStartTime, iDuration) {
+  var pt = Math.round((iSvrTime - iStartTime) / 1000);
+  if (startTime != iStartTime || duration != iDuration || Math.abs(pt - passTime) > 30) {
+    startTime = iStartTime;
+    duration = iDuration;
+    passTime = pt;
+    if (pt < 0) {
+      clearInterval(runningInterval);
+      pending = -passTime;
+      forPending();
+      $('#conteststatus').text('Pending').removeClass('wrong-text accept-text').addClass('info-text');
+      $progress.removeClass('progress-danger progress-success');
+      $bar.css({width: '100%'});
+      $info.css({width: 'auto'});
+      if (!isManager) {
+        window.location.hash = 'overview';
+        $hid.addClass('hidden');
+      }
+    } else if (pt <= duration) {
+      toRunning();
+    } else {
+      toEnded();
+    }
   }
 }
 
@@ -916,8 +986,7 @@ function runContest() {
   });
 
   if (status == 'Pending') {
-    pendingTimer();
-    pendingInterval = setInterval(pendingTimer, 1000);
+    forPending();
   } else if (status == 'Running') {
     forRunning();
   }

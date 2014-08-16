@@ -316,7 +316,14 @@ router.post('/get', function(req, res){
       users.forEach(function(p){
         rt[p.name] = p.rating;
       });
-      return res.json([sols, cnt, rt]);
+      return res.json({
+        sols: sols,
+        pageNum: cnt,
+        ratings: rt,
+        startTime: contest.startTime,
+        duration: contest.len * 60,
+        svrTime: (new Date()).getTime()
+      });
     });
   });
 });

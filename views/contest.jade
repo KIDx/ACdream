@@ -81,8 +81,8 @@ fieldset#widthfix
             a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type) Edit
             a#delete.uibtn(href="javascript:;") Delete
           a#clone.uibtn.checklogin(style="display:none;" href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
-          if (s == 'Pending' && !isManager)
-            #beforecontest.user-gray(style="text-align:center;font-size:1.75em;margin:100px;")
+          if (!isManager)
+            #beforecontest.user-gray(style="text-align:center;font-size:1.75em;margin:100px;display:none;")
               = 'Before Contest '
               span#lefttime
         #problemsview.hidden
@@ -276,7 +276,7 @@ script(type="text/javascript").
   var cid = #{contest.contestID};
   var ctype = #{contest.type};
   var startTime = #{startTime};
-  var TotalTime = #{contest.len * 60};
+  var duration = #{contest.len * 60};
   var pending = #{pending};
   var status = '#{s}';
   var isManager = #{isManager ? true : false};

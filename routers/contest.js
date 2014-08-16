@@ -310,8 +310,16 @@ router.post('/ranklist', function(req, res){
         if (n < 0) {
           return res.end();
         }
+
+        var resp = {
+          pageNum: n,
+          startTime: con.startTime,
+          duration: con.len * 60,
+          svrTime: (new Date()).getTime()
+        };
+
         if (!users || users.length == 0) {
-          return res.json([null, {}, {}, n, {}, 0, 0]);
+          return res.json(resp);
         }
         var has = {}, names = new Array();
         var Users = new Array();
@@ -397,7 +405,13 @@ router.post('/ranklist', function(req, res){
             LogErr(err);
             return res.end();
           }
-          return res.json([Users, rt, I, n, con.FB, rank, cnt]);
+          resp.users = Users;
+          resp.ratings = rt;
+          resp.I = I;
+          resp.fb = con.FB;
+          resp.rank = rank;
+          resp.total = cnt;
+          return res.json(resp);
         });
       });
     };
