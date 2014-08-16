@@ -205,7 +205,11 @@ function buildRow(sol) {
 }
 
 function Response(res) {
-  if (!statusAjax || !res || !isActive(2)) {
+  if (!isActive(2)) {
+    return ;
+  }
+
+  if (!statusAjax || !res) {
     setRetry(GetStatus);
     return ;
   }
@@ -459,7 +463,11 @@ function ShowProblem(prob) {
 }
 
 function ProblemResponse(res) {
-  if (!problemAjax || !res || !isActive(1)) {
+  if (!isActive(1)) {
+    return ;
+  }
+
+  if (!problemAjax || !res) {
     setRetry(GetProblem);
     return ;
   }
@@ -613,7 +621,11 @@ function buildRank(U) {
 }
 
 function RankResponse(res) {
-  if (!rankAjax || !res || !isActive(3)) {
+  if (!isActive(3)) {
+    return ;
+  }
+
+  if (!rankAjax || !res) {
     setRetry(GetRanklist);
     return ;
   }
@@ -748,7 +760,11 @@ function buildDiscuss(p) {
 }
 
 function DiscussResponse(json) {
-  if (!discussAjax || !json || !isActive(4)) {
+  if (!isActive(4)) {
+    return ;
+  }
+
+  if (!discussAjax || !json) {
     setRetry(GetDiscuss);
     return ;
   }
