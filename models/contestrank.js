@@ -1,10 +1,11 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var settings = require('../settings');
-var pageNum = settings.contestRank_pageNum;
-var OE = settings.outputErr;
+var Settings = require('../settings');
+var pageNum = Settings.contestRank_pageNum;
 var initialValue = { penalty: 0, solved: 0, submitTime: 0 };
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function Rank(cid, name) {
   this.cid = cid;
@@ -36,7 +37,7 @@ Rank.prototype.save = function(callback) {
   rank._id = new Object({ name: this.name, cid: this.cid });
   rank.save(function(err){
     if (err) {
-      OE('Rank.save failed!');
+      LogErr('Rank.save failed!');
     }
     return callback(err);
   });
@@ -45,7 +46,7 @@ Rank.prototype.save = function(callback) {
 Rank.findOne = function(Q, callback) {
   ranks.findOne(Q, function(err, doc){
     if (err) {
-      OE('Rank.fineOne failed!');
+      LogErr('Rank.fineOne failed!');
     }
     return callback(err, doc);
   });
@@ -63,7 +64,7 @@ Rank.get = function(Q, page, callback) {
       '_id.name': 1
     }).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs) {
       if (err) {
-        OE('Rank.get failed!');
+        LogErr('Rank.get failed!');
       }
       return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
@@ -78,7 +79,7 @@ Rank.getAll = function(Q, callback) {
     '_id.name': 1
   }).exec(function(err, docs){
     if (err) {
-      OE('Rank.getAll failed!');
+      LogErr('Rank.getAll failed!');
     }
     return callback(err, docs);
   });
@@ -87,7 +88,7 @@ Rank.getAll = function(Q, callback) {
 Rank.count = function(Q, callback) {
   ranks.count(Q, function(err, count){
     if (err) {
-      OE('Rank.count failed!');
+      LogErr('Rank.count failed!');
     }
     return callback(err, count);
   });
@@ -96,7 +97,7 @@ Rank.count = function(Q, callback) {
 Rank.clear = function(Q, callback) {
   ranks.update(Q, {value: initialValue}, {multi:true}, function(err){
     if (err) {
-      OE('Rank.clear failed!');
+      LogErr('Rank.clear failed!');
     }
     return callback(err);
   });
@@ -105,7 +106,7 @@ Rank.clear = function(Q, callback) {
 Rank.remove = function(Q, callback) {
   ranks.remove(Q, function(err){
     if (err) {
-      OE('Rank.remove failed!');
+      LogErr('Rank.remove failed!');
     }
     return callback(err);
   });

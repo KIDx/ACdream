@@ -1,10 +1,10 @@
 
 var mongoose = require('mongoose');
-var settings = require('../settings');
-var dburl = settings.dburl;
-var pageNum = settings.status_pageNum;
-var OE = settings.outputErr;
 var Schema = mongoose.Schema;
+var Settings = require('../settings');
+var pageNum = Settings.status_pageNum;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function Solution(solution) {
   this.runID = solution.runID;
@@ -59,7 +59,7 @@ Solution.prototype.save = function(callback) {
   solution.code = this.code;
   solution.save(function(err){
     if (err) {
-      OE('Solution.save failed!');
+      LogErr('Solution.save failed!');
     }
     return callback(err);
   });
@@ -68,7 +68,7 @@ Solution.prototype.save = function(callback) {
 Solution.find = function(Q, callback) {
   solutions.find(Q, function(err, docs){
     if (err) {
-      OE('Solution.find failed!');
+      LogErr('Solution.find failed!');
     }
     return callback(err, docs);
   });
@@ -77,7 +77,7 @@ Solution.find = function(Q, callback) {
 Solution.findOne = function(Q, sq, callback) {
   solutions.findOne(Q).sort(sq).exec(function(err, doc){
     if (err) {
-      OE('Solution.findOne failed!');
+      LogErr('Solution.findOne failed!');
     }
     return callback(err, doc);
   });
@@ -91,7 +91,7 @@ Solution.get = function(Q, page, callback) {
     solutions.find(Q).sort({runID:-1}).skip((page-1)*pageNum).limit(pageNum)
     .exec(function(err, docs){
       if (err) {
-        OE('Solution.get failed!');
+        LogErr('Solution.get failed!');
       }
       return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
@@ -101,7 +101,7 @@ Solution.get = function(Q, page, callback) {
 Solution.distinct = function(key, Q, callback) {
   solutions.distinct(key, Q, function(err, docs){
     if (err) {
-      OE('Solution.distinct failed!');
+      LogErr('Solution.distinct failed!');
     }
     callback(err, docs);
   });
@@ -110,7 +110,7 @@ Solution.distinct = function(key, Q, callback) {
 Solution.update = function(Q, H, callback) {
   solutions.update(Q, H, { multi:true }, function(err){
     if (err) {
-      OE('Solution.update failed!');
+      LogErr('Solution.update failed!');
     }
     return callback(err);
   });
@@ -119,7 +119,7 @@ Solution.update = function(Q, H, callback) {
 Solution.watch = function(Q, callback) {
   solutions.findOne(Q, function(err, doc){
     if (err) {
-      OE('Solution.watch failed!');
+      LogErr('Solution.watch failed!');
     }
     return callback(err, doc);
   });
@@ -128,7 +128,7 @@ Solution.watch = function(Q, callback) {
 Solution.mapReduce = function(o, callback) {
   solutions.mapReduce(o, function(err, docs){
     if (err) {
-      OE('Solution.mapReduce failed!');
+      LogErr('Solution.mapReduce failed!');
     }
     return callback(err, docs);
   });
@@ -137,7 +137,7 @@ Solution.mapReduce = function(o, callback) {
 Solution.aggregate = function(o, callback) {
   solutions.aggregate(o, function(err, docs){
     if (err) {
-      OE('Solution.aggregate failed!');
+      LogErr('Solution.aggregate failed!');
     }
     return callback(err, docs);
   });
@@ -146,7 +146,7 @@ Solution.aggregate = function(o, callback) {
 Solution.count = function(Q, callback) {
   solutions.count(Q, function(err, count){
     if (err) {
-      OE('Solution.count failed!');
+      LogErr('Solution.count failed!');
     }
     return callback(err, count);
   });
@@ -155,7 +155,7 @@ Solution.count = function(Q, callback) {
 Solution.findOneAndUpdate = function(Q, H, callback) {
   solutions.findOneAndUpdate(Q, H, function(err, doc){
     if (err) {
-      OE('Solution.findOneAndUpdate failed!');
+      LogErr('Solution.findOneAndUpdate failed!');
     }
     return callback(err, doc);
   });

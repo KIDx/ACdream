@@ -1,9 +1,10 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var settings = require('../settings');
-var pageNum = settings.contest_pageNum;
-var OE = settings.outputErr;
+var Settings = require('../settings');
+var pageNum = Settings.contest_pageNum;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function Contest(contest) {
   this.contestID = contest.contestID;
@@ -64,7 +65,7 @@ Contest.prototype.save = function(callback) {
   contest.maxRunID = 0;
   contest.save(function(err){
     if (err) {
-      OE('Contest.save failed!');
+      LogErr('Contest.save failed!');
     }
     return callback(err);
   });
@@ -73,7 +74,7 @@ Contest.prototype.save = function(callback) {
 Contest.find = function(Q, callback) {
   contests.find(Q, function(err, docs){
     if (err) {
-      OE('Contest.find failed!');
+      LogErr('Contest.find failed!');
     }
     return callback(err, docs);
   });
@@ -87,7 +88,7 @@ Contest.get = function(Q, page, callback) {
     contests.find(Q).sort({startTime: -1, contestID: -1}).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
-        OE('Contest.get failed!');
+        LogErr('Contest.get failed!');
       }
       return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
@@ -97,7 +98,7 @@ Contest.get = function(Q, page, callback) {
 Contest.watch = function(cid, callback) {
   contests.findOne({contestID: cid}, function(err, doc){
     if (err) {
-      OE('Contest.watch failed!');
+      LogErr('Contest.watch failed!');
     }
     return callback(err, doc);
   });
@@ -106,7 +107,7 @@ Contest.watch = function(cid, callback) {
 Contest.findOneAndUpdate = function(Q, H, O, callback) {
   contests.findOneAndUpdate(Q, H, O, function(err, doc){
     if (err) {
-      OE('Contest.findOneAndUpdate failed!');
+      LogErr('Contest.findOneAndUpdate failed!');
     }
     return callback(err, doc);
   });
@@ -115,7 +116,7 @@ Contest.findOneAndUpdate = function(Q, H, O, callback) {
 Contest.update = function(cid, H, callback) {
   contests.update({contestID: cid}, H, function(err){
     if (err) {
-      OE('Contest.update failed!');
+      LogErr('Contest.update failed!');
     }
     return callback(err);
   });
@@ -124,7 +125,7 @@ Contest.update = function(cid, H, callback) {
 Contest.multiUpdate = function(Q, H, callback) {
   contests.update(Q, H, {multi: true}, function(err){
     if (err) {
-      OE('Contest.multiUpdate failed!');
+      LogErr('Contest.multiUpdate failed!');
     }
     return callback(err);
   });
@@ -133,7 +134,7 @@ Contest.multiUpdate = function(Q, H, callback) {
 Contest.remove = function(cid, callback) {
   contests.remove({contestID: cid}, function(err){
     if (err) {
-      OE('Contest.remove failed!');
+      LogErr('Contest.remove failed!');
     }
     return callback(err);
   });
@@ -143,7 +144,7 @@ Contest.topFive = function(Q, callback) {
   contests.find(Q).sort({startTime:-1, contestID: -1})
     .limit(5).exec(function(err, docs){
     if (err) {
-      OE('Contest.topFive failed!');
+      LogErr('Contest.topFive failed!');
     }
     return callback(err, docs);
   });

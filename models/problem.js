@@ -1,9 +1,10 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var settings = require('../settings');
-var pageNum = settings.problemset_pageNum;
-var OE = settings.outputErr;
+var Settings = require('../settings');
+var pageNum = Settings.problemset_pageNum;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function Problem(problem) {
   this.problemID = problem.problemID;
@@ -62,7 +63,7 @@ Problem.prototype.save = function(callback) {
 
   problem.save(function(err){
     if (err) {
-      OE('Problem.save failed!');
+      LogErr('Problem.save failed!');
     }
     return callback(err);
   });
@@ -71,7 +72,7 @@ Problem.prototype.save = function(callback) {
 Problem.find = function(Q, callback) {
   problems.find(Q, function(err, docs){
     if (err) {
-      OE('Problem.find failed!');
+      LogErr('Problem.find failed!');
     }
     return callback(err, docs);
   });
@@ -85,7 +86,7 @@ Problem.get = function(Q, page, callback) {
     problems.find(Q).sort({problemID:1}).skip((page-1)*pageNum).limit(pageNum)
       .exec(function(err, docs){
       if (err) {
-        OE('Problem.get failed!');
+        LogErr('Problem.get failed!');
       }
       return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10), count);
     });
@@ -95,7 +96,7 @@ Problem.get = function(Q, page, callback) {
 Problem.watch = function(pid, callback) {
   problems.findOne({problemID: pid}, function(err, doc) {
     if (err) {
-      OE('Problem.watch failed!');
+      LogErr('Problem.watch failed!');
     }
     return callback(err, doc);
   });
@@ -104,7 +105,7 @@ Problem.watch = function(pid, callback) {
 Problem.update = function(pid, H, callback) {
   problems.update({problemID: pid}, H, function(err){
     if (err) {
-      OE('Problem.update failed!');
+      LogErr('Problem.update failed!');
     }
     return callback(err);
   });
@@ -113,7 +114,7 @@ Problem.update = function(pid, H, callback) {
 Problem.multiUpdate = function(Q, H, callback) {
   problems.update(Q, H, {multi:true}, function(err){
     if (err) {
-      OE('Problem.multiUpdate failed!');
+      LogErr('Problem.multiUpdate failed!');
     }
     return callback(err);
   });
@@ -122,7 +123,7 @@ Problem.multiUpdate = function(Q, H, callback) {
 Problem.distinct = function(key, Q, callback) {
   problems.distinct(key, Q, function(err, ary){
     if (err) {
-      OE('Problem.distinct failed!');
+      LogErr('Problem.distinct failed!');
     }
     return callback(err, ary);
   });

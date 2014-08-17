@@ -1,7 +1,8 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var OE = require('../settings').outputErr;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function IDs (ids){
   this.name = ids.name;
@@ -21,7 +22,7 @@ var idss = mongoose.model('idss');
 IDs.get = function(idname, callback) {
   idss.findOneAndUpdate({name: idname}, {$inc:{'id':1}}, function(err, doc) {
     if (err) {
-      OE('IDs.get failed!');
+      LogErr('IDs.get failed!');
       return callback (err, null);
     }
     if (!doc) {

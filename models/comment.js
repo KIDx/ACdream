@@ -1,9 +1,10 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var settings = require('../settings');
-var pageNum = settings.comment_pageNum;
-var OE = settings.outputErr;
+var Settings = require('../settings');
+var pageNum = Settings.comment_pageNum;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function Comment(comment) {
   this.id = comment.id;
@@ -45,7 +46,7 @@ Comment.prototype.save = function(callback) {
   comment.hide = false;
   comment.save(function(err){
     if (err) {
-      OE('Comment.save failed!');
+      LogErr('Comment.save failed!');
     }
     return callback(err);
   });
@@ -55,7 +56,7 @@ Comment.get = function(Q, callback){
   comments.count(Q, function(err, count) {
     comments.find(Q).sort({id: 1}).exec(function(err, docs){
       if (err) {
-        OE('Comment.get failed!');
+        LogErr('Comment.get failed!');
       }
       return callback(err, docs);
     });
@@ -65,7 +66,7 @@ Comment.get = function(Q, callback){
 Comment.watch = function(tid, callback) {
   comments.findOne({id: tid}, function(err, doc){
     if (err) {
-      OE('Comment.watch failed!');
+      LogErr('Comment.watch failed!');
     }
     return callback(err, doc);
   });
@@ -74,7 +75,7 @@ Comment.watch = function(tid, callback) {
 Comment.update = function(Q, H, callback) {
   comments.update(Q, H, function(err){
     if (err) {
-      OE('Comment.update failed!');
+      LogErr('Comment.update failed!');
     }
     return callback(err);
   });
@@ -83,7 +84,7 @@ Comment.update = function(Q, H, callback) {
 Comment.findOneAndRemove = function(Q, callback) {
   comments.findOneAndRemove(Q, function(err, doc){
     if (err) {
-      OE('Comment.findOneAndRemove failed!');
+      LogErr('Comment.findOneAndRemove failed!');
     }
     return callback(err, doc);
   });
@@ -92,7 +93,7 @@ Comment.findOneAndRemove = function(Q, callback) {
 Comment.count = function(Q, callback) {
   comments.count(Q, function(err, cnt){
     if (err) {
-      OE('Comment.count failed!');
+      LogErr('Comment.count failed!');
     }
     return callback(err, cnt);
   });
@@ -101,7 +102,7 @@ Comment.count = function(Q, callback) {
 Comment.remove = function(Q, callback) {
   comments.remove(Q, function(err){
     if (err) {
-      OE('Comment.remove failed!');
+      LogErr('Comment.remove failed!');
     }
     return callback(err);
   });
@@ -110,7 +111,7 @@ Comment.remove = function(Q, callback) {
 Comment.findLast = function(Q, callback) {
   comments.findOne(Q).sort({inDate: -1}).exec(function(err, doc){
     if (err) {
-      OE('Comment.findLast failed!');
+      LogErr('Comment.findLast failed!');
     }
     return callback(err, doc);
   });

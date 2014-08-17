@@ -1,9 +1,11 @@
 var mongoose = require('mongoose');
 var db = require('../settings').db;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 mongoose.connect(db, function (err) {
   if (err) {
-    console.error('connect to %s error: ', db, err.message);
+    LogErr('connect to ' + db + ' error: ' + err.message);
     process.exit(1);
   }
 });

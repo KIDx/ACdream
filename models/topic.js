@@ -1,9 +1,10 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var settings = require('../settings');
-var pageNum = settings.topic_pageNum;
-var OE = settings.outputErr;
+var Settings = require('../settings');
+var pageNum = Settings.topic_pageNum;
+var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 
 function Topic(topic) {
   this.id = topic.id;
@@ -49,7 +50,7 @@ Topic.prototype.save = function(callback) {
   topic.top = false;
   topic.save(function(err){
     if (err) {
-      OE('Topic.save failed!');
+      LogErr('Topic.save failed!');
     }
     return callback(err);
   });
@@ -63,7 +64,7 @@ Topic.get = function(Q, page, callback) {
     topics.find(Q).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
-        OE('Topic.get failed!');
+        LogErr('Topic.get failed!');
       }
       return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
@@ -73,7 +74,7 @@ Topic.get = function(Q, page, callback) {
 Topic.watch = function(tid, callback) {
   topics.findOne({id: tid}, function(err, doc){
     if (err) {
-      OE('Topic.watch failed!');
+      LogErr('Topic.watch failed!');
     }
     return callback(err, doc);
   });
@@ -82,7 +83,7 @@ Topic.watch = function(tid, callback) {
 Topic.update = function(tid, H, callback) {
   topics.update({id: tid}, H, function(err){
     if (err) {
-      OE('Topic.update failed!');
+      LogErr('Topic.update failed!');
     }
     return callback(err);
   });
@@ -91,7 +92,7 @@ Topic.update = function(tid, H, callback) {
 Topic.topFive = function(Q, callback) {
   topics.find(Q).sort({lastReviewTime: -1}).limit(5).exec(function(err, docs){
     if (err) {
-      OE('Topic.topFive failed!');
+      LogErr('Topic.topFive failed!');
     }
     return callback(err, docs);
   });
