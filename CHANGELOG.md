@@ -1,3 +1,12 @@
+## 1.5.0 / 2014-08-17
+* addproblem后不需要立刻mkdir新建数据文件夹
+* 调整比赛提交窗口的大小
+* 重构比赛页面的变量传递，无需附在标签上
+* contest完善url非法参数处理
+* !!! contest开始或结束不再刷新页面，用逻辑处理代替
+* !! contest的post追加返回最新的contest.startTime, contest.len, svrTime, 基本实现时间同步
+* !! contest增加pending时每分钟获取一次最新contest.startTime, contest.len, svrTime, 修正时间同步
+
 ## 1.4.0 / 2014-08-10
 * 增加gruntfile压缩js和css
 * 使用express4.x的router令功能模块化，方便多人开发
