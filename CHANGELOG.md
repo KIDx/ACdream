@@ -12,11 +12,16 @@
 * 使用express4.x的router令功能模块化，方便多人开发
 * URL路径变更：
 ```
+get:
 /problemset -> /problem/list
 /contest/xxx -> /contest/list?type=xxx
 /onecontest/xxx -> /contest?cid=xxx
 /topic -> /topic/list
 /topic/xxx -> /topic?tid=xxx
+
+post:
+/doLogin -> /login
+/doReg -> /register
 ...
 ```
 * 增加addrouter脚本，方便开发者新增页面或功能模块
