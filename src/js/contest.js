@@ -891,16 +891,35 @@ function bindHashChange() {
   }
 }
 
+var syncTimeInterval;
+
+function syncTime() {
+  $.ajax({
+    type: 'POST',
+    url: '/contest/syncTime',
+    data: {
+      cid: cid
+    },
+    dataType: 'json'
+  }).done(function(res){
+    if (res) {
+      updateTime(res.svrTime, res.startTime, res.duration);
+    }
+  });
+}
+
 function forNotPending() {
   $hid.removeClass('hidden');
   bindHashChange();
 }
 
 function forPending() {
+  clearInterval(syncTimeInterval);
   clearInterval(pendingInterval);
   pendingTimer();
   pendingInterval = setInterval(pendingTimer, 1000);
   $('#beforecontest').show();
+  syncTimeInterval = setInterval(syncTime, 60000);
 }
 
 function forRunning() {
@@ -916,21 +935,30 @@ function forEnded() {
 }
 
 function toRunning() {
+  clearInterval(syncTimeInterval);
   clearInterval(pendingInterval);
   forRunning();
   $('#beforecontest').hide();
   $('#conteststatus').text('Running').removeClass('info-text').addClass('wrong-text');
+  $info.show();
+  if (!isManager) {
+    $end.addClass('hidden');
+    $clone.hide();
+  }
   $progress.removeClass('progress-success').addClass('progress-danger');
   forNotPending();
 }
 
 function toEnded() {
+  clearInterval(syncTimeInterval);
   clearInterval(pendingInterval);
   clearInterval(runningInterval);
+  $('#beforecontest').hide();
   $('#conteststatus').text('Ended').removeClass('wrong-text').addClass('accept-text');
   $progress.removeClass('progress-danger').addClass('progress-success');
+  forNotPending();
   forEnded();
-  $info.remove();
+  $info.hide();
 }
 
 var pendingInterval;
@@ -979,8 +1007,9 @@ function updateTime(iSvrTime, iStartTime, iDuration) {
       $('#conteststatus').text('Pending').removeClass('wrong-text accept-text').addClass('info-text');
       $progress.removeClass('progress-danger progress-success');
       $bar.css({width: '100%'});
-      $info.css({width: 'auto'});
+      $info.show().css({width: 'auto'});
       if (!isManager) {
+        $clone.hide();
         window.location.hash = 'overview';
         $hid.addClass('hidden');
       }
@@ -1014,6 +1043,7 @@ function runContest() {
   if (status != 'Pending' || isManager) {
     forNotPending();
   } else {
+    window.location.hash = 'overview';
     doActive(0);
     $overview.fadeIn(100);
     PreTab = -1;

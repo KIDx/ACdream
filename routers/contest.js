@@ -959,4 +959,27 @@ router.post('/toggleStar', function(req, res){
   });
 });
 
+/*
+ * 当contest处于pending状态时，需要每隔一段时间获取最新的contest.startTime, contest.len, svrTime
+ */
+router.post('/syncTime', function(req, res){
+  res.header('Content-Type', 'text/plain');
+
+  var cid = parseInt(req.body.cid, 10);
+  Contest.watch(cid, function(err, contest){
+    if (err) {
+      LogErr(err);
+      return res.end();
+    }
+    if (!contest) {
+      return res.end();
+    }
+    return res.json({
+      startTime: contest.startTime,
+      duration: contest.len * 60,
+      svrTime: (new Date()).getTime()
+    });
+  });
+});
+
 module.exports = router;
