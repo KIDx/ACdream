@@ -13,7 +13,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.forcePasteAsPlainText = true;
 	config.allowedContent = true;
 	config.autoParagraph = false;
-	config.contentsCss = ['../stylesheets/bootstrap.css', CKEDITOR.basePath+'contents.css'];
+	config.contentsCss = ['../bootstrap/bootstrap.css', CKEDITOR.basePath+'contents.css'];
 
 	config.toolbar = [
 		{ name: 'document', items: [ 'Source' ] },
