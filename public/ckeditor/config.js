@@ -21,7 +21,7 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock']},
 		{ name: 'insert', items: [ 'Image','Table','HorizontalRule','SpecialChar' ] },
 		'/',
-		{ name: 'styles', items : [ 'Format','FontSize' ] },
+		{ name: 'styles', items : [ 'Format','FontSize', 'Subscript', '-', 'Superscript' ] },
 		{ name:'colors', items : [ 'TextColor' ] },
 		{ name: 'links', items : [ 'Link','Unlink','Anchor' ] },
 		{ name: 'about', items: [ 'About' ] },
@@ -47,7 +47,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Remove some buttons, provided by the standard plugins, which we don't
 	// need to have in the Standard(s) toolbar.
-	config.removeButtons = 'Underline,Subscript,Superscript';
+	config.removeButtons = 'Underline';
 
 	// Se the most common block elements.
 	config.format_tags = 'p;h1;h2;h3;pre';
