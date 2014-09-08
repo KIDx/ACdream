@@ -1,3 +1,10 @@
+## 1.5.1 / 2014-09-8
+* 将VIP Contest划分为Speed Contest和Rating Contest
+* 修复contest页面进度条的时间宽度太小导致的换行
+* 修复user页面rating统计图到contest的链接不正确的bug
+* 只有problem manager或者admin可以看到隐藏problem的statistic页面
+* 重构remember me的逻辑，增加快捷登录
+
 ## 1.5.0 / 2014-08-17
 * addproblem后不需要立刻mkdir新建数据文件夹
 * 调整比赛提交窗口的大小
