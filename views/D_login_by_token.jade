@@ -1,0 +1,17 @@
+mixin D_login_by_token(info)
+  - var img = '/img/avatar/%3Ddefault%3D/3.jpeg';
+  if (info.img)
+    - img = '/img/avatar/'+info.username+'/3.'+info.img;
+  #dialog_lgbtk.jqmSubmit(style="width:300px;height:210px;top:15%;")
+    .jqDrag.jqtop Fast Login
+    .jqcontent(style="width:300px;height:150px;padding:0;")
+      div(style="text-align:center;padding-top:20px;overflow:visible;")
+        a#fast_login(href="javascript:;" title="PRESS To Login")
+          img.img_m.topic_img(src=img)
+      div(style="text-align:center;")
+        span.user-black(style="font-size:12px") Hello, #{info.username}
+      small#fast_login_err.error-text
+    .jqfoot(style="right:5px;bottom:2px;")
+      div
+        a.user-gray#switch(href="javascript:;" style="font-size:12px") Switch Account
+    i.login_by_token_close.jqclose
