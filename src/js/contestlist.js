@@ -2,7 +2,7 @@
 var $fil = $('#fil');
 var $search = $('#search');
 var $list = $('#list').find('a');
-var type = $('#contest').attr('type');
+var base_url = '/contest/list?type='+contest_type;
 
 function go(page){
   var F = new Array(), G = new Array();
@@ -10,7 +10,7 @@ function go(page){
 
   if (page) F.push('page'), G.push(page);
   if (search) F.push('search'), G.push(search);
-  var url = '/contest/list?type='+type, flg = true;
+  var url = base_url, flg = true;
   for (var i = 0; i < F.length; i++) {
     url += '&' + F[i] + '=' + G[i];
   }
@@ -19,6 +19,9 @@ function go(page){
 }
 
 $(document).ready(function(){
+  if (contest_type === 2) {
+    base_url += '&family=' + contest_family;
+  }
   $fil.click(function(){
     go(null);
   });
@@ -33,7 +36,7 @@ $(document).ready(function(){
   });
   simulateClick($search, $fil);
   $('#reset').click(function(){
-    window.location.href = '/contest/list?type='+type;
+    window.location.href = base_url;
   });
 });
 

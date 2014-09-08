@@ -1,13 +1,16 @@
 - var cname = 'Contest';
 fieldset
   div
-    legend#contest(type=type)
-      if (type == 1)
+    legend#contest
+      if (type === 1)
         | DIY Contest
-      else if (type == 2)
-        | VIP Contest
-      else
-        | 考试
+      else if (type === 2)
+        if (family === "rating")
+          | Rating Contest
+        else if (family === "speed")
+          | Speed Contest
+        else
+          | VIP Contest
   .tablebg
     div#pager
       include pager
@@ -15,7 +18,7 @@ fieldset
       #filter.fr
         div
           if (user)
-            a.uibtn.uibtn-mini(href="/addcontest?type="+type) Add #{cname}
+            a.uibtn.uibtn-mini(href="/addcontest?type="+type+"&family="+family) Add #{cname}
           else
             a#addcontest.uibtn.uibtn-mini.checklogin(href="javascript:;") Add #{cname}
         .input-prepend

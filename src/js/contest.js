@@ -59,11 +59,9 @@ var interceptorTime = 200; //截流响应
 var cnt; //行号
 
 var $div = $('#thumbnail');
-var $contest = $('#contest');
 var $p_span = $('span.cpid');
 var pids = new Array();
 var alias = new Array();
-var contest_private = $contest.attr('psw');
 var passTime = -pending;
 
 var $progress = $('#progress');
@@ -1219,7 +1217,11 @@ $(document).ready(function(){
           ShowMessage('无法连接到服务器！');
         }
       }).done(function(){
-        window.location.href = '/contest/list?type='+ctype;
+        var url = '/contest/list?type='+contest_type;
+        if (contest_type === 2) {
+          url += '&family=' + contest_family;
+        }
+        window.location.href = url;
       });
     });
   }

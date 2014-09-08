@@ -73,21 +73,28 @@ router.get('/', function(req, res){
     if (!contest) {
       return res.redirect('/404');
     }
-    if (contest.type != 2) {
+    var family = "";
+    var isContestant = false;
+    if (contest.type === 2) {
+      if (contest.penalty === 20) {
+        family = "rating";
+      } else if (contest.penalty === 40) {
+        family = "speed";
+      }
+      if (req.session.user && (req.session.user.name === contest.userName ||
+          isRegCon(contest.contestants, req.session.user.name))) {
+        isContestant = true;
+      }
+    } else {
+      isContestant = true;
       if (contest.password) {
-        if (!req.session.user || (req.session.user.name != contest.userName && req.session.user.name != 'admin')) {
+        if (!req.session.user || (req.session.user.name !== contest.userName && req.session.user.name !== 'admin')) {
           if (!req.session.cid || !req.session.cid[cid]) {
-            req.session.msg = 'you should login the contest '+cid+' first!';
-            return res.redirect('/contest/list?type='+contest.type);
+            req.session.msg = 'You should login the contest '+cid+' first!';
+            return res.redirect('/contest/list?type=1');
           }
         }
       }
-    }
-    var isContestant = false;
-    if (contest.type != 2 || (req.session.user &&
-        (req.session.user.name == contest.userName ||
-        isRegCon(contest.contestants, req.session.user.name)))) {
-      isContestant = true;
     }
     var pids = new Array();
     if (contest.probs) {
@@ -120,6 +127,8 @@ router.get('/', function(req, res){
           title: 'Contest '+cid,
           key: KEY.CONTEST,
           contest: contest,
+          type: contest.type,
+          family: family,
           getDate: getDate,
           isContestant: isContestant,
           MC: userCol(user.rating),
@@ -143,29 +152,43 @@ router.get('/list', function(req, res){
     return res.redirect('/404');
   }
 
+  var family = String(req.query.family);
+
   if (!req.query.page) {
     page = 1;
   } else {
     page = parseInt(req.query.page, 10);
   }
+
+  var url = '/contest/list?type='+type + (family ? "&family="+family : "");
+
   if (!page || page < 0) {
-    return res.redirect('/contest/list?type='+type);
+    return res.redirect(url);
   }
 
-  var q1 = {type: type}, q2 = {type: type}, search = req.query.search;
+  var Q = {type: type}, q1 = {}, q2 = {}, search = req.query.search;
 
   if (search) {
     q1.title = q2.userName = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
+    Q.$or = [q1, q2];
   }
 
-  Contest.get({$or:[q1, q2]}, page, function(err, contests, n){
+  if (type === 2) {
+    if (family === "rating") {
+      Q.penalty = 20;
+    } else if (family === "speed") {
+      Q.penalty = 40;
+    }
+  }
+
+  Contest.get(Q, page, function(err, contests, n){
     if (err) {
       LogErr(err);
       req.session.msg = '系统错误！';
       return res.redirect('/');
     }
     if (n < 0) {
-      return res.redirect('/contest/list?type='+type);
+      return res.redirect(url);
     }
     var T = new Array(), R = {}, now = (new Date()).getTime();
     var CS = {}, names = new Array();
@@ -197,6 +220,7 @@ router.get('/list', function(req, res){
         title: 'ContestList',
         key: KEY.CONTEST_LIST,
         type: type,
+        family: family,
         contests: contests,
         getDate: getDate,
         n: n,

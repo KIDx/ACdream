@@ -37,6 +37,7 @@ router.route('/')
       key: KEY.ADD_CONTEST,
       clone: clone,
       type: type,
+      family: String(req.query.family),
       edit: E,
       P: P
     });

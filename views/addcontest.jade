@@ -22,7 +22,6 @@ else
   - tp = type;
 
 - var cname = 'Contest';
-- if (tp == 3) cname = 'Exam';
 
 - var probs;
 if (contest)
@@ -59,7 +58,7 @@ fieldset
               = ' : '
               input#mm.input-mini(maxlength="2" type="text" value=cmin ? cmin : 0)
               = ' : 00'
-          if ((!contest && type != 2) || (contest && (clone == 1 || contest.type != 2)))
+          if ((!contest && tp != 2) || (contest && (clone == 1 || contest.type != 2)))
             tr
               th= 'Password: '
               td
@@ -78,8 +77,14 @@ fieldset
             th= 'Penalty: '
             td
               select#penalty
-                - for (var i = 2; i <= 6; ++i)
-                  option(value=i*10 selected=(contest && contest.penalty == i * 10 ? true : false)) #{i*10} 分钟/次
+                if (tp === 2)
+                  if (family === "speed")
+                    option(value=40 selected=true) 手速赛, 40分钟/次
+                  else
+                    option(value=20 selected=true) 群赛, 20分钟/次
+                else
+                  - for (var i = 2; i <= 6; ++i)
+                    option(value=i*10 selected=(contest && contest.penalty == i * 10 ? true : false)) #{i*10} 分钟/次
           tr
             th= 'Description: '
             td

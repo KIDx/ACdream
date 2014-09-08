@@ -1,6 +1,6 @@
 doctype HTML
-- var nvgurl = ['/', '/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/contest/list?type=2', '/topic?tid=100', '/topic/list'];
-- var nvgname = ['Home', 'ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'VIP Contest', 'FAQ', 'Forum'];
+- var nvgurl = ['/', '/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/contest/list?type=2&family=speed', '/contest/list?type=2&family=rating', '/topic?tid=100', '/topic/list'];
+- var nvgname = ['Home', 'ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'Speed Contest', 'Rating Contest', 'FAQ', 'Forum'];
 include post_list
 html
   head
@@ -78,16 +78,16 @@ html
     if (!user)
       include D_login
       include D_register
-    if (key == KEY.USER)
-      if (user && u && user.name == u.name)
+    if (key === KEY.USER)
+      if (user && u && user.name === u.name)
         include D_settings
         +D_settings(u)
-    else if (key == KEY.STATUS)
+    else if (key === KEY.STATUS)
       include D_ce
-    else if (key == KEY.CONTEST_LIST)
-      if (type != 2)
+    else if (key === KEY.CONTEST_LIST)
+      if (type !== 2)
         include D_logincontest
-    else if (key == KEY.CONTEST)
+    else if (key === KEY.CONTEST)
       include D_ce
       include D_broadcast
       if (user)
@@ -100,7 +100,8 @@ html
       var current_user = "#{user ? user.name : ''}";
       var current_time;
       var curren_second = #{time};
-      var contest_type = #{key == KEY.CONTEST_LIST ? type : 1};
+      var contest_type = #{key === KEY.CONTEST_LIST || key === KEY.CONTEST ? type : 1};
+      var contest_family = "#{key === KEY.CONTEST_LIST || key === KEY.CONTEST ? family : ''}";
     script(src="/plugins/jquery_uieffect_jqdnr.js")
     script(src="/plugins/jquery.cookie.js")
     script(src="/js/global.js")
