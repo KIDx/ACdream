@@ -208,7 +208,7 @@ $(document).ready(function(){
     var p = ratedRecord[i];
     var rowOne = '<div>= '+p.rating+DeltaSpan(p.rating-pre)+UserTitle(p.rating)+'</div>';
     var rowTwo = '<div>Rank '+(p.rank+1)+'</div>';
-    var rowThree = '<a target="_blank" href="/onecontest/'+p.cid+'">'+p.title+'</a>';
+    var rowThree = '<a target="_blank" href="/contest?cid='+p.cid+'">'+p.title+'</a>';
     data.push({ name: rowOne+rowTwo+rowThree, x: p.inDate, y: p.rating });
     pre = p.rating;
   }
