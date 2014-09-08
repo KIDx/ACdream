@@ -95,6 +95,59 @@ router.post('/login', function(req, res) {
     if (user.password != password) {
       return res.end('2');
     }
+    if (String(req.body.remember) === "true") {
+      var token = crypto.createHash('md5').update(String((new Date()).getTime())).digest('base64');
+      user.token = token;
+      res.cookie('loginInfo', {
+        username: user.name,
+        token: token,
+        img: user.imgType
+      }, {
+        httpOnly: true,
+        maxAge: 2592000000
+      });
+    } else {
+      res.clearCookie('loginInfo');
+    }
+    user.visTime = (new Date()).getTime();
+    user.save(function(err){
+      if (err) {
+        LogErr(err);
+        return res.end('3');
+      }
+      req.session.user = user;
+      req.session.msg = 'Welcome, '+user.name+'. :)';
+      return res.end();
+    });
+  });
+});
+
+/*
+ * 通过检查Cookie登录
+ */
+router.post('/loginByToken', function(req, res) {
+  res.header('Content-Type', 'text/plain');
+
+  var loginInfo = req.cookies.loginInfo;
+  if (!loginInfo ) {
+    return res.end('1');
+  }
+  var name = loginInfo.username;
+  var token = loginInfo.token;
+  if (!name || !token) {
+    res.clearCookie('info');
+    return res.end('1');
+  }
+
+  User.watch(name, function(err, user) {
+    if (err) {
+      LogErr(err);
+      return res.end('3');
+    }
+    if (!user || user.token !== token) {
+      res.clearCookie('info');
+      return res.end('1');
+    }
     user.visTime = (new Date()).getTime();
     user.save(function(err){
       if (err) {

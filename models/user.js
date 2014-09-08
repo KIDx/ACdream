@@ -21,6 +21,7 @@ var userObj = new Schema({
   name: {type: String, index: {unique: true}},
   password: String,
   visTime: Number,
+  token: String,
   regTime: Number,
   nick: String,
   school: String,

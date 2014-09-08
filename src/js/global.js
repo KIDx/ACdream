@@ -183,20 +183,23 @@ var $contest_current = $('#contest_current');
 
 var $finput = $('input[type="text"], textarea').eq(1);
 
-var $dialog_lg = $('div#dialog_lg');
+var $dialog_lg = $('#dialog_lg');
 var $logininput = $dialog_lg.find('input');
-var $loginerr = $dialog_lg.find('small#login_error');
-var $loginsubmit = $dialog_lg.find('a#login_submit');
+var $loginerr = $dialog_lg.find('#login_error');
+var $loginsubmit = $dialog_lg.find('#login_submit');
+
+var $dialog_lgbtk = $('div#dialog_lgbtk');
+var $fast_login = $dialog_lgbtk.find('#fast_login');
 
 var $checklogin = $('a.checklogin, button.checklogin');
 
-var $regdialog = $('div#regdialog');
+var $regdialog = $('#regdialog');
 
-var $logout = $('a#logout');
+var $logout = $('#logout');
 
 var $tablebg = $('div.tablebg');
 
-var $sverdict = $('span#verdict');
+var $sverdict = $('#verdict');
 
 function deal(times) {
   var n = parseInt(times, 10);
@@ -301,17 +304,6 @@ function ShowMessage(msg) {
 
 var $username = $logininput.eq(0);
 var $password = $logininput.eq(1);
-var $remember = $('#remember');
-
-//get login cookie
-$(document).ready(function(){
-  var remember = $.cookie('remember');
-  if (remember == 'true') {
-    $username.val($.cookie('username'));
-    $password.val($.cookie('password'));
-    $remember.attr('checked', true);
-  }
-});
 
 $(document).ready(function(){
   if ($tablebg.length) {
@@ -327,9 +319,76 @@ $(document).ready(function(){
     ShowMessage(globalMessage);
   }
 
+  function GoToNextURL() {
+    if (!nextURL) {
+      window.location.reload(true);
+    } else {
+      window.location.href = nextURL;
+      nextURL = '';
+    }
+  }
+
+  //login_by_token
+  if ($dialog_lgbtk.length) {
+    $dialog_lgbtk.jqm({
+      overlay: 30,
+      trigger: false,
+      modal: true,
+      closeClass: 'login_by_token_close',
+      onShow: function(h) {
+        h.o.fadeIn(200);
+        h.w.fadeIn(200);
+      },
+      onHide: function(h) {
+        h.w.fadeOut(200);
+        h.o.fadeOut(200);
+      }
+    }).jqDrag('.jqDrag');
+
+    function Switch(err) {
+      $dialog_lgbtk.jqmHide();
+      setTimeout(function(){
+        $dialog_lg.jqmShow();
+        if (err) {
+          errAnimate($loginerr, err);
+        }
+      }, 300);
+    }
+
+    $fast_login.click(function(){
+      if ($fast_login.hasClass('disabled')) {
+        return false;
+      }
+      $fast_login.addClass('disabled');
+      $.ajax({
+        type: 'POST',
+        url: '/loginByToken',
+        dataType: 'text',
+        error: function() {
+          $fast_login.removeClass('disabled');
+          errAnimate($fast_login_err, '无法连接到服务器！');
+        }
+      }).done(function(res){
+        if (!res) {
+          $dialog_lgbtk.jqmHide();
+          GoToNextURL();
+          return ;
+        } else if (res == '1') {
+          Switch('登录信息过期，请重新登录！');
+        } else if (res == '3') {
+          errAnimate($fast_login_err, '系统错误！');
+        }
+        $fast_login.removeClass('disabled');
+      });
+    });
+
+    $('#switch').click(function(){
+      Switch();
+    });
+  }
+
   //login
   if ($dialog_lg.length) {
-
     $dialog_lg.jqm({
       overlay: 30,
       trigger: false,
@@ -344,9 +403,18 @@ $(document).ready(function(){
         h.o.fadeOut(200);
       }
     }).jqDrag('.jqDrag').jqResize('.jqResize');
+
+    function ShowLogin() {
+      if ($dialog_lgbtk.length) {
+        $dialog_lgbtk.jqmShow();
+      } else {
+        $dialog_lg.jqmShow();
+      }
+    }
+
     $('a#login').click(function(){
       nextURL='';
-      $dialog_lg.jqmShow();
+      ShowLogin();
     });
 
     $loginsubmit.click(function(){
@@ -363,22 +431,14 @@ $(document).ready(function(){
         errAnimate($loginerr, 'the password can not be empty!');
         return ;
       }
-      if ($('#remember').is(':checked')) {
-        $.cookie('username', name, { expires: 30 });
-        $.cookie('password', psw, { expires: 30 });
-        $.cookie('remember', true, { expires: 30 });
-      } else {
-        $.cookie('username', null);
-        $.cookie('password', null);
-        $.cookie('remember', null);
-      }
       $loginsubmit.text('Logging in...').addClass('disabled');
       $.ajax({
         type : 'POST',
         url : '/login',
         data : {
           username: name,
-          password: psw
+          password: psw,
+          remember: $('#remember').is(':checked')
         },
         dataType : 'text',
         error: function() {
@@ -389,12 +449,7 @@ $(document).ready(function(){
       .done(function(res){
         if (!res) {
           $dialog_lg.jqmHide();
-          if (!nextURL) {
-            window.location.reload(true);
-          } else {
-            window.location.href = nextURL;
-            nextURL = '';
-          }
+          GoToNextURL();
           return ;
         } else if (res == '1') {
           errAnimate($loginerr, 'the user is not exist!');
@@ -434,7 +489,7 @@ $(document).ready(function(){
         if (cid) tp += '&cid='+cid;
         if ($dialog_lg.length > 0) {
           nextURL = tp;
-          $dialog_lg.jqmShow();
+          ShowLogin();
           break;
         }
         window.location.href = tp;
@@ -442,12 +497,12 @@ $(document).ready(function(){
       }
       case 'addcontest': {
         nextURL = '/addcontest?type='+contest_type;
-        $dialog_lg.jqmShow();
+        ShowLogin();
         break;
       }
       case 'addtopic': {
         nextURL = '/addtopic';
-        $dialog_lg.jqmShow();
+        ShowLogin();
         break;
       }
     }

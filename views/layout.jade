@@ -76,6 +76,9 @@ html
     div#go_top(title="Go to top")
     //Dialogs
     if (!user)
+      if (loginInfo)
+        include D_login_by_token
+        +D_login_by_token(loginInfo)
       include D_login
       include D_register
     if (key === KEY.USER)

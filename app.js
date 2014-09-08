@@ -35,7 +35,7 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
 app.use(partials());
-
+app.use(require('cookie-parser')(settings.cookie_secret));
 app.use(require('body-parser').urlencoded({
   extended: true
 }));
@@ -78,6 +78,7 @@ app.use(function(req, res, next){
     res.locals.time = (new Date()).getTime();
     res.locals.msg = req.session.msg;
     res.locals.KEY = KEY;
+    res.locals.loginInfo = req.cookies.loginInfo;
     if (res.locals.msg) {
       req.session.msg = null;
     }
