@@ -89,14 +89,16 @@ router.post('/cal', function(req, res){
               exp = R.length/2 + 1;
             }
             var K;
-            if (old <= 2100) {
-              K = 4;
-            } else if (old <= 2400) {
+            if (old < 1700) {
               K = 2;
+            } else if (old < 1900) {
+              K = 2.5;
+            } else if (old < 2200) {
+              K = 3;
             } else {
-              K = 1;
+              K = 4.5;
             }
-            var newRating = Math.round(old + K*(act[pi.name]-exp)*0.5);
+            var newRating = Math.round(old + K*(act[pi.name]-exp));
             User.update({name: pi.name}, {
               $set: {
                 lastRatedContest: cid,
