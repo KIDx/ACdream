@@ -986,7 +986,7 @@ function runningTimer() {
     var tp = passTime*100.0/duration;
     if (tp > 50) $contain.css({'text-align':'left'});
     $bar.css({width:tp+'%'});
-    $info.css({width:(100<=tp+2.5)?'100%':tp+2.5+'%'});
+    $info.css({width:(100<=tp+5)?'100%':tp+5+'%'});
     $info.text('-'+deal(duration - passTime));
     ++passTime;
   }
