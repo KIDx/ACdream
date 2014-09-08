@@ -32,7 +32,11 @@ router.get('/:pid', function(req, res) {
       req.session.msg = '系统错误！';
       return res.redirect('/');
     }
-    if (!problem) {
+    var user = "";
+    if (req.session.user) {
+      user = req.session.user.name;
+    }
+    if (!problem || (problem.hide && user!== problem.manager && user !== 'admin')) {
       return res.redirect('/404');
     }
     var lang = parseInt(req.query.lang, 10), Q = {problemID:pid, result:2};
