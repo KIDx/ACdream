@@ -76,6 +76,18 @@ fieldset#widthfix
               td
                 a(class="user user-"+MC title=MT+" "+contest.userName href="/user/"+contest.userName)
                   = contest.userName
+            if (contest.type === 2)
+              tr
+                th Register Status:
+                td
+                  if (user && contest.contestants.indexOf(user.name) >= 0)
+                    span.user.user-green Registration Completed
+                  else
+                    a#register.register(href="javascript:;")= "Register >>"
+                th Contestants:
+                td
+                  img(src="/img/user.png")
+                  a(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
         .row-fluid(align="center" style="margin-bottom:15px;")
           if (isManager)
             a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(family ? "&family="+family : "")) Edit
@@ -240,7 +252,7 @@ fieldset#widthfix
               tbody
                 tr.odd
                   td.error-text(colspan="6") No Topics are matched.
-        if (user && isContestant)
+        if (user)
           .topic_box.form-horizontal
             .header
               span.user.user-gray 发表疑问

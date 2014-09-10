@@ -1402,3 +1402,44 @@ $(document).ready(function(){
     bindResetRating($resetRating);
   }
 });
+
+var $register = $('#register');
+
+$(document).ready(function(){
+  if ($register.length) {
+    $register.click(function(){
+      if ($register.hasClass('disabled')) {
+        return false;
+      }
+      if ($dialog_lg.length > 0) {
+        nextURL = '';
+        $dialog_lg.jqmShow();
+        return false;
+      }
+      $register.addClass('disabled');
+      $.ajax({
+        type: 'POST',
+        url: '/contest/register',
+        data: {cid: cid},
+        dataType: 'text',
+        error: function() {
+          $register.removeClass('disabled');
+          ShowMessage('无法连接到服务器！');
+        }
+      }).done(function(res){
+        if (!res) {
+          window.location.reload(true);
+          return ;
+        }
+        if (res == '1') {
+          ShowMessage('管理员无需注册！');
+        } else if (res == '2') {
+          ShowMessage('系统错误！');
+        } else {
+          ShowMessage('Registration Closed.');
+        }
+        $register.removeClass('disabled');
+      });
+    });
+  };
+});

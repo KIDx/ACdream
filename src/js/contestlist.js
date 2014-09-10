@@ -69,39 +69,37 @@ $(document).ready(function(){
         if ($(this).hasClass('disabled')) {
           return false;
         }
-        if ($(this).hasClass('public')) {
-          if ($dialog_lg.length > 0) {
-            nextURL = '';
-            $dialog_lg.jqmShow();
-            return false;
-          }
-          var $clickreg = $(this);
-          var cid = parseInt($clickreg.attr('id'));
-          $clickreg.addClass('disabled');
-          $.ajax({
-            type: 'POST',
-            url: '/contest/register',
-            data: { cid:cid },
-            dataType: 'text',
-            error: function() {
-              $clickreg.removeClass('disabled');
-              ShowMessage('无法连接到服务器！');
-            }
-          }).done(function(res){
-            if (!res) {
-              window.location.reload(true);
-              return ;
-            }
-            if (res == '1') {
-              ShowMessage('管理员无需注册！');
-            } else if (res == '2') {
-              ShowMessage('系统错误！');
-            } else {
-              ShowMessage('Registration Closed.');
-            }
-            $clickreg.removeClass('disabled');
-          });
+        if ($dialog_lg.length > 0) {
+          nextURL = '';
+          $dialog_lg.jqmShow();
+          return false;
         }
+        var $clickreg = $(this);
+        var cid = parseInt($clickreg.attr('id'));
+        $clickreg.addClass('disabled');
+        $.ajax({
+          type: 'POST',
+          url: '/contest/register',
+          data: {cid: cid},
+          dataType: 'text',
+          error: function() {
+            $clickreg.removeClass('disabled');
+            ShowMessage('无法连接到服务器！');
+          }
+        }).done(function(res){
+          if (!res) {
+            window.location.reload(true);
+            return ;
+          }
+          if (res == '1') {
+            ShowMessage('管理员无需注册！');
+          } else if (res == '2') {
+            ShowMessage('系统错误！');
+          } else {
+            ShowMessage('Registration Closed.');
+          }
+          $clickreg.removeClass('disabled');
+        });
       });
     });
   }

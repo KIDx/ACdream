@@ -74,19 +74,13 @@ router.get('/', function(req, res){
       return res.redirect('/404');
     }
     var family = "";
-    var isContestant = false;
     if (contest.type === 2) {
       if (contest.penalty === 20) {
         family = "rating";
       } else if (contest.penalty === 40) {
         family = "speed";
       }
-      if (req.session.user && (req.session.user.name === contest.userName ||
-          isRegCon(contest.contestants, req.session.user.name))) {
-        isContestant = true;
-      }
     } else {
-      isContestant = true;
       if (contest.password) {
         if (!req.session.user || (req.session.user.name !== contest.userName && req.session.user.name !== 'admin')) {
           if (!req.session.cid || !req.session.cid[cid]) {
@@ -130,7 +124,6 @@ router.get('/', function(req, res){
           type: contest.type,
           family: family,
           getDate: getDate,
-          isContestant: isContestant,
           MC: userCol(user.rating),
           MT: userTit(user.rating),
           Pt: Pt,
@@ -593,7 +586,7 @@ router.post('/addDiscuss', function(req, res){
       return res.end('1');
     }
     if (con.type == 2 && name != con.userName && !isRegCon(con.contestants, name)) {
-      req.session.msg = '发表失败！你还没注册此比赛！';
+      req.session.msg = '发表失败！你还没注册该比赛！';
       return res.end('2');  //refresh
     }
     IDs.get('topicID', function(err, id){
