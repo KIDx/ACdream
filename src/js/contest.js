@@ -993,8 +993,12 @@ function runningTimer() {
 }
 
 function updateTime(iSvrTime, iStartTime, iDuration) {
+  if (Math.abs(curren_second-iSvrTime) > 30000/* ms */) {
+    //update global time
+    curren_second = iSvrTime;
+  }
   var pt = Math.round((iSvrTime - iStartTime) / 1000);
-  if (startTime != iStartTime || duration != iDuration || Math.abs(pt - passTime) > 30) {
+  if (startTime != iStartTime || duration != iDuration || Math.abs(pt - passTime) > 30/* s */) {
     startTime = iStartTime;
     duration = iDuration;
     passTime = pt;
