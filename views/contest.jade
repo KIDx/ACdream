@@ -66,12 +66,12 @@ fieldset#widthfix
                   span.user.user-blue Public
             tr
               th Start Time:
-              td.bold.user-gray= getDate(startTime)
+              td#start_time.bold.user-gray= getDate(startTime)
               th Contest Status:
               td#conteststatus(class="bold "+c+"-text")= s
             tr
               th End Time:
-              td.bold.user-gray= getDate(startTime+contest.len*60000)
+              td#end_time.bold.user-gray= getDate(startTime+contest.len*60000)
               th Manager:
               td
                 a(class="user user-"+MC title=MT+" "+contest.userName href="/user/"+contest.userName)

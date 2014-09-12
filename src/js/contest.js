@@ -998,9 +998,9 @@ function updateTime(iSvrTime, iStartTime, iDuration) {
     curren_second = iSvrTime;
   }
   var pt = Math.round((iSvrTime - iStartTime) / 1000);
-  if (startTime != iStartTime || duration != iDuration || Math.abs(pt - passTime) > 30/* s */) {
-    startTime = iStartTime;
-    duration = iDuration;
+  if (startTime != iStartTime/* ms */ || duration != iDuration/* s */ || Math.abs(pt - passTime) > 30/* s */) {
+    $('#start_time').text(getDate(startTime = iStartTime) + ':00');
+    $('#end_time').text(getDate(startTime + (duration = iDuration)*1000) + ':00');
     passTime = pt;
     if (pt < 0) {
       clearInterval(runningInterval);
