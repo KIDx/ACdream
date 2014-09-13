@@ -212,7 +212,7 @@ function Response(res) {
     return ;
   }
 
-  updateTime(res.svrTime, res.startTime, res.duration);
+  updateTime(res.svrTime, res.startTime, res.duration, res.reg_state, res.contestants);
 
   var sols = res.sols;
   $list.html(buildPager(statusQ.page, res.pageNum));
@@ -474,7 +474,7 @@ function ProblemResponse(res) {
     ShowProblem(ProblemCache[ID] = res.prob);
   }
 
-  updateTime(res.svrTime, res.startTime, res.duration);
+  updateTime(res.svrTime, res.startTime, res.duration, res.reg_state, res.contestants);
 
 }
 
@@ -628,7 +628,7 @@ function RankResponse(res) {
     return ;
   }
 
-  updateTime(res.svrTime, res.startTime, res.duration);
+  updateTime(res.svrTime, res.startTime, res.duration, res.reg_state, res.contestants);
 
   var users = res.users;
   Ratings = res.ratings || {};
@@ -901,7 +901,7 @@ function syncTime() {
     dataType: 'json'
   }).done(function(res){
     if (res) {
-      updateTime(res.svrTime, res.startTime, res.duration);
+      updateTime(res.svrTime, res.startTime, res.duration, res.reg_state, res.contestants);
     }
   });
 }
@@ -992,7 +992,22 @@ function runningTimer() {
   }
 }
 
-function updateTime(iSvrTime, iStartTime, iDuration) {
+var $reg_completed = $('#reg_completed');
+var $register = $('#register');
+var $reg_close = $('#reg_close');
+
+function updateTime(iSvrTime, iStartTime, iDuration, iRegisterState, iContestants) {
+  $reg_completed.hide();
+  $register.hide();
+  $reg_close.hide();
+  if (iRegisterState === 0) {
+    $reg_completed.show();
+  } else if (iRegisterState === 1) {
+    $register.show();
+  } else if (iRegisterState === 2) {
+    $reg_close.show();
+  }
+  $('#contestants').text('×'+iContestants);
   if (Math.abs(curren_second-iSvrTime) > 30000/* ms */) {
     //update global time
     curren_second = iSvrTime;
@@ -1406,8 +1421,6 @@ $(document).ready(function(){
     bindResetRating($resetRating);
   }
 });
-
-var $register = $('#register');
 
 $(document).ready(function(){
   if ($register.length) {

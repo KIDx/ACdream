@@ -31,6 +31,7 @@ var ProTil = ['', '2-satisfiability', 'Binary search', 'Bitmasks', 'Brute force'
 module.exports = {
   cookie_secret: 'gzhu',
   db: 'mongodb://127.0.0.1:27017/acdream_db',
+  reg_close_time: 300000/* 在比赛开始前多少毫秒关闭注册 */,
   problemset_pageNum: 50,
   status_pageNum: 20,
   ranklist_pageNum: 20,

@@ -78,16 +78,23 @@ fieldset#widthfix
                   = contest.userName
             if (contest.type === 2)
               tr
-                th Register Status:
+                th Register State:
                 td
-                  if (user && contest.contestants.indexOf(user.name) >= 0)
-                    span.user.user-green Registration Completed
-                  else
-                    a#register.register(href="javascript:;")= "Register >>"
+                  - var c1, c2, c3;
+                  - c1 = c2 = c3 = "display:none;";
+                  if (reg_state === 0)
+                    - c1 = '';
+                  else if (reg_state === 1)
+                    - c2 = '';
+                  else if (reg_state === 2)
+                    - c3 = '';
+                  span#reg_completed.user.user-green(style=c1) Registration Completed
+                  a#register.register(href="javascript:;" style=c2)= "Register >>"
+                  span#reg_close.user.user-red(style=c3) Registration Closed
                 th Contestants:
                 td
                   img(src="/img/user.png")
-                  a(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
+                  a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
         .row-fluid(align="center" style="margin-bottom:15px;")
           if (isManager)
             a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(family ? "&family="+family : "")) Edit

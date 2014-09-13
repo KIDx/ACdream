@@ -32,6 +32,7 @@ var userTit = Comm.userTit;
 var solCol = Comm.solCol;
 var solRes = Comm.solRes;
 var getContestRank = Comm.getContestRank;
+var getRegState = Comm.getRegState;
 
 /*
  * 注册比赛并且初始化该用户的ContestRank
@@ -64,6 +65,8 @@ router.get('/', function(req, res){
     return res.redirect('/404');
   }
 
+  var name = req.session.user ? req.session.user.name : '';
+
   Contest.watch(cid, function(err, contest) {
     if (err) {
       LogErr(err);
@@ -82,7 +85,7 @@ router.get('/', function(req, res){
       }
     } else {
       if (contest.password) {
-        if (!req.session.user || (req.session.user.name !== contest.userName && req.session.user.name !== 'admin')) {
+        if (name !== contest.userName && name !== 'admin') {
           if (!req.session.cid || !req.session.cid[cid]) {
             req.session.msg = 'You should login the contest '+cid+' first!';
             return res.redirect('/contest/list?type=1');
@@ -121,6 +124,7 @@ router.get('/', function(req, res){
           title: 'Contest '+cid,
           key: KEY.CONTEST,
           contest: contest,
+          reg_state: getRegState(contest, name),
           type: contest.type,
           family: family,
           getDate: getDate,
@@ -328,9 +332,12 @@ router.post('/ranklist', function(req, res){
           return res.end();
         }
 
+        var currentUser = req.session.user ? req.session.user.name : '';
         var resp = {
           pageNum: n,
           startTime: con.startTime,
+          reg_state: getRegState(con, currentUser),
+          contestants: con.contestants.length,
           duration: con.len * 60,
           svrTime: (new Date()).getTime()
         };
@@ -347,10 +354,6 @@ router.post('/ranklist', function(req, res){
           });
         }
         var hasMe = false;
-        var currentUser = '';
-        if (req.session.user) {
-          currentUser = req.session.user.name;
-        }
         users.forEach(function(p, i){
           var tmp = {name: p._id.name, value: p.value};
           if (has[tmp.name]) {
@@ -983,6 +986,7 @@ router.post('/syncTime', function(req, res){
   res.header('Content-Type', 'text/plain');
 
   var cid = parseInt(req.body.cid, 10);
+  var name = req.session.user ? req.session.user.name : '';
   Contest.watch(cid, function(err, contest){
     if (err) {
       LogErr(err);
@@ -993,6 +997,8 @@ router.post('/syncTime', function(req, res){
     }
     return res.json({
       startTime: contest.startTime,
+      reg_state: getRegState(contest, name),
+      contestants: contest.contestants.length,
       duration: contest.len * 60,
       svrTime: (new Date()).getTime()
     });

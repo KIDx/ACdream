@@ -16,6 +16,7 @@ var ProTil = Settings.P;
 var languages = Settings.languages;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
+var getRegState = Comm.getRegState;
 
 /*
  * problem页面
@@ -287,11 +288,7 @@ router.post('/get', function(req, res){
     return res.end();  //not allow!
   }
 
-  var name = '';
-  if (req.session.user) {
-    name = req.session.user.name;
-  }
-
+  var name = req.session.user ? req.session.user.name : '';
   var cid = parseInt(req.body.cid, 10);
   var prob, con;
   var arr = [
@@ -326,7 +323,7 @@ router.post('/get', function(req, res){
 
     //get problem title for addcontest page
     if (!cid) {
-      if (prob.hide == true && name != 'admin' && name != prob.manager) {
+      if (prob.hide === true && name !== 'admin' && name !== prob.manager) {
         return res.end();
       }
       return res.end(prob.title);
@@ -340,11 +337,13 @@ router.post('/get', function(req, res){
     var now = (new Date()).getTime();
     var resp = {
       startTime: con.startTime,
+      reg_state: getRegState(con, name),
+      contestants: con.contestants.length,
       duration: con.len * 60,
       svrTime: now
     };
 
-    if (name != con.userName && name != 'admin' && now < con.startTime) {
+    if (name !== con.userName && name !== 'admin' && now < con.startTime) {
       resp.ret = 2;
       return res.json(resp);
     }

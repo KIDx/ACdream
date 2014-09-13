@@ -1,4 +1,6 @@
 
+var Settings = require('../settings');
+
 /*
  * 返回评测结果描述
  */
@@ -172,10 +174,24 @@ exports.escapeHtml = function(s) {
 }
 
 /*
- * 判断name是否在数组s(参赛列表)中
+ * 判断name是否在参赛列表中
  */
-exports.isRegCon = function(s, name) {
-  return s.indexOf(name) >= 0 ? true : false;
+function isRegCon(contestants, name) {
+  return contestants.indexOf(name) >= 0 ? true : false;
+}
+exports.isRegCon = isRegCon;
+
+/*
+ * 获取用户对于该比赛的注册状态
+ */
+exports.getRegState = function(contest, name) {
+  if (isRegCon(contest.contestants, name)) {
+    return 0;
+  } else if (contest.startTime - (new Date()).getTime() >= Settings.reg_close_time) {
+    return 1;
+  } else {
+    return 2;
+  }
 }
 
 /*
@@ -331,8 +347,7 @@ exports.getContestRank = function(cid, stars, name, V, callback) {
 
 
 var fs = require('fs');
-var root_path = require('../settings').root_path;
-var log = fs.createWriteStream(root_path + 'error.log', {
+var log = fs.createWriteStream(Settings.root_path + 'error.log', {
   flags: 'a'
 });
 

@@ -12,11 +12,12 @@ var languages = Settings.languages;
 
 var KEY = require('./key');
 var Comm = require('../comm');
+var LogErr = Comm.LogErr;
 var userCol = Comm.userCol;
 var userTit = Comm.userTit;
 var solCol = Comm.solCol;
 var solRes = Comm.solRes;
-var LogErr = Comm.LogErr;
+var getRegState = Comm.getRegState;
 
 /*
  * Status页面
@@ -237,7 +238,7 @@ router.post('/get', function(req, res){
 
   result = parseInt(req.body.result, 10);
   if (result >= 0) {
-    if (result == 9) {
+    if (result === 9) {
       Q.result = { $in : [9, 10, 11, 12, 15] };
     } else {
       Q.result = result;
@@ -249,11 +250,8 @@ router.post('/get', function(req, res){
     Q.language = lang;
   }
 
-  name = '';
-  if (req.session.user) {
-    name = req.session.user.name;
-  }
-  if (name != 'admin') {
+  name = req.session.user ? req.session.user.name : '';
+  if (name !== 'admin') {
     Q.$nor = [{userName: 'admin'}];
   }
 
@@ -287,7 +285,7 @@ router.post('/get', function(req, res){
     var sols = new Array(), names = new Array(), has = {};
     solutions.forEach(function(p, i){
       var T = '', M = '', L = '';
-      if (name == p.userName || name == contest.userName ||
+      if (name === p.userName || name === contest.userName ||
           (new Date()).getTime() - contest.startTime > contest.len*60000) {
         T = p.time; M = p.memory; L = p.length;
       }
@@ -321,6 +319,8 @@ router.post('/get', function(req, res){
         pageNum: cnt,
         ratings: rt,
         startTime: contest.startTime,
+        reg_state: getRegState(contest, name),
+        contestants: contest.contestants.length,
         duration: contest.len * 60,
         svrTime: (new Date()).getTime()
       });
