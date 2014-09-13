@@ -761,7 +761,7 @@ router.post('/del', function(req, res){
 });
 
 /*
- * 注册一个比赛(VIP Contest)
+ * 注册一个比赛(contest.type = 2)
  */
 router.post('/register', function(req, res){
   res.header('Content-Type', 'text/plain');
@@ -781,7 +781,7 @@ router.post('/register', function(req, res){
     if (!contest || contest.type != 2 || contest.password) {
       return res.end();  //not allow
     }
-    if (contest.startTime - (new Date()).getTime() < 300000) {
+    if (!contest.open_reg && contest.startTime - (new Date()).getTime() < 300000) {
       return res.end('3');
     }
     regContestAndUpdate(cid, req.session.user.name, function(err){

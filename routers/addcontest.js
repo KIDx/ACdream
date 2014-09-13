@@ -162,6 +162,7 @@ router.route('/')
       pids.push(p);
     });
   }
+  var open_reg = String(req.body.open_reg) === 'true' ? true : false;
   var alias = req.body.alias ? req.body.alias : {};
   var RP = function(ary) {
     var startTime = (new Date(date+' '+hour+':'+min)).getTime();
@@ -192,6 +193,7 @@ router.route('/')
         con.penalty = penalty;
         con.description = desc;
         con.msg = anc;
+        con.open_reg = open_reg;
         if (con.password != req.body.psw)
           con.password = psw;
         var save = function() {
@@ -261,6 +263,7 @@ router.route('/')
           msg: anc,
           probs: ary,
           password: psw,
+          open_reg: open_reg,
           type: type
         })).save(function(err) {
           if (err) {

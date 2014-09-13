@@ -211,6 +211,7 @@ $(document).ready(function(){
         hh: hh,
         mm: mm,
         psw: psw,
+        open_reg: $('#open_reg').is(':checked'),
         penalty: $('#penalty').val(),
         desc: desc,
         anc: anc,

@@ -17,6 +17,7 @@ function Contest(contest) {
   this.msg = contest.msg;
   this.probs = contest.probs;
   this.password = contest.password;
+  this.open_reg = contest.open_reg;
   this.type = contest.type;
 };
 
@@ -32,6 +33,7 @@ var contestObj = new Schema({
   msg: String,
   probs: Array,
   password: String,
+  open_reg: Boolean,
   type: Number,
   contestants: Array,
   stars: Array,
@@ -58,6 +60,7 @@ Contest.prototype.save = function(callback) {
   contest.msg = this.msg;
   contest.probs = this.probs;
   contest.password = this.password;
+  contest.open_reg = this.open_reg;
   contest.type = this.type;
   contest.contestants = new Array();
   contest.stars = new Array();

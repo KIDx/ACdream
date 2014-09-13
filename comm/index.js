@@ -187,7 +187,7 @@ exports.isRegCon = isRegCon;
 exports.getRegState = function(contest, name) {
   if (isRegCon(contest.contestants, name)) {
     return 0;
-  } else if (contest.startTime - (new Date()).getTime() >= Settings.reg_close_time) {
+  } else if (contest.open_reg || contest.startTime - (new Date()).getTime() >= Settings.reg_close_time) {
     return 1;
   } else {
     return 2;

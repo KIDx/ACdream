@@ -70,9 +70,11 @@ fieldset
               td
                 .my-radio
                   input#private(type="radio" value="1" name="psw" checked=(contest && contest.password ? true : false))
-                  label.user-green(for="private" title="Codeforce的注册模式") private
+                  label.user-green(for="private" title="暂无") private
                   input#public(type="radio" value="" name="psw" checked=(!contest || !contest.password ? true : false))
-                  label.user-blue(for="public" title="校内注册模式(需要填报名表)") public
+                  label.user-blue(for="public" title="Codeforce的注册模式") public
+                  input#open_reg(type="checkbox" checked=(!contest || contest && contest.open_reg ? true : false))
+                  label.user-black(for="open_reg" title="比赛正在进行也不关闭注册") open register
           tr
             th= 'Penalty: '
             td
