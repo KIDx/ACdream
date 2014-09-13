@@ -956,7 +956,7 @@ function toEnded() {
   $progress.removeClass('progress-danger').addClass('progress-success');
   forNotPending();
   forEnded();
-  $info.hide();
+  $info.html('&nbsp;');
 }
 
 var pendingInterval;
