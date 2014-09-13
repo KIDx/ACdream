@@ -129,5 +129,5 @@ fieldset
     .form-actions
       a#submit.uibtn(style="margin-left:50%;" href="javascript:;") Submit
       if (contest && clone == 0)
-        a.uibtn(href="/onecontest/"+contest.contestID) back
+        a.uibtn(href="/contest?cid="+contest.contestID) back
       span#err.error-text
