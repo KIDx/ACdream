@@ -56,7 +56,7 @@ router.get('/', function(req, res) {
         UT: UT
       });
     };
-    if (req.session.user) {
+    if (req.session.user && !search) {
       User.watch(req.session.user.name, function(err, user){
         if (err) {
           LogErr(err);

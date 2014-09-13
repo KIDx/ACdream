@@ -23,7 +23,13 @@ router.get('/', function(req, res){
     return res.redirect('/standings');
   }
   var cid = parseInt(req.query.cid, 10);
-  var RP = function(Q) {
+  var q1 = {}, q2 = {};
+  var search = Comm.clearSpace(req.query.search);
+  if (search) {
+    q1.name = q2.nick = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
+  }
+  var Q = { $or: [q1, q2], name: {$ne: 'admin'} };
+  function RP() {
     User.get(Q, {rating: -1, name: 1}, page, standings_pageNum, function(err, users, n){
       if (err) {
         LogErr(err);
@@ -54,7 +60,7 @@ router.get('/', function(req, res){
           cid: cid
         });
       };
-      if (req.session.user) {
+      if (req.session.user && !search && !cid) {
         User.watch(req.session.user.name, function(err, user){
           if (err) {
             LogErr(err);
@@ -77,12 +83,6 @@ router.get('/', function(req, res){
       }
     });
   };
-  var q1 = {}, q2 = {};
-  var search = Comm.clearSpace(req.query.search);
-  if (search) {
-    q1.name = q2.nick = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
-  }
-  var Q = { $or: [q1, q2], name: {$ne: 'admin'} };
   if (cid) {
     Contest.watch(cid, function(err, con){
       if (err) {
@@ -94,10 +94,10 @@ router.get('/', function(req, res){
         return res.redirect('404');
       }
       Q.name = {$in: con.contestants};
-      return RP(Q);
+      return RP();
     });
   } else {
-    return RP(Q);
+    return RP();
   }
 });
 
