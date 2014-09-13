@@ -379,7 +379,7 @@ var problemAjax;
 
 var $content = $('#content');
 
-var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint', 'Source'];
+var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint'];
 var $probsubmit = $('#probsubmit');
 var $probsubmit2 = $('#probsubmit2');
 var $rejudge = $('#rejudge');
@@ -404,7 +404,7 @@ function ShowProblem(prob) {
   var q = [prob.description, prob.input, prob.output, prob.sampleInput,
   prob.sampleOutput, prob.hint];
   var tcon = '';
-  for (i = 0; i < 7; i++) {
+  for (i = 0; i < S.length; i++) {
     if (!q[i]) continue;
     tcon += '<h4>'+S[i]+'</h4><div class="accordion-inner">';
     if (i === 3 || i === 4) {
