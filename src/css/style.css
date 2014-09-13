@@ -446,7 +446,7 @@ img.top {
 }
 
 #sidebar {
-  float: left;
+  float: right;
   width: 20em;
   margin-top: 1em;
   top: 0;
@@ -456,7 +456,7 @@ div.sidebox {
   font-size: 12px;
   border: 1px solid #ddd;
   border-radius: 6px 6px 0 0;
-  margin: 1em 1em 0 0;
+  margin: 1em 0 0 1em;
   background: white;
 }
 
