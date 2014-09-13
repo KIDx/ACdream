@@ -22,8 +22,11 @@ function ChangeScrollTop(n) {
 
 //go to top button
 $(document).ready(function(){
-  $('#go_top').click(function(){
+  $('#scroll li a.up').click(function(){
     ChangeScrollTop(0);
+  });
+  $('#scroll li a.down').click(function(){
+    ChangeScrollTop($(document).height());
   });
 });
 

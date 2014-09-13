@@ -73,7 +73,13 @@ html
         span#timer
       div
         a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
-    div#go_top(title="Go to top")
+    ul#scroll
+      li
+        a.up(title="返回顶部")
+          i
+      li
+        a.down(title="转到底部")
+          i
     //Dialogs
     if (!user)
       if (loginInfo)

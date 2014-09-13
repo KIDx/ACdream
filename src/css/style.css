@@ -1409,21 +1409,44 @@ table th img {
   font-size: 1em;
 }
 
-#go_top {
-  background: url(/img/top.png);
-  opacity: 0.75;
-  filter:alpha(opacity=75);
-  width: 80px;
-  height: 80px;
+#scroll {
+  width: 30px;
+  float: right;
   position: fixed;
-  bottom: 70px;
-  right: 10px;
+  right: 5px;
+  bottom: 95px;
+  list-style-type: none;
 }
 
-#go_top:hover {
-  opacity: 1.0;
-  filter:alpha(opacity=100);
+#scroll li a {
+  background: #fff;
+  border-radius: 2px;
+  padding: 3px 5px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
   cursor: pointer;
+  display: block;
+}
+
+#scroll li a i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  opacity: .60;
+  margin: auto;
+  filter: alpha(opacity=60);
+}
+
+#scroll li a.up i {
+  background: url(img/arrow-up.png);
+}
+
+#scroll li a.down i {
+  background: url(img/arrow-down.png);
+}
+
+#scroll li a:hover {
+  background: #eee;
 }
 
 .tips {
