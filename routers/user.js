@@ -68,8 +68,8 @@ router.get('/:name', function(req, res){
           minRating: mins
         });
       };
-      if (user.name != 'admin') {
-        Comm.getRank(user, function(err, rank){
+      if (user.name !== 'admin') {
+        Comm.getRatingRank(user, function(err, rank){
           if (err) {
             req.session.msg = '系统错误！';
             LogErr(err);
