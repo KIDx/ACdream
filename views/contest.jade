@@ -126,9 +126,7 @@ fieldset#widthfix
                           a.fr.uibtn.uibtn-mini.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
                         a(href="#problem-"+F[i])= p[1] ? p[1] : Pt[p[0]].title
                       td
-                        span.act-item
-                          a.consubmit(href="javascript:;" pid=p[0] tname=Pt[p[0]].title)
-                            img(src="/img/submit.png" title="Submit" alt="Submit")
+                        a.submit.img_link(href="javascript:;" pid=p[0] tname=Pt[p[0]].title title="Submit")
                       td.center.o_sol
           if(contest.description)
             .des-box

@@ -1108,7 +1108,7 @@ $(document).ready(function(){
 
 //bind submit
 var $dialog_sm = $('#dialog_sm');
-var $sublink = $('a.consubmit');
+var $sublink = $('a.submit');
 var pid_index;
 
 $(document).ready(function(){
