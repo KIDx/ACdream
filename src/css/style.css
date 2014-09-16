@@ -180,19 +180,6 @@ div#change-grade > input{
   margin-bottom: 3px;
 }
 
-.star {
-  display: block;
-  height: 16px;
-  background: url(img/star.png);
-}
-
-.bgstar {
-  display: block;
-  height: 16px;
-  width: 80px;
-  background: url(img/bgstar.png);
-}
-
 .bold {
   font-weight: bold;
 }
@@ -1241,16 +1228,8 @@ table.sort th a.current {
   background: #C7CDFF;
 }
 
-table#problemset tr td div#dif_bg {
-  width: 80px;
-  height: 16px;
-  position: relative;
-}
-
-table#problemset tr td div#dif_bg img {
-  position: absolute;
-  left: 0;
-  top: 0;
+#problemset tbody tr {
+  height: 45px;
 }
 
 #ranktab {
