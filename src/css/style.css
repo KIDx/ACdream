@@ -801,9 +801,13 @@ form div#simpleInput div input,
   display: none;
 }
 
-.icon-search {
+.icon_search {
   width: 16px;
   height: 16px;
+  display: block;
+  margin: 1px;
+  opacity: .5;
+  filter: alpha(opacity=50);
   background: url('img/search.png');
 }
 
