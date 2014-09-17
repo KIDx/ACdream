@@ -71,6 +71,18 @@ a.rejudge {
   bottom: 5px;
 }
 
+a.put_up {
+  display: inline-block;
+  margin-right: 10px;
+  background: url('img/put-up.png');
+}
+
+a.put_down {
+  display: inline-block;
+  margin-right: 12px;
+  background: url('img/put-down.png');
+}
+
 a.img_link:hover {
   opacity: 0.6;
   filter: alpha(opacity=60);

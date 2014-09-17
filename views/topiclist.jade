@@ -49,10 +49,10 @@ fieldset
                   span.user-gray= p.browseQty
                 td.ellipsis(style="text-align:left;")
                   if (user && user.name == 'admin')
-                    a.uibtn(tid=p.id href="javascript:;")
-                      if (p.top)
-                        | 取消
-                      | 置顶
+                    - var tit = '置顶', c = 'put_up';
+                    if (p.top)
+                      - tit = '取消置顶', c = 'put_down';
+                    a.img_link(class=c tid=p.id href="javascript:;" title=tit)
                   if (p.top)
                     span.put_top 置顶
                   a(href="/topic?tid="+p.id)= ' '+p.title
