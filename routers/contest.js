@@ -769,7 +769,8 @@ router.post('/register', function(req, res){
     req.session.msg = 'Please login first!';
     return res.end();
   }
-  if (req.session.user.name == 'admin') {
+  var name = req.session.user.name;
+  if (name === 'admin') {
     return res.end('1');
   }
   var cid = parseInt(req.body.cid, 10);
@@ -781,10 +782,10 @@ router.post('/register', function(req, res){
     if (!contest || contest.type != 2 || contest.password) {
       return res.end();  //not allow
     }
-    if (!contest.open_reg && contest.startTime - (new Date()).getTime() < 300000) {
+    if (getRegState(contest, name) === 2) {
       return res.end('3');
     }
-    regContestAndUpdate(cid, req.session.user.name, function(err){
+    regContestAndUpdate(cid, name, function(err){
       if (err) {
         LogErr(err);
         return res.end('2');
