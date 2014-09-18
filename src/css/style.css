@@ -40,7 +40,7 @@ a.add {
   background: url('img/add.png');
 }
 
-a.submit {
+a.img_link.submit {
   width: 24px;
   height: 24px;
   background: url('img/submit.png');
