@@ -103,7 +103,7 @@ app.use(function(req, res){
 
 //running server
 server.listen(app.get('port'), function(){
-  console.log("Server running at http://localhost:3000");
+  console.log("Server running at http://localhost:"+(process.env.PORT || 3000));
 });
 
 //socket
