@@ -525,7 +525,7 @@ $(document).ready(function(){
         dataType : 'text'
       })
       .done(function(res){
-        $regimg.html(res);
+        $regimg.html('<img src="'+res+'">');
       });
     }
 

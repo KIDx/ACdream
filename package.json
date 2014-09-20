@@ -23,7 +23,7 @@
     "mongoose": "*",
     "jade": "*",
     "express-partials": "*",
-    "canvas": "*",
+    "verify-code": "*",
     "socket.io": "*",
     "socket.io-redis": "*",
     "gm": "*",

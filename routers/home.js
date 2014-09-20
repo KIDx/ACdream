@@ -1,11 +1,11 @@
 
 var router = require('express').Router();
 var crypto = require('crypto');
+var verifyCode = require('verify-code');
 
 var User = require('../models/user.js');
 var Contest = require('../models/contest.js');
 var Topic = require('../models/topic.js');
-var Canvas = require('../models/can.js');
 
 var KEY = require('./key');
 var Comm = require('../comm');
@@ -62,11 +62,9 @@ router.get('/', function(req, res){
  */
 router.post('/createVerifycode', function(req, res) {
   res.header('Content-Type', 'text/plain');
-
-  Canvas.getCode(function(vcode, img){
-    req.session.verifycode = vcode;
-    return res.end(img);
-  });
+  var info = verifyCode.Generate();
+  req.session.verifycode = info.code;
+  return res.end(info.dataURL);
 });
 
 /*

@@ -1,8 +1,8 @@
 
 var router = require('express').Router();
 var xss = require('xss');
+var verifyCode = require('verify-code');
 
-var Canvas = require('../models/can.js');
 var IDs = require('../models/ids.js');
 var Topic = require('../models/topic.js');
 
@@ -27,14 +27,13 @@ router.route('/')
     if (T) {
       T.content = Comm.escapeHtml(T.content);
     }
-    Canvas.getCode(function(vcode, img){
-      req.session.verifycode = vcode;
-      res.render('addtopic', {
-        title: type + 'Topic',
-        topic: T,
-        key: KEY.ADD_TOPIC,
-        vcode: img
-      });
+    var info = verifyCode.Generate();
+    req.session.verifycode = info.code;
+    res.render('addtopic', {
+      title: type + 'Topic',
+      topic: T,
+      key: KEY.ADD_TOPIC,
+      dataURL: info.dataURL
     });
   };
   var tid = parseInt(req.query.tid, 10);

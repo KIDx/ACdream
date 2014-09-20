@@ -27,7 +27,8 @@ fieldset
           label.control-label(for="vcode") 验证码：
           .controls
             input#vcode.input-mini(type="text")
-            #vcimg.help-inline.img.topic_img.vcode(title="点击换一张")!= vcode
+            #vcimg.help-inline.img.topic_img.vcode(title="点击换一张")
+              img(src=dataURL)
       .control-group
         .controls
           a#submit.uibtn(href="javascript:;") 发布

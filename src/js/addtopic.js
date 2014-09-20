@@ -17,7 +17,7 @@ function getVcode() {
     url: '/createVerifycode',
     dataType: 'text'
   }).done(function(res){
-    $vcimg.html(res);
+    $vcimg.html('<img src="'+res+'">');
   });
 }
 
