@@ -305,6 +305,20 @@ function ShowMessage(msg) {
   $msgdialog.jqmShow();
 }
 
+function ShowLogin(url) {
+  if ($dialog_lg.length) {
+    nextURL = url ? url : '';
+    if ($dialog_lgbtk.length) {
+      $dialog_lgbtk.jqmShow();
+    } else {
+      $dialog_lg.jqmShow();
+    }
+    return true;
+  } else {
+    return false;
+  }
+}
+
 var $username = $logininput.eq(0);
 var $password = $logininput.eq(1);
 
@@ -407,16 +421,7 @@ $(document).ready(function(){
       }
     }).jqDrag('.jqDrag').jqResize('.jqResize');
 
-    function ShowLogin() {
-      if ($dialog_lgbtk.length) {
-        $dialog_lgbtk.jqmShow();
-      } else {
-        $dialog_lg.jqmShow();
-      }
-    }
-
     $('a#login').click(function(){
-      nextURL='';
       ShowLogin();
     });
 
@@ -490,22 +495,18 @@ $(document).ready(function(){
         var tp = '/submit?pid=' + $(this).attr('pid')
         ,   cid = $(this).attr('cid');
         if (cid) tp += '&cid='+cid;
-        if ($dialog_lg.length > 0) {
-          nextURL = tp;
-          ShowLogin();
+        if (ShowLogin(tp)) {
           break;
         }
         window.location.href = tp;
         break;
       }
       case 'addcontest': {
-        nextURL = '/addcontest?type='+contest_type;
-        ShowLogin();
+        ShowLogin('/addcontest?type='+contest_type);
         break;
       }
       case 'addtopic': {
-        nextURL = '/addtopic';
-        ShowLogin();
+        ShowLogin('/addtopic');
         break;
       }
     }

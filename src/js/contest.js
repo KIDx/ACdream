@@ -335,11 +335,9 @@ function OverviewResponse(json) {
   if ($clone.length) {
     $clone.unbind('click');
     $clone.click(function(){
-      if ($dialog_lg.length > 0) {
-        nextURL = '/addcontest?cID=-'+cid+'&type=1';
-        $dialog_lg.jqmShow();
-      } else {
-        window.location.href = '/addcontest?cID=-'+cid+'&type=1';
+      var url = '/addcontest?cID=-'+cid+'&type=1';
+      if (!ShowLogin(url)) {
+        window.location.href = url;
       }
     });
   }
@@ -1114,9 +1112,7 @@ var pid_index;
 $(document).ready(function(){
   $.each($sublink, function(i, p) {
     $(p).click(function(){
-      if ($dialog_lg.length) {
-        nextURL = '';
-        $dialog_lg.jqmShow();
+      if (ShowLogin()) {
         return false;
       }
       if (!$dialog_sm.length) {
@@ -1428,9 +1424,7 @@ $(document).ready(function(){
       if ($register.hasClass('disabled')) {
         return false;
       }
-      if ($dialog_lg.length > 0) {
-        nextURL = '';
-        $dialog_lg.jqmShow();
+      if (ShowLogin()) {
         return false;
       }
       $register.addClass('disabled');

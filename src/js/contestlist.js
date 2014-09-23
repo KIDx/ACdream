@@ -69,9 +69,7 @@ $(document).ready(function(){
         if ($(this).hasClass('disabled')) {
           return false;
         }
-        if ($dialog_lg.length > 0) {
-          nextURL = '';
-          $dialog_lg.jqmShow();
+        if (ShowLogin()) {
           return false;
         }
         var $clickreg = $(this);
