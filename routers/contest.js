@@ -12,6 +12,7 @@ var xss = require('xss');
 var IDs = require('../models/ids.js');
 var Contest = require('../models/contest.js');
 var ContestRank = require('../models/contestrank.js');
+var Overview = require('../models/overview.js');
 var User = require('../models/user.js');
 var Problem = require('../models/problem.js');
 var Solution = require('../models/solution.js');
@@ -242,31 +243,78 @@ router.post('/overview', function(req, res){
   if (!cid) {
     return res.end(); //not allow!
   }
-  var results = null, sols = null;
+  var resp = {stat: {}, self: {}};
+  function getOverview(cb) {
+    Overview.find({'_id.cid': cid}, function(err, objs){
+      if (err) {
+        return cb(err);
+      }
+      objs.forEach(function(p){
+        if (!resp.stat[p._id.pid]) {
+          resp.stat[p._id.pid] = {};
+          resp.stat[p._id.pid].ac = resp.stat[p._id.pid].all = 0;
+        }
+        if (p._id.result === true) {
+          resp.stat[p._id.pid].ac += p.value;
+        }
+        resp.stat[p._id.pid].all += p.value;
+      });
+      return cb();
+    });
+  }
   var arr = new Array();
+  var sols;
   arr.push(
     function(cb) {
-      Solution.mapReduce({
-        map: function(){
-          var val = { AC: 0, all: 1 };
-          if (this.result == 2) {
-            val.AC = 1;
+      var now = (new Date()).getTime();
+      Contest.findOneAndUpdate({
+        contestID: cid,
+        overviewUpdateTime: { $lt: now-30000 }    //距离上次聚合>=30秒, 聚合一次Overview
+      }, {
+        $set: { overviewUpdateTime: now }
+      }, {
+        new: false
+      }, function(err, contest){
+        if (err) {
+          return cb(err);
+        }
+        if (!contest) {
+          return getOverview(cb);
+        }
+        Solution.findOne({cID: cid, runID: {$gt: contest.overviewRunID}}, {runID: -1}, function(err, sol){
+          if (err) {
+            return cb(err);
           }
-          emit(this.problemID, val);
-        },
-        reduce: function(key, vals){
-          val = { AC: 0, all: 0, result: null };
-          vals.forEach(function(p, i){
-            val.all += p.all;
-            val.AC += p.AC;
+          if (!sol) {
+            return getOverview(cb);
+          }
+          Solution.findOne({cID: cid, result: {$lt: 2}}, {runID: 1}, function(err, sol2){
+            if (err) {
+              return cb(err);
+            }
+            var maxRunID;
+            if (sol2 && sol.runID > sol2.runID - 1) {
+              maxRunID = sol2.runID - 1;
+            } else {
+              maxRunID = sol.runID;
+            }
+            Solution.aggregate([
+              { $match: { userName: {$ne: 'admin'}, cID: cid, runID: {$lte: maxRunID} } }
+            , { $group: { _id: {cid: '$cID', pid: '$problemID', result: {$eq: ['$result', 2]}}, value: {$sum: 1} } }
+            , { $out: 'overviews' }
+            ], function(err){
+              if (err) {
+                return cb(err);
+              }
+              Contest.update(cid, {$set: {overviewRunID: maxRunID}}, function(err){
+                if (err) {
+                  return cb(err);
+                }
+                return getOverview(cb);
+              });
+            });
           });
-          return val;
-        },
-        query: {userName: {$ne: 'admin'}, cID: cid},
-        sort: {runID: 1}
-      }, function(err, res){
-        results = res;
-        return cb(err);
+        });
       });
     }
   );
@@ -277,7 +325,9 @@ router.post('/overview', function(req, res){
           { $match: { userName: req.session.user.name, cID: cid, result: {$gt: 1} } }
         , { $group: { _id: '$problemID', result: {$min: '$result'} } }
         ], function(err, res){
-          sols = res;
+          res.forEach(function(p){
+            resp.self[p._id] = (p.result === 2);
+          });
           return cb(err);
         });
       }
@@ -290,7 +340,7 @@ router.post('/overview', function(req, res){
       LogErr(err);
       return res.end();  //not refresh!
     }
-    return res.json([results, sols]);
+    return res.json(resp);
   });
 });
 

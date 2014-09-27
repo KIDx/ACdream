@@ -3,12 +3,34 @@ var router = require('express').Router();
 
 var Contest = require('../models/contest.js');
 var ContestRank = require('../models/contestrank.js');
+var Overview = require('../models/overview.js');
 var User = require('../models/user.js');
 var Problem = require('../models/problem.js');
 var Solution = require('../models/solution.js');
 
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
+
+function ClearReduceData(cids, cb) {
+  ContestRank.clear({'_id.cid': {$in: cids}}, function(err){
+    if (err) {
+      return cb(err);
+    }
+    Overview.remove({'_id.cid': {$in: cids}}, function(err){
+      if (err) {
+        return cb(err);
+      }
+      Contest.multiUpdate({contestID: {$in: cids}}, {$set: {
+        maxRunID: 0,
+        updateTime: 0,
+        overviewRunID: 0,
+        overviewUpdateTime: 0
+      }}, function(err){
+        return cb(err);
+      });
+    });
+  });
+}
 
 /*
  * 将某个题目的所有提交rejudge
@@ -64,28 +86,16 @@ router.post('/problem', function(req, res){
                 LogErr(err);
                 return res.end();
               }
-              var RP = function() {
+              ClearReduceData(cids, function(err){
+                if (err) {
+                  LogErr(err);
+                  return res.end();
+                }
                 if (!req.body.cid) {
                   req.session.msg = 'Problem '+pid+' has been Rejudged successfully!';
                   return res.end();
                 }
                 return res.end('1');
-              };
-              if (!cids || cids.length == 0) {
-                return RP();
-              }
-              ContestRank.clear({'_id.cid': {$in: cids}}, function(err){
-                if (err) {
-                  LogErr(err);
-                  return res.end();
-                }
-                Contest.multiUpdate({contestID: {$in: cids}}, {$set: {maxRunID: 0, updateTime: 0}}, function(err){
-                  if (err) {
-                    LogErr(err);
-                    return res.end();
-                  }
-                  return RP();
-                });
               });
             });
           });
@@ -120,18 +130,12 @@ router.post('/single', function(req, res){
     if (cid == -1) {
       return res.end();
     }
-    ContestRank.clear({'_id.cid': cid}, function(err){
+    ClearReduceData([cid], function(err){
       if (err) {
         LogErr(err);
         return res.end('3');
       }
-      Contest.update(cid, {$set: {maxRunID: 0, updateTime: 0}}, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        return res.end();
-      });
+      return res.end();
     });
   });
 });

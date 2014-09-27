@@ -40,6 +40,8 @@ var contestObj = new Schema({
   updateTime: Number,
   maxRunID: Number,
   penalty: Number,
+  overviewUpdateTime: Number,
+  overviewRunID: Number,
   FB: Object
 });
 
@@ -66,6 +68,8 @@ Contest.prototype.save = function(callback) {
   contest.stars = new Array();
   contest.updateTime = 0;
   contest.maxRunID = 0;
+  contest.overviewUpdateTime = 0;
+  contest.overviewRunID = 0;
   contest.save(function(err){
     if (err) {
       LogErr('Contest.save failed!');

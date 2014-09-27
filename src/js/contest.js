@@ -307,31 +307,34 @@ var prob_num = $p_span.length;
 var overviewTimeout;
 var overviewAjax;
 
-function OverviewResponse(json) {
-  if (!overviewAjax || !json || !isActive(0)) {
+function OverviewResponse(resp) {
+  if (!overviewAjax || !resp || !isActive(0)) {
     return ;
   }
-  var sols = json.pop(), res = json.pop();
-  if (sols) {
-    $.each(sols, function(i, p){
-      var $oi = $o_index.eq(index(p._id));
-      if (p.result == 2) {
-        $oi.addClass('AC');
-        $oi.next().next().addClass('AC-fill');
-      } else {
-        $oi.addClass('WA');
-        $oi.next().next().addClass('WA-fill');
-      }
-    });
+
+  for (var i = 0; i < prob_num; ++i) {
+    var $oi = $o_index.eq(i);
+    var res = resp.self[pids[i]];
+    if (res === true) {
+      $oi.addClass('AC');
+      $oi.next().next().addClass('AC-fill');
+    } else if (res === false) {
+      $oi.addClass('WA');
+      $oi.next().next().addClass('WA-fill');
+    }
+
+    var ac = 0, all = 0;
+    var o = resp.stat[pids[i]];
+    if (o) {
+      ac = o.ac ? o.ac : 0;
+      all = o.all ? o.all : 0;
+    }
+    var $os = $o_sol.eq(i);
+    var _ac = '<a href="#status--'+F.charAt(i)+'-'+2+'">'+ac+'</a>';
+    var _all = '<a href="#status--'+F.charAt(i)+'"'+'">'+all+'</a>';
+    $os.html(_ac+'&nbsp/&nbsp'+_all);
   }
-  if (res) {
-    $.each(res, function(i, p){
-      var $oi = $o_sol.eq(pmap[p._id].charCodeAt(0)-65), idx = index(p._id);
-      var _ac = '<a href="#status--'+F.charAt(idx)+'-'+2+'">'+p.value.AC+'</a>';
-      var _all = '<a href="#status--'+F.charAt(idx)+'"'+'">'+p.value.all+'</a>';
-      $oi.html(_ac+'&nbsp/&nbsp'+_all);
-    });
-  }
+
   if ($clone.length) {
     $clone.unbind('click');
     $clone.click(function(){
