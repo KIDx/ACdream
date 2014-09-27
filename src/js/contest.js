@@ -324,7 +324,7 @@ function OverviewResponse(resp) {
     var _all = '<a href="#status--'+F.charAt(idx)+'"'+'">'+all+'</a>';
     $p.html(_ac+' <span>/</span> '+_all);
     if ($pencent) {
-      $pencent.text( Math.round(ac*100/all)+'%' );
+      $pencent.text( Math.round(all > 0 ? ac*100/all : 100)+'%' );
     }
   }
 
