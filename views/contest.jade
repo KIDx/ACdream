@@ -207,6 +207,11 @@ fieldset#widthfix
           table.table.table-rank
             include rankheader
             +rankheader(probNum, F)
+        #rankfooter(style="width:"+(mw-6)+"px")
+          table.table.table-rank.tdcenter(style="margin:0;")
+            tfoot
+              include rankfooter
+              +rankfooter(probNum, F, true)
         if (isManager)
           if (contest.type == 2)
             .form-inline
@@ -240,6 +245,9 @@ fieldset#widthfix
                 include rankheader
                 +rankheader(probNum, F)
               tbody
+              tfoot
+                include rankfooter
+                +rankfooter(probNum, F, false)
       //discusstab
       #discusstab.tab-pane(style="margin:0px 10px;")
         .tablebg

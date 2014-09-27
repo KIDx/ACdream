@@ -1,0 +1,7 @@
+mixin rankfooter(probNum, F, isFloat)
+  tr(style="height:70px;")
+    td(colspan="5" style=(isFloat ? "border:0;" : ""))
+    - for(var i = 0; i < probNum; i++)
+      td.standing_status.footer(data-idx=i)
+        span.footer-stat
+        span.footer-percent

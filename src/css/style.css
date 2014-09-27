@@ -1335,6 +1335,37 @@ div.prob-tag a.tag {
   background: #fff;
 }
 
+#rankfooter {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+  padding: 0 3px;
+}
+
+td.footer {
+  background: #333;
+}
+
+td.footer:hover {
+  background: #444;
+}
+
+span.footer-stat a {
+  color: #b991ff;
+}
+
+span.footer-stat span {
+  color: #eee;
+}
+
+span.footer-percent {
+  font-size: 10px;
+  margin-top: 5px;
+  color: #eee;
+  display: block;
+}
+
 .rank {
   width: 40px;
 }

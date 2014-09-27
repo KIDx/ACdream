@@ -303,45 +303,60 @@ var $overview = $div.find('#overviewtab');
 var $o_index = $overview.find('td.o_index');
 var $o_sol = $overview.find('td.o_sol');
 var $clone = $('#clone');
+var $tdfooter = $('table tfoot td.footer');
 var prob_num = $p_span.length;
 var overviewTimeout;
 var overviewAjax;
 
 function OverviewResponse(resp) {
-  if (!overviewAjax || !resp || !isActive(0)) {
+  if (!overviewAjax || !resp || (!isActive(0) && !isActive(3)) ) {
     return ;
   }
 
-  for (var i = 0; i < prob_num; ++i) {
-    var $oi = $o_index.eq(i);
-    var res = resp.self[pids[i]];
-    if (res === true) {
-      $oi.addClass('AC');
-      $oi.next().next().addClass('AC-fill');
-    } else if (res === false) {
-      $oi.addClass('WA');
-      $oi.next().next().addClass('WA-fill');
-    }
-
+  function renderStat(idx, $p, $pencent) {
     var ac = 0, all = 0;
-    var o = resp.stat[pids[i]];
+    var o = resp.stat[pids[idx]];
     if (o) {
       ac = o.ac ? o.ac : 0;
       all = o.all ? o.all : 0;
     }
-    var $os = $o_sol.eq(i);
-    var _ac = '<a href="#status--'+F.charAt(i)+'-'+2+'">'+ac+'</a>';
-    var _all = '<a href="#status--'+F.charAt(i)+'"'+'">'+all+'</a>';
-    $os.html(_ac+'&nbsp/&nbsp'+_all);
+    var _ac = '<a href="#status--'+F.charAt(idx)+'-'+2+'">'+ac+'</a>';
+    var _all = '<a href="#status--'+F.charAt(idx)+'"'+'">'+all+'</a>';
+    $p.html(_ac+' <span>/</span> '+_all);
+    if ($pencent) {
+      $pencent.text( Math.round(ac*100/all)+'%' );
+    }
   }
 
-  if ($clone.length) {
-    $clone.unbind('click');
-    $clone.click(function(){
-      var url = '/addcontest?cID=-'+cid+'&type=1';
-      if (!ShowLogin(url)) {
-        window.location.href = url;
+  if (isActive(0)) {
+    for (var i = 0; i < prob_num; ++i) {
+      var $oi = $o_index.eq(i);
+      var res = resp.self[pids[i]];
+      if (res === true) {
+        $oi.addClass('AC');
+        $oi.next().next().addClass('AC-fill');
+      } else if (res === false) {
+        $oi.addClass('WA');
+        $oi.next().next().addClass('WA-fill');
       }
+      renderStat(i, $o_sol.eq(i));
+    }
+
+    if ($clone.length) {
+      $clone.unbind('click');
+      $clone.click(function(){
+        var url = '/addcontest?cID=-'+cid+'&type=1';
+        if (!ShowLogin(url)) {
+          window.location.href = url;
+        }
+      });
+    }
+  }
+
+  if (isActive(3)) {
+    console.log($tdfooter);
+    $.each($tdfooter, function(i, p){
+      renderStat( $(p).data('idx'), $(p).find('span.footer-stat'), $(p).find('span.footer-percent') );
     });
   }
 }
@@ -360,8 +375,10 @@ function GetOverview() {
           overviewAjax.abort();
       }
     }).done(OverviewResponse);
-    $loading.hide();
-    $overview.fadeIn(100);
+    if (isActive(0)) {
+      $loading.hide();
+      $overview.fadeIn(100);
+    }
   }, interceptorTime);
 }
 
@@ -508,6 +525,7 @@ function GetProblem() {
 
 var $rank = $div.find('#ranktab');
 var $rankheader = $rank.find('#rankheader');
+var $rankfooter = $rank.find('#rankfooter');
 var $ranktable = $rank.find('#tablediv');
 var $ranktbody = $ranktable.find('tbody');
 var $ranklist = $rank.find('#ranklist');
@@ -525,15 +543,22 @@ var total; //提交过代码的人数
 $(document).ready(function(){
   //deal with overflow rank table
   $rank.width($('#widthfix').width()-22);
-  //deal with rankheader
   $(window).scroll(function(){
-    if (!isActive(3)) {
-      return false;
-    }
-    if ($(window).scrollTop() > $ranktable.offset().top) {
-      $rankheader.show();
-    } else {
-      $rankheader.hide();
+    if (isActive(3)) {
+      //deal with rankheader
+      if ($(window).scrollTop() > $ranktable.offset().top) {
+        $rankheader.show();
+      } else {
+        $rankheader.hide();
+      }
+      //deal with rankfooter
+      var scrollBottom = $(window).scrollTop() + $(window).height();
+      if ($ranktable.offset().top + 110 < scrollBottom &&
+          scrollBottom < $ranktable.offset().top + $ranktable.height()) {
+        $rankfooter.show();
+      } else {
+        $rankfooter.hide();
+      }
     }
   });
 });
@@ -688,9 +713,12 @@ function RankResponse(res) {
   $retry.hide();
   $loading.hide();
   $rank.fadeIn(100);
+  //in order to show rankfooter when reflash
+  $(window).scroll();
 }
 
 function GetRanklist(notRetry) {
+  GetOverview();
   clearTimeout(rankTimeout);
   rankTimeout = setTimeout(function(){
     rankAjax = $.ajax({
