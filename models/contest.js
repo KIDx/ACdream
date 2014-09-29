@@ -19,6 +19,7 @@ function Contest(contest) {
   this.password = contest.password;
   this.open_reg = contest.open_reg;
   this.type = contest.type;
+  this.family = contest.family;
 };
 
 module.exports = Contest;
@@ -35,6 +36,7 @@ var contestObj = new Schema({
   password: String,
   open_reg: Boolean,
   type: Number,
+  family: String,
   contestants: Array,
   stars: Array,
   updateTime: Number,
@@ -64,6 +66,9 @@ Contest.prototype.save = function(callback) {
   contest.password = this.password;
   contest.open_reg = this.open_reg;
   contest.type = this.type;
+  if (contest.type === 2) {
+    contest.family = this.family;
+  }
   contest.contestants = new Array();
   contest.stars = new Array();
   contest.updateTime = 0;

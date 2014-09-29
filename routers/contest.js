@@ -77,20 +77,11 @@ router.get('/', function(req, res){
     if (!contest) {
       return res.redirect('/404');
     }
-    var family = "";
-    if (contest.type === 2) {
-      if (contest.penalty === 20) {
-        family = "rating";
-      } else if (contest.penalty === 40) {
-        family = "speed";
-      }
-    } else {
-      if (contest.password) {
-        if (name !== contest.userName && name !== 'admin') {
-          if (!req.session.cid || !req.session.cid[cid]) {
-            req.session.msg = 'You should login the contest '+cid+' first!';
-            return res.redirect('/contest/list?type=1');
-          }
+    if (contest.type !== 2 && contest.password) {
+      if (name !== contest.userName && name !== 'admin') {
+        if (!req.session.cid || !req.session.cid[cid]) {
+          req.session.msg = 'You should login the contest '+cid+' first!';
+          return res.redirect('/contest/list?type=1');
         }
       }
     }
@@ -127,7 +118,6 @@ router.get('/', function(req, res){
           contest: contest,
           reg_state: getRegState(contest, name),
           type: contest.type,
-          family: family,
           getDate: getDate,
           MC: userCol(user.rating),
           MT: userTit(user.rating),
@@ -172,11 +162,7 @@ router.get('/list', function(req, res){
   }
 
   if (type === 2) {
-    if (family === "rating") {
-      Q.penalty = 20;
-    } else if (family === "speed") {
-      Q.penalty = 40;
-    }
+    Q.family = family;
   }
 
   Contest.get(Q, page, function(err, contests, n){

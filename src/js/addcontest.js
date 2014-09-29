@@ -1,7 +1,4 @@
 //left
-var $addcontest = $('#addcontest');
-var c_type = $addcontest.attr('type');
-var cid = $addcontest.attr('cid');
 var $date = $('#datepicker');
 
 $(document).ready(function() {
@@ -203,6 +200,7 @@ $(document).ready(function(){
       data: {
         cid: cid,
         type: c_type,
+        family: $('#family').val(),
         title: title,
         date: date,
         hour: hour,

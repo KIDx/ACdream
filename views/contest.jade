@@ -97,7 +97,7 @@ fieldset#widthfix
                   a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
         .row-fluid(align="center" style="margin-bottom:15px;")
           if (isManager)
-            a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(family ? "&family="+family : "")) Edit
+            a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(contest.family ? "&family="+contest.family : "")) Edit
             a#delete.uibtn(href="javascript:;") Delete
           a#clone.uibtn.checklogin(style="display:none;" href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
           if (!isManager)

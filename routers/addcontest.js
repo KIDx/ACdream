@@ -132,6 +132,7 @@ router.route('/')
   var desc = clearSpace(req.body.desc);
   var anc = clearSpace(req.body.anc);
   var type = parseInt(req.body.type, 10);
+  var family = clearSpace(req.body.family);
 
   if (!title || !date || !hour || !min ||
       nan(dd) || nan(hh) || nan(mm) || !penalty ||
@@ -194,6 +195,7 @@ router.route('/')
         con.description = desc;
         con.msg = anc;
         con.open_reg = open_reg;
+        con.family = family;
         if (con.password != req.body.psw)
           con.password = psw;
         var save = function() {
@@ -264,7 +266,8 @@ router.route('/')
           probs: ary,
           password: psw,
           open_reg: open_reg,
-          type: type
+          type: type,
+          family: family
         })).save(function(err) {
           if (err) {
             LogErr(err);

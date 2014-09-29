@@ -5,12 +5,13 @@ fieldset
       if (type === 1)
         | DIY Contest
       else if (type === 2)
-        if (family === "rating")
-          | Rating Contest
-        else if (family === "speed")
-          | Speed Contest
-        else
-          | VIP Contest
+        case family
+          when "rating"
+            | Rating Contest
+          when "speed"
+            | Speed Contest
+          when "training"
+            | Traning Contest
   .tablebg
     div#pager
       include pager

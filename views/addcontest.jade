@@ -31,7 +31,7 @@ else
 
 fieldset
   div
-    legend#addcontest(cid=(contest && clone == 0 ? contest.contestID : "") type=tp)= name+' '+cname
+    legend#addcontest= name+' '+cname
   #form.orm-horizontal
     .row-fluid(style="min-height:460px;")
       .span6
@@ -75,18 +75,22 @@ fieldset
                   label.user-blue(for="public" title="Codeforce的注册模式") public
                   input#open_reg(type="checkbox" checked=(!contest || contest && contest.open_reg ? true : false))
                   label.user-black(for="open_reg" title="比赛正在进行也不关闭注册") open register
+            tr
+              th= 'Family: '
+              td
+                select#family
+                  option(value="speed" selected=(family==="speed" ? true : false)) Speed Contest
+                  option(value="rating" selected=(family==="rating" ? true : false)) Rating Contest
+                  option(value="training" selected=(family==="training" ? true : false)) Training Contest
           tr
             th= 'Penalty: '
             td
               select#penalty
-                if (tp === 2)
-                  if (family === "speed")
-                    option(value=40 selected=true) 手速赛, 40分钟/次
-                  else
-                    option(value=20 selected=true) 群赛, 20分钟/次
-                else
-                  - for (var i = 2; i <= 6; ++i)
-                    option(value=i*10 selected=(contest && contest.penalty == i * 10 ? true : false)) #{i*10} 分钟/次
+                - for (var i = 2; i <= 6; ++i)
+                  - var isSelected = false;
+                  if (contest && contest.penalty === i * 10 || !contest && family === "speed" && i === 4)
+                    - isSelected = true;
+                  option(value=i*10 selected=isSelected) #{i*10} 分钟/次
           tr
             th= 'Description: '
             td
@@ -131,3 +135,6 @@ fieldset
       if (contest && clone == 0)
         a.uibtn(href="/contest?cid="+contest.contestID) back
       span#err.error-text
+script(type="text/javascript").
+  var cid = '#{contest && clone == 0 ? contest.contestID : ""}';
+  var c_type = #{tp};
