@@ -140,7 +140,7 @@ router.get('/list', function(req, res){
     return res.redirect('/404');
   }
 
-  var family = String(req.query.family);
+  var family = req.query.family;
 
   if (!req.query.page) {
     page = 1;
@@ -161,7 +161,7 @@ router.get('/list', function(req, res){
     Q.$or = [q1, q2];
   }
 
-  if (type === 2) {
+  if (type === 2 && family) {
     Q.family = family;
   }
 
