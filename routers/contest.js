@@ -284,11 +284,24 @@ router.post('/overview', function(req, res){
             } else {
               maxRunID = sol.runID;
             }
-            Solution.aggregate([
-              { $match: { userName: {$ne: 'admin'}, cID: cid, runID: {$lte: maxRunID} } }
-            , { $group: { _id: {cid: '$cID', pid: '$problemID', result: {$eq: ['$result', 2]}}, value: {$sum: 1} } }
-            , { $out: 'overviews' }
-            ], function(err){
+            Solution.mapReduce({
+              query: { userName: {$ne: 'admin'}, cID: cid, runID: {$gt: contest.overviewRunID, $lte: maxRunID} },
+              map: function() {
+                return emit({
+                  cid: this.cID,
+                  pid: this.problemID,
+                  result: this.result === 2
+                }, 1);
+              },
+              reduce: function(key, vals) {
+                var val = 0;
+                vals.forEach(function(p){
+                  val += p;
+                });
+                return val;
+              },
+              out: { reduce: 'overviews' }
+            }, function(err){
               if (err) {
                 return cb(err);
               }
