@@ -105,6 +105,7 @@ var $search = $('#search');
 var $pid = $('#pid');
 var $result = $('#result');
 var $Filter = $('#fil');
+var $reset = $('#reset');
 var $singleRejudge;
 var statusQ = { cid:cid, page:1 };
 var searchTimeout;
@@ -1113,10 +1114,21 @@ $(document).ready(function(){
   runContest();
 });
 
+function AlwaysRun(hash) {
+  if (window.location.hash === hash) {
+    run();
+  } else {
+    window.location.hash = hash;
+  }
+}
+
 //bind status, rank refresh and discuss refresh
 $(document).ready(function(){
   $Filter.click(function(){
-    window.location.hash = '#status-'+$search.val()+'-'+$pid.val()+'-'+$result.val();
+    AlwaysRun( '#status-'+$search.val()+'-'+$pid.val()+'-'+$result.val() );
+  });
+  $reset.click(function(){
+    AlwaysRun('#status');
   });
   $search.keyup(function(e){
     if (e.keyCode == 13) {
