@@ -1351,6 +1351,14 @@ td.footer:hover {
   background: #444;
 }
 
+td.footer > span {
+  display: block;
+}
+
+span.footer-stat {
+  margin: 5px 0;
+}
+
 span.footer-stat a {
   color: #b991ff;
 }
@@ -1361,9 +1369,7 @@ span.footer-stat span {
 
 span.footer-percent {
   font-size: 10px;
-  margin-top: 5px;
   color: #eee;
-  display: block;
 }
 
 .rank {

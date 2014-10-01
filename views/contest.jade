@@ -125,7 +125,7 @@ fieldset#widthfix
                         if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
                           a.fr.uibtn.uibtn-mini.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
                         a(href="#problem-"+F[i])= p[1] ? p[1] : Pt[p[0]].title
-                      td
+                      td.op_submit
                         a.submit.img_link(href="javascript:;" pid=p[0] tname=Pt[p[0]].title title="Submit")
                       td.center.o_sol
           if(contest.description)

@@ -302,6 +302,7 @@ function noActive(i) {
 //overview
 var $overview = $div.find('#overviewtab');
 var $o_index = $overview.find('td.o_index');
+var $o_td_submit = $overview.find('td.op_submit');
 var $o_sol = $overview.find('td.o_sol');
 var $clone = $('#clone');
 var $tdfooter = $('table tfoot td.footer');
@@ -335,10 +336,10 @@ function OverviewResponse(resp) {
       var res = resp.self[pids[i]];
       if (res === true) {
         $oi.addClass('AC');
-        $oi.next().next().addClass('AC-fill');
+        $o_td_submit.eq(i).addClass('AC-fill');
       } else if (res === false) {
         $oi.addClass('WA');
-        $oi.next().next().addClass('WA-fill');
+        $o_td_submit.eq(i).addClass('WA-fill');
       }
       renderStat(i, $o_sol.eq(i));
     }
@@ -355,9 +356,15 @@ function OverviewResponse(resp) {
   }
 
   if (isActive(3)) {
-    console.log($tdfooter);
     $.each($tdfooter, function(i, p){
-      renderStat( $(p).data('idx'), $(p).find('span.footer-stat'), $(p).find('span.footer-percent') );
+      var idx = $(p).data('idx');
+      var res = resp.self[pids[idx]];
+      if (res === true) {
+        $(p).find('span.footer-res').text('Yes').css({color: '#6f6'});
+      } else if (res === false) {
+        $(p).find('span.footer-res').text('No').css({color: '#ff6565'});
+      }
+      renderStat( idx, $(p).find('span.footer-stat'), $(p).find('span.footer-percent') );
     });
   }
 }
