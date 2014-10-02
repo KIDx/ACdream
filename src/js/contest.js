@@ -434,7 +434,7 @@ function ShowProblem(prob) {
     if (!q[i]) continue;
     tcon += '<h4>'+S[i]+'</h4><div class="accordion-inner">';
     if (i === 3 || i === 4) {
-      tcon += '<pre class="sample">'+q[i]+'</pre>';
+      tcon += '<pre class="sample">'+escapeHtml(q[i])+'</pre>';
     } else {
       tcon += q[i];
     }
@@ -780,7 +780,7 @@ function buildDiscuss(p) {
   html += '</a></td><td>';
   html += '<span class="user-green">'+p.reviewsQty+'</span><span class="user-gray">/'+p.browseQty+'</span>';
   html += '</td><td style="text-align:left;" class="ellipsis">';
-  html += '<a target="_blank" href="/topic?tid='+p.id+'">'+p.title+'</a></td>';
+  html += '<a target="_blank" href="/topic?tid='+p.id+'">'+escapeHtml(p.title)+'</a></td>';
   html += '<td>';
   if (p.lastReviewer) {
     html += '<a class="topic_timer" target="_blank" href="/topic?tid='+p.id+'#'+p.lastComment+'">';
