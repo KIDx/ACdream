@@ -88,7 +88,7 @@ fieldset
             span(class=flg ? "error-text" : "success-text")= info
           else
             each pid in ary 
-              a(href="/problem?pid="+pid)= pid
+              a.pid(href="/problem?pid="+pid)= pid
     +box("solved", A, "No problems has been solved :(", true)
     +box("unsolved", B, "No unsolved problems :)")
     if (u.name == 'admin')

@@ -355,8 +355,11 @@ a.user {
 
 .inner_topic {
   padding: 10px;
-  word-break: break-word;
   overflow: hidden;
+}
+
+.inner_topic > a.pid {
+  display: inline-block;
 }
 
 .publish_box {
