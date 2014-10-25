@@ -88,6 +88,10 @@ h3.problem-header {
   background: #eee;
 }
 
+.width-mini {
+  max-width: 50px;
+}
+
 .mc {
   margin: 0 auto;
 }
@@ -406,6 +410,11 @@ tr.highlight:hover {
   text-align: center;
 }
 
+.table tr th {
+  text-align: center;
+}
+
+.table > tbody > tr > th,
 .table > tbody > tr > td {
   vertical-align: middle;
 }

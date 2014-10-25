@@ -86,23 +86,6 @@ a.put_down {
   filter: alpha(opacity=60);
 }
 
-.my-radio {
-  overflow: hidden;
-}
-
-.my-radio label, .my-radio input {
-  float: left;
-  margin-left: 25px;
-}
-
-.my-radio label {
-  margin-left: 5px;
-}
-
-.radio input {
-  margin-left: 20px;
-}
-
 td.accept {
   background: #D4FFD0;
 }
@@ -740,24 +723,6 @@ div.tablebg div#filter input:focus {
   border-color: rgba(82, 168, 236, 0.8);
 }
 
-form div#simpleInput div select,
-div.tablebg div#filter select,
-div.tablebg div#filter button,
-.table tr td select {
-  line-height: 15px;
-  font-size: 12px;
-  height: 24px;
-  padding: 2px 5px;
-}
-
-form div#simpleInput div input,
-.table tr td input[type="text"],
-.table tr td input[type="password"],
-.table tr th input[type="text"] {
-  margin: 0;
-  padding: 0 3px;
-}
-
 /**************bootstrap fixed**************/
 
 .icon_search {
@@ -1081,14 +1046,6 @@ table.parity thead {
 
 #problemsview {
   margin: 0 13%;
-}
-
-.table tr th {
-  text-align: center;
-}
-
-.table.thright tr th{
-  text-align: right;
 }
 
 .my-table-bordered th,
