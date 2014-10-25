@@ -51,17 +51,14 @@ fieldset
                     each l, i in langs
                       option(value=(i > 0 ? i : "") selected=(lang == i ? true : false))= l
         .table-responsive
-            table#statistic.table.table-bordered.tdcenter.sort
+            table#statistic.table.table-bordered.tdcenter
               thead
                 tr.even
                   th(width="6%") Rank
                   th(width="20%") Author
-                  th(title="sorted by exec time.")
-                    a(class="sort "+(sort_key ? "" : "current") href="javascript:;") Exe. Time
-                  th(title="sorted by exec memory.")
-                    a(class="sort "+(sort_key == 1 ? "current" : "") href="javascript:;") Exe. Memory
-                  th(title="sorted by code length.")
-                    a(class="sort "+(sort_key == 2 ? "current" : "") href="javascript:;") Code Len.
+                  th(data-key=0 class=(sort_key ? "sort" : "sort-current") title="sorted by exec time.") Exe. Time
+                  th(data-key=1 class=(sort_key === 1 ? "sort-current" : "sort") title="sorted by exec memory.") Exe. Memory
+                  th(data-key=2 class=(sort_key === 2 ? "sort-current" : "sort") title="sorted by code length.") Code Len.
                   th Lang.
                   th(width="22%") Date
               tbody
@@ -86,5 +83,13 @@ fieldset
                       td
                         a(href="/sourcecode/"+p.runID)= langs[p.language]
                       td= getDate(p.inDate)
+              tfoot
+                tr.odd
+                  td(colspan="9")
+                    #pager
+                      include pager
+                      +pager(page, n)
 script(type="text/javascript")
-  != 'var stat_data = '+JSON.stringify(data)
+  | var pid = #{pid};
+  | var sort = #{sort_key};
+  != 'var stat_data = '+JSON.stringify(data)+';'

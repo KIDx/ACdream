@@ -1115,22 +1115,6 @@ div.des-box {
   border-radius: 3px;
 }
 
-table.sort th a {
-  position: relative;
-  display: block;
-  text-decoration: none!important;
-  color: #333!important;
-  z-index: 1000;
-}
-
-table.sort th a:hover {
-  background: #C7CDFF;
-}
-
-table.sort th a.current {
-  background: #C7CDFF;
-}
-
 #problemset tbody tr {
   height: 45px;
 }

@@ -1,9 +1,6 @@
 var $lang = $('#lang');
 var $list = $('#list').find('a');
-var $sort = $('a.sort');
-var $statistic = $('#statistic');
-var pid = $statistic.attr('pid');
-var sort = $statistic.attr('sort');
+var $sort = $('table#statistic thead th.sort');
 
 function go(page){
   var F = new Array(), G = new Array();
@@ -37,11 +34,13 @@ $(document).ready(function(){
       go($(this).attr('id'));
     });
   });
-  $.each($sort, function(i, p){
-    $(p).click(function(){
-      sort = i;
-      go(null);
-    });
+  $sort.click(function(){
+    if ($(this).hasClass('sort-disabled')) {
+      return false;
+    }
+    $(this).addClass('sort-disabled');
+    sort = $(this).data('key');
+    go(null);
   });
   $lang.change(function(){
     go(null);

@@ -43,6 +43,26 @@ h3.problem-header {
 }
 /* problem END */
 
+/* statistic START */
+.sort {
+  cursor: pointer;
+}
+
+.sort:hover {
+  background: #DCEBFA;
+}
+
+.sort-current {
+  background: #def;
+}
+
+.sort-disabled {
+  cursor: default;
+  background: #fbfbfb!important;
+  color: gray;
+}
+/* statistic END */
+
 .uibtn {
   background: #fff;
   vertical-align: middle;
