@@ -35,9 +35,6 @@ $(document).ready(function(){
     });
   });
   simulateClick($search, $fil);
-  $('#reset').click(function(){
-    window.location.href = base_url;
-  });
 });
 
 var $register = $('a.register');

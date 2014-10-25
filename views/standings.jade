@@ -1,31 +1,30 @@
 fieldset#standings(cid=cid ? cid : "")
-  div
-    legend
-      if (cid)
-        | Contestants of Contest
-        = ' '+cid
-      else
-        | Standings
-  .tablebg
-    #pager
-      include pager
-      +pager(page, n)
-      #filter.fr
-        .input-prepend
-          span.add-on
-            i.icon_search
-          input#search(type="text" value=search ? search : "" title="User or Nickname" placeholder=" user or nick")
-        div
-          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
-        div
-          a.uibtn.uibtn-mini(href="/standings"+(cid ? "?cid="+cid : "")) Reset
-    div#tablediv
-      table#rank.table.table-cf.tdcenter(style="table-layout:fixed;")
+  .block.block-info
+    .heading
+      .row
+        .col-md-8
+          if (cid)
+            | Contestants of Contest
+            = ' '+cid
+          else
+            | Standings
+        .col-md-4.form-inline
+          .pull-right
+            .input-group.input-group-sm
+              span.input-group-addon
+                i.icon_search
+              input#search.form-control(type="text" value=search ? search : "" placeholder="user or nick")
+            = ' '
+            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+            = ' '
+            a.btn.btn-default.btn-sm(href="/standings"+(cid ? "?cid="+cid : "")) Reset
+    .table-responsive
+      table#rank.table.table-bordered.tdcenter
         thead
-          tr
+          tr.even
             th(style="width:60px;") Rank
-            th(style="width:150px;") User
-            th(style="width:150px;") Nickname
+            th(style="width:155px;") User
+            th(style="width:155px;") Nickname
             th Signature
             th(style="width:35px;")
               span(title="Number of participations") #
@@ -34,7 +33,7 @@ fieldset#standings(cid=cid ? cid : "")
         tbody
           if (!users || users.length == 0)
             tr.odd
-              td.error-text.center(colspan="7") No Users are matched.
+              td.error-text.center(colspan="6") No Users are matched.
           else
             - var d = 1;
             if (user)
@@ -56,13 +55,19 @@ fieldset#standings(cid=cid ? cid : "")
                 td
                   a(class="user user-"+UC[p.name] href="/user/"+p.name title=UT[p.name]+" "+p.name)= p.name
                 td
-                  span.user.user-gray= p.nick
+                  span.user-gray= p.nick
                 td.ellipsis
                   if (p.signature)
-                    span.user-gray(title=p.signature)= p.signature
+                    p.user-gray.ellipsis.mc(title=p.signature)= p.signature
                 td= p.ratedRecord.length
                 td
                   if (p.lastRatedContest)
                     = p.rating
                   else
                     span.user.user-gray -
+        tfoot
+          tr.odd
+            td(colspan="6")
+              #pager
+                include pager
+                +pager(page, n)

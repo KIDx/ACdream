@@ -1,26 +1,28 @@
 fieldset
-  div
-    legend 题库
-  .tablebg
-    #pager
-      include pager
-      +pager(page, n)
-      #filter.fr
-        .input-prepend
-          span.add-on
-            i.icon_search
-          input#search(type="text" style="width:160px;" value=search ? search : "" title="Title or Tag or Source" placeholder=" title or tag or source")
-        div
-          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
-        div
-          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
-    #tablediv
-      table#problemset.table.table-cf(style="table-layout:fixed;")
+  .block.block-info
+    .heading
+      .row
+        .col-sm-6
+          .btn-group.btn-group-sm
+            - for (var i = 1; i <= n; i++)
+              a.btn.btn-default(href="/problem/list?page="+i)= i
+        .col-sm-6.form-inline
+          .pull-right
+            .input-group.input-group-sm
+              span.input-group-addon
+                i.icon_search
+              input#search.form-control(type="text" value=search ? search : "" placeholder="title or tag or source")
+            = ' '
+            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+            = ' '
+            a.btn.btn-default.btn-sm(href="/problem/list") Reset
+    .table-responsive
+      table#problemset.table.table-bordered
         thead
-          tr
+          tr.even
             th(style="width:65px;") #
             th Title
-            th(style="width:70px;")
+            th(style="width:75px;")
             th(style="width:150px;") Source
             th(style="width:150px;") Ratio(AC/submit)
         tbody
@@ -64,3 +66,9 @@ fieldset
                   | /
                   a(href="/status?pid="+p.problemID)= p.submit
                   | )
+        tfoot
+          tr(style="background-color:#E8FFF0")
+            td(colspan="6")
+              #pager
+                include pager
+                +pager(page, n)

@@ -26,4 +26,6 @@ module.exports = {
   RANKLIST: 16,
   STANDINGS: 17,
 
+  REGISTER: 18,
+
 };

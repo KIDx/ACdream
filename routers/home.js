@@ -1,6 +1,7 @@
 
 var router = require('express').Router();
 var crypto = require('crypto');
+var async = require('async');
 var verifyCode = require('verify-code');
 
 var User = require('../models/user.js');
@@ -16,44 +17,64 @@ var LogErr = Comm.LogErr;
  * 主页
  */
 router.get('/', function(req, res){
-  Topic.topFive({top: true, cid: -1}, function(err, A){
+  var resp = {
+    title: 'ACdream Online Judge',
+    key: KEY.HOME,
+    getTime: Comm.getTime,
+    imgType: {},
+    UT: Comm.userTit,
+    UC: Comm.userCol
+  };
+  var arr = [
+    function(cb) {
+      Contest.topFive({type: 2}, function(err, contests){
+        if (err) {
+          return cb(err);
+        }
+        resp.contests = contests;
+        return cb();
+      });
+    },
+    function(cb) {
+      User.topTen({name: {$ne: 'admin'}}, function(err, users){
+        if (err) {
+          return cb(err);
+        }
+        resp.users = users;
+        return cb();
+      })
+    },
+    function(cb) {
+      Topic.get({cid: -1}, 1, function(err, topics, n){
+        if (err) {
+          return cb(err);
+        }
+        var names = [];
+        topics.forEach(function(p){
+          names.push(p.user);
+        });
+        User.find({name: {$in: names}}, function(err, users){
+          if (err) {
+            return cb(err);
+          }
+          users.forEach(function(u){
+            resp.imgType[u.name] = u.imgType;
+          });
+          resp.topics = topics;
+          return cb();
+        });
+      })
+    },
+  ];
+  async.each(arr, function(f, cb){
+    f(cb);
+  }, function(err){
     if (err) {
       LogErr(err);
       req.session.msg = '系统错误！';
       return res.redirect('/404');
     }
-    Contest.topFive({type: 2}, function(err, B){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/404');
-      }
-      Topic.topFive({top: false, cid: -1}, function(err, C){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/404');
-        }
-        User.topFive({name: {$ne: 'admin'}}, function(err, D){
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.redirect('/404');
-          }
-          res.render('index', {
-            title: 'ACdream Online Judge',
-            key: KEY.HOME,
-            A: A,
-            B: B,
-            C: C,
-            D: D,
-            getTime: Comm.getTime,
-            UT: Comm.userTit,
-            UC: Comm.userCol
-          });
-        });
-      });
-    });
+    return res.render('index', resp);
   });
 });
 
@@ -172,63 +193,6 @@ router.post('/logout', function(req, res) {
   req.session.user = null;
   req.session.cid = null;
   return res.end();
-});
-
-/*
- * 注册
- */
-router.post('/register', function(req, res) {
-  res.header('Content-Type', 'text/plain');
-
-  var name = clearSpace(req.body.username);
-  var nick = clearSpace(req.body.nick);
-  var password = req.body.password;
-  var vcode = clearSpace(req.body.vcode);
-  var school = clearSpace(req.body.school);
-  var email = clearSpace(req.body.email);
-  var sig = clearSpace(req.body.signature);
-
-  if (!name || !nick || !password || !vcode ||
-      school.length > 50 || email.length > 50 || sig.length > 200) {
-    return res.end();  //not allow
-  }
-
-  if (!Comm.isUsername(name)) {
-    return res.end();  //not allow
-  }
-
-  if (vcode.toLowerCase() != req.session.verifycode) {
-    return res.end('1');
-  }
-
-  User.watch(name, function(err, user){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
-    if (user) {
-      return res.end('2');
-    }
-    var md5 = crypto.createHash('md5');
-    var psw = md5.update(password).digest('base64');
-    (new User({
-      name: name,
-      password: psw,
-      regTime: (new Date()).getTime(),
-      nick: nick,
-      school: school,
-      email: email,
-      signature: sig
-    })).save(function(err, user) {
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      req.session.user = user;
-      req.session.msg = 'Welcome, '+name+'. :)';
-      return res.end();
-    });
-  });
 });
 
 module.exports = router;

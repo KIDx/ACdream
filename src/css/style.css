@@ -1,11 +1,9 @@
 body {
   font-family: "微软雅黑","Helvetica Neue",Helvetica,Arial,sans-serif;
-  background-color: #f2f2f2;
-  max-width: 1300px;
-  min-width: 920px;
   margin: auto;
   color: #555;
-  background: url('img/bg.gif');
+  background-color: #fff;
+  background: url(img/bg.gif);
 }
 
 input, button, select, textarea {
@@ -25,7 +23,7 @@ a.disabled {
   background: #fff!important;
 }
 
-a.img_link {
+.img_link {
   width: 16px;
   height: 16px;
   padding: 0;
@@ -83,7 +81,7 @@ a.put_down {
   background: url('img/put-down.png');
 }
 
-a.img_link:hover {
+.img_link:hover {
   opacity: 0.6;
   filter: alpha(opacity=60);
 }
@@ -137,16 +135,6 @@ td.first_blood {
   float: right;
 }
 
-.w {
-  overflow: hidden;
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 1px 5px #ccab63;
-  margin: 5px;
-  background: #fffcea;
-}
-
 .marquee {
   color: #D33F74;
   font-weight: bold;
@@ -183,10 +171,6 @@ ul.menu > li > a {
   color: #333;
   text-decoration: none;
   font-size: 18px;
-}
-
-div#wrapper {
-  min-height: 101%;
 }
 
 span.myhover {
@@ -364,7 +348,7 @@ a.user {
 
 .publish_box {
   margin-bottom: 20px;
-  background: #f2f2f2;
+  background: #fff;
   border-bottom: 2px solid #D8DEE5;
 }
 
@@ -454,10 +438,8 @@ img.top {
 }
 
 #sidebar {
-  float: right;
   width: 20em;
   margin-top: 1em;
-  top: 0;
 }
 
 div.sidebox {
@@ -471,11 +453,6 @@ div.sidebox {
 div.sidebox > ul {
   margin: .5em 1.5em;
   list-style: none outside none;
-}
-
-div.istyle em {
-  font-size: 125%;
-  font-family: times new roman, sans-serif;
 }
 
 div.sidegroup {
@@ -525,23 +502,6 @@ ul.edit > li > select {
   margin-left: 20px;
 }
 
-div.tag-box {
-  margin: .3em .5em .2em 0;
-  padding: 0 .3em;
-  border: 1px solid #ccc;
-  background: whitesmoke;
-  float: left;
-  border-radius: 3px;
-  display: block;
-  word-break: keep-all;
-}
-
-div.tag-box span.del {
-  margin-left: .3em;
-  color: gray;
-  cursor: pointer;
-}
-
 div.prob-info {
   padding-top: 5px;
   font-size: 14px;
@@ -575,10 +535,10 @@ div.theader {
   padding: 2px 5px;
 }
 
-div#preload_logo > a.logo {
+div#preload_logo {
   display: block;
-  width: 728px;
-  height: 90px;
+  min-height: 146px;
+  overflow: hidden;
 }
 
 /*********************CF*********************/
@@ -677,14 +637,6 @@ div.tablebg div.pagination ul > li.active > a {
 
 /*********************CF*********************/
 
-table tr.highlight {
-  background-color: #def!important;
-}
-
-table tr.girllight {
-  background-color: #FFE2F2!important;
-}
-
 table.tdmini tr th {
   padding: 0.30em;
 }
@@ -700,10 +652,6 @@ table.mini tr td {
 
 table.tdmini tr td {
   padding: 0.35em;
-}
-
-table.tdcenter tr td {
-  text-align: center;
 }
 
 div.mylist {
@@ -811,10 +759,6 @@ form div#simpleInput div input,
 }
 
 /**************bootstrap fixed**************/
-
-.hidden {
-  display: none;
-}
 
 .icon_search {
   width: 16px;
@@ -1071,14 +1015,6 @@ legend{
   color: #666;
 }
 
-table#addprob th {
-  vertical-align: middle;
-}
-
-.table td {
-  vertical-align: middle;
-}
-
 .table-cf thead th {
   padding: 0.45em;
 }
@@ -1092,30 +1028,7 @@ table#addprob th {
   border-left: 1px solid #e1e1e1;
 }
 
-.uibtn {
-  background: #fff;
-  vertical-align: middle;
-  display: inline-block;
-  margin: 2px 3px;
-  padding: 2px 10px;
-  border: 1px solid #ccc;
-  border-radius: 3px 3px 3px 3px;
-  font-weight: bold;
-  font-size: 12px;
-  color: #555;
-  text-decoration: none;
-  text-align: center;
-}
 
-.uibtn:hover {
-  color: #555;
-  text-decoration: none;
-}
-
-.uibtn-mini {
-  padding: 1px 5px;
-  margin: 0;
-}
 
 .upload {
   margin-bottom: 10px;
@@ -1129,21 +1042,6 @@ table#addprob th {
   margin: 18px 0 5px 0;
   width: 150px;
   display: block;
-}
-
-.upload-btn {
-  position: relative;
-  overflow: hidden;
-}
-
-.upload-btn input {
-  position: absolute;
-  top: 0;
-  right: 0;
-  opacity: 0;
-  height: 40px;
-  cursor: pointer;
-  filter: alpha(opacity=0);
 }
 
 .upload-info {
@@ -1176,32 +1074,16 @@ table.parity thead {
   background-color: white;
 }
 
-tr.odd {
-  background-color: #f5f5f5;
-}
-
-tr.even {
-  background-color: white;
-}
-
-h3.problem-header {
-  color: #3069BE;
-  text-align: center;
-  margin: 10px 0;
-}
 
 #wrapper {
-  min-height: 105%;
-  margin: 5px auto;
+  min-height: 101%;
 }
 
 #problemsview {
   margin: 0 13%;
 }
 
-.table tr th,
-.table#statustable tr td,
-.table#contest tr td{
+.table tr th {
   text-align: center;
 }
 
@@ -1419,71 +1301,10 @@ span.fb-cell-time {
   display: block;
 }
 
-td.AC {
-  border-left: 6px solid #ceecc0!important;
-}
-
-td.AC-fill {
-  background-color: #def5d4;
-}
-
-td.WA {
-  border-left: 6px solid #ffd6d6!important;
-}
-
-td.WA-fill {
-  background-color: #FFE3E3;
-}
-
 table th img {
   position: absolute;
   right: 0%;
   top: 27%;
-}
-
-#footer {
-  text-align: center;
-  font-size: 1em;
-}
-
-#scroll {
-  width: 30px;
-  float: right;
-  position: fixed;
-  right: 5px;
-  bottom: 95px;
-  list-style-type: none;
-}
-
-#scroll li a {
-  background: #fff;
-  border-radius: 2px;
-  padding: 3px 5px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  display: block;
-}
-
-#scroll li a i {
-  display: block;
-  width: 16px;
-  height: 16px;
-  opacity: .60;
-  margin: auto;
-  filter: alpha(opacity=60);
-}
-
-#scroll li a.up i {
-  background: url(img/arrow-up.png);
-}
-
-#scroll li a.down i {
-  background: url(img/arrow-down.png);
-}
-
-#scroll li a:hover {
-  background: #eee;
 }
 
 .tips {
@@ -1534,13 +1355,13 @@ table th img {
   height: 50px;
   width: 260px;
 
-  background-color: #000;
-  background: rgba(0,0,0,0.85);
+  background-color: rgb(50,50,50);
+  background: rgba(50,50,50,0.85);
 
 
   color: #fff;
   border: 0;
-  border-radius: 4px 4px 4px 4px;
+  border-radius: 2px;
   padding: 5px 30px 5px 10px;
   font-size: 13px;
   box-shadow: 0 5px 8px rgba(0,0,0, 0.35);
@@ -1550,13 +1371,8 @@ table th img {
   left: 50%;
   display: none;
   position: fixed;
-  color: #333;
-  border: 0;
   overflow: hidden;
-  background-color: #ecfdff;
-  border: 5px solid #ddd;
-  border-radius: 4px;
-  background-attachment: fixed;
+  background-color: #f8f8f8;
 }
 
 .jqmOverlay { background-color: #000; }
@@ -1576,119 +1392,43 @@ table th img {
 }
 
 .jqtop {
-  margin: 0 auto;
-  height:27px;
-  padding: 5px 0 0;
-  position: relative;
-  top: 0;
-  left: 0;
-  font-size: 16px;
-  color: #555;
-  text-align: center;
-  background: #d4ffcf;
+  padding: 5px 10px;
+  color: gray;
+  border-bottom: 1px solid #ddd;
 }
 
 .jqcontent {
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #CCC;
-  padding-left: 10px;
-  margin: 0;
-  position: absolute;
+  border-bottom: 1px solid #ddd;
   overflow: auto;
 }
 
-div.jqcontent > small.error-text {
-  height: 15px;
-  display: block;
-  margin-top: 5px;
+.jqcontent label {
+  font-size: 13px;
+  font-weight: normal;
 }
 
-div.jqcontent textarea {
-  font-size: 12px;
-}
-
-div.jqcontent input {
-  font-size: 12px;
-  padding: 1px 3px;
-  margin: 0;
-}
-
-div.jqcontent select {
-  height: auto;
-  padding: 1px 3px;
-  margin: 0;
-}
-
-div.jqcontent span.add-on {
-  font-size: 12px;
-  padding: 1px 6px;
-}
-
-div.jqcontent label{
-  font-size: 12px;
-}
-
-div.jqcontent span.add-on {
-  background-color: #ddd;
-}
-
-div.jqcontent > div {
-  padding-top: 10px;
-  overflow: hidden;
-}
-
-div.jqcontent div.group input {
-  width: 200px;
-}
-
-div.jqcontent div.group > div{
-  float: left;
-}
-
-div.jqfoot .btn {
-  font-size: 12px;
-  padding: 3px 10px;
+.jqcontent > .top {
+  margin-top: 10px;
 }
 
 .jqfoot {
-  padding: 0;
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
+  padding: 8px 10px;
 }
 
-.jqcheck {
-  position: absolute;
-  left: 8px;
-  bottom: 3px;
-}
-
-.jqcheck input {
-  margin: 0;
-}
-
-.jqcheck label {
-  font-size: 12px!important;
-  display: inline-block;
+.jqfoot .btn {
+  margin-left: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
 }
 
 .jqclose {
   width: 16px;
   height: 16px;
-  padding: 0;
-  display: block;
-  opacity: 0.4;
-  filter: alpha(opacity=40);
   background: url('img/delete.png');
   position: absolute;
-  top: 6px;
+  top: 10px;
   right: 10px;
   cursor: pointer;
-}
-
-.jqclose:hover {
-  opacity: 0.6;
-  filter: alpha(opacity=60);
 }
 
 .jqmClose {

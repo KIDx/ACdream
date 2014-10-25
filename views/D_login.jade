@@ -1,18 +1,21 @@
-#dialog_lg.jqmSubmit(style="width:350px;height:250px;top:15%;")
-  .jqDrag.jqtop Login
-  .jqcontent(style="width:340px;height:160px;")
-    div
-      label(for="login_username") User Name *
-      input#login_username.jqtext(type="text", style="width:320px;")
-    div
-      label(for="login_password") Password *
-      input#login_password.jqtext(type="password", style="width:320px;")
-    small#login_error.error-text
-  .jqfoot
-    a#login_submit.uibtn(href="javascript:;") Login
-    a.uibtn.loginclose(href="javascript:;") Cancel
-  .jqcheck
-    input#remember(type="checkbox")
-    label.user-gray(for="remember", title="Remember ME For A Month.") &nbsp;Remember ME
-  .jqResize
-  i.loginclose.jqclose
+#dialog_lg.jqmSubmit(style="width:385px;height:275px;top:15%;")
+  .block
+    .jqDrag.jqtop Login
+    .jqcontent.container(style="width:385px;height:185px;")
+      .form-group.top
+        label(for="login_username") User Name *
+        input#login_username.form-control.input-sm(type="text")
+      .form-group
+        label(for="login_password") Password *
+        input#login_password.form-control.input-sm(type="password")
+      .checkbox
+        label(title="remember me for a month")
+          input#remember(type="checkbox")
+          = 'remember me'
+    .jqfoot
+      span.fr
+        a#login_submit.btn.btn-default(href="javascript:;") Login
+        a.btn.btn-default.loginclose(href="javascript:;") Cancel
+      small#login_error.error-text
+    .jqResize.img_link
+    i.loginclose.jqclose.img_link

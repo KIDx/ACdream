@@ -1,5 +1,5 @@
-mixin lang(langs, clazz)
-  select#lang(class=clazz ? clazz : 'input-small')
+mixin lang(langs)
+  select#lang.form-control
     each val, i in langs
       if (i > 0)
         option(value=i selected=(i == 2 ? true : false))= val

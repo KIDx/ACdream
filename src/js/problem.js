@@ -1,18 +1,18 @@
-var $sidebar = $('#sidebar');
-var $lang = $sidebar.find('#lang');
-var $file = $sidebar.find('#file');
-var $error = $sidebar.find('#error');
-var $submit = $sidebar.find('#submit');
-var $add_tag = $('#add-tag');
-var $selectdiv = $add_tag.prev();
-var $select = $selectdiv.find('select');
-var $del_tag = $('span.del');
-var $tag_box = $sidebar.find('div.tag-box');
-var $ui = $('#upload-info');
-var $alert = $('#alert');
+var $submit_block = $('#submit_block');
+var $lang = $submit_block.find('#lang');
+var $file = $submit_block.find('#file');
+var $error = $submit_block.find('#error');
+var $submit = $submit_block.find('#submit');
+var $ui = $submit_block.find('.upload_info');
+var $alert = $submit_block.find('#alert');
 var $alert_close = $alert.find('.close');
 
-var pid = $sidebar.attr('pid');
+var $tag_block = $('#tag_block');
+var $add_tag = $tag_block.find('#add-tag');
+var $selectdiv = $tag_block.find('#tag_select');
+var $select = $selectdiv.find('select');
+var $del_tag = $tag_block.find('span.del');
+var $tag_box = $tag_block.find('.tag-box');
 
 $(document).ready(function() {
   $alert_close.click(function(){
@@ -20,7 +20,7 @@ $(document).ready(function() {
   });
   $submit.click(function() {
     if (!$file.val()) {
-      errAnimate($error, 'Choose file!');
+      errAnimate($error, 'Please choose file!');
       return false;
     }
   });
@@ -28,7 +28,7 @@ $(document).ready(function() {
     dataType: 'text',
     add: function(e, data) {
       var f = data.files[0];
-      $ui.text(f.name);
+      $ui.removeClass('user-green').text(f.name);
       $submit.unbind('click');
       $submit.click(function(){
         if (f.size) {
@@ -46,7 +46,7 @@ $(document).ready(function() {
     },
     progress: function(e, data) {
       var p = parseInt(data.loaded/data.total*100, 10);
-      $ui.text(p+'%');
+      $ui.addClass('user-green').text(p+'%');
     },
     done: function(e, data) {
       var res = data.response().result, tp;
@@ -76,7 +76,7 @@ $(document).ready(function(){
     $add_tag.unbind(); $del_tag.unbind();
     $add_tag.click(function(){
       $(this).addClass('hidden');
-      $selectdiv.show();
+      $selectdiv.removeClass('hidden');
       $select.change(function(res){
         $.ajax({
           type: 'POST',

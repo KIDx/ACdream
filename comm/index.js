@@ -275,8 +275,13 @@ exports.getTime = function(n) {
   var date = new Date(n);
   var RP = addZero(date.getMonth()+1)+'-'+addZero(date.getDate())+' '
     +addZero(date.getHours())+':'+addZero(date.getMinutes());
-  n = (new Date()).getTime() - n
-  var y = (new Date()).getFullYear() - date.getFullYear();
+  var future = false;
+  n = (new Date()).getTime() - n;
+  if (n < 0) {
+    future = true;
+    n = -n;
+  }
+  var y = Math.floor(n/31536000000);
   if (y > 0) {
     return date.getFullYear()+'-'+RP;
   }
@@ -286,13 +291,13 @@ exports.getTime = function(n) {
   }
   var h = Math.floor(n/3600000);
   if (h > 0) {
-    return (h+'小时前');
+    return h + '小时' + (future ? '后' : '前');
   }
   var m = Math.floor(n/60000);
   if (m > 0) {
-    return (m+'分钟前');
+    return m + '分钟' + (future ? '后' : '前');
   }
-  return '刚刚';
+  return future ? '1分钟内' : '刚刚';
 };
 
 

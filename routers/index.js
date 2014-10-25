@@ -26,5 +26,6 @@ module.exports = function(app) {
   app.use('/ranklist', require('./ranklist'));
   app.use('/standings', require('./standings'));
   app.use('/admin', require('./admin'));
+  app.use('/register', require('./register'));
 
 };

@@ -1,49 +1,45 @@
-- var cname = 'Contest';
 fieldset
-  div
-    legend#contest
-      if (type === 1)
-        | DIY Contest
-      else if (type === 2)
-        case family
-          when "rating"
-            | Rating Contest
-          when "speed"
-            | Speed Contest
-          when "training"
-            | Traning Contest
-          default
-            | VIP Contest
-  .tablebg
-    div#pager
-      include pager
-      +pager(page, n)
-      #filter.fr
-        div
-          if (user)
-            a.uibtn.uibtn-mini(href="/addcontest?type="+type+"&family="+family) Add #{cname}
-          else
-            a#addcontest.uibtn.uibtn-mini.checklogin(href="javascript:;") Add #{cname}
-        .input-prepend
-          span.add-on
-            i.icon_search
-          input#search(type="text" value=search ? search : "" title="Title or Manager" placeholder=" title or manager")
-        div
-          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
-        div
-          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
-    #tablediv
-      table#contest.table.table-cf
+  .block.block-info
+    .heading
+      .row
+        .col-md-2
+          if (type === 1)
+            | DIY Contest
+          else if (type === 2)
+            case family
+              when "rating"
+                | Rating Contest
+              when "speed"
+                | Speed Contest
+              when "training"
+                | Traning Contest
+              default
+                | VIP Contest
+        .col-md-10.form-inline
+          .pull-right
+            if (user)
+              a.btn.btn-default.btn-sm(href="/addcontest?type="+type+(family?"&family="+family:"")) Add Contest
+            else
+              a#addcontest.btn.btn-default.btn-sm.checklogin(href="javascript:;") Add Contest
+            = ' '
+            .input-group.input-group-sm
+              span.input-group-addon(style="border-right:0;")
+                i.icon_search
+              input#search.form-control(type="text" value=search ? search : "" placeholder="title or manager")
+            = ' '
+            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+            = ' '
+            a.btn.btn-default.btn-sm(href="/contest/list?type="+type+(family?"&family="+family:"")) Reset
+    .table-responsive
+      table#contest.table.table-bordered.tdcenter
         thead
-          tr
+          tr.even
             th(style="width:65px;") #
             th Title
             th(style="width:180px;") Start Time
             th(style="width:100px;") Duration
             th(style="width:100px;") Type
-            th(style="width:125px;")
-              if (type != 2)
-                = Manager
+            th(style="width:125px;")= (type === 2 ? '' : 'Manager')
         tbody
           if (!contests || contests.length == 0)
             tr.odd
@@ -61,9 +57,9 @@ fieldset
               if (T[i] > 0)
                 - s = '';
               else if (T[i] + p.len*60000 > 0)
-                - s = 'progress-danger';
+                - s = 'progress-bar-danger';
               else
-                - s = 'progress-success';
+                - s = 'progress-bar-success';
               tr(class=c)
                 td= p.contestID
                 td(style="text-align:left;")
@@ -91,8 +87,8 @@ fieldset
                               span.user-gray(style="margin-right:20px;")
                               a.register(href="javascript:;" id=p.contestID left=T[i] title="点击注册")= "Register >>"
                 td= getDate(p.startTime)
-                  div(class="progress progress-striped active "+s)
-                    .bar
+                  .progress
+                    .progress-bar.progress-bar-striped.active(class=s style="width:100%;")
                 td
                   if (dd > 0)
                     | #{dd}天
@@ -108,3 +104,9 @@ fieldset
                     a(href="/standings?cid="+p.contestID) ×#{p.contestants.length}
                   else
                     a(class="user user-"+UC[p.userName] title=UT[p.userName] href="/user/"+p.userName)= p.userName
+        tfoot
+          tr.odd
+            td(colspan="6")
+              #pager
+                include pager
+                +pager(page, n)

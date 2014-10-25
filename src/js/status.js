@@ -4,7 +4,6 @@ $(document).ready(function(){
 });
 
 var $fil = $('#fil');
-var $reset = $('#reset');
 var $name = $('#name');
 var $pid = $('#pid');
 var $result = $('#result');
@@ -50,9 +49,6 @@ $(document).ready(function(){
   });
   $fil.click(function(){
     go(null);
-  });
-  $reset.click(function(){
-    window.location.href = '/status';
   });
   simulateClick($name, $fil);
   simulateClick($pid, $fil);

@@ -1,0 +1,6 @@
+mixin upload(id, name, url)
+  .upload-control.input-group.input-group-sm
+    .input-group-btn
+      span.btn.btn-default.btn-sm 选择文件
+        input.form-control(id=id type="file" name=name data-url=url)
+    span.upload_info.form-control 未选择文件

@@ -112,11 +112,11 @@ function UserTitle(n) {
 
 function errAnimate($err, err) {
   $err.text(err);
-  $err.stop().stop().animate({
-    'margin-left' : '30px'
-  }).animate({
-    'margin-left' : '0'
-  });
+  $err.stop().stop().hide().fadeIn();
+}
+
+function showWaitting($p) {
+  $p.html('<img src="/img/waitting.gif">');
 }
 
 function simulateClick($input, $btn) {
@@ -172,7 +172,7 @@ function BindCE() {
         $text.text(CE[rid]);
         return false;
       }
-      $text.html('<img src="/img/loading.gif">');
+      $text.html('<img src="/img/waitting.gif">');
       $.ajax({
         type: 'POST',
         url: '/status/CE',
@@ -202,14 +202,11 @@ var $loginsubmit = $dialog_lg.find('#login_submit');
 
 var $dialog_lgbtk = $('div#dialog_lgbtk');
 var $fast_login = $dialog_lgbtk.find('#fast_login');
+var $fast_login_err = $dialog_lgbtk.find('#fast_login_err');
 
 var $checklogin = $('a.checklogin, button.checklogin');
 
-var $regdialog = $('#regdialog');
-
 var $logout = $('#logout');
-
-var $tablebg = $('div.tablebg');
 
 var $sverdict = $('#verdict');
 
@@ -292,9 +289,9 @@ function SetCurrentTime() {
 var timeout;
 function ShowMessage(msg) {
   $msgdialog = $('div#msg-dialog');
-  if ($msgdialog.length > 0) $msgdialog.remove();
-  $('#wrapper').append('<div class="jqmWindow" id="msg-dialog"><span>'+msg
-    +'</span><span class="msgclose jqmClose">×</span></div>');
+  if ($msgdialog.length) $msgdialog.remove();
+  $('body').append('<div class="jqmWindow" id="msg-dialog"><span>'+msg
+    +'</span><span title="close" class="msgclose jqmClose">×</span></div>');
   $msgdialog = $('div#msg-dialog');
   function Hide() {
     $msgdialog.jqmHide();
@@ -307,7 +304,7 @@ function ShowMessage(msg) {
       h.w.fadeOut(888);
     },
     onShow: function(h){
-      h.w.fadeIn(888, function(){timeout=setTimeout(Hide, 10000);});
+      h.w.fadeIn(888, function(){timeout=setTimeout(Hide, 8000);});
     }
   });
   clearTimeout(timeout);
@@ -332,11 +329,6 @@ var $username = $logininput.eq(0);
 var $password = $logininput.eq(1);
 
 $(document).ready(function(){
-  if ($tablebg.length) {
-    $tablebg.prepend('<div class="lt"></div><div class="rt"></div><div class="lb"></div><div class="rb"></div>');
-    $tablebg.find('#tablediv,div.tablediv').prepend('<div class="ilt"></div><div class="irt"></div>');
-  }
-
   SetCurrentTime();
   setInterval(SetCurrentTime, 1000);
 
@@ -385,6 +377,7 @@ $(document).ready(function(){
       if ($fast_login.hasClass('disabled')) {
         return false;
       }
+      showWaitting($fast_login_err);
       $fast_login.addClass('disabled');
       $.ajax({
         type: 'POST',
@@ -448,7 +441,8 @@ $(document).ready(function(){
         errAnimate($loginerr, 'the password can not be empty!');
         return ;
       }
-      $loginsubmit.text('Logging in...').addClass('disabled');
+      showWaitting($loginerr);
+      $loginsubmit.addClass('disabled');
       $.ajax({
         type : 'POST',
         url : '/login',
@@ -459,7 +453,7 @@ $(document).ready(function(){
         },
         dataType : 'text',
         error: function() {
-          $loginsubmit.text('Login').removeClass('disabled');
+          $loginsubmit.removeClass('disabled');
           errAnimate($loginerr, '无法连接到服务器！');
         }
       })
@@ -519,181 +513,5 @@ $(document).ready(function(){
         break;
       }
     }
-  });
-
-  //register
-  if ($regdialog.length > 0) {
-    var $regimg = $regdialog.find('div#vcode');
-    var $reginput = $regdialog.find('input');
-    var $regsubmit = $regdialog.find('a#reg_submit');
-    var $regerr = $regdialog.find('small#reg_error');
-
-    function getVerifycode() {
-      $.ajax({
-        type : 'POST',
-        url : '/createVerifycode',
-        dataType : 'text'
-      })
-      .done(function(res){
-        $regimg.html('<img src="'+res+'">');
-      });
-    }
-
-    $('a#reg').click(function(){
-      $regdialog.jqm({
-        overlay: 30,
-        trigger: false,
-        modal: true,
-        closeClass: 'regclose',
-        onShow: function(h) {
-          h.o.fadeIn(200);
-          h.w.fadeIn(200);
-        },
-        onHide: function(h) {
-          h.w.fadeOut(200);
-          h.o.fadeOut(200);
-        }
-      }).jqDrag('.jqDrag').jqResize('.jqResize').jqmShow();
-      getVerifycode();
-    });
-
-    $regimg.click(getVerifycode);
-
-    $regsubmit.click(function(){
-      if ($(this).hasClass('disabled')) {
-        return false;
-      }
-      var username = $reginput.eq(0).val();
-      if (!username) {
-        errAnimate($regerr, 'username can not be empty!');
-        return false;
-      }
-      if (username.length < 2 || username.length > 15) {
-        errAnimate($regerr, 'the length of username must be between 2 and 15!');
-        return false;
-      }
-      var pattern = new RegExp("^[a-zA-Z0-9_]{2,15}$");
-      if (!pattern.test(username)) {
-        errAnimate($regerr, "username should only contain digits, letters, or '_'s!");
-        return false;
-      }
-      var password = $reginput.eq(1).val();
-      if (!password || password.length < 4) {
-        errAnimate($regerr, 'the length of password can not less then 4!');
-        return false;
-      }
-      var repeat = $reginput.eq(2).val();
-      if (repeat != password) {
-        errAnimate($regerr, 'two password are not the same!');
-        return false;
-      }
-      var nick = JudgeString($reginput.eq(3).val());
-      if (!nick) {
-        errAnimate($regerr, 'nickname can not be empty!');
-        return false;
-      }
-      if (nick.length > 20) {
-        errAnimate($regerr, 'the length of nickname should be no more than 20!');
-        return false;
-      }
-      var school = JudgeString($reginput.eq(4).val());
-      if (school.length > 50) {
-        errAnimate($regerr, 'the length of school should be no more than 50!');
-        return false;
-      }
-      var email = JudgeString($reginput.eq(5).val());
-      if (email) {
-        pattern = new RegExp("^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,4}$");
-        if (!pattern.test(email)) {
-          errAnimate($regerr, 'the format of email is not True!');
-          return false;
-        }
-      }
-      if (email.length > 50) {
-        errAnimate($regerr, 'the length of email should be no more than 50!');
-        return false;
-      }
-      var signature = JudgeString($regdialog.find('textarea').attr('value'));
-      if (signature.length > 200) {
-        errAnimate($regerr, 'the length of signature should be no more than 200!');
-        return false;
-      }
-      var vcode = JudgeString($('#reg_vcode').val());
-      if (!vcode) {
-        errAnimate($regerr, '验证码不能为空!');
-        return false;
-      }
-      $regsubmit.text('Submitting...').addClass('disabled');
-      $.ajax({
-        type : 'POST',
-        url : '/register',
-        dataType : 'text',
-        data: {
-          username: username,
-          password: password,
-          nick: nick,
-          school: school,
-          email: email,
-          signature: signature,
-          vcode: vcode
-        },
-        error: function() {
-          $regsubmit.text('Submit').removeClass('disabled');
-          errAnimate($regerr, '无法连接到服务器！');
-        }
-      })
-      .done(function(res){
-        if (!res) {
-           window.location.reload(true);
-           return ;
-        }
-        if (res == '1') {
-          errAnimate($regerr, '验证码错误!');
-        } else if (res == '2') {
-          errAnimate($regerr, 'this user already exists!');
-        } else {
-          errAnimate($regerr, '系统错误！');
-        }
-        $regsubmit.text('Submit').removeClass('disabled');
-      });
-    });
-    simulateClick($reginput, $regsubmit);
-  }
-});
-
-//the Go button, go to a problem at once
-var $Go = $('a#Go');
-var $Goinput = $Go.prev();
-
-$(document).ready(function(){
-  $Go.click(function(){
-    window.location.href = '/problem?pid='+$Goinput.val();
-  });
-  $Goinput.keyup(function(e){
-    if (e.keyCode == 13) {
-      window.location.href = '/problem?pid='+$Goinput.val();
-    }
-    return false;
-  });
-});
-
-//button animate
-function btnAnimate($btn) {
-  $btn.bind('mouseenter', function(){
-    $(this).stop().animate({
-      'backgroundColor': '#C5FFFD'
-    });
-  });
-  $btn.bind('mouseleave', function(){
-    $(this).stop().animate({
-      'backgroundColor': '#fff'
-    });
-  });
-}
-
-$(document).ready(function(){
-  var $btn = $('.uibtn');
-  $.each($btn, function(i, p){
-    btnAnimate($(p));
   });
 });

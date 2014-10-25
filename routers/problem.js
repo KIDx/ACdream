@@ -134,7 +134,6 @@ router.post('/uploadCode', function(req, res){
   if (req.session.submitTime && now - req.session.submitTime <= 5000) {
     return RP('7');
   }
-  req.session.submitTime = now;
   fs.readFile(path, function(err, data){
     if (err) {
       LogErr(err);
@@ -144,6 +143,7 @@ router.post('/uploadCode', function(req, res){
     if (lang < 3 && !req.body.ignore_i64 && code.indexOf("%I64") >= 0) {
       return RP('6'); //i64 alert
     }
+    req.session.submitTime = now;
     Problem.watch(pid, function(err, problem){
       if (err) {
         LogErr(err);
@@ -222,7 +222,9 @@ router.get('/list', function(req, res){
     Q = { $or:[q1, q2, q3], hide:false };
   } else if (req.session.user.name != 'admin') {
     Q = { $and: [{$or:[q1, q2, q3]}, {$or:[{hide:false}, {manager:req.session.user.name}]}] };
-  } else Q = { $or:[q1, q2, q3] };
+  } else {
+    Q = { $or:[q1, q2, q3] };
+  }
   Problem.get(Q, page, function(err, problems, n) {
     if (err) {
       LogErr(err);

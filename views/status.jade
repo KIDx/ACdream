@@ -1,36 +1,38 @@
 fieldset
-  div
-    legend 状态
-  .tablebg
-    #pager
-      include pager
-      +pager(page, n)
-      #filter.fr
-        .input-prepend
-          span.add-on Name
-          input#name(type="text" placeholder=" userName" value=name ? name : "")
-        .input-prepend
-          span.add-on prob#
-          input#pid(type="text" placeholder=" problemID" value=pid ? pid : "")
-        .input-prepend
-          span.add-on lang
-          select#lang(style="width:60px")
-            each name, i in langs
-              option(value=i selected=(lang == i ? true : false))= name
-        .input-prepend
-          span.add-on Verdict
-          select#result(style="width:180px")
-            option(value="") All
-            each p in [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]
-              option(class=Col(p) value=p selected=result == p ? true : false)= Res(p)
-        div
-          a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
-        div
-          a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
-    #tablediv
-      table#statustable.table.table-cf
+  .block.block-info
+    .heading
+      .row
+        .col-sm-2 Status
+        .col-sm-10.form-inline
+          .pull-right
+            .input-group.input-group-sm
+              span.input-group-addon name
+              input#name.form-control(type="text" value=name ? name : "" placeholder="UserName")
+            = ' '
+            .input-group.input-group-sm
+              span.input-group-addon pid
+              input#pid.form-control(type="text" value=pid ? pid : "" placeholder="ProblemID")
+            = ' '
+            .input-group.input-group-sm
+              span.input-group-addon lang
+              select#lang.form-control
+                each name, i in langs
+                  option(value=i selected=(lang == i ? true : false))= name
+            = ' '
+            .input-group.input-group-sm
+              span.input-group-addon verdict
+              select#result.form-control
+                option(value="") All
+                each p in [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]
+                  option(class=Col(p) value=p selected=result == p ? true : false)= Res(p)
+            = ' '
+            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+            = ' '
+            a.btn.btn-default.btn-sm(href="/status") Reset
+    .table-responsive
+      table#statustable.table.table-bordered.tdcenter
         thead
-          tr
+          tr.even
             th(style="width:7%;") RunID
             th(style="width:14%;") User
             th(style="width:10%;") Problem
@@ -83,3 +85,9 @@ fieldset
                   a(href="/sourcecode/"+p.runID)= langs[p.language] ? langs[p.language] : ''
                 td!= len
                 td!= getDate(p.inDate)
+        tfoot
+          tr.odd
+            td(colspan="9")
+              #pager
+                include pager
+                +pager(page, n)

@@ -1,0 +1,421 @@
+
+/* problem START */
+.istyle em {
+  font-size: 125%;
+  font-family: times new roman, sans-serif;
+}
+
+h3.problem-header {
+  color: #3069BE;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.prob-info {
+  margin: 10px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.prob-content {
+  border-top: 1px solid #e8e8e8;
+  padding: 9px 15px;
+}
+
+.prob-content p {
+  margin-bottom: 3px;
+}
+
+.tag-box {
+  margin-right: 5px;
+  padding: 2px 3px;
+  border: 1px solid #ccc;
+  background: whitesmoke;
+  border-radius: 2px;
+  display: inline-block;
+  font-size: 12px;
+}
+
+.tag-box span.del {
+  margin-left: 3px;
+  color: gray;
+  cursor: pointer;
+}
+/* problem END */
+
+.uibtn {
+  background: #fff;
+  vertical-align: middle;
+  display: inline-block;
+  margin: 2px 3px;
+  padding: 3px 10px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #555;
+  text-decoration: none;
+  text-align: center;
+}
+
+.uibtn:hover {
+  color: #555;
+  text-decoration: none;
+  background: #f5f5f5;
+}
+
+.uibtn:active {
+  background: #eee;
+}
+
+.mc {
+  margin: 0 auto;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}
+
+.upload-control {
+  position: relative;
+}
+
+.upload-control .btn {
+  cursor: default;
+}
+
+.upload-control input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+
+.upload_info {
+  overflow: auto;
+}
+
+#scroll {
+  width: 30px;
+  padding: 0;
+  position: fixed;
+  right: 5px;
+  bottom: 65px;
+  list-style-type: none;
+  z-index: 9999;
+}
+
+#scroll li a {
+  background: #fff;
+  border-radius: 2px;
+  padding: 3px 5px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: block;
+}
+
+#scroll li a i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  opacity: .60;
+  margin: auto;
+  filter: alpha(opacity=60);
+}
+
+#scroll li a.up i {
+  background: url(img/arrow-up.png);
+}
+
+#scroll li a.down i {
+  background: url(img/arrow-down.png);
+}
+
+#scroll li a:hover {
+  background: #eee;
+}
+
+#footer {
+  background: #ddd;
+  padding: 10px 20px;
+  margin-top: 10px;
+}
+
+#footer > .container > div {
+  margin-bottom: 5px;
+}
+
+#footer > .container > div > span {
+  margin-right: 20px;
+  color: gray;
+}
+
+.navbar-nav .open .dropdown-menu > li:hover,
+.navbar-hover .navbar-nav > li > a:hover {
+  background-color: #f0f0f0;
+}
+
+.navbar-hover {
+  border-width: 1px 0;
+}
+
+.navbar-nav .open .dropdown-menu > li:active {
+  background-color: #e0e0e0;
+}
+
+.dropdown-menu .divider {
+  margin: 0;
+}
+
+.dropdown-menu {
+  padding: 0;
+  border-radius: 0;
+}
+
+.dropdown-menu > li > a {
+  padding: 6px 15px;
+}
+
+.navbar-login {
+  min-height: 33px;
+}
+
+.navbar-login .navbar-text {
+  margin-top: 5px;
+  margin-bottom: 8px;
+}
+
+.navbar-login .navbar-brand,
+.navbar-login .nav > li > a {
+  padding-top: 5px;
+  padding-bottom: 8px;
+  height: 35px;
+}
+
+.navbar-login .nav > li > a > img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.block {
+  border-top: 5px solid #cfcfcf;
+  margin-bottom: 10px;
+}
+
+.block .alert {
+  margin: 0;
+}
+
+.block.block-danger {
+  border-top: 5px solid #FF7373;
+}
+
+.block.block-info {
+  border-top: 5px solid #56A5EB;
+}
+
+.block.block-success {
+  border-top: 5px solid #9BDD8F;
+}
+
+.block.block-warning {
+  border-top: 5px solid #EBCF65;
+}
+
+.block .block-content {
+  border: 1px solid #ddd;
+  border-top-width: 0;
+}
+
+.block .heading {
+  overflow: hidden;
+  padding: 5px 10px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #E8E8E8;
+  color: #888;
+}
+
+.block > .heading {
+  border: 1px solid #ddd;
+  border-width: 0 1px;
+}
+
+.block .block-content .heading .btn {
+  margin: 10px 8px;
+}
+
+.block .block-content .inner {
+  padding: 15px 0;
+  background: #fcfcfc;
+}
+
+.block-mini .control-label {
+  font-weight: normal;
+  padding: 5px;
+}
+
+.block-mini,
+.block-mini input {
+  font-size: 12px;
+}
+
+.block-mini .form-group {
+  margin-bottom: 8px;
+}
+
+.block-container {
+  padding: 10px 15px;
+  background: #fbfbfb;
+}
+
+.table-acdream {
+  width: 100%;
+  line-height: 150%;
+}
+
+.table-acdream tr {
+  background: #fff;
+  transition: background .1s linear;
+  -webkit-transition: background .1s linear;
+}
+
+tr.odd {
+  background-color: #f8f8f8;
+}
+
+tr.even {
+  background-color: white;
+}
+
+tr.highlight {
+  background-color: #def;
+}
+
+tr.highlight:hover {
+  background-color: #DCEBFA!important;
+}
+
+.table-acdream tr:hover {
+  background: #f6f6f6;
+}
+
+.table-acdream.highlight tr:hover {
+  background: #FFF8DF;
+}
+
+.table-acdream.info tr:hover {
+  background: #E7F9FF;
+}
+
+.table-acdream tr td {
+  padding: 5px 15px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.table-acdream.bigger tr td {
+  padding: 8px 15px;
+}
+
+.table-acdream tr td.state {
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  width: 80px;
+  background: #f2f2f2;
+}
+
+.table-acdream tr td.avatar {
+  padding: 0;
+  width: 70px;
+}
+
+.table-acdream tr td.avatar img {
+  display: block;
+  margin: 0 auto;
+  width: 50px;
+  height: 50px;
+  border-radius: 3px;
+}
+
+.table-acdream.highlight tr td.state {
+  font-size: 14px;
+  font-weight: normal;
+  background: #FFEDD5;
+}
+
+.table-acdream.info tr td.state {
+  background: #E7F9FF;
+}
+
+.table-acdream tr:hover td.state {
+  background: #eaeaea;
+}
+
+.table-acdream.highlight tr:hover td.state {
+  background: #FFE9CA;
+}
+
+.table-acdream.info tr:hover td.state {
+  background: #D3F3FF;
+}
+
+.table-acdream tr td div.title {
+  font-size: 16px;
+  line-height: 26px;
+  margin-bottom: 5px;
+}
+
+.table-acdream tr td div.footer {
+  font-size: 12px;
+  color: #888;
+}
+
+.table-acdream tr:hover,
+.table-acdream tr:hover td.state {
+  transition: background .1s linear;
+  -webkit-transition: background .1s linear;
+}
+
+.tdcenter tbody tr td {
+  text-align: center;
+}
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.table tfoot tr td ul {
+  margin: 0;
+}
+
+.table-bordered > thead > tr > th {
+  border-bottom-width: 1px;
+}
+
+.table-bordered > tbody > tr:hover {
+  background: #f5f5f5;
+}
+
+td.AC {
+  border-left: 6px solid #ceecc0!important;
+}
+
+td.AC-fill {
+  background-color: #def5d4;
+}
+
+td.WA {
+  border-left: 6px solid #ffd6d6!important;
+}
+
+td.WA-fill {
+  background-color: #FFE3E3;
+}
+
+

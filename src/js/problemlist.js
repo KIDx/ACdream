@@ -44,7 +44,4 @@ $(document).ready(function(){
     });
   });
   simulateClick($search, $fil);
-  $('#reset').click(function(){
-    window.location.href = '/problem/list';
-  });
 });

@@ -1,78 +1,122 @@
-doctype HTML
-- var nvgurl = ['/', '/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/contest/list?type=2&family=speed', '/contest/list?type=2&family=rating', '/contest/list?type=2&family=training', '/topic?tid=100', '/topic/list'];
-- var nvgname = ['Home', 'ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'Speed Contest', 'Rating Contest', 'Training Contest', 'FAQ', 'Forum'];
+- var nvgurl = ['/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/topic?tid=100', '/topic/list'];
+- var nvgname = ['ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'FAQ', 'Forum'];
+- var contesturl = ['/contest/list?type=2&family=speed', '/contest/list?type=2&family=rating', '/contest/list?type=2&family=training'];
+- var contestname = ['Speed Contest', 'Rating Contest', 'Training Contest'];
 include post_list
+mixin dropdown
+  li.dropdown
+    a.dropdown-toggle(href="javascript:;" data-toggle="dropdown")= 'VIP Contest '
+      span.caret
+    ul.dropdown-menu(role="menu")
+      each url, i in contesturl
+        if (i > 0)
+          li.divider
+        li
+          a(href=url)= contestname[i]
+doctype HTML
 html
   head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=edge; chrome=1")
     meta(name="description" content="ACdream. Programming competitions and contests, programming community")
     meta(name="keywords" content="ACdream OnlineJudge OJ ACM ICPC Contest online judge programming")
+    meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
     title#title= title
     link(href="/bootstrap/bootstrap.css" rel="stylesheet" type="text/css")
+    link(href="/css/base.css" rel="stylesheet" type="text/css")
     link(href="/css/style.css" rel="stylesheet" type="text/css")
     if (key == KEY.PROBLEM || key == KEY.SOURCE_CODE || key == KEY.TOPIC)
       link(rel="stylesheet" type="text/css" href="/highlighter/styles/shCoreEclipse.css")
     else if (key == KEY.ADD_CONTEST)
       link(rel="stylesheet" type="text/css" href="/zd/css/zebra_datepicker.css")
-    //if lt IE 9
-      link(rel="stylesheet" type="text/css" href="/css/ie.css")
-  body#wrapper
-    div.w
-      marquee#marquee(style="float:left;width:50%;" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
-        span.user.user-green= stc[Math.floor(Math.random()*stc.length)]
-      mixin line
-        li
-          span.user-gray |
-      ul.navigation
-        if (user)
-          li
-            a#logout(href="javascript:;") Logout
-          +line
-          if (user.addprob == 1)
-            if (key == ADD_PROBLEM)
-              li.active Add Problem
+    != '<!--[if lt IE 9]>'
+    != '<script src="/plugins/html5shiv.js"></script>'
+    != '<script src="/plugins/respond.js"></script>'
+    != '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+    != '<![endif]-->'
+  body
+    nav.navbar.navbar-default.navbar-static-top.navbar-login.navbar-hover(role="navigation" style="margin:0;")
+      div.container
+        div.navbar-header
+          button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#bs-navbar-collapse-1")
+            span.sr-only Toggle navigation
+            span.icon-bar
+          a.navbar-brand(href="/" title="ACdream Online Judge")
+            img(alt="brand" src="/img/brand.jpg")
+        div.collapse.navbar-collapse#bs-navbar-collapse-1
+          marquee.navbar-text.user-green(style="width:50%" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")= stc[Math.floor(Math.random()*stc.length)]
+          ul.nav.navbar-nav.navbar-right
+            if (user)
+              li
+                - var img;
+                if (user.imgType)
+                  - img = '/img/avatar/'+user.name+'/4.'+user.imgType;
+                else
+                  - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
+                a(href="/user/"+user.name)
+                  img(alt="avatar" src=img)
+                  = user.name
+              if (user.addprob == 1)
+                if (key == ADD_PROBLEM)
+                  li.active Add Problem
+                else
+                  li
+                    a(href="/addproblem") Add Problem
+              li
+                a#logout(href="javascript:;") Logout
             else
               li
-                a(href="/addproblem") Add Problem
-            +line
-          li
-            a(href="/user/"+user.name)= user.name
-        else
-          li
-            a#reg(href="javascript:;") Register
-          +line
-          li
-            a#login(href="javascript:;") Enter
-    div#preload_logo.w
-      if (user)
-        - var img = '/img/avatar/%3Ddefault%3D/3.jpeg';
-        if (user.imgType)
-          - img = '/img/avatar/'+user.name+'/3.'+user.imgType;
-        a.fr(href="/avatar" style="margin-top:5px;")
-          img.img_m.topic_img(title="change picture" alt="change picture" src=img)
-      else
-        a.fr(target="_blank" href="https://github.com/KIDx/ACdream" style="margin-top:5px;")
-          img.img_m.topic_img(title="Fork me on Github." alt="Fork me on Github." src="/img/git.png")
-      a.logo(href="/" title="ACdream Online Judge")
-        img(src="/img/logo.png" alt="ACdream Online Judge")
-    div.w
-      div.fr
-        input.input-small(type="text" style="padding:2px;margin:0;font-size:12px;" placeholder=" Problem ID" title="Problem ID")
-        a#Go.uibtn(href="javascript:;") Go
-      ul.navigation.menu
-        each url, i in nvgurl
-          li
-            a(href=url)= nvgname[i]
-    div#xbody.w
+                a#login(href="javascript:;") Enter
+              li
+                a(href="/register") Register
+    div(style="width:100%;background:#CFF0FF;")
+      div.container#preload_logo
+        .row
+          .col-md-8
+            a.logo(href="/" title="ACdream Online Judge" style="opacity:.8;")
+              img.img-responsive(src="/img/logo.png" alt="ACdream Online Judge" style="margin-top:28px;")
+          .col-md-4
+              span.fr
+                img.img-responsive(src="/img/qrcode.jpg" alt="qrcode" title="微信扫一扫关注我")
+    nav.navbar.navbar-default.navbar-hover.navbar-static-top(role="navigation")
+      div.container
+        div.navbar-header
+          button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#bs-navbar-collapse-2")
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href="/") Home
+        div.collapse.navbar-collapse#bs-navbar-collapse-2
+          ul.nav.navbar-nav
+            each url, i in nvgurl
+              li
+                a(href=url)= nvgname[i]
+              if (i === 5)
+                +dropdown
+          form.navbar-form.navbar-left(role="search" action="/problem")
+            div.input-group
+              input.form-control(type="text" placeholder="Problem ID" name="pid")
+              span.input-group-btn
+                button.btn.btn-default Go
+    .container
       != body
-    div#footer.w
-      div
-        a(target="_blank" href="https://github.com/KIDx/ACdream") ACdream v1.5.3
-        | &nbsp;2013-2014 KIDx(网站), TTLast(评测机)
-      div Any bug please contact 972169909@qq.com
-      div= 'Server time: '
-        span#timer
-      div
-        a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
+    #footer
+      .container
+        h4 ACdream
+        div
+          span
+            a(target="_blank" href="https://github.com/KIDx/ACdream") Current Version v2.0.0
+          span= 'Copyright © 2013-2014 ACdream Team. All Rights Reserved.'
+          span= 'Loaded in ' + ((new Date()).getTime() - time) + 'ms.'
+          span
+            a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
+        div
+          span= 'Designer and Developer : '
+            a(target="_blank" href="https://github.com/KIDx/ACdream") KIDx
+        div
+          span= 'Server time : '
+            span#timer
     ul#scroll
       li
         a.up(title="返回顶部")
@@ -80,13 +124,12 @@ html
       li
         a.down(title="转到底部")
           i
-    //Dialogs
+    //- Dialogs
     if (!user)
       if (loginInfo)
         include D_login_by_token
         +D_login_by_token(loginInfo)
       include D_login
-      include D_register
     if (key === KEY.USER)
       if (user && u && user.name === u.name)
         include D_settings
@@ -102,16 +145,19 @@ html
       if (user)
         include D_submit
         +D_submit(langs)
-    //js Placed at the end of the document so the pages load faster
+    //- js Placed at the end of the document so the pages load faster
     script(type="text/javascript").
       var globalMessage = "#{msg ? msg : ''}";
       var nextURL = "";
       var current_user = "#{user ? user.name : ''}";
       var current_time;
-      var curren_second = #{time};
+      var curren_second = #{(new Date()).getTime()};
       var contest_type = #{key === KEY.CONTEST_LIST || key === KEY.CONTEST ? type : 1};
       var contest_family = "#{key === KEY.CONTEST_LIST || key === KEY.CONTEST ? family : ''}";
-    script(src="/plugins/jquery_uieffect_jqdnr.js")
+    script(src="/plugins/jquery-1.11.1.js")
+    script(src="/plugins/jquery-migrate-1.2.1.js")
+    script(src="/plugins/jqdnr.js")
+    script(src="/bootstrap/bootstrap.js")
     script(src="/js/global.js")
     mixin highlight
       script(src="/highlighter/scripts/shCore_brushCpp_brushJava.js")
@@ -173,3 +219,5 @@ html
       when KEY.ADD_TOPIC
         script(src="/ckeditor/ckeditor.js")
         script(src="/js/addtopic.js")
+      when KEY.REGISTER
+        script(src="/js/register.js")

@@ -88,12 +88,3 @@ Topic.update = function(tid, H, callback) {
     return callback(err);
   });
 };
-
-Topic.topFive = function(Q, callback) {
-  topics.find(Q).sort({lastReviewTime: -1}).limit(5).exec(function(err, docs){
-    if (err) {
-      LogErr('Topic.topFive failed!');
-    }
-    return callback(err, docs);
-  });
-};

@@ -1,122 +1,131 @@
 fieldset
-  div
-    legend 内容
   if (!problem)
-    .alert.alert-error(style="padding:100px;")
+    .alert.alert-danger(style="padding:100px;")
       h1(align="center") The Problem is not Available!!
   else
     mixin submit
-      a#gotosubmit.uibtn.checklogin(href="javascript:;" pid=problem.problemID) Submit
-      a.uibtn(href="/statistic/"+problem.problemID) Statistic
-    .thumbnail(style="padding:1em;")
-      #sidebar(pid=problem.problemID)
-        .sidebox
-          .side-header → Information
-          ul.info
-            li
-              span Solved Number&nbsp;
-              a.user-green(href="/status?pid="+problem.problemID+"&result=2")= problem.AC
-            li
-              span Submit Number&nbsp;
-              a.user-green(href="/status?pid="+problem.problemID)= problem.submit
+      a#gotosubmit.btn.btn-default.btn-sm.checklogin(href="javascript:;" pid=problem.problemID) Submit
+      = ' '
+      a.btn.btn-default.btn-sm(href="/statistic/"+problem.problemID) Statistic
+    .row
+      .col-md-8
+        .block.block-success
+          .block-content.block-container.istyle
+            h3.problem-header= problem.title
+            .prob-info
+              if (problem.spj == 1)
+                span.user.user-red(title="答案不唯一，符合题意即可") Special Judge
+              else if (problem.TC == 1)
+                span.user.user-red(title="什么是TC模式？详情请参考FAQ") TC 模式
+              span.user-black Time Limit:&nbsp;
+                = 2*problem.timeLimit
+                | /
+                = problem.timeLimit
+                | MS (Java/Others)
+              span.user-black Memory Limit:&nbsp;
+                = 2*problem.memoryLimit
+                | /
+                = problem.memoryLimit
+                | KB (Java/Others)
+            .form-group.form-inline(align="center")
+              +submit
+              if (!cid)
+                = ' '
+                a.btn.btn-default.btn-sm(href="/problem?pid="+(problem.problemID+1)) Next Problem
+              if (user)
+                if (user.addprob == 1)
+                  = ' '
+                  a.btn.btn-default.btn-sm(href="/addproblem?pID="+problem.problemID) Edit Problem
+                if (user.name == 'admin'|| user.name == problem.manager)
+                  = ' '
+                  a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
+            - var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint', 'Source', 'Manager'], tmp;
+            if (UC)
+              - tmp = '<a id="manager" href="/user/'+problem.manager+'" title="'+UT+'" class="user user-'+UC+'">'+problem.manager+'</a>';
+            if (user && user.name == 'admin')
+              - tmp += '<input id="manager_input" type="text" style="display:none;margin:0;padding:2px;"><a href="javascript:;" id="edit_btn" class="img_link edit" title="change" style="display:inline-block;margin-left:8px;"></a>';
+            - var q = [problem.description, problem.input, problem.output, problem.sampleInput, problem.sampleOutput, problem.hint, problem.source, tmp];
+            each name, i in S
+              if (q[i])
+                h4= name
+                .prob-content
+                  if (i == 3 || i == 4)
+                    pre.sample= q[i]
+                  else
+                    != q[i]
+            .form-inline(align="center")
+              +submit
+      .col-md-4
+        .block.block-info
+          .block-content
+            .heading Information
+            table.table-acdream
+              tr
+                td Solved Number
+                td
+                  a(href="/status?pid="+problem.problemID+"&result=2")= problem.AC
+              tr
+                td Submit Number
+                td
+                  a(href="/status?pid="+problem.problemID)= problem.submit
         if (user)
-          .sidebox
-            .side-header → Submit
-            .sidegroup
-              table(width="100%" border="0" cellspacing="0" cellpadding="0")
-                tr
-                  td Language:
-                  td
+          #submit_block.block.block-info
+            .block-content
+              .heading Submit
+              .form-horizontal.block-container.block-mini
+                .form-group.form-group-sm
+                  label.col-sm-3.control-label Language
+                  .col-sm-9
                     include lang
-                    +lang(langs, "side-input")
-                tr
-                  td Choose file:
-                  td
-                    span.uibtn.upload-btn
-                      span 选择文件
-                      input#file(type="file" name="info" data-url="/problem/uploadCode?pid="+problem.problemID)
-                    span#upload-info.upload-info 未选择文件
-                tr
-                  td
-                  td
-                    button#submit.uibtn submit
-                tr
-                  td
-                  td
-                    span#error.error-text &nbsp;
-                tr
-                  td(colspan="2")
-                    div#alert.alert.alert-error.hide
-                      include i64_info
-        .sidebox
-          .side-header → Problem tags
-          div(style="padding:.5em;")
-            if (problem.tags && problem.tags.length)
-              each p in problem.tags.sort(function(a, b){return a-b;})
-                div.tag-box(title=PT[p])= Tag[p]
-                  if(pvl == 1)
-                    span.del(tag=p) ×
-            div(style="text-align:right;clear:both;")
+                    +lang(langs)
+                .form-group.form-group-sm
+                  label.col-sm-3.control-label ChooseFile
+                  .col-sm-9
+                    include upload
+                    +upload('file', 'info', '/problem/uploadCode?pid='+problem.problemID)
+                .form-group
+                  .col-sm-offset-3.col-sm-9
+                    button#submit.btn.btn-default.btn-sm submit
+                    = ' '
+                    span#error.error-text
+                #alert.alert.alert-warning(style="display:none;")
+                  include i64_info
+        #tag_block.block.block-info
+          .block-content
+            .heading Problem Tags
+            .form-horizontal.block-container.block-mini
+              if (problem.tags && problem.tags.length)
+                div(style="margin-bottom:5px;")
+                  each p in problem.tags.sort(function(a, b){return a-b;})
+                    .tag-box(title=PT[p])= Tag[p]
+                      if(pvl == 1)
+                        span.del(tag=p) ×
               if(pvl == 1)
-                div.hidden= 'Add tag: '
-                  select.side-input
-                    each p, i in Tag
-                      option(value=i title=PT[i])= p
-                a#add-tag(href="javascript:;") Add tag
-                div.alert.alert-success(style="margin:0;") 温馨提示：你可以编辑标签啦~
+                #tag_select.form-group.hidden
+                  label.col-sm-3.control-label AddTag
+                  .col-sm-9
+                    select.form-control.input-sm
+                      each p, i in Tag
+                        option(value=i title=PT[i])= p
+                div(style="text-align:right;margin:8px 0;")
+                  a#add-tag(href="javascript:;") Add tag
+                .alert.alert-success 温馨提示：你可以编辑标签啦~
               else
                 span.user-gray No tag edit access
-                div.alert.alert-success(style="margin:0;") 温馨提示：AC后可以编辑标签哦. ^-^
+                .alert.alert-success(style="margin:0;") 温馨提示：AC后可以编辑标签哦. ^-^
         if (user && (user.name == problem.manager || user.name == 'admin'))
-          .sidebox
-            .side-header → Edit Problem
-            ul.edit
-              li Hidden:
-                select#phide.side-input
-                  option(value="1") Yes
-                  option(value="" selected=problem.hide ? false : true) No
-      .istyle(style="padding-right:1em;margin-right:20em;border-right:1px solid #ddd")
-        h3.problem-header= problem.title
-        .prob-info
-          if (problem.spj == 1)
-            span.user.user-red(title="答案不唯一，符合题意即可") Special Judge
-          else if (problem.TC == 1)
-            span.user.user-red(title="什么是TC模式？详情请参考FAQ") TC 模式
-          span.user.user-black Time Limit:&nbsp;
-            = 2*problem.timeLimit
-            | /
-            = problem.timeLimit
-            | MS (Java/Others)
-          span.user.user-black Memory Limit:&nbsp;
-            = 2*problem.memoryLimit
-            | /
-            = problem.memoryLimit
-            | KB (Java/Others)
-        div(style="padding-top:10px;" align="center")
-          +submit
-          if (!cid)
-            a.uibtn(href="/problem?pid="+(problem.problemID+1)) Next Problem
-          if (user)
-            if (user.addprob == 1)
-              a.uibtn(href="/addproblem?pID="+problem.problemID) Edit Problem
-            if (user.name == 'admin'|| user.name == problem.manager)
-              a#rejudge.uibtn(href="javascript:;") Rejudge
-        - var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint', 'Source', 'Manager'], tmp;
-        if (UC)
-          - tmp = '<a id="manager" href="/user/'+problem.manager+'" title="'+UT+'" class="user user-'+UC+'">'+problem.manager+'</a>';
-        if (user && user.name == 'admin')
-          - tmp += '<input id="manager_input" type="text" class="input-medium" style="display:none;margin:0;padding:2px;"><a href="javascript:;" id="edit_btn" class="img_link edit" title="change" style="display:inline-block;margin-left:8px;"></a>';
-        - var q = [problem.description, problem.input, problem.output, problem.sampleInput, problem.sampleOutput, problem.hint, problem.source, tmp];
-        each name, i in S
-          if (q[i])
-            h4= name
-            div.accordion-inner
-              if (i == 3 || i == 4)
-                pre.sample= q[i]
-              else
-                != q[i]
-        div(align="center" style="padding-bottom: 20px;")
-          +submit
+          .block.block-info
+            .block-content
+              .heading Problem Edit
+              .form-horizontal.block-container.block-mini
+                .form-group
+                  label.col-sm-3.control-label Hidden
+                  .col-sm-9
+                    select#phide.form-control.input-sm
+                      option(value="1") Yes
+                      option(value="" selected=problem.hide ? false : true) No
+script(type="text/javascript")
+  | var pid = #{problem.problemID};
 if (user && user.name == 'admin')
   script(type="text/javascript").
     function bindChange() {

@@ -3,59 +3,57 @@
 - var data = [];
 
 fieldset
-  div
-    legend#statistic(pid=pid sort=sort_key > 0 ? sort_key : "")= '统计 '
-      a(href="/problem?pid="+pid)= 'Problem '+pid
-  table(width="100%" cellspacing="0" cellpadding="0" border="0")
-    tr
-      td(style="width:31%;vertical-align:top;")
-        .tablebg
-          .theader Problem Statistic
-          .tablediv
-            table#static.table.table-cf.tdcenter.tdmini
+  .row
+    .col-md-4
+      .block.block-info
+        .heading Problem Statistic
+        .table-responsive
+          table#static.table.table-bordered.tdcenter.tdmini
+            thead
+              tr.even
+                th Verdict
+                th Amount
+            tbody
+              each p, i in _id
+                - var c;
+                if (i == 0 || i % 2 == 1)
+                  - c = 'odd';
+                else
+                  - c = 'even';
+                - var v = 0;
+                - if (N[p]) v = N[p];
+                - var title = Res(p);
+                if (p > 0 && p < 10)
+                  - data.push({name: names[i], title: title, y: v});
+                if (i == 1)
+                  tr.even
+                    th(colspan="2")
+                      #chart(style="height:400px;")
+                tr(class=c)
+                  td
+                    if (i == 0)
+                      | Total Submissions
+                    else
+                      = title
+                  td
+                    a(href="/status?pid="+pid+(_id[i] > 0 ? "&result="+_id[i] : ""))= v
+    .col-md-8
+      .block.block-info
+        .heading
+          .row
+            .col-sm-2
+              a(href="/problem?pid="+pid)= 'Problem '+pid
+            .col-sm-10.form-inline
+              .pull-right
+                #filter.input-group.input-group-sm
+                  span.input-group-addon Lang.
+                  select#lang.form-control
+                    each l, i in langs
+                      option(value=(i > 0 ? i : "") selected=(lang == i ? true : false))= l
+        .table-responsive
+            table#statistic.table.table-bordered.tdcenter.sort
               thead
-                tr
-                  th Verdict
-                  th Amount
-              tbody
-                each p, i in _id
-                  - var c;
-                  if (i == 0 || i % 2 == 1)
-                    - c = 'odd';
-                  else
-                    - c = 'even';
-                  - var v = 0;
-                  - if (N[p]) v = N[p];
-                  - var title = Res(p);
-                  if (p > 0 && p < 10)
-                    - data.push({name: names[i], title: title, y: v});
-                  if (i == 1)
-                    tr
-                      th(colspan="2")
-                        #chart(style="height:400px;")
-                  tr(class=c)
-                    td
-                      if (i == 0)
-                        | Total Submissions
-                      else
-                        = title
-                    td
-                      a(href="/status?pid="+pid+(_id[i] > 0 ? "&result="+_id[i] : ""))= v
-      td(width="2%")
-      td(style="vertical-align:top;")
-        .tablebg
-          #pager
-            include pager
-            +pager(page, n)
-            #filter.fr.input-prepend
-              span.add-on Lang.
-              select#lang.input-small
-                each l, i in langs
-                  option(value=(i > 0 ? i : "") selected=(lang == i ? true : false))= l
-          .tablediv
-            table#statistic.table.table-cf.tdcenter.sort
-              thead
-                tr
+                tr.even
                   th(width="6%") Rank
                   th(width="20%") Author
                   th(title="sorted by exec time.")

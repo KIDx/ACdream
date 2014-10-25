@@ -117,10 +117,10 @@ User.get = function(Q, sq, page, pageNum, callback) {
   });
 };
 
-User.topFive = function(Q, callback) {
-  users.find(Q).sort({rating: -1, name: 1}).limit(5).exec(function(err, docs){
+User.topTen = function(Q, callback) {
+  users.find(Q).sort({rating: -1, name: 1}).limit(10).exec(function(err, docs){
     if (err) {
-      LogErr('User.topFive failed!');
+      LogErr('User.topTen failed!');
     }
     return callback(err, docs);
   });

@@ -1,0 +1,36 @@
+fieldset
+  .block.block-info
+    #register.block-content
+      .heading Register
+      .inner
+        .row.container
+          .col-md-6
+            .form-group
+              label(for="reg_username") User Name *
+              input#reg_username.form-control.input-sm(type="text")
+            .form-group
+              label(for="reg_password") Password *
+              input#reg_password.form-control.input-sm(type="password")
+            .form-group
+              label(for="password_repeat") Repeat *
+              input#password_repeat.form-control.input-sm(type="password")
+            .form-group
+              label(for="reg_nick") Nick Name *
+              input#reg_nick.form-control.input-sm(type="text")
+            .form-group
+              label(for="reg_vcode") Verify Code *
+              input#reg_vcode.form-control.input-sm(type="text")
+            #vcode.vcode(title="点击换一张")
+          .col-md-6
+            .form-group
+              label(for="reg_school") School
+              input#reg_school.form-control.input-sm(type="text")
+            .form-group
+              label(for="reg_email") Email
+              input#reg_email.form-control.input-sm(type="text")
+            .form-group
+              label(for="signature") Signature
+              textarea#signature.form-control.input-sm(style="height:200px;")
+      .heading
+        a#reg_submit.btn.btn-default(href="javascript:;") Submit
+        span#reg_error.error-text
