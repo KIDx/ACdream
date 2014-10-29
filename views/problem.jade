@@ -125,7 +125,7 @@ fieldset
                       option(value="1") Yes
                       option(value="" selected=problem.hide ? false : true) No
 script(type="text/javascript")
-  | var pid = #{problem.problemID};
+  | var pid = #{problem? problem.problemID : 0};
 if (user && user.name == 'admin')
   script(type="text/javascript").
     function bindChange() {
