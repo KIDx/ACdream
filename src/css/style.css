@@ -69,18 +69,6 @@ a.rejudge {
   bottom: 5px;
 }
 
-a.put_up {
-  display: inline-block;
-  margin-right: 10px;
-  background: url('img/put-up.png');
-}
-
-a.put_down {
-  display: inline-block;
-  margin-right: 12px;
-  background: url('img/put-down.png');
-}
-
 .img_link:hover {
   opacity: 0.6;
   filter: alpha(opacity=60);
@@ -92,22 +80,6 @@ td.accept {
 
 td.first_blood {
   background: #65bb81;
-}
-
-.topic_timer {
-  color: gray;
-  display: block;
-  float: right;
-  text-decoration: none!important;
-}
-
-.topic_timer > img {
-  border-radius: 2px;
-  border: 1px solid #ccc;
-}
-
-.topic_timer > span {
-  margin-left: 8px;
 }
 
 .fl {
@@ -284,14 +256,6 @@ a.user {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.put_top {
-  padding: 1px 2px;
-  display: inline-block;
-  background: #ccc;
-  color: #fff;
-  border-radius: 2px;
 }
 
 .vcode {

@@ -41,30 +41,3 @@ $(document).ready(function(){
     window.location.href = '/topic/list';
   });
 });
-
-var $top = $('a[tid]');
-
-$(document).ready(function(){
-  if ($top.length) {
-    $.each($top, function(i, p){
-      $(p).click(function(){
-        if ($(p).hasClass('disabled')) {
-          return false;
-        }
-        $(p).addClass('disabled');
-        $.ajax({
-          type: 'POST',
-          url: '/topic/toggleTop',
-          data: { tid : $(p).attr('tid') },
-          dataType: 'text',
-          error: function() {
-            $(p).removeClass('disabled');
-            ShowMessage('无法连接到服务器！');
-          }
-        }).done(function(){
-          window.location.reload(true);
-        });
-      });
-    });
-  }
-});

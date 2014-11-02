@@ -270,10 +270,6 @@ h3.problem-header {
   border-width: 0 1px;
 }
 
-.block .block-content .heading .btn {
-  margin: 10px 8px;
-}
-
 .block .block-content .inner {
   padding: 15px 0;
   background: #fcfcfc;
@@ -419,7 +415,11 @@ tr.highlight:hover {
   vertical-align: middle;
 }
 
-.table tfoot tr td ul {
+.table tfoot tr {
+  background-color: #E8FFF0
+}
+
+table tfoot tr td .pagination {
   margin: 0;
 }
 
