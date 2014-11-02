@@ -2,7 +2,7 @@ fieldset
   .block.block-info
     .heading
       .row
-        .col-md-2
+        .col-sm-2
           if (type === 1)
             | DIY Contest
           else if (type === 2)
@@ -15,7 +15,7 @@ fieldset
                 | Traning Contest
               default
                 | VIP Contest
-        .col-md-10.form-inline
+        .col-sm-10.form-inline
           .pull-right
             if (user)
               a.btn.btn-default.btn-sm(href="/addcontest?type="+type+(family?"&family="+family:"")) Add Contest

@@ -2,13 +2,13 @@ fieldset#standings(cid=cid ? cid : "")
   .block.block-info
     .heading
       .row
-        .col-md-8
+        .col-sm-3
           if (cid)
             | Contestants of Contest
             = ' '+cid
           else
             | Standings
-        .col-md-4.form-inline
+        .col-sm-9.form-inline
           .pull-right
             .input-group.input-group-sm
               span.input-group-addon
