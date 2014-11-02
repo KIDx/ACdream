@@ -174,7 +174,7 @@ h3.problem-header {
   margin-bottom: 5px;
 }
 
-#footer > .container > div > span {
+#footer > .container span {
   margin-right: 20px;
   color: gray;
 }
@@ -446,5 +446,3 @@ td.WA {
 td.WA-fill {
   background-color: #FFE3E3;
 }
-
-

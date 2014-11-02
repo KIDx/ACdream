@@ -104,13 +104,16 @@ html
     #footer
       .container
         h4 ACdream
-        div
-          span
+        .row
+          .col-sm-2
             a(target="_blank" href="https://github.com/KIDx/ACdream") Current Version v2.0.0
-          span= 'Copyright © 2013-2014 ACdream Team. All Rights Reserved.'
-          span= 'Loaded in ' + ((new Date()).getTime() - time) + 'ms.'
-          span
-            a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
+          .col-sm-5
+            span= 'Copyright © 2013-2014 ACdream Team. All Rights Reserved.'
+          .col-sm-2
+            span= 'Loaded in ' + ((new Date()).getTime() - time) + 'ms.'
+          .col-sm-2
+            span
+              a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
         div
           span= 'Designer and Developer : '
             a(target="_blank" href="https://github.com/KIDx/ACdream") KIDx
