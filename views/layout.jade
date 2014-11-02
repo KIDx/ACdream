@@ -1,5 +1,5 @@
-- var nvgurl = ['/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/topic?tid=100', '/topic/list'];
-- var nvgname = ['ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'FAQ', 'Forum'];
+- var nvgurl = ['/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/topic/list', '/topic?tid=100'];
+- var nvgname = ['ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'Forum', 'FAQ'];
 - var contesturl = ['/contest/list?type=2&family=speed', '/contest/list?type=2&family=rating', '/contest/list?type=2&family=training'];
 - var contestname = ['Speed Contest', 'Rating Contest', 'Training Contest'];
 include post_list
@@ -92,7 +92,7 @@ html
             each url, i in nvgurl
               li
                 a(href=url)= nvgname[i]
-              if (i === 5)
+              if (i === 4)
                 +dropdown
           form.navbar-form.navbar-left(role="search" action="/problem")
             div.input-group
