@@ -10,7 +10,22 @@ var LogErr = Comm.LogErr;
 /*
  * 重新统计用户AC数和submit数
  */
-router.post('/stat', function(req, res){
+router
+.get('/', function(req, res) {
+  if (!req.session.user) {
+    req.session.msg = 'Please login first!';
+    return res.redirect('/');
+  }
+  if (req.session.user.name != 'admin') {
+    req.session.msg = 'Failed! You have no permission to Add or Edit problem.';
+    return res.redirect('/');
+  }
+  res.render('admin', {
+    title: 'Admin',
+  });
+  return res.end();
+})
+.post('/stat', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
     req.session.msg = 'Please login first!';
