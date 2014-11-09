@@ -78,7 +78,7 @@ router.get('/', function(req, res) {
             });
           }
           res.render('topic', {
-            title: 'Topic '+tid,
+            title: topic.title,
             key: KEY.TOPIC,
             topic: topic,
             comments: com,

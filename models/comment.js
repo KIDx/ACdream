@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
-var pageNum = Settings.comment_pageNum;
+var limit = Settings.comment_limit;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
@@ -53,13 +53,11 @@ Comment.prototype.save = function(callback) {
 };
 
 Comment.get = function(Q, callback){
-  comments.count(Q, function(err, count) {
-    comments.find(Q).sort({id: 1}).exec(function(err, docs){
-      if (err) {
-        LogErr('Comment.get failed!');
-      }
-      return callback(err, docs);
-    });
+  comments.find(Q).sort({id: -1}).limit(limit).exec(function(err, docs){
+    if (err) {
+      LogErr('Comment.get failed!');
+    }
+    return callback(err, docs);
   });
 };
 

@@ -272,11 +272,6 @@ a.user {
   box-shadow: 0 0 6px #000;
 }
 
-.content {
-  width: 900px;
-  margin: 0 auto;
-}
-
 .topic_box {
   border: 1px solid #ccc;
   border-radius: 3px;
@@ -773,30 +768,6 @@ div.avatar {
   border: 1px solid #ddd;
   margin-bottom: 10px;
   overflow: hidden;
-}
-
-.avatar_b .img,
-.img_b {
-  width: 150px;
-  height: 150px;
-}
-
-.avatar_m .img,
-.img_m {
-  width: 75px;
-  height: 75px;
-}
-
-.avatar_s .img,
-.img_s {
-  width: 50px;
-  height: 50px;
-}
-
-.avatar_ss .img,
-.img_ss {
-  width: 30px;
-  height: 30px;
 }
 
 .avatar_b {

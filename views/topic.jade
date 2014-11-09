@@ -1,63 +1,63 @@
-- var img;
-if (IT[topic.user])
-  - img = '/img/avatar/'+topic.user+'/3.'+IT[topic.user];
-else
-  - img = '/img/avatar/%3Ddefault%3D/3.jpeg';
-
 - var add = (topic.cid > 0 && user && user.name == 'admin') ? true : false;
+- var imgsrc;
+
+mixin GetImageSrc(user)
+  - imgsrc = IT[user] ? '/img/avatar/'+user+'/2.'+IT[user] : '/img/avatar/%3Ddefault%3D/2.jpeg';
+
+mixin Reply(p, idx)
+  +GetImageSrc(p.user)
+  .reply(id=p.id style=(idx == 0 ? "border-top:0;" : ""))
+    .rl
+      img.img-60.img-round(alt="avatar" src=imgsrc)
+    .rr
+      .head
+        a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
+        = ' '
+        span.user-gray= '回复于' + getDate(p.inDate)
+      .content
+        != p.content
+
+mixin Row(p)
+  +GetImageSrc(p.user)
+  tr
+    td.cl
+      div
+        a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
+      div
+        img.img-80.img-round(alt="avatar" src=imgsrc)
+    td.cr
+      .head(id=(p.title ? "" : p.id))
+        - var op = '';
+          if (p.top)
+            span.label.label-warning 置顶
+          = ' '
+          if (p.title)
+            span.title= p.title
+          = ' '
+        span.user-gray= '发表于' + getDate(p.inDate)
+      .content
+        != p.content
+      if (!p.title && sub[p.id] && sub[p.id].length)
+        .replies
+          each c, i in sub[p.id]
+            +Reply(c, i)
 
 fieldset
-  div
-    legend#onetopic(tid=topic.id) 论坛
-  .content
-    .topic_box
-      .header
-        if (user && (user.name == 'admin' || user.name == topic.user))
-          a.img_link.edit.fr(style="margin-left:10px;" title="编辑" href="/addtopic?tid="+topic.id)
-        span.fr.user.user-black= '浏览次数：'+topic.browseQty
-        a(href="/topic") 论坛主页
-        = ' >> '
-        | 话题详情
-      .inner_topic
-        h3
-          a.user(href="/user/"+topic.user)
-            img.img_m.topic_img(title=topic.user alt=topic.user src=img)
-          = ' '
-          if (topic.top)
-            span.put_top 置顶
-          = ' '+topic.title
-        hr
-        != topic.content
-        hr
-        span.fr
-          = 'Added by '
-          a(href="/user/"+topic.user title=UT[topic.user] class="user user-"+UC[topic.user])= topic.user
-          | .
-        span.user-gray
-          | 最后一次编辑是
-          = ' '+getDate(topic.inDate)
-    if (comments && comments.length)
-      .topic_box
-        .header
-          span.user-green= N
-          = ' 条回复'
-        each p, i in comments
-          if (IT[p.user])
-            - img = '/img/avatar/'+p.user+'/4.'+IT[p.user];
-          else
-            - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
-          include comment
-          - var fa = p.id;
-          .reply_area(id=fa)
-            +comment(true, null, user, p, img, i+1, getDate, UT, UC, add, topic.cid)
-            if (sub[fa] && sub[fa].length)
-              each p in sub[fa]
-                if (IT[p.user])
-                  - img = '/img/avatar/'+p.user+'/4.'+IT[p.user];
-                else
-                  - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
-                .reply_sub(id=p.id)
-                  +comment(false, fa, user, p, img, i+1, getDate, UT, UC, add, topic.cid)
+  .block.block-info
+    .heading
+      a(href="/topic") 论坛主页
+      = ' >> '
+      | 话题详情
+      if (user && (user.name == topic.user || user.name == 'admin'))
+        a.img_link.edit.fr(title="编辑" href="/addtopic?tid="+topic.id)
+    .block-content
+      .table-responsive
+        table.table.table-topic
+          +Row(topic)
+          if (comments && comments.length)
+            each p in comments
+              +Row(p)
+        .heading(style="text-align:center;") 没有更多评论
     if (user)
       .topic_box.form-horizontal(style="min-height:400px;")
         .header 添加回复
