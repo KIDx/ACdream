@@ -4,7 +4,10 @@ fieldset
       h1(align="center") The Problem is not Available!!
   else
     mixin submit
-      a#gotosubmit.btn.btn-default.btn-sm.checklogin(href="javascript:;" pid=problem.problemID) Submit
+      if (user)
+        a.btn.btn-default.btn-sm(href="/submit?pid="+problem.problemID) Submit
+      else
+        a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url="/submit?pid="+problem.problemID) Submit
       = ' '
       a.btn.btn-default.btn-sm(href="/statistic/"+problem.problemID) Statistic
     .row

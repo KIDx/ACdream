@@ -343,16 +343,6 @@ function OverviewResponse(resp) {
       }
       renderStat(i, $o_sol.eq(i));
     }
-
-    if ($clone.length) {
-      $clone.unbind('click');
-      $clone.click(function(){
-        var url = '/addcontest?cID=-'+cid+'&type=1';
-        if (!ShowLogin(url)) {
-          window.location.href = url;
-        }
-      });
-    }
   }
 
   if (isActive(3)) {

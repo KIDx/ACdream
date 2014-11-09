@@ -54,7 +54,10 @@ fieldset
                         a.tag(href="javascript:;" title=Pt[t])= Tag[t]
                   a(href="/problem?pid="+p.problemID)= p.title
                 td(class=s ? s+"-fill" : "")
-                  a#gotosubmit.submit.checklogin.img_link(href="javascript:;" pid=p.problemID title="Submit")
+                  if (user)
+                    a.submit.img_link(href="/submit?pid="+p.problemID title="Submit")
+                  else
+                    a.submit.img_link.checklogin(href="javascript:;" data-url="/submit?pid="+p.problemID title="Submit")
                 td.ellipsis
                   a.tag(href="javascript:;" style="font-size:12px;" title=p.source)= p.source
                 - var res = '0.00';

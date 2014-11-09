@@ -99,7 +99,12 @@ fieldset#widthfix
           if (isManager)
             a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(contest.family ? "&family="+contest.family : "")) Edit
             a#delete.uibtn(href="javascript:;") Delete
-          a#clone.uibtn.checklogin(style="display:none;" href="javascript:;" title="To create a DIY Contest with the same problems.") Clone this contest
+          - var clone_url = "/addcontest?cID=-"+contest.contestID+"&type=1";
+          - var clone_desc = "To create a DIY Contest with the same problems.";
+          if (user)
+            a#clone.btn.btn-default.btn-sm(style="display:none;" href=clone_url title=clone_desc) Clone this contest
+          else
+            a#clone.btn.btn-default.btn-sm.checklogin(style="display:none;" href="javascript:;" data-url=clone_url title=clone_desc) Clone this contest
           if (!isManager)
             #beforecontest.user-gray(style="text-align:center;font-size:1.75em;margin:100px;display:none;")
               = 'Before Contest '

@@ -17,10 +17,11 @@ fieldset
                 | VIP Contest
         .col-sm-10.form-inline
           .pull-right
+            - var url = "/addcontest?type="+type+(family?"&family="+family:"");
             if (user)
-              a.btn.btn-default.btn-sm(href="/addcontest?type="+type+(family?"&family="+family:"")) Add Contest
+              a.btn.btn-default.btn-sm(href=url) Add Contest
             else
-              a#addcontest.btn.btn-default.btn-sm.checklogin(href="javascript:;") Add Contest
+              a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url=url) Add Contest
             = ' '
             .input-group.input-group-sm
               span.input-group-addon

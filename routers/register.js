@@ -16,10 +16,6 @@ var clearSpace = Comm.clearSpace;
  */
 router.route('/')
 .get(function(req, res){
-  if(req.session.user) {
-    req.session.msg = 'Already login!';
-    return res.redirect('/');
-  }
   return res.render('register', {
     title: 'Register',
     key: KEY.REGISTER

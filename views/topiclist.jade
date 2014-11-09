@@ -11,7 +11,7 @@ fieldset
               if (user)
                 a.btn.btn-default.btn-sm(href="/addtopic") 发布话题
               else
-                a#addtopic.btn.btn-default.btn-sm.checklogin(href="javascript:;") 发布话题
+                a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url="/addtopic") 发布话题
               = ' '
               .input-group.input-group-sm
                 span.input-group-addon

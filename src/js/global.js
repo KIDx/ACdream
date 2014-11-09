@@ -423,10 +423,6 @@ $(document).ready(function(){
       }
     }).jqDrag('.jqDrag').jqResize('.jqResize');
 
-    $('a#login').click(function(){
-      ShowLogin();
-    });
-
     $loginsubmit.click(function(){
       if ($(this).hasClass('disabled')) {
         return false;
@@ -492,26 +488,6 @@ $(document).ready(function(){
 
   //checklogin
   $checklogin.click(function(){
-    var aid = $(this).attr('id');
-    switch(aid) {
-      case 'gotosubmit': {
-        var tp = '/submit?pid=' + $(this).attr('pid')
-        ,   cid = $(this).attr('cid');
-        if (cid) tp += '&cid='+cid;
-        if (ShowLogin(tp)) {
-          break;
-        }
-        window.location.href = tp;
-        break;
-      }
-      case 'addcontest': {
-        ShowLogin('/addcontest?type='+contest_type);
-        break;
-      }
-      case 'addtopic': {
-        ShowLogin('/addtopic');
-        break;
-      }
-    }
+    ShowLogin( $(this).data('url') );
   });
 });

@@ -76,7 +76,7 @@ router.route('/')
       }
       if (clone == 1 && name != contest.userName && name != 'admin') {
         if ((new Date()).getTime() - contest.startTime < contest.len*60000) {
-          return res.end();  //not allow
+          return res.redirect('/404');  //not allow
         }
       }
       var TP = function(E) {

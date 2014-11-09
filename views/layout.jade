@@ -25,9 +25,9 @@ html
     link(href="/bootstrap/bootstrap.css" rel="stylesheet" type="text/css")
     link(href="/css/base.css" rel="stylesheet" type="text/css")
     link(href="/css/style.css" rel="stylesheet" type="text/css")
-    if (key == KEY.PROBLEM || key == KEY.SOURCE_CODE || key == KEY.TOPIC)
+    if (key === KEY.PROBLEM || key === KEY.SOURCE_CODE || key === KEY.TOPIC)
       link(rel="stylesheet" type="text/css" href="/highlighter/styles/shCoreEclipse.css")
-    else if (key == KEY.ADD_CONTEST)
+    else if (key === KEY.ADD_CONTEST)
       link(rel="stylesheet" type="text/css" href="/zd/css/zebra_datepicker.css")
     != '<!--[if lt IE 9]>'
     != '<script src="/plugins/html5shiv.js"></script>'
@@ -56,17 +56,14 @@ html
                 a(href="/user/"+user.name)
                   img(alt="avatar" src=img)
                   = user.name
-              if (user.addprob == 1)
-                if (key == ADD_PROBLEM)
-                  li.active Add Problem
-                else
-                  li
-                    a(href="/addproblem") Add Problem
+              if (user.addprob)
+                li
+                  a(href="/addproblem") Add Problem
               li
                 a#logout(href="javascript:;") Logout
             else
               li
-                a#login(href="javascript:;") Enter
+                a.checklogin(href="javascript:;" data-url=(key === KEY.REGISTER ? "/" : "")) Enter
               li
                 a(href="/register") Register
     div(style="width:100%;background:#CFF0FF;")
@@ -188,13 +185,13 @@ html
       when KEY.CONTEST
         script(src="/plugins/jquery.hashchange.js")
         script(src="/js/updatestatus.js")
-        if (user && user.name == 'admin')
+        if (user && user.name === 'admin')
           script(src="/js/singleRejudge.js")
         script(src="/socket.io/socket.io.js")
         script(src="/js/contest.js")
       when KEY.STATUS
         script(src="/js/updatestatus.js")
-        if (user && user.name == 'admin')
+        if (user && user.name === 'admin')
           script(src="/js/singleRejudge.js")
         script(src="/js/status.js")
       when KEY.SUBMIT
