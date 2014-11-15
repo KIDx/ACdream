@@ -89,6 +89,12 @@ app.use(function(req, res, next){
 //routers
 require('./routers')(app);
 
+app.get('/notsupported', function(req, res){
+  return res.render('notsupported', {
+    layout: null
+  });
+});
+
 app.get('/404', function(req, res, nxt){
   nxt();
 });
@@ -96,7 +102,9 @@ app.get('/404', function(req, res, nxt){
 app.use(function(req, res){
   res.status('404');
   if (req.accepts('html')) {
-    return res.render('404', { layout: null });
+    return res.render('404', {
+      layout: null
+    });
   }
   res.type('txt').send('Not found');
 });
