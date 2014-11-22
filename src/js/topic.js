@@ -10,7 +10,6 @@ $(document).ready(function(){
 
 var $reply = $('#reply');
 var $err = $('#err');
-var tid = parseInt($('#onetopic').attr('tid'), 10);
 
 $(document).ready(function(){
   $reply.click(function(){
@@ -208,5 +207,29 @@ var $add = $('.add');
 $(document).ready(function(){
   if ($add.length) {
     bindAdd($add);
+  }
+});
+
+var $toggleTop = $('#toggle_top');
+
+$(document).ready(function(){
+  if ($toggleTop.length) {
+    $toggleTop.click(function(){
+      $.ajax({
+        type: 'POST',
+        url: '/topic/toggleTop',
+        data: { tid: tid },
+        dataType: 'text',
+        error: function() {
+          ShowMessage('无法连接到服务器！');
+        }
+      }).done(function(res){
+        if (!res) {
+          window.location.reload(true);
+        } else if (res == '3') {
+          ShowMessage('系统错误！');
+        }
+      });
+    });
   }
 });

@@ -146,6 +146,65 @@ h3.problem-header {
   background: #eee;
 }
 
+.img_link {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  display: block;
+  opacity: 0.4;
+  filter: alpha(opacity=40);
+}
+
+a.add {
+  display: inline-block;
+  vertical-align: top;
+  background: url('img/add.png');
+}
+
+a.img_link.submit {
+  width: 24px;
+  height: 24px;
+  background: url('img/submit.png');
+}
+
+a.delete {
+  background: url('img/delete.png');
+}
+
+a.edit {
+  margin-right: 8px;
+  background: url('img/edit.png');
+}
+
+a.trash {
+  margin-right: 8px;
+  background: url('img/trash.png');
+}
+
+a.reply {
+  background: url('img/reply.png');
+}
+
+a.rejudge {
+  background: url('img/rejudge.png');
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+}
+
+a.put_up {
+  background: url('img/put-up.png');
+}
+
+a.put_down {
+  background: url('img/put-down.png');
+}
+
+.img_link:hover {
+  opacity: 0.6;
+  filter: alpha(opacity=60);
+}
+
 .img-150 {
   width: 150px;
   height: 150px;

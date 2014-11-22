@@ -48,7 +48,12 @@ fieldset
       a(href="/topic") 论坛主页
       = ' >> '
       | 话题详情
-      if (user && (user.name == topic.user || user.name == 'admin'))
+      if (user && user.name === 'admin')
+        if (topic.top)
+          a#toggle_top.img_link.put_down.fr(href="javascript:;" title="取消置顶")
+        else
+          a#toggle_top.img_link.put_up.fr(href="javascript:;" title="置顶")
+      if (user && (user.name === topic.user || user.name === 'admin'))
         a.img_link.edit.fr(title="编辑" href="/addtopic?tid="+topic.id)
     .block-content
       .table-responsive
@@ -66,6 +71,8 @@ fieldset
           div
             a#reply.uibtn(style="margin:10px 0;" href="javascript:;") 回复
             span#err.error-text
+  script(type="text/javascript")
+    | var tid = #{topic.id};
 if (add)
   script(type="text/javascript").
     function bindAdd($add) {

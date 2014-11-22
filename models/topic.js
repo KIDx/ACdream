@@ -1,10 +1,9 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var pageNum = Settings.topic_pageNum;
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function Topic(topic) {
   this.id = topic.id;
@@ -38,7 +37,8 @@ topicObj.index({top: -1, lastReviewTime: -1});
 mongoose.model('topics', topicObj);
 var topics = mongoose.model('topics');
 
-Topic.prototype.save = function(callback) {
+Topic.prototype.save = function() {
+  var d = Q.defer();
   topic = new topics();
   topic.id = this.id;
   topic.title = this.title;
@@ -50,41 +50,58 @@ Topic.prototype.save = function(callback) {
   topic.top = false;
   topic.save(function(err){
     if (err) {
-      LogErr('Topic.save failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Topic.get = function(Q, page, callback) {
-  topics.count(Q, function(err, count){
+Topic.get = function(cond, page) {
+  var d = Q.defer();
+  topics.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
-      return callback(null, null, -1);
+      return d.resolve({
+        topics: [],
+        totalPage: 1
+      });
     }
-    topics.find(Q).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum)
+    topics.find(cond).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
-        LogErr('Topic.get failed!');
+        d.reject(err);
+      } else {
+        d.resolve({
+          topics: docs,
+          totalPage: Math.floor((count+pageNum-1)/pageNum)
+        });
       }
-      return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
   });
+  return d.promise;
 };
 
-Topic.watch = function(tid, callback) {
+Topic.watch = function(tid) {
+  var d = Q.defer();
   topics.findOne({id: tid}, function(err, doc){
     if (err) {
-      LogErr('Topic.watch failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Topic.update = function(tid, H, callback) {
-  topics.update({id: tid}, H, function(err){
+Topic.update = function(tid, val) {
+  var d = Q.defer();
+  topics.update({id: tid}, val, function(err){
     if (err) {
-      LogErr('Topic.update failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };

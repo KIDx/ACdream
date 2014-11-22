@@ -1,4 +1,5 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Comm = require('../comm');
@@ -75,8 +76,8 @@ User.watch = function(username, callback) {
   });
 };
 
-User.distinct = function(key, Q, callback) {
-  users.distinct(key, Q, function(err, docs){
+User.distinct = function(key, cond, callback) {
+  users.distinct(key, cond, function(err, docs){
     if (err) {
       LogErr('User.distinct failed!');
     }
@@ -84,8 +85,8 @@ User.distinct = function(key, Q, callback) {
   });
 };
 
-User.findOne = function(Q, callback){
-  users.findOne(Q, function(err, docs){
+User.findOne = function(cond, callback){
+  users.findOne(cond, function(err, docs){
     if (err) {
       LogErr('User.findOne failed!');
     }
@@ -93,8 +94,8 @@ User.findOne = function(Q, callback){
   });
 };
 
-User.find = function(Q, callback){
-  users.find(Q, function(err, docs){
+User.find = function(cond, callback){
+  users.find(cond, function(err, docs){
     if (err) {
       LogErr('User.find failed!');
     }
@@ -102,12 +103,24 @@ User.find = function(Q, callback){
   });
 };
 
-User.get = function(Q, sq, page, pageNum, callback) {
-  users.count(Q, function(err, count){
+User.qfind = function(cond){
+  var d = Q.defer();
+  users.find(cond, function(err, docs){
+    if (err) {
+      d.reject(err);
+    } else {
+      d.resolve(docs);
+    }
+  });
+  return d.promise;
+};
+
+User.get = function(cond, sq, page, pageNum, callback) {
+  users.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    users.find(Q).sort(sq).skip((page-1)*pageNum).limit(pageNum)
+    users.find(cond).sort(sq).skip((page-1)*pageNum).limit(pageNum)
       .exec(function(err, docs){
       if (err) {
         LogErr('User.get failed!');
@@ -117,17 +130,20 @@ User.get = function(Q, sq, page, pageNum, callback) {
   });
 };
 
-User.topTen = function(Q, callback) {
-  users.find(Q).sort({rating: -1, name: 1}).limit(10).exec(function(err, docs){
+User.topTen = function(cond) {
+  var d = Q.defer();
+  users.find(cond).sort({rating: -1, name: 1}).limit(10).exec(function(err, docs){
     if (err) {
-      LogErr('User.topTen failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-User.count = function(Q, callback) {
-  users.count(Q, function(err, count){
+User.count = function(cond, callback) {
+  users.count(cond, function(err, count){
     if (err) {
       LogErr('User.count failed!');
     }
@@ -135,8 +151,8 @@ User.count = function(Q, callback) {
   });
 };
 
-User.update = function(Q, H, callback) {
-  users.update(Q, H, function(err){
+User.update = function(cond, H, callback) {
+  users.update(cond, H, function(err){
     if (err) {
       LogErr('User.update failed!');
     }
@@ -144,8 +160,8 @@ User.update = function(Q, H, callback) {
   });
 };
 
-User.multiUpdate = function(Q, H, callback) {
-  users.update(Q, H, { multi: true }, function(err){
+User.multiUpdate = function(cond, H, callback) {
+  users.update(cond, H, { multi: true }, function(err){
     if (err) {
       LogErr('User.multiUpdate failed!');
     }

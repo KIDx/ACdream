@@ -2,6 +2,7 @@
 var router = require('express').Router();
 var crypto = require('crypto');
 var async = require('async');
+var Q = require('q');
 var verifyCode = require('verify-code');
 
 var User = require('../models/user.js');
@@ -25,56 +26,40 @@ router.get('/', function(req, res){
     UT: Comm.userTit,
     UC: Comm.userCol
   };
-  var arr = [
-    function(cb) {
-      Contest.topFive({type: 2}, function(err, contests){
-        if (err) {
-          return cb(err);
-        }
-        resp.contests = contests;
-        return cb();
+  //并发执行
+  Q.all([
+    //获取最近5场比赛
+    Contest.topFive({type: 2})
+    .then(function(contests){
+      resp.contests = contests;
+    }),
+    //获取最高分5位用户
+    User.topTen({name: {$ne: 'admin'}})
+    .then(function(users){
+      resp.users = users;
+    }),
+    //获取话题列表以及相关用户信息
+    Topic.get({cid: -1}, 1)
+    .then(function(o){
+      resp.topics = o.topics;
+      var names = [];
+      o.topics.forEach(function(p){
+        names.push(p.user);
       });
-    },
-    function(cb) {
-      User.topTen({name: {$ne: 'admin'}}, function(err, users){
-        if (err) {
-          return cb(err);
-        }
-        resp.users = users;
-        return cb();
-      })
-    },
-    function(cb) {
-      Topic.get({cid: -1}, 1, function(err, topics, n){
-        if (err) {
-          return cb(err);
-        }
-        var names = [];
-        topics.forEach(function(p){
-          names.push(p.user);
-        });
-        User.find({name: {$in: names}}, function(err, users){
-          if (err) {
-            return cb(err);
-          }
-          users.forEach(function(u){
-            resp.imgType[u.name] = u.imgType;
-          });
-          resp.topics = topics;
-          return cb();
-        });
-      })
-    },
-  ];
-  async.each(arr, function(f, cb){
-    f(cb);
-  }, function(err){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/404');
-    }
-    return res.render('index', resp);
+      return User.qfind({name: {$in: names}});
+    })
+    .then(function(users){
+      users.forEach(function(u){
+        resp.imgType[u.name] = u.imgType;
+      });
+    })
+  ])
+  .then(function(){
+    res.render('index', resp);
+  })
+  .fail(function(err){
+    LogErr(err);
+    res.redirect('/404');
   });
 });
 

@@ -369,8 +369,21 @@ function getpos() {
 /*
  * 错误日志
  */
-exports.LogErr = function(err) {
+function LogErr(err) {
   var res = getDate() + ' [' + getpos() + ']\n' + err + '\n\n';
   console.log(res);
   log.write(res);
+};
+exports.LogErr = LogErr;
+
+/*
+ * 失败跳转处理
+ */
+exports.FailRedirect = function(err, res){
+  if (err.message === '404') {
+    return res.redirect('/404');
+  }
+  LogErr(err);
+  req.session.msg = '系统错误！';
+  return res.redirect('/');
 };

@@ -1,10 +1,9 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var limit = Settings.comment_limit;
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function Comment(comment) {
   this.id = comment.id;
@@ -34,7 +33,8 @@ commentObj.index({tid: 1, id: 1});
 mongoose.model('comments', commentObj);
 var comments = mongoose.model('comments');
 
-Comment.prototype.save = function(callback) {
+Comment.prototype.save = function() {
+  var d = Q.defer();
   comment = new comments();
   comment.id = this.id;
   comment.content = this.content;
@@ -46,71 +46,94 @@ Comment.prototype.save = function(callback) {
   comment.hide = false;
   comment.save(function(err){
     if (err) {
-      LogErr('Comment.save failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Comment.get = function(Q, callback){
-  comments.find(Q).sort({id: -1}).limit(limit).exec(function(err, docs){
+Comment.get = function(cond){
+  var d = Q.defer();
+  comments.find(cond).sort({id: -1}).limit(limit).exec(function(err, docs){
     if (err) {
-      LogErr('Comment.get failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Comment.watch = function(tid, callback) {
+Comment.watch = function(tid) {
+  var d = Q.defer();
   comments.findOne({id: tid}, function(err, doc){
     if (err) {
-      LogErr('Comment.watch failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Comment.update = function(Q, H, callback) {
-  comments.update(Q, H, function(err){
+Comment.update = function(cond, val) {
+  var d = Q.defer();
+  comments.update(cond, val, function(err){
     if (err) {
-      LogErr('Comment.update failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Comment.findOneAndRemove = function(Q, callback) {
-  comments.findOneAndRemove(Q, function(err, doc){
+Comment.findOneAndRemove = function(cond) {
+  var d = Q.defer();
+  comments.findOneAndRemove(cond, function(err, doc){
     if (err) {
-      LogErr('Comment.findOneAndRemove failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Comment.count = function(Q, callback) {
-  comments.count(Q, function(err, cnt){
+Comment.count = function(cond) {
+  var d = Q.defer();
+  comments.count(cond, function(err, cnt){
     if (err) {
-      LogErr('Comment.count failed!');
+      d.reject(err);
+    } else {
+      d.resolve(cnt);
     }
-    return callback(err, cnt);
   });
+  return d.promise;
 };
 
-Comment.remove = function(Q, callback) {
-  comments.remove(Q, function(err){
+Comment.remove = function(cond) {
+  var d = Q.defer();
+  comments.remove(cond, function(err){
     if (err) {
-      LogErr('Comment.remove failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Comment.findLast = function(Q, callback) {
-  comments.findOne(Q).sort({inDate: -1}).exec(function(err, doc){
+Comment.findLast = function(cond) {
+  var d = Q.defer();
+  comments.findOne(cond).sort({inDate: -1}).exec(function(err, doc){
     if (err) {
-      LogErr('Comment.findLast failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };

@@ -1,4 +1,5 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
@@ -83,8 +84,8 @@ Contest.prototype.save = function(callback) {
   });
 };
 
-Contest.find = function(Q, callback) {
-  contests.find(Q, function(err, docs){
+Contest.find = function(cond, callback) {
+  contests.find(cond, function(err, docs){
     if (err) {
       LogErr('Contest.find failed!');
     }
@@ -92,12 +93,12 @@ Contest.find = function(Q, callback) {
   });
 };
 
-Contest.get = function(Q, page, callback) {
-  contests.count(Q, function(err, count){
+Contest.get = function(cond, page, callback) {
+  contests.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
       return callback(null, null, -1);
     }
-    contests.find(Q).sort({startTime: -1, contestID: -1}).skip((page-1)*pageNum)
+    contests.find(cond).sort({startTime: -1, contestID: -1}).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
         LogErr('Contest.get failed!');
@@ -116,8 +117,8 @@ Contest.watch = function(cid, callback) {
   });
 };
 
-Contest.findOneAndUpdate = function(Q, H, O, callback) {
-  contests.findOneAndUpdate(Q, H, O, function(err, doc){
+Contest.findOneAndUpdate = function(cond, H, O, callback) {
+  contests.findOneAndUpdate(cond, H, O, function(err, doc){
     if (err) {
       LogErr('Contest.findOneAndUpdate failed!');
     }
@@ -134,8 +135,8 @@ Contest.update = function(cid, H, callback) {
   });
 };
 
-Contest.multiUpdate = function(Q, H, callback) {
-  contests.update(Q, H, {multi: true}, function(err){
+Contest.multiUpdate = function(cond, H, callback) {
+  contests.update(cond, H, {multi: true}, function(err){
     if (err) {
       LogErr('Contest.multiUpdate failed!');
     }
@@ -152,12 +153,15 @@ Contest.remove = function(cid, callback) {
   });
 };
 
-Contest.topFive = function(Q, callback) {
-  contests.find(Q).sort({startTime:-1, contestID: -1})
+Contest.topFive = function(cond) {
+  var d = Q.defer();
+  contests.find(cond).sort({startTime:-1, contestID: -1})
     .limit(5).exec(function(err, docs){
     if (err) {
-      LogErr('Contest.topFive failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
