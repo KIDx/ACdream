@@ -407,10 +407,6 @@ pre.sample {
   color: #800;
 }
 
-td.center {
-  text-align: center;
-}
-
 div#xbody {
   overflow: visible;
   min-height: 680px;

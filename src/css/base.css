@@ -242,6 +242,10 @@ a.put_down {
   margin: 0 auto;
 }
 
+.center {
+  text-align: center;
+}
+
 .ellipsis {
   white-space: nowrap;
   overflow: hidden;

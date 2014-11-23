@@ -26,7 +26,7 @@ $(document).ready(function(){
       type: 'POST',
       url: '/comment/add',
       data: {
-        tid: tid,
+        tid: _tid,
         content: content.getData(),
         fa: -1
       },
@@ -105,7 +105,7 @@ function bindReply(fa, at) {
       type: 'POST',
       url: '/comment/add',
       data: {
-        tid: tid,
+        tid: _tid,
         content: reply_content.getData(),
         fa: fa,
         at: at
@@ -218,7 +218,7 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/topic/toggleTop',
-        data: { tid: tid },
+        data: { tid: _tid },
         dataType: 'text',
         error: function() {
           ShowMessage('无法连接到服务器！');
@@ -233,3 +233,98 @@ $(document).ready(function(){
     });
   }
 });
+
+var $getMore = $('#get_more');
+var $tbody = $('#comment').find('tbody');
+
+function Render(o) {
+  var comments = o.comments ? o.comments : [];
+  var sub = o.sub ? o.sub : {};
+  var UT = o.UT ? o.UT : {};
+  var UC = o.UC ? o.UC : {};
+  var IT = o.IT ? o.IT : {};
+  function GetImgSrc(u) {
+    return IT[u] ? '/img/avatar/'+u+'/2.'+IT[u] : '/img/avatar/%3Ddefault%3D/2.jpeg';
+  }
+  function BuildReply(p, i) {
+    var html = '<div class="reply" id="'+p.id+'"'
+    if (i === 0) {
+      html += ' style="border-top:0;"';
+    }
+    html += '><div class="rl">';
+    html += '<img alt="avatar"  src="'+GetImgSrc(p.user)+'" class="img-60 img-round">';
+    html += '</div>';
+    html += '<div class="rr">';
+    html += '<div class="head">';
+    html += '<a href="javascript:;" title="'+UT[p.user]+'" class="user user-'+UC[p.user]+'">'+p.user+'</a>';
+    html += ' <span class="user-gray">@'+p.at+' '+p.inDate+'</span>';
+    html += '</div>';
+    html += '<div class="content">'+p.content+'</div>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+  }
+  function BuildComment(p) {
+    var html = '<tr><td class="cl">';
+    html += '<div>';
+    html += '<a href="/user/'+p.user+'" title="'+UT[p.user]+'" class="user user-'+UC[p.user]+'">'+p.user+'</a>';
+    html += '</div>';
+    html += '<div>';
+    html += '<img alt="avatar" src="'+GetImgSrc(p.user)+'" class="img-80 img-round">';
+    html += '</div>';
+    html += '</td>';
+    html += '<td class="cr">';
+    html += '<div class="head" id="'+p.id+'">';
+    html += '<span class="user-gray">评论于'+p.inDate+'</span>';
+    html += '</div>';
+    html += '<div class="content">'+p.content+'</div>';
+    html += '<div class="replies">';
+    if (sub[p.id]) {
+      html += $.map(sub[p.id], BuildReply).join('');
+    }
+    html += '</div>';
+    html += '</td></tr>';
+    return html;
+  }
+  $tbody.append( $.map(comments, BuildComment).join('') );
+  if (comments.length) {
+    _min_id = comments[comments.length - 1].id;
+  }
+  if (!o.haveMore) {
+    $getMore.parent().html('<span class="user-gray">没有更多评论</span>');
+  }
+}
+
+$(document).ready(function(){
+  if ($getMore.length) {
+    $getMore.click(function(){
+      if ($(this).hasClass('hide')) {
+        return false;
+      }
+      $(this).addClass('hide');
+      $('#processing').show();
+      $.ajax({
+        type: 'POST',
+        url: '/topic/getComments',
+        data: { tid: _tid, min_id: _min_id },
+        dataType: 'json',
+        error: function() {
+          $('#processing').hide();
+          $getMore.removeClass('hide');
+          ShowMessage('无法连接到服务器！');
+        }
+      }).done(function(res){
+        $('#processing').hide();
+        $getMore.removeClass('hide');
+        if (res) {
+          if (res === '3') {
+            ShowMessage('系统错误！');
+          } else {
+            Render(res);
+          }
+        }
+      });
+    });
+  }
+});
+

@@ -1,6 +1,7 @@
 
 var router = require('express').Router();
 var xss = require('xss');
+var Q = require('q');
 
 var User = require('../models/user.js');
 var Topic = require('../models/topic.js');
@@ -14,6 +15,76 @@ var getTime = Comm.getTime;
 var LogErr = Comm.LogErr;
 var FailRedirect = Comm.FailRedirect;
 
+//获取评论，子评论，以及相关用户信息
+function GetComment(cond) {
+  var d = Q.defer();
+  var o = {};
+  var has = {};
+  var names = [];
+  Comment.get(cond)
+  .then(function(docs){
+    var ids = [];
+    var comments = [];
+    docs.forEach(function(p){
+      ids.push(p.id);
+      if (!has[p.user]) {
+        names.push(p.user);
+        has[p.user] = true;
+      }
+      comments.push({
+        id: p.id,
+        content: p.content,
+        user: p.user,
+        at: p.at,
+        inDate: getTime(p.inDate)
+      });
+    });
+    var minID = 0;
+    o.comments = comments;
+    if (comments.length) {
+      minID = comments[comments.length - 1].id;
+    }
+    cond.id = {$lt: minID};
+    return [Comment.find({fa: {$in: ids}}), Comment.findOne(cond)]
+  })
+  .spread(function(docs, comment){
+    o.haveMore = comment ? true : false;
+    o.sub = {};
+    docs.forEach(function(p){
+      if (!o.sub[p.fa]) {
+        o.sub[p.fa] = [];
+      }
+      o.sub[p.fa].push({
+        id: p.id,
+        content: p.content,
+        user: p.user,
+        at: p.at,
+        inDate: getTime(p.inDate)
+      });
+      if (!has[p.user]) {
+        names.push(p.user);
+        has[p.user] = true;
+      }
+    });
+    return User.qfind({name: {$in: names}});
+  })
+  .then(function(users){
+    o.UT = {};
+    o.UC = {};
+    o.IT = {};
+    users.forEach(function(p){
+      o.UT[p.name] = Comm.userTit(p.rating);
+      o.UC[p.name] = Comm.userCol(p.rating);
+      o.IT[p.name] = p.imgType;
+    });
+    return d.resolve(o);
+  })
+  .fail(function(err){
+    d.reject(err);
+  });
+  return d.promise;
+}
+
 /*
  * 显示一个帖子的页面
  */
@@ -24,62 +95,35 @@ router.get('/', function(req, res) {
   }
   var Response = {
     key: KEY.TOPIC,
-    getDate: getTime,
   };
   //获取一篇话题
   Topic.watch(tid)
   //处理话题
-  .then(function(topic){
-    if (!topic) {
+  .then(function(doc){
+    if (!doc) {
       throw new Error('404');
     }
-    Response.title = topic.title;
-    Response.topic = topic;
+    Response.title = doc.title;
+    Response.topic = {
+      id: doc.id,
+      title: doc.title,
+      content: doc.content,
+      user: doc.user,
+      cid: doc.cid,
+      inDate: getTime(doc.inDate)
+    };
     return Topic.update(tid, {$inc: {browseQty: 1}});
   })
-  //获取评论
   .then(function(){
-    return Comment.get({tid: tid});
+    return GetComment({tid: tid, fa: -1});
   })
-  //处理评论并获取用户信息
-  .then(function(comments){
-    var names = new Array(), has = {}, com = new Array(), sub = {}, N = 0;
-    if (comments) {
-      N = comments.length;
-      comments.forEach(function(p){
-        if (!has[p.user]) {
-          names.push(p.user);
-          has[p.user] = true;
-        }
-        if (p.fa == -1) {
-          com.push(p);
-        } else {
-          if (!sub[p.fa]) {
-            sub[p.fa] = new Array();
-          }
-          sub[p.fa].push(p);
-        }
-      });
-    }
-    if (!has[Response.topic.user]) {
-      names.push(Response.topic.user);
-    }
-    Response.comments = com;
-    Response.sub = sub;
-    Response.N = N;
-    return User.qfind({name: {$in: names}});
-  })
-  //处理用户信息，然后渲染页面
-  .then(function(users){
-    var UT = {}, UC = {}, IT = {};
-    users.forEach(function(p){
-      UT[p.name] = Comm.userTit(p.rating);
-      UC[p.name] = Comm.userCol(p.rating);
-      IT[p.name] = p.imgType;
-    });
-    Response.UT = UT;
-    Response.UC = UC;
-    Response.IT = IT;
+  .then(function(o){
+    Response.comments = o.comments;
+    Response.sub = o.sub;
+    Response.UT = o.UT;
+    Response.UC = o.UC;
+    Response.IT = o.IT;
+    Response.haveMore = o.haveMore;
     return res.render('topic', Response);
   })
   //失败处理
@@ -175,6 +219,27 @@ router.post('/toggleTop', function(req, res){
     LogErr(err);
     res.end('3');
   });
+});
+
+/*
+ * 获取更多评论
+ */
+router.post('/getComments', function(req, res){
+  var tid = parseInt(req.body.tid, 10);
+  var minID = parseInt(req.body.min_id, 10);
+  if (!tid || !minID) {
+    return res.end(); //not allow
+  }
+
+  GetComment({tid: tid, id: {$lt: minID}})
+  .then(function(o){
+    return res.send(o);
+  })
+  .fail(function(err){
+    LogErr(err);
+    res.end('3');
+  });
+
 });
 
 module.exports = router;

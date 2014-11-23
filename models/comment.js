@@ -54,7 +54,19 @@ Comment.prototype.save = function() {
   return d.promise;
 };
 
-Comment.get = function(cond){
+Comment.find = function(cond) {
+  var d = Q.defer();
+  comments.find(cond).sort({id: 1}).exec(function(err, docs){
+    if (err) {
+      d.reject(err);
+    } else {
+      d.resolve(docs);
+    }
+  });
+  return d.promise;
+};
+
+Comment.get = function(cond) {
   var d = Q.defer();
   comments.find(cond).sort({id: -1}).limit(limit).exec(function(err, docs){
     if (err) {
@@ -66,9 +78,9 @@ Comment.get = function(cond){
   return d.promise;
 };
 
-Comment.watch = function(tid) {
+Comment.findOne = function(cond) {
   var d = Q.defer();
-  comments.findOne({id: tid}, function(err, doc){
+  comments.findOne(cond, function(err, doc){
     if (err) {
       d.reject(err);
     } else {
@@ -121,18 +133,6 @@ Comment.remove = function(cond) {
       d.reject(err);
     } else {
       d.resolve();
-    }
-  });
-  return d.promise;
-};
-
-Comment.findLast = function(cond) {
-  var d = Q.defer();
-  comments.findOne(cond).sort({inDate: -1}).exec(function(err, doc){
-    if (err) {
-      d.reject(err);
-    } else {
-      d.resolve(doc);
     }
   });
   return d.promise;

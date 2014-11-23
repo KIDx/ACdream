@@ -1,5 +1,6 @@
 - var add = (topic.cid > 0 && user && user.name == 'admin') ? true : false;
 - var imgsrc;
+- var minID = 0;
 
 mixin GetImageSrc(user)
   - imgsrc = IT[user] ? '/img/avatar/'+user+'/2.'+IT[user] : '/img/avatar/%3Ddefault%3D/2.jpeg';
@@ -13,7 +14,7 @@ mixin Reply(p, idx)
       .head
         a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
         = ' '
-        span.user-gray= '回复于' + getDate(p.inDate)
+        span.user-gray= '@' + p.at + ' ' + p.inDate
       .content
         != p.content
 
@@ -34,7 +35,7 @@ mixin Row(p)
           if (p.title)
             span.title= p.title
           = ' '
-        span.user-gray= '发表于' + getDate(p.inDate)
+        span.user-gray= (p.title ? '发表' : '评论') + '于' + p.inDate
       .content
         != p.content
       if (!p.title && sub[p.id] && sub[p.id].length)
@@ -45,7 +46,7 @@ mixin Row(p)
 fieldset
   .block.block-info
     .heading
-      a(href="/topic") 论坛主页
+      a(href="/topic/list") 论坛主页
       = ' >> '
       | 话题详情
       if (user && user.name === 'admin')
@@ -57,12 +58,21 @@ fieldset
         a.img_link.edit.fr(title="编辑" href="/addtopic?tid="+topic.id)
     .block-content
       .table-responsive
-        table.table.table-topic
+        table#comment.table.table-topic
           +Row(topic)
           if (comments && comments.length)
+            - minID = comments[comments.length - 1].id;
             each p in comments
               +Row(p)
-        .heading(style="text-align:center;") 没有更多评论
+        .heading.center
+          if (haveMore)
+            span#processing(style="display:none;")
+              img(src="/img/waitting.gif")
+              = ' '
+              span.user-gray 获取中...
+            a#get_more(href="javascript:;") 更多评论
+          else
+            span.user-gray 没有更多评论
     if (user)
       .topic_box.form-horizontal(style="min-height:400px;")
         .header 添加回复
@@ -72,7 +82,8 @@ fieldset
             a#reply.uibtn(style="margin:10px 0;" href="javascript:;") 回复
             span#err.error-text
   script(type="text/javascript")
-    | var tid = #{topic.id};
+    | var _tid = #{topic.id};
+    | var _min_id = #{minID};
 if (add)
   script(type="text/javascript").
     function bindAdd($add) {
