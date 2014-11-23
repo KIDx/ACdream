@@ -41,12 +41,12 @@ module.exports = {
   stats_pageNum: 20,
   contestRank_pageNum: 50,
   topic_pageNum: 15,
-  comment_pageNum: 20,
+  comment_limit: 20,
   root_path: __dirname + '/',
   data_path: __dirname + '/data/',
   T: Tag,
   P: ProTil,
-  languages: ['All', 'C', 'C++'], //, 'Java'],
+  languages: ['All', 'C', 'C++', 'Java'],
   xss_options: {
     whiteList: {
       a: ['target', 'href', 'title', 'id', 'name'],
