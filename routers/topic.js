@@ -16,11 +16,15 @@ var LogErr = Comm.LogErr;
 var FailRedirect = Comm.FailRedirect;
 
 //获取评论，子评论，以及相关用户信息
-function GetComment(cond) {
+function GetComment(cond, author) {
   var d = Q.defer();
   var o = {};
   var has = {};
   var names = [];
+  if (author) {
+    names.push(author);
+    has[author] = true;
+  }
   Comment.get(cond)
   .then(function(docs){
     var ids = [];
@@ -115,7 +119,7 @@ router.get('/', function(req, res) {
     return Topic.update(tid, {$inc: {browseQty: 1}});
   })
   .then(function(){
-    return GetComment({tid: tid, fa: -1});
+    return GetComment({tid: tid, fa: -1}, Response.topic.user);
   })
   .then(function(o){
     Response.comments = o.comments;
@@ -128,7 +132,7 @@ router.get('/', function(req, res) {
   })
   //失败处理
   .fail(function(err){
-    FailRedirect(err, res);
+    FailRedirect(err, req, res);
   })
 });
 
@@ -187,7 +191,7 @@ router.get('/list', function(req, res){
     return res.render('topiclist', Response);
   })
   .fail(function(err){
-    FailRedirect(err, res);
+    FailRedirect(err, req, res);
   })
 });
 

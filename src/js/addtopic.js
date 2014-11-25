@@ -6,10 +6,9 @@ $(document).ready(function(){
 
 var $submit = $('#submit');
 var $err = $('#err');
-var $title = $('#Title');
+var $title = $('#topic_title');
 var $vcode = $('#vcode');
 var $vcimg = $('#vcimg');
-var tid = parseInt($('#addtopic').attr('tid'), 10);
 
 function getVcode() {
   $.ajax({
@@ -49,8 +48,8 @@ $(document).ready(function(){
     }
     $submit.addClass('disabled');
     var data = {title:title, content:content.getData()};
-    if (tid) {
-      data.tid = tid;
+    if (_tid) {
+      data.tid = _tid;
     } else {
       data.vcode = $vcode.val();
     }

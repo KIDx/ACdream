@@ -30,7 +30,7 @@ router.route('/')
     var info = verifyCode.Generate();
     req.session.verifycode = info.code;
     res.render('addtopic', {
-      title: type + 'Topic',
+      title: type + ' Topic',
       topic: T,
       key: KEY.ADD_TOPIC,
       dataURL: info.dataURL
@@ -41,17 +41,19 @@ router.route('/')
     return RP(null, 'Add');
   } else {
     var user = req.session.user.name;
-    Topic.watch(tid, function(err, topic){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
+    Topic.watch(tid)
+    .then(function(topic){
+      if (!topic) {
+        throw new Error('404');
       }
       if (user != 'admin' && user != topic.user) {
         req.session.msg = '抱歉，您不是该话题的主人，无法进入编辑！';
         return res.redirect('/topic/list');
       }
       return RP(topic, 'Edit');
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   }
 })
@@ -75,38 +77,42 @@ router.route('/')
   if (tid) {
     var RP = function() {
       var now = (new Date()).getTime();
-      Topic.update(tid, {$set: {
+      return Topic.update(tid, {$set: {
         title: title,
         content: xss(content, xss_options),
         inDate: now,
         lastReviewer: null,
         lastReviewTime: now
-      }}, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('2');    //not refresh for error
-        }
+      }})
+      .then(function(){
         req.session.msg = '修改成功！';
         return res.end(tid.toString());
+      })
+      .fail(function(){
+        LogErr(err);
+        return res.end('2');    //not refresh for error
       });
     };
     if (name == 'admin') {
       return RP();
-    }
-    Topic.watch(tid, function(err, topic){
-      if (err) {
+    } else {
+      Topic.watch(tid)
+      .then(function(topic){
+        if (!topic) {
+          req.session.msg = '该话题不存在！';
+          return res.end();
+        }
+        if (name != topic.user) {
+          req.session.msg = '抱歉，您不是该话题的主人，无权修改！';
+          return res.end();
+        }
+        return RP();
+      })
+      .fail(function(){
         LogErr(err);
         return res.end('2');
-      }
-      if (!topic) {
-        return res.end();  //not allow
-      }
-      if (topic.user != name) {
-        req.session.msg = '抱歉，您不是该话题的主人，无权修改！';
-        return res.end();
-      }
-      return RP();
-    });
+      })
+    }
   } else {
     var vcode = clearSpace(req.body.vcode);
     if (!vcode) {
@@ -127,13 +133,15 @@ router.route('/')
         cid: cid,
         user: req.session.user.name,
         inDate: (new Date()).getTime()
-      })).save(function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('2');
-        }
+      }))
+      .save()
+      .then(function(){
         req.session.msg = '发布成功！';
         return res.end(id.toString());
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end('2');
       });
     });
   }

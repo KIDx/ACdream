@@ -379,7 +379,7 @@ exports.LogErr = LogErr;
 /*
  * 失败跳转处理
  */
-exports.FailRedirect = function(err, res){
+exports.FailRedirect = function(err, req, res){
   if (err.message === '404') {
     return res.redirect('/404');
   }

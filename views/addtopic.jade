@@ -1,37 +1,30 @@
-- var type = topic ? 'Edit' : 'Add';
 fieldset
-  div
-    legend#addtopic(tid=topic ? topic.id : "")= type+' Topic'
-  .form-horizontal
-    .mc
-      .control-group
-        label.control-label(for="Title") 标题：
-        .controls
-          input#Title.input-xxlarge(value=(topic ? topic.title : "") type="text" placeholder="请在此输入标题")
-      .control-group
-        label.control-label(for="Title")
-          span.user.user-red 注意：
-        .controls(style="padding-top:5px;")
-          span.user.user-green
-            | 要多使用表情左边的
-            span.user.user-red 插入代码功能
-            | 哦~
-      .control-group
-        label.control-label 内容：
-        .controls(style="width:800px;")
-          textarea#content
-            if (topic)
-              != topic.content
-      if (!topic)
-        .control-group
-          label.control-label(for="vcode") 验证码：
-          .controls
-            input#vcode.input-mini(type="text")
-            #vcimg.help-inline.img.topic_img.vcode(title="点击换一张")
-              img(src=dataURL)
-      .control-group
-        .controls
-          a#submit.uibtn(href="javascript:;") 发布
-          span#err.error-text
-  .form-actions
-    span.user.user-gray Made by KIDx. 2013/11/15
+  .block.block-info
+    .block-content
+      .heading= title
+      .inner.form-horizontal
+        .form-group
+          label.control-label.col-sm-2(for="topic_title") 标题：
+          .col-sm-5
+            input#topic_title.form-control(value=(topic ? topic.title : "") type="text" placeholder="请在此输入标题")
+        .form-group
+          label.control-label.col-sm-2 内容：
+          .col-sm-8
+            textarea#content
+              if (topic)
+                != topic.content
+        if (!topic)
+          .form-group
+            label.control-label.col-sm-2(for="vcode") 验证码：
+            .col-sm-2
+              input#vcode.form-control(type="text")
+            .col-sm-2
+              #vcimg.vcode(title="点击换一张")
+                img(src=dataURL)
+        .form-group
+          .col-sm-offset-2.col-sm-10
+            a#submit.btn.btn-default(href="javascript:;") 发布
+            = ' '
+            span#err.error-text
+script(type="text/javascript").
+  var _tid = #{topic ? topic.id : 0};
