@@ -56,12 +56,12 @@ $(document).ready(function(){
       errAnimate($regerr, 'the length of Nick Name should be no more than 20!');
       return false;
     }
-    var school = JudgeString($reginput.eq(4).val());
+    var school = JudgeString($('#reg_school').val());
     if (school.length > 50) {
       errAnimate($regerr, 'the length of School should be no more than 50!');
       return false;
     }
-    var email = JudgeString($reginput.eq(5).val());
+    var email = JudgeString($('#reg_email').val());
     if (email) {
       pattern = new RegExp("^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,4}$");
       if (!pattern.test(email)) {
