@@ -1,20 +1,29 @@
-- var add = (topic.cid > 0 && user && user.name == 'admin') ? true : false;
 - var imgsrc;
 - var minID = 0;
 
 mixin GetImageSrc(user)
   - imgsrc = IT[user] ? '/img/avatar/'+user+'/2.'+IT[user] : '/img/avatar/%3Ddefault%3D/2.jpeg';
 
+mixin Actions(p)
+  if (user)
+    span.actions.pull-right
+      if (user.name === 'admin' || user.name === p.user)
+        a.img_link.edit.edit-btn(data-id=p.id href="javascript:;" title="编辑")
+        a.img_link.trash.trash-btn(data-id=p.id href="javascript:;" title="删除")
+      if (user.name !== p.user)
+        a.img_link.reply.reply-btn(data-id=p.id data-fa=(p.fa === -1 ? p.id : p.fa) data-at=p.user href="javascript:;" title="回复")
+
 mixin Reply(p, idx)
   +GetImageSrc(p.user)
-  .reply(id=p.id style=(idx == 0 ? "border-top:0;" : ""))
+  .reply_box(style=(idx == 0 ? "border-top:0;" : ""))
     .rl
       img.img-60.img-round(alt="avatar" src=imgsrc)
     .rr
-      .head
+      .head(id=p.id)
         a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
         = ' '
         span.user-gray= '@' + p.at + ' ' + p.inDate
+        +Actions(p)
       .content
         != p.content
 
@@ -36,9 +45,17 @@ mixin Row(p)
             span.title= p.title
           = ' '
         span.user-gray= (p.title ? '发表' : '评论') + '于' + p.inDate
+        if (!p.title)
+          +Actions(p)
       .content
         != p.content
-      if (!p.title && sub[p.id] && sub[p.id].length)
+      if (p.title)
+        .pull-right
+          if (user)
+            button.btn.btn-primary#add_reply + Add Reply
+          else
+            button.btn.btn-primary.checklogin + Add Reply
+      else if (sub[p.id] && sub[p.id].length)
         .replies
           each c, i in sub[p.id]
             +Reply(c, i)
@@ -49,17 +66,32 @@ fieldset
       a(href="/topic/list") 论坛主页
       = ' >> '
       | 话题详情
-      if (user && user.name === 'admin')
-        if (topic.top)
-          a#toggle_top.img_link.put_down.fr(href="javascript:;" title="取消置顶")
-        else
-          a#toggle_top.img_link.put_up.fr(href="javascript:;" title="置顶")
-      if (user && (user.name === topic.user || user.name === 'admin'))
-        a.img_link.edit.fr(title="编辑" href="/addtopic?tid="+topic.id)
+      span.actions.pull-right
+        if (user && (user.name === topic.user || user.name === 'admin'))
+          a.img_link.edit(title="编辑" href="/addtopic?tid="+topic.id)
+        if (user && user.name === 'admin')
+          if (topic.top)
+            a#toggle_top.img_link.put_down(href="javascript:;" title="取消置顶")
+          else
+            a#toggle_top.img_link.put_up(href="javascript:;" title="置顶")
     .block-content
       .table-responsive
         table#comment.table.table-topic
           +Row(topic)
+          if (user)
+            +GetImageSrc(user.name)
+            tr#to_reply(style="display:none;")
+              td.cl
+                div
+                  a(href="/user/"+user.name title=UT[user.name] class="user user-"+UC[user.name])= user.name
+                div
+                  img.img-80.img-round(alt="avatar" src=imgsrc)
+              td.cr
+                .form-group
+                  textarea#content.form-control
+                button#reply.btn.btn-default 提交回复
+                = ' '
+                span#err.error-text
           if (comments && comments.length)
             - minID = comments[comments.length - 1].id;
             each p in comments
@@ -73,51 +105,6 @@ fieldset
             a#get_more(href="javascript:;") 更多评论
           else
             span.user-gray 没有更多评论
-    if (user)
-      .topic_box.form-horizontal(style="min-height:400px;")
-        .header 添加回复
-        .inner_topic
-          textarea#content
-          div
-            a#reply.uibtn(style="margin:10px 0;" href="javascript:;") 回复
-            span#err.error-text
   script(type="text/javascript")
     | var _tid = #{topic.id};
     | var _min_id = #{minID};
-if (add)
-  script(type="text/javascript").
-    function bindAdd($add) {
-      $add.click(function(){
-        var $p = $(this);
-        if ($p.hasClass('disabled')) {
-          return false;
-        }
-        $p.addClass('disabled');
-        $.ajax({
-          type: 'POST',
-          url: '/contest/addContestant',
-          data: {
-            tid: #{topic.id},
-            cid: #{topic.cid},
-            name: $p.attr('data-user'),
-            fa: $p.attr('data-id')
-          },
-          dataType: 'text',
-          error: function() {
-            $p.removeClass('disabled');
-            ShowMessage('无法连接到服务器！');
-          }
-        })
-        .done(function(res){
-          if (!res) {
-            window.location.reload(true);
-            return ;
-          } else if (res == '1') {
-            ShowMessage($p.attr('data-user')+'已是该比赛的参赛者，无需添加。');
-          } else if (res == '3') {
-            ShowMessage('系统错误！');
-          }
-          $p.removeClass('disabled');
-        });
-      });
-    }

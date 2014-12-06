@@ -137,3 +137,15 @@ Comment.remove = function(cond) {
   });
   return d.promise;
 };
+
+Comment.findLast = function(cond) {
+  var d = Q.defer();
+  comments.findOne(cond).sort({id: -1}).exec(function(err, doc){
+    if (err) {
+      d.reject(err);
+    } else {
+      d.resolve(doc);
+    }
+  });
+  return d.promise;
+};

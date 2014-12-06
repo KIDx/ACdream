@@ -102,7 +102,7 @@ h3.problem-header {
   border-left: 5px solid #D9E8F9;
 }
 
-.table-topic .cr .reply {
+.table-topic .cr .reply_box {
   overflow: hidden;
   border-top: 1px dotted #ccc;
   padding: 5px;
@@ -118,6 +118,11 @@ h3.problem-header {
 .table-topic .cr .rr {
   margin-left: 80px;
   padding: 10px 0;
+}
+
+.actions > a {
+  margin-left: 5px;
+  display: inline-block;
 }
 /* topic END */
 
@@ -172,12 +177,10 @@ a.delete {
 }
 
 a.edit {
-  margin-right: 8px;
   background: url('img/edit.png');
 }
 
 a.trash {
-  margin-right: 8px;
   background: url('img/trash.png');
 }
 
@@ -421,7 +424,7 @@ a.put_down {
 }
 
 .block .block-content .inner {
-  padding: 15px 0;
+  padding: 15px 10px;
   background: #fcfcfc;
 }
 

@@ -36,14 +36,18 @@ $(document).ready(function(){
         errAnimate($err, '无法连接到服务器！');
       }
     }).done(function(res){
+      if (res === '3') {
+        ShowMessage('系统错误！');
+        return ;
+      }
       window.location.reload(true);
     });
   });
 });
 
-var $edits = $('a.edit');
-var $trashs = $('a.trash');
-var $replys = $('a.reply');
+var $edits;
+var $trashs;
+var $replys;
 var $editbox;
 var $edit_submit;
 var $replybox;
@@ -52,9 +56,9 @@ var edit_content;
 var reply_content;
 
 function build(s) {
-  return '<div id="'+s+'box" style="margin-top:5px;" class="hide cb">'
+  return '<div id="'+s+'box" style="display:none;">'
     + '<textarea id="'+s+'_content"></textarea><div>'
-    + '<a class="uibtn" href="javascript:;" style="margin:5px 0;" id="' + s
+    + '<a class="btn btn-default" href="javascript:;" style="margin-top:5px;" id="' + s
     + '_submit">提交</a></div>';
 }
 
@@ -89,8 +93,8 @@ function bindEdit(id) {
       }
     }).done(function(res){
       if (!res) {
-        window.location.reload(true);
-        return ;
+        ShowMessage('修改成功！');
+        $content_tag.html( edit_content.getData() );
       } else if (res == '3') {
         ShowMessage('系统错误！');
       }
@@ -127,88 +131,89 @@ function bindReply(fa, at) {
   });
 }
 
-$(document).ready(function(){
-  if ($replys.length) {
-    $replys.click(function(){
-      if ($replybox && $replybox.length) {
-        $reply_submit.unbind();
-        CKEDITOR.remove( reply_content );
-        $replybox.remove();
-        $replybox = null;
+var tmp_content;
+var $content_tag;
+function BindActions() {
+  $edits = $('a.edit-btn');
+  $trashs = $('a.trash-btn');
+  $replys = $('a.reply-btn');
+
+  $replys.unbind();
+  $replys.click(function(){
+    if ($replybox && $replybox.length) {
+      var id = $replybox.prev().prev().attr('id');
+      $reply_submit.unbind();
+      CKEDITOR.remove( reply_content );
+      $replybox.remove();
+      $replybox = null;
+      if ($(this).data('id') == id) {
         return false;
       }
-      $(this).parent().after(build('reply'));
-      $replybox = $('#replybox');
-      $reply_submit = $('#reply_submit');
-      btnAnimate($reply_submit);
-      reply_content = CKEDITOR.replace( 'reply_content' );
-      bindReply($(this).attr('fa'), $(this).attr('at'));
-      $replybox.show();
-    });
-  }
-});
+    }
+    $(this).parent().parent().next().after(build('reply'));
+    $replybox = $('#replybox');
+    $reply_submit = $('#reply_submit');
+    reply_content = CKEDITOR.replace( 'reply_content' );
+    bindReply($(this).data('fa'), $(this).data('at'));
+    $replybox.show();
+  });
 
-$(document).ready(function(){
-  if ($edits.length) {
-    var tmp;
-    $edits.click(function(){
-      var $edit = $(this);
-      var $p = $edit.parent().prev();
-      if ($editbox && $editbox.length) {
-        $edit_submit.unbind();
-        CKEDITOR.remove( edit_content );
-        $editbox.remove();
-        $editbox = null;
-        $p.html(tmp);
+  $edits.unbind();
+  $edits.click(function(){
+    var $edit = $(this);
+    var comment_id = $edit.data('id');
+    if ($editbox && $editbox.length && $content_tag) {
+      $edit_submit.unbind();
+      CKEDITOR.remove( edit_content );
+      $editbox.remove();
+      $editbox = null;
+      $content_tag.html(tmp_content);
+      if (comment_id == $content_tag.prev().attr('id')) {
         return false;
       }
-      tmp = $p.html();
-      $p.html(build('edit'));
-      $editbox = $('#editbox');
-      $edit_submit = $('#edit_submit');
-      btnAnimate($edit_submit);
-      edit_content = CKEDITOR.replace( 'edit_content' );
-      edit_content.setData(tmp);
-      bindEdit($(this).attr('data-id'));
-      $editbox.show();
-    });
-  }
-});
+    }
+    $content_tag = $edit.parent().parent().next();
+    tmp_content = $content_tag.html();
+    $content_tag.html(build('edit'));
+    $editbox = $('#editbox');
+    $edit_submit = $('#edit_submit');
+    edit_content = CKEDITOR.replace( 'edit_content' );
+    edit_content.setData(tmp_content);
+    bindEdit(comment_id);
+    $editbox.show();
+  });
 
-$(document).ready(function(){
-  if ($trashs.length) {
-    $trashs.click(function(){
-      if (!confirm('确认要删除此回复吗？')) {
-        return false;
+  $trashs.unbind();
+  $trashs.click(function(){
+    if (!confirm('确认要删除此回复吗？')) {
+      return false;
+    }
+    var $p = $(this);
+    $.ajax({
+      type: 'POST',
+      url: '/comment/del',
+      data: {
+        id: $p.data('id')
+      },
+      dataType: 'text',
+      error: function() {
+        ShowMessage('无法连接到服务器！');
       }
-      $.ajax({
-        type: 'POST',
-        url: '/comment/del',
-        data: {
-          id: $(this).attr('data-id')
-        },
-        dataType: 'text',
-        error: function() {
-          ShowMessage('无法连接到服务器！');
-        }
-      }).done(function(res){
-        if (!res) {
-          window.location.reload(true);
-        } else if (res == '3') {
-          ShowMessage('系统错误！');
-        }
-      });
+    }).done(function(res){
+      if (!res) {
+        $p.parent().parent().parent().parent().remove();
+        ShowMessage('删除成功！');
+      } else if (res == '3') {
+        ShowMessage('系统错误！');
+      }
     });
-  }
-});
-
-var $add = $('.add');
+  });
+}
 
 $(document).ready(function(){
-  if ($add.length) {
-    bindAdd($add);
-  }
+  BindActions();
 });
+
 
 var $toggleTop = $('#toggle_top');
 
@@ -246,8 +251,21 @@ function Render(o) {
   function GetImgSrc(u) {
     return IT[u] ? '/img/avatar/'+u+'/2.'+IT[u] : '/img/avatar/%3Ddefault%3D/2.jpeg';
   }
+  function BuildActions(p) {
+    var html = '';
+    if (current_user) {
+      html += '<span class="actions pull-right">';
+      if (current_user === 'admin' || current_user === p.user) {
+        html += '<a data-id="'+p.id+'" class="img_link edit edit-btn" href="javascript:;" title="编辑"></a>';
+        html += '<a data-id="'+p.id+'" class="img_link trash trash-btn" href="javascript:;" title="删除"></a>';
+      }
+      html += '<a data-id="'+p.id+'" data-fa="'+(p.fa === -1 ? p.id : p.fa)+'" data-at="'+p.user+'" class="img_link reply reply-btn" href="javascript:;" title="回复"></a>';
+      html += '</span>';
+    }
+    return html;
+  }
   function BuildReply(p, i) {
-    var html = '<div class="reply" id="'+p.id+'"'
+    var html = '<div class="reply_box" id="'+p.id+'"'
     if (i === 0) {
       html += ' style="border-top:0;"';
     }
@@ -255,9 +273,10 @@ function Render(o) {
     html += '<img alt="avatar"  src="'+GetImgSrc(p.user)+'" class="img-60 img-round">';
     html += '</div>';
     html += '<div class="rr">';
-    html += '<div class="head">';
+    html += '<div class="head" id="'+p.id+'">';
     html += '<a href="javascript:;" title="'+UT[p.user]+'" class="user user-'+UC[p.user]+'">'+p.user+'</a>';
     html += ' <span class="user-gray">@'+p.at+' '+p.inDate+'</span>';
+    html += BuildActions(p);
     html += '</div>';
     html += '<div class="content">'+p.content+'</div>';
     html += '</div>';
@@ -276,6 +295,7 @@ function Render(o) {
     html += '<td class="cr">';
     html += '<div class="head" id="'+p.id+'">';
     html += '<span class="user-gray">评论于'+p.inDate+'</span>';
+    html += BuildActions(p);
     html += '</div>';
     html += '<div class="content">'+p.content+'</div>';
     html += '<div class="replies">';
@@ -321,6 +341,7 @@ $(document).ready(function(){
             ShowMessage('系统错误！');
           } else {
             Render(res);
+            BindActions();
           }
         }
       });
@@ -328,3 +349,13 @@ $(document).ready(function(){
   }
 });
 
+var $addreply = $('#add_reply');
+var $toreply = $('#to_reply');
+
+$(document).ready(function(){
+  if ($addreply.length) {
+    $addreply.click(function(){
+      $toreply.toggle();
+    });
+  }
+});

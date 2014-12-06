@@ -23,10 +23,10 @@ router.post('/add', function(req, res){
   }
   var user = req.session.user.name;
   var tid = parseInt(req.body.tid, 10);
-  var content = String(req.body.content); //can not do clearSpace because it is content
+  var content = req.body.content;
   var fa = parseInt(req.body.fa, 10);
-  var at = Comm.clearSpace(req.body.at);
-  if (!user || !tid || !content || !fa) {
+  var at = req.body.at;
+  if (!user || !tid || !content || !fa || user == at) {
     return res.end();   //not allow!
   }
   IDs.get('topicID', function(err, id){
@@ -43,22 +43,20 @@ router.post('/add', function(req, res){
       fa: fa,
       at: at,
       inDate: now
-    })).save(function(err){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      Topic.update(tid, {
+    })).save()
+    .then(function(){
+      return Topic.update(tid, {
         $set: {lastReviewer: user, lastReviewTime: now, lastComment: id},
         $inc: {reviewsQty: 1}
-      }, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        req.session.msg = '回复成功！';
-        return res.end();
       });
+    })
+    .then(function(){
+      req.session.msg = '回复成功！';
+      return res.end();
+    })
+    .fail(function(){
+      LogErr(err);
+      res.end('3');
     });
   });
 });
@@ -76,60 +74,47 @@ router.post('/del', function(req, res){
   if (!id) {
     return res.end();   //not allow
   }
-  var q = { id: id };
+  var cond = { id: id }, subCond = { fa: id };
   if (req.session.user.name != 'admin') {
-    q.user = req.session.user.name;
+    cond.user = req.session.user.name;
   }
-  Comment.findOneAndRemove(q, function(err, comment){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  var tid, cnt;
+  Comment.findOneAndRemove(cond)
+  .then(function(comment){
     if (!comment) {
-      return res.end();   //not allow
+      throw new Error('404');
     }
-    var Q = { fa: comment.id };
-    Comment.count(Q, function(err, cnt){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      Comment.remove(Q, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        Comment.findLast({tid: comment.tid}, function(err, com){
-          if (err) {
-            LogErr(err);
-            return res.end('3');
-          }
-          Topic.watch(comment.tid, function(err, topic){
-            if (err) {
-              LogErr(err);
-              return res.end('3');
-            }
-            var set;
-            if (com && com.inDate > topic.inDate) {
-              set = {lastReviewer: com.user, lastReviewTime: com.inDate, lastComment: com.id};
-            } else {
-              set = {lastReviewer: null, lastReviewTime: topic.inDate, lastComment: null};
-            }
-            Topic.update(comment.tid, {
-              $set: set,
-              $inc: {reviewsQty: -(cnt+1)}
-            }, function(err){
-              if (err) {
-                LogErr(err);
-                return res.end('3');
-              }
-              req.session.msg = '删除成功！';
-              return res.end();
-            });
-          });
-        });
-      });
+    tid = comment.tid;
+    return Comment.count(subCond);
+  })
+  .then(function(count){
+    cnt = count;
+    return Comment.remove(subCond);
+  })
+  .then(function(){
+    return [Comment.findLast({tid: tid}), Topic.watch(tid)];
+  })
+  .spread(function(comment, topic){
+    var set;
+    if (comment && comment.inDate > topic.inDate) {
+      set = {lastReviewer: comment.user, lastReviewTime: comment.inDate, lastComment: comment.id};
+    } else {
+      set = {lastReviewer: null, lastReviewTime: topic.inDate, lastComment: null};
+    }
+    return Topic.update(comment.tid, {
+      $set: set,
+      $inc: {reviewsQty: -(cnt+1)}
     });
+  })
+  .then(function(){
+    return res.end();
+  })
+  .fail(function(err){
+    if (err.message == '404') {
+      return res.end();
+    }
+    LogErr(err);
+    return res.end('3');
   });
 });
 
@@ -143,7 +128,7 @@ router.post('/edit', function(req, res){
     return res.end();
   }
   var id = parseInt(req.body.id, 10)
-  ,   content = String(req.body.content);
+  ,   content = req.body.content;
   if (!id || !content) {
     return res.end();   //not allow
   }
@@ -151,13 +136,13 @@ router.post('/edit', function(req, res){
   if (req.session.user.name != 'admin') {
     Q.user = req.session.user.name;
   }
-  Comment.update(Q, {$set: {content: xss(content, xss_options)}}, function(err){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
-    req.session.msg = '修改成功！';
+  Comment.update(Q, {$set: {content: xss(content, xss_options)}})
+  .then(function(){
     return res.end();
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 

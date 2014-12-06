@@ -16,7 +16,7 @@ var LogErr = Comm.LogErr;
 var FailRedirect = Comm.FailRedirect;
 
 //获取评论，子评论，以及相关用户信息
-function GetComment(cond, author) {
+function GetComment(cond, author, currentUser) {
   var d = Q.defer();
   var o = {};
   var has = {};
@@ -24,6 +24,10 @@ function GetComment(cond, author) {
   if (author) {
     names.push(author);
     has[author] = true;
+  }
+  if (currentUser && !has[currentUser]) {
+    names.push(currentUser);
+    has[currentUser] = true;
   }
   Comment.get(cond)
   .then(function(docs){
@@ -40,6 +44,7 @@ function GetComment(cond, author) {
         content: p.content,
         user: p.user,
         at: p.at,
+        fa: p.fa,
         inDate: getTime(p.inDate)
       });
     });
@@ -63,6 +68,7 @@ function GetComment(cond, author) {
         content: p.content,
         user: p.user,
         at: p.at,
+        fa: p.fa,
         inDate: getTime(p.inDate)
       });
       if (!has[p.user]) {
@@ -114,12 +120,13 @@ router.get('/', function(req, res) {
       content: doc.content,
       user: doc.user,
       cid: doc.cid,
+      top: doc.top,
       inDate: getTime(doc.inDate)
     };
     return Topic.update(tid, {$inc: {browseQty: 1}});
   })
   .then(function(){
-    return GetComment({tid: tid, fa: -1}, Response.topic.user);
+    return GetComment({tid: tid, fa: -1}, Response.topic.user, req.session.user ? req.session.user.name : null);
   })
   .then(function(o){
     Response.comments = o.comments;
@@ -200,7 +207,7 @@ router.get('/list', function(req, res){
  */
 router.post('/toggleTop', function(req, res){
   res.header('Content-Type', 'text/plain');
-  if (!req.session.user || req.session.user.name != 'admin') {
+  if (!req.session.user || req.session.user.name !== 'admin') {
     return res.end();  //not allow!
   }
   var tid = parseInt(req.body.tid, 10);
