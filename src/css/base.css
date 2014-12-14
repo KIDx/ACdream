@@ -1,4 +1,27 @@
 
+/* user START */
+ul.user-info {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.user-info > li {
+  margin: 1em 0;
+}
+
+.prob_list {
+  text-align: center;
+}
+
+.prob_list > a {
+  font-size: large;
+  margin-right: .3em;
+  line-height: 25px;
+  display: inline-block;
+}
+/* user END */
+
 /* problem START */
 .istyle em {
   font-size: 125%;
@@ -126,31 +149,6 @@ h3.problem-header {
 }
 /* topic END */
 
-.uibtn {
-  background: #fff;
-  vertical-align: middle;
-  display: inline-block;
-  margin: 2px 3px;
-  padding: 3px 10px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  font-weight: bold;
-  font-size: 12px;
-  color: #555;
-  text-decoration: none;
-  text-align: center;
-}
-
-.uibtn:hover {
-  color: #555;
-  text-decoration: none;
-  background: #f5f5f5;
-}
-
-.uibtn:active {
-  background: #eee;
-}
-
 .img_link {
   width: 16px;
   height: 16px;
@@ -206,6 +204,11 @@ a.put_down {
 .img_link:hover {
   opacity: 0.6;
   filter: alpha(opacity=60);
+}
+
+.img-250 {
+  width: 250px;
+  height: 250px;
 }
 
 .img-150 {

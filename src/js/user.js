@@ -1,4 +1,3 @@
-var name = $('#user').attr('name');
 var $ap = $('#addprob');
 
 $(document).ready(function(){
@@ -11,7 +10,7 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/user/changeAddprob',
-        data: { name : name },
+        data: { name : _username },
         dataType: 'text',
         error: function() {
           $ap.removeClass('disabled');
@@ -36,7 +35,7 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/admin/stat',
-        data: { name : name },
+        data: { name : _username },
         dataType: 'text',
         error: function() {
           $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
@@ -57,14 +56,14 @@ $(document).ready(function(){
       if ($(this).hasClass('disabled')) {
         return false;
       }
-      if (!confirm('确认要把'+name+'的密码恢复为"123456"吗？')) {
+      if (!confirm('确认要把'+_username+'的密码恢复为"123456"吗？')) {
         return false;
       }
       $restore.addClass('disabled');
       $.ajax({
         type: 'POST',
         url: '/user/restorePsw',
-        data: { name : name },
+        data: { name : _username },
         dataType: 'text',
         error: function() {
           $restore.removeClass('disabled');
@@ -204,8 +203,8 @@ var $chart = $('#chart');
 
 $(document).ready(function(){
   var data = new Array(), pre = 1500;
-  for (var i = 0; i < ratedRecord.length; i++) {
-    var p = ratedRecord[i];
+  for (var i = 0; i < _rated_record.length; i++) {
+    var p = _rated_record[i];
     var rowOne = '<div>= '+p.rating+DeltaSpan(p.rating-pre)+UserTitle(p.rating)+'</div>';
     var rowTwo = '<div>Rank '+(p.rank+1)+'</div>';
     var rowThree = '<a target="_blank" href="/contest?cid='+p.cid+'">'+p.title+'</a>';
@@ -215,7 +214,7 @@ $(document).ready(function(){
   var colors = ['#cccccc', '#aaffaa', '#77ff77', '#aaabfe', '#ff8efe',
     '#fecc87', '#ffbb56', '#ff7777', '#ff3334'];
   var plotBands = new Array();
-  var tickPositions = [pre=minRating-100, 1200, 1350, 1500, 1700, 1900,
+  var tickPositions = [pre=_min_rating-100, 1200, 1350, 1500, 1700, 1900,
     2050, 2200, 2600, 100000];
   for (var i = 1; i < tickPositions.length; i++) {
     var p = tickPositions[i];
@@ -231,9 +230,7 @@ $(document).ready(function(){
     },
     chart: {
       marginRight: 8,
-      borderColor: '#EBBA95',
-      borderRadius: 5,
-      borderWidth: 2,
+      borderWidth: 0,
       type: 'line',
       height: 300,
       plotBorderWidth: 2,
@@ -313,7 +310,7 @@ $(document).ready(function(){
       title: '{name}'
     },
     series: [{
-      name: name,
+      name: _username,
       data: data,
       pointStart: Date.UTC(2010, 1, 1),
     }]

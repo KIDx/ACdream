@@ -3,7 +3,7 @@ fieldset
     #register.block-content
       .heading Register
       .inner
-        .row.container
+        .row
           .col-md-6
             .form-group
               label(for="reg_username") User Name *
@@ -33,4 +33,5 @@ fieldset
               textarea#signature.form-control.input-sm(style="height:200px;")
       .heading
         a#reg_submit.btn.btn-default(href="javascript:;") Submit
+        = ' '
         span#reg_error.error-text

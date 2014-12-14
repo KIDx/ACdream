@@ -323,11 +323,6 @@ img.top {
   overflow: hidden;
 }
 
-.header {
-  padding: 7px 10px;
-  background: #e5e5e5;
-}
-
 #sidebar {
   width: 20em;
   margin-top: 1em;
@@ -550,16 +545,6 @@ div.mylist > div#tablediv {
   text-align: center;
 }
 
-div.prob_list {
-  text-align: center;
-}
-
-div.prob_list > a {
-  font-size: large;
-  margin-right: .3em;
-  line-height: 25px;
-}
-
 div.tablebg {
   padding-bottom: 3px;
   background-color: #e1e1e1;
@@ -766,44 +751,6 @@ div.roundbox > h3 {
   border-radius: 3px;
   box-shadow: 1px 1px 2px #888;
   padding: 8px;
-}
-
-ul.user-info {
-  margin: 0;
-  list-style: none;
-}
-
-ul.user-info > li {
-  margin: 1em 0;
-}
-
-div.menu-list {
-  position: absolute;
-  left: 1.5em;
-  top: -3.8em;
-}
-
-div.menu-list > ul > li {
-  float: left;
-  list-style: none;
-}
-
-div.menu-list > ul > li > a {
-  position: relative;
-  text-decoration: none;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 11px;
-  color: #333;
-  z-index: 10;
-  float: left;
-  display: block;
-  padding: 3px 5px;
-  margin-left: 10px;
-}
-
-div.menu-list > ul > li > a:hover {
-  background: #e5e5e5;
 }
 
 .divider {
