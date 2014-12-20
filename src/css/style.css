@@ -10,14 +10,6 @@ input, button, select, textarea {
   font-family: "微软雅黑","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
-pre {
-  font-size: 14px;
-}
-
-.mc {
-  margin: 0 auto;
-}
-
 a.disabled {
   color: gray!important;
   background: #fff!important;
@@ -29,14 +21,6 @@ td.accept {
 
 td.first_blood {
   background: #65bb81;
-}
-
-.fl {
-  float: left;
-}
-
-.fr {
-  float: right;
 }
 
 .marquee {
@@ -731,20 +715,6 @@ div.avatar {
   cursor: pointer;
 }
 
-div.roundbox {
-  padding: 1em;
-  border: 1px solid #ddd;
-  border-radius: 6px 6px 6px 6px;
-  background-color: whitesmoke;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.05) inset;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-div.roundbox > h3 {
-  margin: 0;
-}
-
 .highcharts-tooltip > span {
   background: rgba(255,255,255,0.85);
   border: 1px solid silver;
@@ -764,11 +734,6 @@ div.roundbox > h3 {
   border-radius: 6px 6px 4px 4px;
   background-color: #f2fff7;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
-}
-
-div.form-actions {
-  border-top: 1px solid #ddd;
-  background-color: transparent;
 }
 
 .accordion-group {
@@ -820,52 +785,9 @@ legend{
   border-left: 1px solid #e1e1e1;
 }
 
-
-
-.upload {
-  margin-bottom: 10px;
-}
-
-.uploaddiv > span {
-  margin: 0;
-}
-
-.uploaddiv > button {
-  margin: 18px 0 5px 0;
-  width: 150px;
-  display: block;
-}
-
-.upload-info {
-  display: inline-block;
-  padding: 5px 10px;
-  font-size: .9em;
-  color: gray;
-}
-
-.limitbox {
-  max-height: 150px;
-  overflow: auto;
-  clear: both;
-}
-
-.ibox {
-  float: left;
-  margin: 0 15px 0 0;
-}
-
-.ibox_head {
-  padding: 10px;
-}
-
-.cb {
-  clear: both;
-}
-
 table.parity thead {
   background-color: white;
 }
-
 
 #wrapper {
   min-height: 101%;

@@ -1,11 +1,11 @@
 var $image = $('#image');
 var $imgerr = $('#imgerr');
-var $si = $('#submit-info');
+var $si = $image.parent().parent().next();
 var submitTimeout;
 
 var $data = $('#data');
 var $dataerr = $('#dataerr');
-var $ui = $('#upload-info');
+var $ui = $data.parent().parent().next();
 var $datadel;
 
 var $datadiv = $('#datadiv');
@@ -20,8 +20,6 @@ var $imgnum = $('#imgnum');
 var $imgdel;
 var imghas = {};
 var imgnum = parseInt($imgnum.text(), 10);
-
-var pid = parseInt($('#addproblem').attr('pid'), 10);
 
 $(document).ready(function(){
   CKEDITOR.replace( 'Description' );
@@ -46,7 +44,7 @@ function bindDel () {
         type: 'POST',
         url: '/addproblem/delData',
         data: {
-          pid: pid,
+          pid: _pid,
           fname: $(p).parent().prev().text()
         },
         dataType: 'text',
@@ -88,7 +86,7 @@ function bindImgDel () {
         type: 'POST',
         url: '/addproblem/delImg',
         data: {
-          pid: pid,
+          pid: _pid,
           fname: $(p).parent().prev().text()
         },
         dataType: 'text',
@@ -129,7 +127,7 @@ $(document).ready(function(){
         errAnimate($imgerr, '图片大小不得超过2m！');
         return false;
       }
-      $imgerr.html('&nbsp;');
+      $imgerr.text("");
       data.submit();
     },
     progress: function(e, data) {
@@ -178,8 +176,10 @@ $(document).ready(function(){
       var f = data.files[0];
       $ui.text(f.name);
       if (f.size && f.size > 50*1024*1024) {
+        errAnimate($dataerr, '存在超过50m的文件，已忽略！');
         return ;
       }
+      $dataerr.text("");
       data.submit();
     },
     progress: function(e, data) {

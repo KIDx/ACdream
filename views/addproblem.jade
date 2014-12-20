@@ -1,18 +1,18 @@
-mixin div
-  if (problem)
-    div#addproblem(pid=problem.problemID )
-      block
-  else
-    div
-      block
 fieldset
-  +div
-    legend 管理
-      if (problem)
-        a(href="/problem?pid="+problem.problemID)= ' problem '+problem.problemID
-  if (problem)
-    include editproblem
-    +editproblem(problem, user, partial, files, imgs)
-  else
-    form.form-horizontal(method="post")
-      button.btn.btn-large(type="submit") 快速新建题目
+  .block.block-info
+    .block-content
+      .heading
+        if (problem)
+          = 'EditProblem '
+          a(href="/problem?pid="+problem.problemID)= problem.problemID
+        else
+          = 'AddProblem'
+      .inner
+        if (problem)
+          include editproblem
+          +editproblem(problem, user, partial, files, imgs)
+        else
+          form.form-horizontal(method="post")
+            button.btn.btn-default.btn-lg(type="submit") 快速新建题目
+  script(type="text/javascript")
+    | var _pid = #{problem ? problem.problemID : ""};

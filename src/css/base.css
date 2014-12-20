@@ -1,3 +1,15 @@
+/* addproblem START */
+.ibox {
+  float: left;
+  margin: 0 15px 0 0;
+}
+
+.limitbox {
+  max-height: 150px;
+  overflow: auto;
+  clear: both;
+}
+/* addproblem END */
 
 /* user START */
 ul.user-info {
@@ -149,6 +161,10 @@ h3.problem-header {
 }
 /* topic END */
 
+pre {
+  font-size: 14px;
+}
+
 .img_link {
   width: 16px;
   height: 16px;
@@ -246,6 +262,10 @@ a.put_down {
 
 .mc {
   margin: 0 auto;
+}
+
+.cb {
+  clear: both;
 }
 
 .center {
