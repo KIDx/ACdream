@@ -1,9 +1,7 @@
-var $imgform = $("#image_form");
-var $imgload = $('#imgload');
 var $imgerr = $('#imgerr');
 var $file = $('#file');
 var $upload = $('#upload');
-var $ui = $('#upload-info');
+var $ui = $('.upload_info');
 
 $(document).ready(function(){
   $upload.click(function(){
@@ -28,8 +26,7 @@ $(document).ready(function(){
           errAnimate($imgerr, '图片大小不得超过2m！');
           return false;
         }
-        $imgerr.text('');
-        $imgload.show();
+        showWaitting( $imgerr );
         data.submit();
       });
     },
@@ -46,7 +43,6 @@ $(document).ready(function(){
       if (tp) {
         errAnimate($imgerr, tp);
       }
-      $imgload.hide();
     }
   });
 });

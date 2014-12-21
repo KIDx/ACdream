@@ -3,31 +3,29 @@ if (user.imgType)
   - img = 'img/avatar/'+user.name+'/';
   - imgType = user.imgType;
 fieldset
-  div
-    legend 修改头像
-  .avatar_setting
-    .left(style="background: none")
-      img(src=img+"1."+imgType)
-    .right.fixed
-      .avatar_b
-        .img
-          img(src=img+"2."+imgType)
-        | 150X150像素
-      .avatar_m
-        .img
-          img(src=img+"3."+imgType)
-        | 75X75像素
-      .avatar_s
-        .img
-          img(src=img+"4."+imgType)
-        | 50X50像素
-  div(style="margin-left:350px;")
-    span.uibtn.upload-btn
-      span 选择文件
-      input#file(type="file" name="img" data-url="/avatar/upload")
-    span#upload-info.upload-info 未选择文件 (支持jpeg, jpg, png格式)
-  .form-horizontal
-    .form-actions
-      button#upload.uibtn 确认上传
-      span#imgerr.error-text
-      img#imgload.hide(style="height:22px;width=22px;" src="/img/loading.gif")
+  .block.block-info
+    .block-content
+      .heading 修改我的头像
+      .inner
+        .form-group
+          .row
+            .col-md-offset-3.col-md-3
+              img.img-250.img-round(src=img+"1."+imgType)
+              p 250X250
+            .col-md-2
+              img.img-150.img-round(src=img+"2."+imgType)
+              p 150X150
+            .col-md-4
+              img.img-75.img-round(src=img+"3."+imgType)
+              p 75X75
+              img.img-50.img-round(src=img+"4."+imgType)
+              p 50X50
+        .row
+          .col-md-offset-3.col-md-5
+            .form-group
+              include upload
+              +upload('file', 'img', '/avatar/upload')
+              span.user-gray 注意：仅支持jpeg, jpg, png格式
+            button#upload.btn.btn-default 确认上传
+            = ' '
+            span#imgerr.error-text
