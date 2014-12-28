@@ -1,6 +1,5 @@
 
 var router = require('express').Router();
-var crypto = require('crypto');
 
 var IDs = require('../models/ids.js');
 var Solution = require('../models/solution.js');
@@ -153,8 +152,7 @@ router.route('/')
   if (type == 2) {
     psw = req.body.psw ? '1' : '';
   } else if (req.body.psw) {
-    var md5 = crypto.createHash('md5');
-    psw = md5.update(req.body.psw).digest('base64');
+    psw = Comm.MD5(String(req.body.psw));
   }
 
   var pids = new Array();

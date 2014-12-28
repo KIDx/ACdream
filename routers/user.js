@@ -1,6 +1,5 @@
 
 var router = require('express').Router();
-var crypto = require('crypto');
 
 var User = require('../models/user.js');
 var Solution = require('../models/solution.js');
@@ -158,9 +157,6 @@ router.post('/changeInfo', function(req, res) {
     return res.end();  //not allow
   }
 
-  var md5 = crypto.createHash('md5');
-  var oldpassword = md5.update(oldpsw).digest('base64');
-
   User.watch(name, function(err, user){
     if (err) {
       LogErr(err);
@@ -170,7 +166,7 @@ router.post('/changeInfo', function(req, res) {
     if (!user) {
       return res.end();  //not allow
     }
-    if (oldpassword != user.password) {
+    if (Comm.MD5(String(oldpsw)) != user.password) {
       return res.end('1');
     }
     var H = {
@@ -180,8 +176,7 @@ router.post('/changeInfo', function(req, res) {
       signature : sig
     };
     if (psw) {
-      var Md5 = crypto.createHash('md5');
-      H.password = Md5.update(psw).digest('base64');
+      H.password = Comm.MD5(String(psw));
     }
     User.update({name: name}, H, function(err){
       if (err) {
@@ -212,7 +207,7 @@ router.post('/restorePsw', function(req, res) {
   if (!name) {
     return res.end();  //not allow
   }
-  User.update({name: name}, {$set: {password: crypto.createHash('md5').update('123456').digest('base64')}}, function(err){
+  User.update({name: name}, {$set: {password: Comm.MD5('123456')}}, function(err){
     if (err) {
       LogErr(err);
       req.session.msg = '系统错误！';

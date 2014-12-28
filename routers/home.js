@@ -1,9 +1,9 @@
 
 var router = require('express').Router();
-var crypto = require('crypto');
 var async = require('async');
 var Q = require('q');
 var verifyCode = require('verify-code');
+var redis = require('redis');
 
 var User = require('../models/user.js');
 var Contest = require('../models/contest.js');
@@ -85,9 +85,6 @@ router.post('/login', function(req, res) {
     return res.end();  //not allow
   }
 
-  var md5 = crypto.createHash('md5');
-  var password = md5.update(psw).digest('base64');
-
   User.watch(name, function(err, user) {
     if (err) {
       LogErr(err);
@@ -96,22 +93,8 @@ router.post('/login', function(req, res) {
     if (!user) {
       return res.end('1');
     }
-    if (user.password != password) {
+    if (user.password != Comm.MD5(psw)) {
       return res.end('2');
-    }
-    if (String(req.body.remember) === "true") {
-      var token = crypto.createHash('md5').update(String((new Date()).getTime())).digest('base64');
-      user.token = token;
-      res.cookie('loginInfo', {
-        username: user.name,
-        token: token,
-        img: user.imgType
-      }, {
-        httpOnly: true,
-        maxAge: 2592000000
-      });
-    } else {
-      res.clearCookie('loginInfo');
     }
     user.visTime = (new Date()).getTime();
     user.save(function(err){
@@ -119,15 +102,45 @@ router.post('/login', function(req, res) {
         LogErr(err);
         return res.end('3');
       }
-      req.session.user = user;
-      req.session.msg = 'Welcome, '+user.name+'. :)';
-      return res.end();
+      var Resp = function() {
+        req.session.user = user;
+        req.session.msg = 'Welcome, '+user.name+'. :)';
+        return res.end();
+      };
+      if (String(req.body.remember) === "true") {
+        var maxAge = 2592000000; //a month
+        var token = Comm.MD5(String(Math.random()));
+
+        var client = redis.createClient();
+        var key = 'expire_' + Comm.MD5(user.name) + '_' + token;
+        var val = String((new Date()).getTime() + maxAge);
+        //save token and expire time by redis
+        client.set(key, val, function(err){
+          client.quit();
+          if (err) {
+            return Resp(); //ignore
+          }
+          //save token to cookie for fast login
+          res.cookie('loginInfo', {
+            username: user.name,
+            token: token,
+            img: user.imgType
+          }, {
+            httpOnly: true,
+            maxAge: maxAge
+          });
+          return Resp();
+        });
+      } else {
+        res.clearCookie('loginInfo');
+        return Resp();
+      }
     });
   });
 });
 
 /*
- * 通过检查Cookie登录
+ * 通过检查Cookie中的token进行快速登录
  */
 router.post('/loginByToken', function(req, res) {
   res.header('Content-Type', 'text/plain');
@@ -139,7 +152,7 @@ router.post('/loginByToken', function(req, res) {
   var name = loginInfo.username;
   var token = loginInfo.token;
   if (!name || !token) {
-    res.clearCookie('info');
+    res.clearCookie('loginInfo');
     return res.end('1');
   }
 
@@ -148,19 +161,30 @@ router.post('/loginByToken', function(req, res) {
       LogErr(err);
       return res.end('3');
     }
-    if (!user || user.token !== token) {
-      res.clearCookie('info');
-      return res.end('1');
-    }
-    user.visTime = (new Date()).getTime();
-    user.save(function(err){
+    var client = redis.createClient();
+    var key = 'expire_' + Comm.MD5(user.name) + '_' + token;
+    //get token expire time
+    client.get(key, function(err, val){
+      client.quit();
       if (err) {
         LogErr(err);
         return res.end('3');
       }
-      req.session.user = user;
-      req.session.msg = 'Welcome, '+user.name+'. :)';
-      return res.end();
+      var expire_time = parseInt(val, 10);
+      if (!expire_time || (new Date()).getTime() > expire_time) {
+        res.clearCookie('loginInfo');
+        return res.end('1');
+      }
+      user.visTime = (new Date()).getTime();
+      user.save(function(err){
+        if (err) {
+          LogErr(err);
+          return res.end('3');
+        }
+        req.session.user = user;
+        req.session.msg = 'Welcome, '+user.name+'. :)';
+        return res.end();
+      });
     });
   });
 });
@@ -170,7 +194,6 @@ router.post('/loginByToken', function(req, res) {
  */
 router.post('/logout', function(req, res) {
   res.header('Content-Type', 'text/plain');
-
   if (!req.session.user) {
     return res.end();
   }

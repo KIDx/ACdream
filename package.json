@@ -29,6 +29,7 @@
     "gm": "*",
     "xss":"*",
     "connect-redis": "*",
+    "redis": "*",
     "grunt": "*",
     "grunt-contrib-jshint": "*",
     "grunt-contrib-nodeunit": "*",

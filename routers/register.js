@@ -1,6 +1,5 @@
 
 var router = require('express').Router();
-var crypto = require('crypto');
 
 var KEY = require('./key');
 var User = require('../models/user.js');
@@ -53,11 +52,9 @@ router.route('/')
     if (user) {
       return res.end('2');
     }
-    var md5 = crypto.createHash('md5');
-    var psw = md5.update(password).digest('base64');
     (new User({
       name: name,
-      password: psw,
+      password: Comm.MD5(password),
       regTime: (new Date()).getTime(),
       nick: nick,
       school: school,

@@ -6,7 +6,6 @@
 
 var router = require('express').Router();
 var async = require('async');
-var crypto = require('crypto');
 var xss = require('xss');
 
 var IDs = require('../models/ids.js');
@@ -752,9 +751,7 @@ router.post('/login', function(req, res){
       LogErr(err);
       return res.end();
     }
-    var md5 = crypto.createHash('md5');
-    psw = md5.update(req.body.psw).digest('base64');
-    if (psw == contest.password) {
+    if (Comm.MD5(String(req.body.psw)) == contest.password) {
       if (!req.session.cid) req.session.cid = {};
       req.session.cid[req.body.cid] = true;
       return res.end('1');

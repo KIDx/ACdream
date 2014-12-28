@@ -394,6 +394,7 @@ $(document).ready(function(){
           return ;
         } else if (res == '1') {
           Switch('登录信息过期，请重新登录！');
+          $dialog_lgbtk.length = 0;
         } else if (res == '3') {
           errAnimate($fast_login_err, '系统错误！');
         }

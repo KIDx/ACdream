@@ -1,5 +1,6 @@
 
 var Settings = require('../settings');
+var crypto = require('crypto');
 
 /*
  * 返回评测结果描述
@@ -379,11 +380,18 @@ exports.LogErr = LogErr;
 /*
  * 失败跳转处理
  */
-exports.FailRedirect = function(err, req, res){
+exports.FailRedirect = function(err, req, res) {
   if (err.message === '404') {
     return res.redirect('/404');
   }
   LogErr(err);
   req.session.msg = '系统错误！';
   return res.redirect('/');
+};
+
+/*
+ * MD5加密
+ */
+exports.MD5 = function(str) {
+  return crypto.createHash('md5').update(str).digest('base64');
 };
