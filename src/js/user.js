@@ -150,7 +150,8 @@ $(document).ready(function(){
         errAnimate($seterr, 'the length of signature should be no more than 200!');
         return false;
       }
-      $setsubmit.text('Submitting...').addClass('disabled');
+      showWaitting($seterr);
+      $setsubmit.addClass('disabled');
       $.ajax({
         type: 'POST',
         url: '/user/changeInfo',
@@ -165,7 +166,7 @@ $(document).ready(function(){
         },
         dataType: 'text',
         error: function() {
-          $setsubmit.text('Submit').removeClass('disabled');
+          $setsubmit.removeClass('disabled');
           errAnimate($seterr, '无法连接到服务器！');
         }
       }).done(function(res){
@@ -174,7 +175,7 @@ $(document).ready(function(){
         } else {
           window.location.reload(true);
         }
-        $setsubmit.text('Submit').removeClass('disabled');
+        $setsubmit.removeClass('disabled');
       });
     });
 

@@ -1,36 +1,36 @@
 mixin D_settings(u)
-  #dialog_st.jqmSubmit(name=u.name style="width:490px;height:470px;top:12%;")
+  #dialog_st.jqmSubmit(name=u.name style="width:550px;height:540px;top:12%;")
     .jqDrag.jqtop Settings
-    .jqcontent(style="width:490px;height:380px;padding-left:10px;")
-      .group(style="min-width:460px;")
-        div(style="width:250px;")
-          div
+    .jqcontent.container(style="width:550px;height:445px;")
+      .row
+        .col-sm-6
+          .form-group
             label(for="oldpassword") Old Password *
-            input#oldpassword(maxlength="50" type="password")
-          div
+            input#oldpassword.form-control.input-sm(type="password")
+          .form-group
             label(for="newpassword") New Password
-            input#newpassword(maxlength="50" type="password")
-            small.help-block.user-green(style="margin:0;") Leave it blank if not to change password
-          div
+            input#newpassword.form-control.input-sm(type="password")
+            small.help-block Leave it blank if not to change password
             label(for="password_repeat") Confirm New Password
-            input#password_repeat(maxlength="50" type="password")
-          div
+            input#password_repeat.form-control.input-sm(type="password")
+          .form-group
             label(for="set_nick") Nick Name *
-            input#set_nick(maxlength="50" type="text" value=u.nick ? u.nick : "")
-          div
+            input#set_nick.form-control.input-sm(type="text" value=u.nick ? u.nick : "")
+          .form-group
             label(for="set_school") School
-            input#set_school(maxlength="50" type="text" value=u.school ? u.school : "")
-          div
+            input#set_school.form-control.input-sm(type="text" value=u.school ? u.school : "")
+          .form-group
             label(for="set_email") Email
-            input#set_email(maxlength="50" type="text" value=u.email ? u.email : "")
-        div
+            input#set_email.form-control.input-sm(type="text" value=u.email ? u.email : "")
+        .col-sm-6
           label(for="signature") Signature
-          textarea#signature(maxlength="300" style="width:190px;height:280px;resize:none;")
+          textarea#signature.form-control.input-sm(style="height:360px;")
             if (u.signature)
               = u.signature
-      small#set_error.error-text
     .jqfoot
-      a#set_submit.uibtn(href="javascript:;") Submit
-      a.uibtn.setclose(href="javascript:;") Cancel
+      span.pull-right
+        a#set_submit.btn.btn-default(href="javascript:;") Submit
+        a.setclose.btn.btn-default(href="javascript:;") Cancel
+      small#set_error.error-text
     .jqResize
-    i.setclose.jqclose
+    i.setclose.jqclose.img_link

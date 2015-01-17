@@ -1169,7 +1169,7 @@ $(document).ready(function(){
   });
 
   if ($dialog_sm.length) {
-    var $submit_code = $dialog_sm.find('textarea');
+    var $submit_code = $dialog_sm.find('#submit_code');
     var $submit_err = $dialog_sm.find('#error');
     var $submit = $dialog_sm.find('#jqcodesubmit');
     var $alert = $dialog_sm.find('div.alert');
@@ -1184,7 +1184,7 @@ $(document).ready(function(){
       closeClass: 'submitclose',
       onShow: function(h) {
         $alert.hide();
-        $submit.text('Submit').removeClass('disabled');
+        $submit.removeClass('disabled');
         h.o.fadeIn(200);
         h.w.fadeIn(200, function(){
           $dialog_sm.find('textarea').focus();
@@ -1208,7 +1208,8 @@ $(document).ready(function(){
         $alert.slideDown();
         return false;
       }
-      $submit.text('Submitting...').addClass('disabled');
+      showWaitting($submit_err);
+      $submit.addClass('disabled');
       $.ajax({
         type: 'POST',
         url: '/submit',
@@ -1220,8 +1221,8 @@ $(document).ready(function(){
         },
         dataType: 'text',
         error: function() {
-          $submit.text('Submit').removeClass('disabled');
-          ShowMessage('无法连接到服务器！');
+          $submit.removeClass('disabled');
+          errAnimate($submit_err, '无法连接到服务器！');
         }
       }).done(function(err){
         $dialog_sm.jqmHide();

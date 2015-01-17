@@ -1,22 +1,26 @@
 mixin D_submit(langs)
   #dialog_sm.jqmSubmit(style="height:585px;width:500px;top:5%;")
-    .jqDrag.jqtop Submit your code here
-    .jqcontent(style="height:490px;width:500px;")
-      div(style="width:490px;overflow:hidden;")
-        div(style="width:290px;float:left;")
-          = 'Problem: '
-          span#pid.user-green
-        div(style="width:200px;float:right;")
-          = 'Language: '
-          include lang
-          +lang(langs, null)
-      span#error.error-text
-      div(style="padding:0;") Source Code
-      textarea.jqtext(style="width:440px;height:370px;margin:10px 10px 0 10px;")
-    .alert.alert-error(style="position:absolute;margin:0 50px 0 40px;bottom:100px;")
+    .jqDrag.jqtop Submit your CODE here
+    .jqcontent.container(style="height:490px;width:500px;")
+      .row.form-group
+        .col-sm-6
+          .input-group.input-group-sm
+            .input-group-addon Problem
+            span#pid.form-control.user-green
+        .col-sm-6
+          .input-group.input-group-sm
+            .input-group-addon Language
+            include lang
+            +lang(langs, null)
+      .form-group
+        label(for="submit_code") Source Code
+        textarea#submit_code.form-control(style="height:390px;")
+    .alert.alert-danger(style="position:absolute;margin:0 50px 0 40px;bottom:100px;")
       include i64_info
-    .jqfoot(align="right")
-      a#jqcodesubmit.uibtn(href="javascript:;") Submit
-      a.uibtn.submitclose(href="javascript:;") Cancel
+    .jqfoot
+      span.pull-right
+        a#jqcodesubmit.btn.btn-default(href="javascript:;") Submit
+        a.submitclose.btn.btn-default(href="javascript:;") Cancel
+      small#error.error-text
     .jqResize
-    i.submitclose.jqclose
+    i.submitclose.jqclose.img_link

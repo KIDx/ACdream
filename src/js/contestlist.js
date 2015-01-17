@@ -122,7 +122,8 @@ $(document).ready(function(){
             errAnimate($err, 'the password can not be empty!');
             return false;
           }
-          $submit.text('Logging in...').addClass('disabled');
+          showWaitting($err);
+          $submit.addClass('disabled');
           $.ajax({
             type: 'POST',
             url: '/contest/login',
@@ -132,7 +133,7 @@ $(document).ready(function(){
             },
             dataType: 'text',
             error: function() {
-              $submit.text('Login').removeClass('disabled');
+              $submit.removeClass('disabled');
               errAnimate($err, '无法连接到服务器！');
             }
           }).done(function(res){
@@ -140,7 +141,7 @@ $(document).ready(function(){
               window.location.href = '/contest?cid='+cid;
               return ;
             }
-            $submit.text('Login').removeClass('disabled');
+            $submit.removeClass('disabled');
             errAnimate($err, 'the password is not correct!');
           });
         });

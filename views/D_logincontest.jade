@@ -1,12 +1,13 @@
 #dialog_lc.jqmSubmit(style="width:400px;height:190px;top:25%;")
   .jqDrag.jqtop Login contest
-  .jqcontent(style="width:390px;height:100px;padding-left:10px;")
-    div(style="padding-top:10px;")
-      label(for="contest_password", style="font-size:12px;") Password *
-      input#contest_password.jqtext(type="password", style="width:370px;")
-    small#contest_error.error-text
+  .jqcontent.container(style="width:390px;height:100px;")
+    .form-group
+      label(for="contest_password") Password *
+      input#contest_password.form-control.input-sm(type="password")
   .jqfoot
-    a#contest_submit.uibtn(href="javascript:;") Login
-    a.uibtn.contestclose(href="javascript:;") Cancel
+    span.pull-right
+      a#contest_submit.btn.btn-default(href="javascript:;") Login
+      a.contestclose.btn.btn-default(href="javascript:;") Cancel
+    small#contest_error.error-text
   .jqResize
-  i.contestclose.jqclose
+  i.contestclose.jqclose.img_link

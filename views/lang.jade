@@ -1,5 +1,5 @@
 mixin lang(langs)
-  select#lang.form-control
+  select#lang.form-control.input-sm
     each val, i in langs
       if (i > 0)
         option(value=i selected=(i == 2 ? true : false))= val
