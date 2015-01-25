@@ -71,7 +71,7 @@ var $contain = $('#info-contain');
 var $lefttime = $('#lefttime');
 
 function buildPager(page, n) {
-  var cp = 5, html = '<ul>';
+  var cp = 5, html = '';
   var i = page - 2; if (i <= 0) i = 1;
 
   html += '<li id="1"';
@@ -92,15 +92,14 @@ function buildPager(page, n) {
   if (i < n) html += '<li class="disabled"><a href="javascript:;">...</a></li>';
   html += '<li id="'+n+'"';
   if (n == 0 || page == n) html += ' class="disabled"';
-  html += '><a href="javascript:;">&gt&gt</a></li></ul>';
+  html += '><a href="javascript:;">&gt&gt</a></li>';
   return html;
 }
 
 var $status = $div.find('#statustab');
-var $list = $('#list');
+var $list = $('#list ul');
 var $list_a;
-var $tablebg = $('div.tablebg');
-var $tbody = $tablebg.find('#statustable tbody');
+var $tbody = $status.find('#statustable tbody');
 var $search = $('#search');
 var $pid = $('#pid');
 var $result = $('#result');
@@ -422,7 +421,7 @@ function ShowProblem(prob) {
   var tcon = '';
   for (i = 0; i < S.length; i++) {
     if (!q[i]) continue;
-    tcon += '<h4>'+S[i]+'</h4><div class="accordion-inner">';
+    tcon += '<h4>'+S[i]+'</h4><div class="prob-content">';
     if (i === 3 || i === 4) {
       tcon += '<pre class="sample">'+escapeHtml(q[i])+'</pre>';
     } else {

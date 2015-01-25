@@ -11,29 +11,26 @@ if (pending > 0)
 else if (pending + contest.len*60 > 0)
   - c = 'wrong';
   - s = 'Running';
-  - ps = 'progress-danger';
+  - ps = 'progress-bar-danger';
 else
   - c = 'accept';
   - s = 'Ended';
-  - ps = 'progress-success';
+  - ps = 'progress-bar-success';
 
 fieldset#widthfix
-  div
-    legend#contest 比赛
   each p, i in contest.probs
     - ++probNum;
     span.cpid(pid=p[0] alias=p[1] ? p[1] : "")
-  .marquee
-    marquee#marquee(onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
+  .alert.alert-info
+    h3.mc.center= contest.title
+    marquee#marquee.bold.error-text(onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
       != contest.msg
-  div
-    h3.problem-header= contest.title
-  div#contest-info(style="float:left;text-align:right;") &nbsp;
-  div#progress(class="contest_progress progress progress-striped active cb "+ps)
-    .bar
+    #contest-info(style="float:left;")!= '&nbsp;'
+    .progress.cb(style="height:20px;")
+      .progress-bar.progress-bar-striped.active(class=ps style="width:100%;")
   #thumbnail.tabbable.thumbnail
-    span.fr.user.user-green(style="margin: 10px;") 罚时：#{contest.penalty}分钟/次
-    ul.nav.nav-tabs
+    span.pull-right.user.user-green(style="margin: 10px;") 罚时：#{contest.penalty}分钟/次
+    ul.nav.nav-tabs(style="padding-top:5px;")
       li(style="padding-left:10px;")
         a.tablink(href="#overview")
           span Overview
@@ -52,7 +49,7 @@ fieldset#widthfix
           sup#discuss_tips.tips.hide
     .tab-content
       //overviewtab
-      #overviewtab.tab-pane
+      #overviewtab
         div(style="margin: 0 18%;")
           table#overviewtable.table.table-head.thright
             tr
@@ -97,8 +94,10 @@ fieldset#widthfix
                   a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
         .row-fluid(align="center" style="margin-bottom:15px;")
           if (isManager)
-            a.uibtn(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(contest.family ? "&family="+contest.family : "")) Edit
-            a#delete.uibtn(href="javascript:;") Delete
+            a.btn.btn-default.btn-sm(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(contest.family ? "&family="+contest.family : "")) Edit
+            = ' '
+            a#delete.btn.btn-default.btn-sm(href="javascript:;") Delete
+            = ' '
           - var clone_url = "/addcontest?cID=-"+contest.contestID+"&type=1";
           - var clone_desc = "To create a DIY Contest with the same problems.";
           if (user)
@@ -109,18 +108,19 @@ fieldset#widthfix
             #beforecontest.user-gray(style="text-align:center;font-size:1.75em;margin:100px;display:none;")
               = 'Before Contest '
               span#lefttime
-        #problemsview.hidden
-          .tablebg
-            .theader Problem List
-            #tablediv
-              table#problems.table.table-cf
+        #problemsview.hidden.mc(style="width:75%;")
+          .block.block-info
+            .heading Problem List
+            .table-responsive
+              table#problems.table.table-bordered(style="min-width:550px;")
                 thead
-                  tr
+                  tr.even
                     th(style="width:70px;") #
-                    th.end.hidden(style="width:50px;")
+                    th.end.hidden(style="width:70px;")
                     th Name
-                    th(style="width:70px;")
+                    th(style="width:90px;")
                     th(style="width:90px;") Solved
+                tbody
                   each p, i in contest.probs
                     tr(class=i % 2 == 0 ? "odd" : "even")
                       td.center.bold.o_index= F[i]
@@ -128,7 +128,7 @@ fieldset#widthfix
                         a(target="_blank" href="/problem?pid="+p[0])= p[0]
                       td
                         if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
-                          a.fr.uibtn.uibtn-mini.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
+                          a.pull-right.btn.btn-default.btn-xs.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
                         a(href="#problem-"+F[i])= p[1] ? p[1] : Pt[p[0]].title
                       td.op_submit
                         a.submit.img_link(href="javascript:;" pid=p[0] tname=Pt[p[0]].title title="Submit")
@@ -137,9 +137,9 @@ fieldset#widthfix
             .des-box
               p= contest.description
       //problemtab
-      #problemtab.row-fluid.tab-pane
-        .pagination.pagination-centered
-          ul
+      #problemtab
+        .center
+          ul.pagination
             each prob, i in contest.probs
               li.problemlink
                 a(href="#problem-"+F[i])= F[i]
@@ -150,51 +150,56 @@ fieldset#widthfix
               = ' - '
               span
             div(style="padding-bottom:8px;")
-              b= 'Time Limit: '
+              span= 'Time Limit: '
               span.limit
-              = 'MS (Java/Others)     '
-              b= 'Memory Limit: '
+              = 'MS (Java/Others)'
+              != '&nbsp;&nbsp;&nbsp;&nbsp;'
+              span= 'Memory Limit: '
               span.limit
               = 'KB (Java/Others)'
               span.user.user-red.limit
             #pids
-              a#probsubmit.uibtn.submit(href="javascript:;") Submit
-              a.uibtn(href="javascript:;") Status
+              a#probsubmit.btn.btn-default.btn-sm.submit(href="javascript:;") Submit
+              = ' '
+              a.btn.btn-default.btn-sm(href="javascript:;") Status
               if (user && user.name == 'admin')
-                a#rejudge.uibtn(href="javascript:;") Rejudge
+                = ' '
+                a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
           #content(style="padding:15px 40px;")
           div(align="center" style="padding-bottom:20px;")
-            a#probsubmit2.uibtn.submit(href="javascript:;") Submit
-            a.uibtn(href="javascript:;") Status
+            a#probsubmit2.btn.btn-default.btn-sm.submit(href="javascript:;") Submit
+            = ' '
+            a.btn.btn-default.btn-sm(href="javascript:;") Status
       //statustab
-      #statustab.tab-pane(style="margin: 0 10px;")
-        .tablebg
-          #pager
-            #list.pagination.pagination-small.fl
-            #filter.fr
-              .input-prepend
-                span.add-on Name
-                input#search(type="text" placeholder=" username")
-              .input-prepend
-                span.add-on Problem
-                select#pid(style="width:160px;")
+      #statustab(style="margin:10px;")
+        .block.block-info
+          .heading.form-inline
+            .pull-right
+              .input-group.input-group-sm
+                span.input-group-addon name
+                input#search.form-control(type="text" placeholder="UserName")
+              = ' '
+              .input-group.input-group-sm
+                span.input-group-addon problem
+                select#pid.form-control
                   option(value="nil") All
                   each p, i in contest.probs
                     option(value=F[i])= F[i]+" - "+Pt[p[0]].title
-              .input-prepend
-                span.add-on Verdict
-                select#result(style="width:160px;")
+              = ' '
+              .input-group.input-group-sm
+                span.input-group-addon verdict
+                select#result.form-control
                   option(value="nil") All
                   each p in [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]
                     option(class=Col(p) value=p)= Res(p)
-              div
-                a#fil.uibtn.uibtn-mini(href="javascript:;") Filter
-              div
-                a#reset.uibtn.uibtn-mini(href="javascript:;") Reset
-          #tablediv
-            table#statustable.table.table-cf
+              = ' '
+              a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+              = ' '
+              a#reset.btn.btn-default.btn-sm(href="javascript:;") Reset
+          .table-responsive
+            table#statustable.table.table-bordered.tdcenter
               thead
-                tr
+                tr.even
                   th(style="width:7%;") RunID
                   th(style="width:14%;") User
                   th(style="width:10%;") Problem
@@ -205,9 +210,15 @@ fieldset#widthfix
                   th(style="width:8%;") Length
                   th(style="width:15%;") Submit Time
               tbody
+              tfoot
+                tr.odd
+                  td(colspan="9")
+                    #pager
+                      #list
+                        ul.pagination.pagination-sm
       //ranktab
       - var mw = 6 + 41 + 181 + 81 + 41 + 61 + 81*probNum;
-      #ranktab.tab-pane(style="margin:0px 10px;")
+      #ranktab(style="margin:0px 10px;")
         #rankheader(style="width:"+(mw-6)+"px")
           table.table.table-rank
             include rankheader
@@ -220,9 +231,9 @@ fieldset#widthfix
         if (isManager)
           if (contest.type == 2)
             .form-inline
-              button#calrating.btn 统计本场比赛Rating
+              button#calrating.btn.btn-default 统计本场比赛Rating
               = ' '
-              button#resetrating.btn 撤销本场比赛Rating
+              button#resetrating.btn.btn-default 撤销本场比赛Rating
           .form-inline
             input#starstr.input-xxlarge(type="text" placeholder="用户名" title="用户名")
             = ' '
@@ -230,19 +241,19 @@ fieldset#widthfix
               option(value="1") 给他们打星
               option(value="2") 取消打星
             = ' '
-            button#star.btn 提交
+            button#star.btn.btn-default 提交
             = ' '
             small.user-gray PS: 多个用户请用空格隔开
             span#starerr.error-text
           .form-inline
             input#msg_data.input-xxlarge(type="text" placeholder="在此填写消息内容" title="在此填写消息内容")
             = ' '
-            button#broadcast.btn 广播消息
+            button#broadcast.btn.btn-default 广播消息
             span#msg_err.error-text
         .tablebg(style="width:"+mw+"px")
           .fr(style="margin:5px;")
             span#gtime.user.user-gray= 'The Rank will be updated every 30 seconds '
-            a#rank_refresh.uibtn.uibtn-mini(href="javascript:;") 刷新一下
+            a#rank_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
           #ranklist.pagination.pagination-small
           #tablediv
             table.table.table-rank.tdcenter
@@ -254,10 +265,10 @@ fieldset#widthfix
                 include rankfooter
                 +rankfooter(probNum, F, false)
       //discusstab
-      #discusstab.tab-pane(style="margin:0px 10px;")
+      #discusstab(style="margin:0px 10px;")
         .tablebg
           .fr(style="margin:5px;")
-            a#discuss_refresh.uibtn.uibtn-mini(href="javascript:;") 刷新一下
+            a#discuss_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
           div#dislist.pagination.pagination-small
           #tablediv
             table#contest.table(style="table-layout:fixed;")
@@ -295,11 +306,11 @@ fieldset#widthfix
                   textarea#publish_content(rows="5" style="width:400px;")
               .control-group
                 .controls
-                  a#publish.uibtn(style="margin:0;" href="javascript:;") 发表
+                  a#publish.btn.btn-default.btn-sm(style="margin:0;" href="javascript:;") 发表
                   span#publish_err.error-text
-      #loading.mc.hide(style="width:287px;")
+      #loading.mc(style="width:287px;display:none;")
         img(src="/img/Loading.gif" alt="Loading...")
-      #retry.mc.hide.alert.alert-error(style="width:287px;font-size:32px;padding:100px;text-align:center;")
+      #retry.alert.alert-danger.center.mc(style="width:450px;font-size:32px;padding:100px;;margin-top:15px;display:none;")
         | 请求失败，
         a(href="javascript:;") 重试
 script(type="text/javascript").

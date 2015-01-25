@@ -23,12 +23,6 @@ td.first_blood {
   background: #65bb81;
 }
 
-.marquee {
-  color: #D33F74;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
 .no {
   text-decoration: line-through
 }
@@ -608,35 +602,6 @@ div.tablebg div#filter input:focus {
   background: url('img/search.png');
 }
 
-ul.nav-tabs {
-  border-radius: 6px 6px 0 0;
-  padding-top: 4px;
-  background: url('img/tab.png') repeat-x scroll 0 -43px transparent;
-}
-
-ul.nav-tabs > li > a{
-  margin-right: 4px;
-  color: #666;
-}
-
-ul.nav-tabs > li.active > a,
-ul.nav-tabs > li > a:hover{
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-ul.nav-tabs > li.active > a,
-ul.nav-tabs > li.active > a:hover {
-  color: #333;
-  border-bottom-color: #fff;
-  background: url('img/tab.png') repeat-x scroll 0 -2px white;
-}
-
-ul.nav-tabs > li > a:hover {
-  color: #333;
-  background: #d6d6d6;
-}
-
 .img {
   border: 1px solid #ddd;
 }
@@ -747,59 +712,10 @@ div.avatar {
   margin: 4px 0;
 }
 
-.progress {
-  background-color: #e5e5e5;
-  margin: 0;
-  height: 15px;
-}
-
-.progress .bar {
-  width: 100%;
-  z-index: 100;
-}
-
-.contest_progress {
-  margin-bottom: 10px;
-}
-
-td .progress {
-  margin: 0;
-}
-
 /**************bootstrap fixed**************/
-
-legend{
-  color: #666;
-}
-
-.table-cf thead th {
-  padding: 0.45em;
-}
-
-.table-cf td {
-  padding: 0.7em;
-}
-
-.table-cf th,
-.table-cf td {
-  border-left: 1px solid #e1e1e1;
-}
-
-table.parity thead {
-  background-color: white;
-}
 
 #wrapper {
   min-height: 101%;
-}
-
-#problemsview {
-  margin: 0 13%;
-}
-
-.my-table-bordered th,
-.my-table-bordered td {
-  border-left: 1px solid #e1e1e1;
 }
 
 table.table-head {

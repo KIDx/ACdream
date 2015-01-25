@@ -161,6 +161,17 @@ h3.problem-header {
 }
 /* topic END */
 
+/* contest START */
+#problemtab ul.pagination > li > a {
+  width: 38px;
+}
+/* contest END */
+
+.progress {
+  margin: 0;
+  height: 15px;
+}
+
 pre {
   font-size: 14px;
 }
