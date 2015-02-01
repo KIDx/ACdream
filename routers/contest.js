@@ -622,7 +622,7 @@ router.post('/addDiscuss', function(req, res){
   res.header('Content-Type', 'text/plain');
   if (!req.session.user) {
     req.session.msg = '请先登录！';
-    return res.end('2');    //refresh
+    return res.end('1');    //refresh
   }
   var title = clearSpace(req.body.title);
   var content = clearSpace(req.body.content);
@@ -634,16 +634,15 @@ router.post('/addDiscuss', function(req, res){
   Contest.watch(cid, function(err, con){
     if (err) {
       LogErr(err);
-      return res.end('1');
+      return res.end('3');
     }
     if (con.type == 2 && name != con.userName && !isRegCon(con.contestants, name)) {
-      req.session.msg = '发表失败！你还没注册该比赛！';
-      return res.end('2');  //refresh
+      return res.end('2');
     }
     IDs.get('topicID', function(err, id){
       if (err) {
         LogErr(err);
-        return res.end('1');
+        return res.end('3');
       }
       (new Topic({
         id: id,
@@ -652,12 +651,14 @@ router.post('/addDiscuss', function(req, res){
         cid: cid,
         user: req.session.user.name,
         inDate: (new Date()).getTime()
-      })).save(function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('1');
-        }
+      }))
+      .save()
+      .then(function(){
         return res.end();
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end('3');
       });
     });
   });
@@ -672,6 +673,15 @@ router.post('/discuss', function(req, res){
   if (!cid) {
     return res.end();   //not allow
   }
+  var page;
+  if (!req.body.page) {
+    page = 1;
+  } else {
+    page = parseInt(req.body.page, 10);
+  }
+  if (!page || page < 0) {
+    return res.end();  //not allow
+  }
   Contest.watch(cid, function(err, contest){
     if (err) {
       LogErr(err);
@@ -680,56 +690,45 @@ router.post('/discuss', function(req, res){
     if (!contest) {
       return res.end();  //not allow
     }
-    var page;
-    page = parseInt(req.body.page, 10);
-    if (!page) {
-      page = 1;
-    } else if (page < 0) {
-      return res.end();  //not allow
-    }
-    Topic.get({cid: cid}, page, function(err, topics, n){
-      if (err) {
-        LogErr(err);
-        return res.end(); //not refresh
-      }
-      if (n < 0) {
-        return res.end(); //not allow
-      }
-      var names = new Array(), tps = new Array(), I = {}, has = {};
-      if (topics) {
-        topics.forEach(function(p){
-          if (!has[p.user]) {
-            names.push(p.user);
-            has[p.user] = true;
-          }
-          if (p.lastReviewer && !has[p.lastReviewer]) {
-            names.push(p.lastReviewer);
-            has[p.lastReviewer] = true;
-          }
-          tps.push({
-            id: p.id,
-            title: p.title,
-            user: p.user,
-            reviewsQty: p.reviewsQty,
-            browseQty: p.browseQty,
-            lastReviewer: p.lastReviewer,
-            lastReviewTime: Comm.getTime(p.lastReviewTime),
-            lastComment: p.lastComment
-          });
+    Response = {};
+    Topic.get({cid: cid}, page)
+    .then(function(o){
+      var names = [], has = {}, tps = [];
+      o.topics.forEach(function(p){
+        if (!has[p.user]) {
+          names.push(p.user);
+          has[p.user] = true;
+        }
+        if (p.lastReviewer && !has[p.lastReviewer]) {
+          names.push(p.lastReviewer);
+          has[p.lastReviewer] = true;
+        }
+        tps.push({
+          id: p.id,
+          title: p.title,
+          user: p.user,
+          reviewsQty: p.reviewsQty,
+          browseQty: p.browseQty,
+          lastReviewer: p.lastReviewer,
+          lastReviewTime: Comm.getTime(p.lastReviewTime),
+          lastComment: p.lastComment
         });
-      }
-      User.find({name: {$in: names}}, function(err, users){
-        if (err) {
-          LogErr(err);
-          return res.end();  //not refresh
-        }
-        if (users) {
-          users.forEach(function(p){
-            I[p.name] = p.imgType;
-          });
-        }
-        res.json([tps, n, I]);
       });
+      Response.topics = tps;
+      Response.totalPage = o.totalPage;
+      return User.qfind({name: {$in: names}});
+    })
+    .then(function(users){
+      var I = {};
+      users.forEach(function(p){
+        I[p.name] = p.imgType;
+      });
+      Response.imgFormat = I;
+      return res.json(Response);
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end();
     });
   });
 });

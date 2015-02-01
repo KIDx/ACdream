@@ -65,9 +65,8 @@ var alias = new Array();
 var passTime = -pending;
 
 var $progress = $('#progress');
-var $bar = $progress.children('div.bar');
+var $bar = $progress.children('.progress-bar');
 var $info = $('#contest-info');
-var $contain = $('#info-contain');
 var $lefttime = $('#lefttime');
 
 function buildPager(page, n) {
@@ -523,7 +522,7 @@ function GetProblem() {
 var $rank = $div.find('#ranktab');
 var $rankheader = $rank.find('#rankheader');
 var $rankfooter = $rank.find('#rankfooter');
-var $ranktable = $rank.find('#tablediv');
+var $ranktable = $rank.find('#ranktable');
 var $ranktbody = $ranktable.find('tbody');
 var $ranklist = $rank.find('#ranklist');
 var $ranklist_a;
@@ -760,26 +759,21 @@ function buildDiscuss(p) {
     }
     return '/img/avatar/%3Ddefault%3D/4.jpeg';
   }
-  var html = '<tr';
-  if (current_user == p.user) {
-    html += ' class="highlight"';
-  }
-  html += '><td><a target="_blank" href="/user/'+p.user+'">';
-  html += '<img class="img_s topic_img" title="'+p.user+'" alt="'+p.user+'" src="'+getImg(p.user)+'" />'
-  html += '</a></td><td>';
-  html += '<span class="user-green">'+p.reviewsQty+'</span><span class="user-gray">/'+p.browseQty+'</span>';
-  html += '</td><td style="text-align:left;" class="ellipsis">';
-  html += '<a target="_blank" href="/topic?tid='+p.id+'">'+escapeHtml(p.title)+'</a></td>';
+  var html = '<tr>';
+  html += '<td class="avatar">';
+  html += '<img class="img-50 img-round " title="'+p.user+'" alt="'+p.user+'" src="'+getImg(p.user)+'"/>';
+  html += '</td>';
   html += '<td>';
+  html += '<div class="title"><a target="_blank" href="/topic?tid='+p.id+'">'+p.title+'</a></div>'
+  html += '<div class="footer">';
+  html += '作者：<a href="/user/'+p.user+'">'+p.user+'</a>';
   if (p.lastReviewer) {
-    html += '<a class="topic_timer" target="_blank" href="/topic?tid='+p.id+'#'+p.lastComment+'">';
-    html += '<img class="img_ss" title="'+p.lastReviewer+'" alt="'+p.lastReviewer+'" src="'+getImg(p.lastReviewer)+'">';
-    html += '<span>'+p.lastReviewTime+'</span>';
-    html += '</a>';
-  } else {
-    html += '<span class="user-gray fr">'+p.lastReviewTime+'</span>';
+    html += ' / 最新回复：<a href="/topic?tid='+p.id+'#'+p.lastComment+'">'+p.lastReviewer+' @ '+p.lastReviewTime+'</a>';
   }
-  html += '</td></tr>';
+  html += '</div>';
+  html += '</td>';
+  html += '<td class="state">'+p.reviewsQty+'</td>';
+  html += '</tr>';
   return html;
 }
 
@@ -792,12 +786,12 @@ function DiscussResponse(json) {
     setRetry(GetDiscuss);
     return ;
   }
-  Imgtype = json.pop();
-  var n = json.pop(), tps = json.pop();
+  Imgtype = json.imgFormat ? json.imgFormat : {};
+  var n = json.totalPage, tps = json.topics;
   $dislist.html(buildPager(discussQ.page, n));
   var html;
-  if (!tps || tps.length == 0) {
-    html = '<tr class="odd"><td class="error-text" colspan="6">No Records are matched.</td></tr>';
+  if (!tps || tps.length === 0) {
+    html = '<tr class="odd"><td class="error-text" colspan="3">No Records are matched.</td></tr>';
   } else {
     cnt = 1;
     html = $.map(tps, buildDiscuss).join('');
@@ -1010,7 +1004,6 @@ function runningTimer() {
     toEnded();
   } else {
     var tp = passTime*100.0/duration;
-    if (tp > 50) $contain.css({'text-align':'left'});
     $bar.css({width:tp+'%'});
     $info.css({width:(100<=tp+5)?'100%':tp+5+'%'});
     $info.text('-'+deal(duration - passTime));
@@ -1407,10 +1400,12 @@ $(document).ready(function(){
         ChangeScrollTop(200);
         socket.emit('addDiscuss', cid);
       } else if (res == '1') {
-        ShowMessage('系统错误！');
-      } else if (res == '2') {
         window.location.href = '/';
         return ;
+      } else if (res == '2') {
+        ShowMessage('发表失败！你还没注册该比赛！');
+      } else if (res == '3') {
+        ShowMessage('系统错误！');
       }
       $publish.removeClass('disabled');
     });

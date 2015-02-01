@@ -21,15 +21,34 @@ fieldset#widthfix
   each p, i in contest.probs
     - ++probNum;
     span.cpid(pid=p[0] alias=p[1] ? p[1] : "")
-  .alert.alert-info
-    h3.mc.center= contest.title
-    marquee#marquee.bold.error-text(onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
+  .box.box-inner
+    h3.mc.center(style="color:#3069BE")= contest.title
+    marquee#marquee.error-text(onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
       != contest.msg
-    #contest-info(style="float:left;")!= '&nbsp;'
-    .progress.cb(style="height:20px;")
+    .row
+      .col-sm-4 Penalty: #{contest.penalty} minutes
+      .col-sm-4.center
+        if (contest.type === 2)
+          - var c1, c2, c3;
+          - c1 = c2 = c3 = "display:none;";
+          if (reg_state === 0)
+            - c1 = '';
+          else if (reg_state === 1)
+            - c2 = '';
+          else if (reg_state === 2)
+            - c3 = '';
+          span#reg_completed.user-green(style=c1) Registration Completed
+          a#register(href="javascript:;" style=c2)= "Register Now !!!"
+          span#reg_close.user-gray(style=c3 title="已关闭注册") Registration Closed
+      if (contest.type === 2)
+        .col-sm-4(style="text-align:right;")
+          = 'Contestants: '
+            img(src="/img/user.png")
+            a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
+    #progress.progress.cb(style="height:20px;")
       .progress-bar.progress-bar-striped.active(class=ps style="width:100%;")
-  #thumbnail.tabbable.thumbnail
-    span.pull-right.user.user-green(style="margin: 10px;") 罚时：#{contest.penalty}分钟/次
+    #contest-info.pull-left(style="text-align:right;")!= '&nbsp;'
+  #thumbnail.box(style="min-height:600px;")
     ul.nav.nav-tabs(style="padding-top:5px;")
       li(style="padding-left:10px;")
         a.tablink(href="#overview")
@@ -46,53 +65,36 @@ fieldset#widthfix
       li.hidden
         a.tablink(href="#discuss")
           span Discuss
-          sup#discuss_tips.tips.hide
-    .tab-content
+          = ' '
+          sup#discuss_tips.badge(style="display:none;")
+    div(style="padding:15px 10px;overflow:visible;")
       //overviewtab
       #overviewtab
-        div(style="margin: 0 18%;")
-          table#overviewtable.table.table-head.thright
-            tr
-              th(width="20%") Current Time:
-              td#contest_current.bold.user-gray
-              th(width="21%") Contest Type:
-              td
-                if (contest.password)
-                  span.user.user-green Private
-                else
-                  span.user.user-blue Public
-            tr
-              th Start Time:
-              td#start_time.bold.user-gray= getDate(startTime)
-              th Contest Status:
-              td#conteststatus(class="bold "+c+"-text")= s
-            tr
-              th End Time:
-              td#end_time.bold.user-gray= getDate(startTime+contest.len*60000)
-              th Manager:
-              td
-                a(class="user user-"+MC title=MT+" "+contest.userName href="/user/"+contest.userName)
-                  = contest.userName
-            if (contest.type === 2)
+        .mc(style="width:60%;")
+          .table-responsive
+            table#overviewtable.table(style="min-width:500px;")
               tr
-                th Register State:
+                th(width="20%") Current Time:
+                td#contest_current
+                th(width="21%") Contest Type:
                 td
-                  - var c1, c2, c3;
-                  - c1 = c2 = c3 = "display:none;";
-                  if (reg_state === 0)
-                    - c1 = '';
-                  else if (reg_state === 1)
-                    - c2 = '';
-                  else if (reg_state === 2)
-                    - c3 = '';
-                  span#reg_completed.user.user-green(style=c1) Registration Completed
-                  a#register.register(href="javascript:;" style=c2 title="点击注册")= "Register >>"
-                  span#reg_close.user.user-gray(style=c3 title="已关闭注册") Registration Closed
-                th Contestants:
+                  if (contest.password)
+                    span.user-green Private
+                  else
+                    span.user-blue Public
+              tr
+                th Start Time:
+                td#start_time= getDate(startTime)
+                th Contest Status:
+                td#conteststatus(class=c+"-text")= s
+              tr
+                th End Time:
+                td#end_time= getDate(startTime+contest.len*60000)
+                th Manager:
                 td
-                  img(src="/img/user.png")
-                  a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
-        .row-fluid(align="center" style="margin-bottom:15px;")
+                  a(class="user user-"+MC title=MT+" "+contest.userName href="/user/"+contest.userName)
+                    = contest.userName
+        .center(style="margin-bottom:15px;")
           if (isManager)
             a.btn.btn-default.btn-sm(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(contest.family ? "&family="+contest.family : "")) Edit
             = ' '
@@ -144,12 +146,12 @@ fieldset#widthfix
               li.problemlink
                 a(href="#problem-"+F[i])= F[i]
         #prob-contain.istyle
-          div(align="center")
+          .center
             h3#problem_title.problem-header
               span.user-green
               = ' - '
               span
-            div(style="padding-bottom:8px;")
+            div(style="margin-bottom:8px;")
               span= 'Time Limit: '
               span.limit
               = 'MS (Java/Others)'
@@ -165,13 +167,13 @@ fieldset#widthfix
               if (user && user.name == 'admin')
                 = ' '
                 a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
-          #content(style="padding:15px 40px;")
-          div(align="center" style="padding-bottom:20px;")
+          #content(style="padding:15px 25px;")
+          .center.form-group
             a#probsubmit2.btn.btn-default.btn-sm.submit(href="javascript:;") Submit
             = ' '
             a.btn.btn-default.btn-sm(href="javascript:;") Status
       //statustab
-      #statustab(style="margin:10px;")
+      #statustab
         .block.block-info
           .heading.form-inline
             .pull-right
@@ -217,14 +219,15 @@ fieldset#widthfix
                       #list
                         ul.pagination.pagination-sm
       //ranktab
-      - var mw = 6 + 41 + 181 + 81 + 41 + 61 + 81*probNum;
-      #ranktab(style="margin:0px 10px;")
-        #rankheader(style="width:"+(mw-6)+"px")
-          table.table.table-rank
-            include rankheader
-            +rankheader(probNum, F)
-        #rankfooter(style="width:"+(mw-6)+"px")
-          table.table.table-rank.tdcenter(style="margin:0;")
+      - var mw = 41 + 181 + 81 + 41 + 61 + 81*probNum;
+      #ranktab
+        #rankheader(style="width:"+mw+"px;")
+          table.table.table-bordered.table-rank
+            thead
+              include rankheader
+              +rankheader(probNum, F)
+        #rankfooter(style="width:"+mw+"px;")
+          table.table.table-bordered.table-rank(style="margin:0;border:0;")
             tfoot
               include rankfooter
               +rankfooter(probNum, F, true)
@@ -235,28 +238,30 @@ fieldset#widthfix
               = ' '
               button#resetrating.btn.btn-default 撤销本场比赛Rating
           .form-inline
-            input#starstr.input-xxlarge(type="text" placeholder="用户名" title="用户名")
+            input#starstr.form-control(style="width:500px;" type="text" placeholder="用户名")
             = ' '
-            select#type.input-medium
+            select#type.form-control
               option(value="1") 给他们打星
               option(value="2") 取消打星
             = ' '
             button#star.btn.btn-default 提交
             = ' '
             small.user-gray PS: 多个用户请用空格隔开
+            = ' '
             span#starerr.error-text
           .form-inline
-            input#msg_data.input-xxlarge(type="text" placeholder="在此填写消息内容" title="在此填写消息内容")
+            input#msg_data.form-control(style="width:500px;" type="text" placeholder="在此填写消息内容")
             = ' '
             button#broadcast.btn.btn-default 广播消息
+            = ' '
             span#msg_err.error-text
-        .tablebg(style="width:"+mw+"px")
-          .fr(style="margin:5px;")
-            span#gtime.user.user-gray= 'The Rank will be updated every 30 seconds '
-            a#rank_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
-          #ranklist.pagination.pagination-small
-          #tablediv
-            table.table.table-rank.tdcenter
+        .block.block-danger(style="width:"+mw+"px;")
+          .heading
+            .pull-right
+              span#gtime.user-gray= 'The Rank will be updated every 30 seconds '
+              a#rank_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
+          #ranktable
+            table.table.table-bordered.table-rank.tdcenter
               thead
                 include rankheader
                 +rankheader(probNum, F)
@@ -265,49 +270,46 @@ fieldset#widthfix
                 include rankfooter
                 +rankfooter(probNum, F, false)
       //discusstab
-      #discusstab(style="margin:0px 10px;")
-        .tablebg
-          .fr(style="margin:5px;")
-            a#discuss_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
-          div#dislist.pagination.pagination-small
-          #tablediv
-            table#contest.table(style="table-layout:fixed;")
-              thead
-                tr
-                  th(style="width:60px;")
-                  th(style="width:10%;") 回复/浏览
-                  th(style="text-align:left;") 标题
-                  th(style="width:15%;")
-              tbody
-                tr.odd
-                  td.error-text(colspan="6") No Topics are matched.
+      #discusstab
+        .block.block-danger
+          .block-content
+            .heading
+              .pull-right
+                a#discuss_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
+            .table-response
+              table#contest.table-acdream.highlight(style="min-width:500px;")
+                tbody
+                  tr.odd
+                    td.error-text(colspan="3") No Topics are matched.
+                tfoot
+                  tr.odd
+                    td(colspan="3")
+                      ul#dislist.pagination.pagination-sm
         if (user)
-          .topic_box.form-horizontal
-            .header
-              span.user.user-gray 发表疑问
-              span.user.user-green （用于提问关于题目描述不清的问题，如："n的范围是多少？"，"x是整数吗？"等等）
-            .inner_topic
-              .control-group
-                label.control-label(for="publish_pid")
-                  span.user.user-gray 题号：
-                .controls
-                  select#publish_pid.input-mini
-                    - for (var i = 0; i < contest.probs.length; i++)
-                      option(value=F[i])= F[i]
-              .control-group
-                label.control-label(for="publish_title")
-                  span.user.user-gray 标题：
-                .controls
-                  input#publish_title.input-xlarge(type="text")
-              .control-group
-                label.control-label(for="publish_content")
-                  span.user.user-gray 内容：
-                .controls
-                  textarea#publish_content(rows="5" style="width:400px;")
-              .control-group
-                .controls
-                  a#publish.btn.btn-default.btn-sm(style="margin:0;" href="javascript:;") 发表
-                  span#publish_err.error-text
+          .block.block-info
+            .block-content
+              .heading
+                span.user-gray 发表疑问
+              .inner.form-horizontal
+                .form-group
+                  label.control-label.col-sm-2(for="publish_pid") 题号：
+                  .col-sm-2
+                    select#publish_pid.form-control
+                      - for (var i = 0; i < contest.probs.length; i++)
+                        option(value=F[i])= F[i]
+                .form-group
+                  label.control-label.col-sm-2(for="publish_title") 标题：
+                  .col-sm-5
+                    input#publish_title.form-control(type="text")
+                .form-group
+                  label.control-label.col-sm-2(for="publish_content") 内容：
+                  .col-sm-5
+                    textarea#publish_content.form-control(style="height:180px;")
+                .form-group
+                  .col-sm-offset-2.col-sm-10
+                    a#publish.btn.btn-default.btn-sm(style="margin:0;" href="javascript:;") 发表
+                    = ' '
+                    span#publish_err.error-text
       #loading.mc(style="width:287px;display:none;")
         img(src="/img/Loading.gif" alt="Loading...")
       #retry.alert.alert-danger.center.mc(style="width:450px;font-size:32px;padding:100px;;margin-top:15px;display:none;")

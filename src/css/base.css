@@ -141,6 +141,12 @@ h3.problem-header {
   overflow: hidden;
   border-top: 1px dotted #ccc;
   padding: 5px;
+  transition: background .1s linear;
+  -webkit-transition: background .1s linear;
+}
+
+.table-topic .cr .reply_box:hover {
+  background: #F7FAFD;
 }
 
 .table-topic .cr .rl {
@@ -162,14 +168,148 @@ h3.problem-header {
 /* topic END */
 
 /* contest START */
+.box {
+  border: 1px solid #ddd;
+  background: #fbfbfb;
+  margin-bottom: 15px;
+}
+
+.box.box-inner {
+  padding: 20px 15px;
+}
+
+#overviewtable th {
+  text-align: right;
+}
+
+#overviewtable th, #overviewtable td {
+  font-weight: normal;
+  border-top: 0;
+}
+
 #problemtab ul.pagination > li > a {
   width: 38px;
+}
+
+.table-rank > tbody > tr {
+  height: 45px;
+}
+
+.table-rank > thead > tr > th {
+  border-left: 1px solid #e1e1e1;
+  padding: 8px 0;
+}
+
+.table-rank > tbody > tr > td {
+  border-left: 1px solid #e1e1e1;
+  padding: .3em 0;
+  line-height: 15px;
+}
+
+#rankheader {
+  display: none;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+#rankheader > table > thead > th {
+  border-top: none;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+}
+
+#rankfooter {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+}
+
+#rankfooter tr {
+  background: transparent;
+}
+
+td.footer {
+  background: #333;
+  text-align: center;
+}
+
+td.footer:hover {
+  background: #444;
+}
+
+td.footer > span {
+  display: block;
+}
+
+span.footer-stat {
+  font-size: 12px;
+  margin: 5px 0;
+}
+
+span.footer-stat a {
+  color: #b991ff;
+}
+
+span.footer-stat span {
+  color: #eee;
+}
+
+span.footer-percent {
+  font-size: 10px;
+  color: #eee;
+}
+
+.rank {
+  width: 40px;
+}
+
+.nick {
+  width: 80px;
+}
+
+.solved {
+  width: 40px;
+  cursor: pointer;
+}
+
+.penalty {
+  width: 60px;
+  cursor: pointer;
+}
+
+.standing_status {
+  width: 80px;
+}
+
+td.red {
+  background-color: rgb(255, 221, 221);
+}
+
+span.failed {
+  color: red;
+  font-weight: bold;
+  display: block;
+}
+
+span.cell-time {
+  color: #777;
+  font-size: 10px;
+  display: block;
+}
+
+span.fb-cell-time {
+  color: #fff;
+  font-size: 10px;
+  display: block;
 }
 /* contest END */
 
 .progress {
   margin: 0;
   height: 15px;
+  background: #fae7e7;
 }
 
 pre {

@@ -2,8 +2,7 @@ mixin rankfooter(probNum, F, isFloat)
   tr(style="height:70px;" class=(isFloat ? "" : "odd"))
     td(colspan="5" style=(isFloat ? "border:0;" : ""))
       if (!isFloat)
-        span.user-gray
-          | Accepted Ratio Statistic
+        ul#ranklist.pagination.pagination-sm
     - for(var i = 0; i < probNum; i++)
       td.standing_status.footer(data-idx=i)
         span.footer-res(style="color:#eee;") -
