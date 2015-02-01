@@ -123,7 +123,7 @@ $(document).ready(function(){
       }
       var html = '<tr><td>'
       html += '<a title="delete" href="javascript:;" class="img_link delete"></a>';
-      html += '</td><td><input type="text" class="probnum input-mini"'
+      html += '</td><td><input type="text" class="probnum form-control input-sm"'
       if ($pid_in.length) {
         var pid = parseInt($pid_in.last().val(),10)+1;
         if (pid) {
@@ -131,7 +131,7 @@ $(document).ready(function(){
         }
       }
       html += '></td>';
-      html += '<td><input type="text" class="alias input-medium"></td>';
+      html += '<td><input type="text" class="alias form-control input-sm"></td>';
       html += '<td class="bold p_index"></td>';
       html += '<td class="error-text title" style="text-align:left;">';
       html += '</td></tr>';
