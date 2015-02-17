@@ -1,3 +1,166 @@
+body {
+  font-family: "微软雅黑","Helvetica Neue",Helvetica,Arial,sans-serif;
+  margin: auto;
+  color: #555;
+  background-color: #fff;
+  background: url(img/bg.gif);
+}
+
+input, button, select, textarea {
+  font-family: "微软雅黑","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+a.disabled {
+  color: gray!important;
+  background: #fff!important;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.error-text {
+  color: #AA1111;
+  font-weight: bold;
+}
+
+.success-text {
+  color: green;
+  font-weight: bold;
+}
+
+.info-text {
+  color: #DB8C15;
+}
+
+.accept-text {
+  color: #24A329;
+}
+
+.wrong-text {
+  color: #F12525;
+}
+
+.special-text {
+  color: #AE53C0!important;
+}
+
+a.special-text {
+  text-decoration: underline;
+}
+
+.user-red {
+  color: red!important;
+}
+
+.user-orange {
+  color: #ff8c00!important;
+}
+
+.user-violet {
+  color: #a0a!important;
+}
+
+.user-blue {
+  color: blue!important;
+}
+
+.user-cyan {
+  color: #08c!important;
+}
+
+.user-green {
+  color: green!important;
+}
+
+.user-gray {
+  color: gray!important;
+}
+
+.user-black {
+  color: #555!important;
+}
+
+.user-unrated {
+  color: #333!important;
+  font-weight: normal!important;
+}
+
+span.user {
+  font-weight: bold;
+}
+
+a.user {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.vcode {
+  width: 90px;
+  height: 30px;
+  margin-left: 30px;
+  padding: 0;
+  cursor: pointer;
+}
+
+pre.sample {
+  color: #800;
+}
+
+div#preload_logo {
+  display: block;
+  min-height: 146px;
+  overflow: hidden;
+}
+
+.icon_search {
+  width: 16px;
+  height: 16px;
+  display: block;
+  margin: 1px;
+  opacity: .5;
+  filter: alpha(opacity=50);
+  background: url('img/search.png');
+}
+
+.highcharts-tooltip > span {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid silver;
+  border-radius: 3px;
+  box-shadow: 1px 1px 2px #888;
+  padding: 8px;
+}
+
+#problemset tbody tr {
+  height: 45px;
+}
+
+a.standings {
+  color: blue;
+  text-decoration: underline;
+}
+
+a.register {
+  color: white;
+  font-weight: bold;
+  background-color: red;
+  text-decoration: underline;
+}
+
+div.table-tab {
+  float: right;
+  font-size: 12px;
+}
+
+div.prob-tag {
+  color: gray;
+}
+
+div.prob-tag a.tag {
+  color: gray;
+  text-decoration: none;
+}
+
 /* addproblem START */
 .ibox {
   float: left;
@@ -31,6 +194,12 @@ ul.user-info > li {
   margin-right: .3em;
   line-height: 25px;
   display: inline-block;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.5em;
 }
 /* user END */
 
@@ -95,6 +264,14 @@ h3.problem-header {
   cursor: default;
   background: #fbfbfb!important;
   color: gray;
+}
+
+table.tdmini tr th {
+  padding: 0.30em;
+}
+
+table.tdmini tr td {
+  padding: 0.35em;
 }
 /* statistic END */
 
@@ -303,6 +480,44 @@ span.fb-cell-time {
   color: #fff;
   font-size: 10px;
   display: block;
+}
+
+td.accept {
+  background: #D4FFD0;
+}
+
+td.first_blood {
+  background: #65bb81;
+}
+
+.fb-text {
+  color: #fff;
+}
+
+td.gold {
+  background: #ffe866;
+  border: 1px solid #ccc;
+}
+
+td.silver {
+  background: #c3e2ff;
+  border: 1px solid #ccc;
+}
+
+td.bronze {
+  background: #ffd6a8;
+  border: 1px solid #ccc;
+}
+
+#ranktab {
+  position: relative;
+}
+
+span.u-info {
+  font-size: 12px;
+  display: block;
+  width: 70px;
+  margin: 0 auto;
 }
 /* contest END */
 
