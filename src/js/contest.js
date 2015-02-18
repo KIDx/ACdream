@@ -244,7 +244,7 @@ function Response(res) {
   BindCE();
   $loading.hide();
   $status.fadeIn(100, function(){
-    flg = {};
+    clearGetStatus();
     getStatus();
   });
 }
@@ -844,7 +844,7 @@ function run() {
   }
   $retry.hide();
   $loading.show();
-  flg = {}; //important [update status]
+  clearGetStatus(); //important [update status]
   for (var i = 0; i < 5; i++) {
     noActive(i);
   }

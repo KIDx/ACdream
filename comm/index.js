@@ -195,7 +195,14 @@ exports.getRegState = function(contest, name) {
     return 2;
   }
   return 1;
-}
+};
+
+/*
+ * 判断比赛是否已结束
+ */
+exports.isEnded = function(contest) {
+  return (new Date()).getTime() - contest.startTime > contest.len*60000;
+};
 
 /*
  * 如果n<10，补前零

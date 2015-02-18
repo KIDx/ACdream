@@ -155,54 +155,57 @@ router.post('/CE', function(req, res){
 });
 
 /*
- * 获取某个提交的评测结果
+ * 获取一批提交的评测结果
  */
-router.post('/info', function(req, res){
+router.post('/batchresult', function(req, res){
   res.header('Content-Type', 'text/plain');
-  var id = parseInt(req.body.rid, 10);
-  if (!id) {
+  var rid_list = [];
+  if (req.body.rid_list) {
+    req.body.rid_list.forEach(function(str){
+      var rid = parseInt(str, 10);
+      if (rid) {
+        rid_list.push(rid);
+      }
+    });
+  }
+  if (rid_list.length > 100 || rid_list.length < 1) {
     return res.end();  //not allow
   }
-  Solution.watch({runID:id}, function(err, sol){
+  Solution.find({runID: {$in: rid_list}}, function(err, solutions){
     if (err) {
       LogErr(err);
       return res.end(); //not refresh!
     }
-    if (!sol) {
-      return res.end(); //not allow
-    }
-    var RP = function(X){
-      var t, m;
-      if (X > 0) {
-        t = m = '---';
-      } else {
-        t = sol.time; m = sol.memory;
-      }
-      return res.json({result: sol.result, time: t, memory: m, userName: sol.userName});
-    };
-    if (sol.cID == -1) {
-      return RP(0);
-    }
+    var cids = [];
+    solutions.forEach(function(p, i){
+      cids.push(p.cID);
+    });
     var name = '';
     if (req.session.user) {
       name = req.session.user.name;
     }
-    if (name == sol.userName || name == 'admin') {
-      return RP(0);
-    }
-    Contest.watch(sol.cID, function(err, contest){
+    Contest.find({contestID: {$in: cids}}, function(err, contests){
       if (err) {
         LogErr(err);
         return res.end();  //not refresh!
       }
-      if (!contest) {
-        return res.end();  //not allow
-      }
-      if (name == contest.userName ||
-        (new Date()).getTime() - contest.startTime > contest.len*60000) {
-        return RP(0);
-      }
-      return RP(1);
+      var canSee = {};
+      contests.forEach(function(p){
+        if (name == p.userName || Comm.isEnded(p)) {
+          canSee[p.contestID] = true;
+        }
+      });
+      var sols = {};
+      solutions.forEach(function(p, i){
+        var t, m;
+        if (name == 'admin' || name == p.userName || canSee[p.cID]) {
+          t = p.time; m = p.memory;
+        } else {
+          t = m = '---';
+        }
+        sols[p.runID] = {result: p.result, time: t, memory: m, userName: p.userName};
+      });
+      return res.json(sols);
     });
   });
 });
@@ -285,8 +288,7 @@ router.post('/get', function(req, res){
     var sols = new Array(), names = new Array(), has = {};
     solutions.forEach(function(p, i){
       var T = '', M = '', L = '';
-      if (name === p.userName || name === contest.userName ||
-          (new Date()).getTime() - contest.startTime > contest.len*60000) {
+      if (name === p.userName || name === contest.userName || Comm.isEnded(contest)) {
         T = p.time; M = p.memory; L = p.length;
       }
       sols.push({
