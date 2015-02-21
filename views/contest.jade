@@ -318,10 +318,11 @@ fieldset#widthfix
       #retry.alert.alert-danger.center.mc(style="width:450px;font-size:32px;padding:100px;;margin-top:15px;display:none;")
         | 请求失败，
         a(href="javascript:;") 重试
+script(type="text/javascript")
+  != 'var _pids = '+JSON.stringify(pids)+';'
+  != 'var _alias = '+JSON.stringify(alias)+';'
 script(type="text/javascript").
   var _prob_num = #{probNum};
-  var _pids = [#{pids}];
-  var _alias = [#{alias}];
   var _cid = #{contest.contestID};
   var _startTime = #{startTime};
   var _duration = #{contest.len * 60};
