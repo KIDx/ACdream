@@ -26,12 +26,8 @@ router.get('/:pid', function(req, res) {
   } else if (page < 0) {
     return res.redirect('/statistic/'+pid);
   }
-  Problem.watch(pid, function(err, problem){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
+  Problem.watch(pid)
+  .then(function(problem){
     var user = "";
     if (req.session.user) {
       user = req.session.user.name;
@@ -160,6 +156,9 @@ router.get('/:pid', function(req, res) {
         });
       });
     });
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 

@@ -45,11 +45,8 @@ router.post('/problem', function(req, res){
   if (!pid) {
     return res.end();  //not allow
   }
-  Problem.watch(pid, function(err, problem) {
-    if (err) {
-      LogErr(err);
-      return res.end();
-    }
+  Problem.watch(pid)
+  .then(function(problem){
     if (!problem) {
       return res.end(); //not allow
     }
@@ -61,11 +58,8 @@ router.post('/problem', function(req, res){
       return res.end('0');
     }
     var has = {};
-    Problem.update(pid, {$set: {AC: 0}}, function(err){
-      if (err) {
-        LogErr(err);
-        return res.end();
-      }
+    Problem.update(pid, {$set: {AC: 0}})
+    .then(function(){
       Solution.distinct('userName', {problemID: pid, result: 2}, function(err, users){
         if (err) {
           LogErr(err);
@@ -102,6 +96,10 @@ router.post('/problem', function(req, res){
         });
       });
     });
+  })
+  .fail(function(){
+    LogErr(err);
+    return res.end();
   });
 });
 

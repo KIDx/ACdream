@@ -1,10 +1,10 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var pageNum = Settings.problemset_pageNum;
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function Problem(problem) {
   this.problemID = problem.problemID;
@@ -39,7 +39,7 @@ mongoose.model('problems', problemObj);
 var problems = mongoose.model('problems');
 
 Problem.prototype.save = function(callback) {
-  //存入 Mongodb 的文档
+  var d = Q.defer();
   problem = new problems();
   problem.problemID = this.problemID;
   problem.title = 'NULL';
@@ -60,71 +60,96 @@ Problem.prototype.save = function(callback) {
   problem.lastmodified = (new Date()).getTime();
   if (this.manager) problem.manager = this.manager;
   problem.tags = new Array();
-
   problem.save(function(err){
     if (err) {
-      LogErr('Problem.save failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Problem.find = function(Q, callback) {
-  problems.find(Q, function(err, docs){
+Problem.find = function(cond) {
+  var d = Q.defer();
+  problems.find(cond, function(err, docs){
     if (err) {
-      LogErr('Problem.find failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Problem.get = function(Q, page, callback) {
-  problems.count(Q, function(err, count){
+Problem.get = function(cond, page) {
+  var d = Q.defer();
+  problems.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
-      return callback(null, null, -1);
+      return d.resolve({
+        problems: [],
+        totalPage: 1
+      });
     }
-    problems.find(Q).sort({problemID:1}).skip((page-1)*pageNum).limit(pageNum)
+    problems.find(cond).sort({problemID:1}).skip((page-1)*pageNum).limit(pageNum)
       .exec(function(err, docs){
       if (err) {
-        LogErr('Problem.get failed!');
+        d.reject(err);
+      } else {
+        d.resolve({
+          problems: docs,
+          totalPage: Math.floor((count+pageNum-1)/pageNum)
+        });
       }
-      return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10), count);
     });
   });
+  return d.promise;
 };
 
-Problem.watch = function(pid, callback) {
+Problem.watch = function(pid) {
+  var d = Q.defer();
   problems.findOne({problemID: pid}, function(err, doc) {
     if (err) {
-      LogErr('Problem.watch failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Problem.update = function(pid, H, callback) {
-  problems.update({problemID: pid}, H, function(err){
+Problem.update = function(pid, val) {
+  var d = Q.defer();
+  problems.update({problemID: pid}, val, function(err){
     if (err) {
-      LogErr('Problem.update failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Problem.multiUpdate = function(Q, H, callback) {
-  problems.update(Q, H, {multi:true}, function(err){
+Problem.multiUpdate = function(cond, val) {
+  var d = Q.defer();
+  problems.update(cond, val, {multi:true}, function(err){
     if (err) {
-      LogErr('Problem.multiUpdate failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Problem.distinct = function(key, Q, callback) {
-  problems.distinct(key, Q, function(err, ary){
+Problem.distinct = function(key, cond) {
+  var d = Q.defer();
+  problems.distinct(key, cond, function(err, ary){
     if (err) {
-      LogErr('Problem.distinct failed!');
+      d.reject(err);
+    } else {
+      d.resolve(ary);
     }
-    return callback(err, ary);
   });
+  return d.promise;
 };

@@ -44,12 +44,8 @@ router.get('/', function(req, res){
       if (solution) {
         pvl = 1;
       }
-      Problem.watch(pid, function(err, problem) {
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
+      Problem.watch(pid)
+      .then(function(problem){
         var RP = function(U){
           var UT, UC;
           if (U) {
@@ -92,6 +88,9 @@ router.get('/', function(req, res){
         } else {
           return RP(null);
         }
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
     });
   }
@@ -144,7 +143,8 @@ router.post('/uploadCode', function(req, res){
       return RP('6'); //i64 alert
     }
     req.session.submitTime = now;
-    Problem.watch(pid, function(err, problem){
+    Problem.watch(pid)
+    .then(function(problem){
       if (err) {
         LogErr(err);
         return RP('3');
@@ -154,10 +154,6 @@ router.post('/uploadCode', function(req, res){
       }
       var name = req.session.user.name;
       IDs.get ('runID', function(err, id){
-        if (err) {
-          LogErr(err);
-          return RP('3');
-        }
         var newSolution = new Solution({
           runID: id,
           problemID: pid,
@@ -173,11 +169,8 @@ router.post('/uploadCode', function(req, res){
             LogErr(err);
             return RP('3');
           }
-          Problem.update(pid, {$inc: {submit: 1}}, function(err){
-            if (err) {
-              LogErr(err);
-              return RP('3');
-            }
+          Problem.update(pid, {$inc: {submit: 1}})
+          .then(function(){
             User.update({name: name}, {$inc: {submit: 1}}, function(err){
               if (err) {
                 LogErr(err);
@@ -186,9 +179,17 @@ router.post('/uploadCode', function(req, res){
               req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
               return RP();
             });
+          })
+          .fail(function(err){
+            LogErr(err);
+            return RP('3');
           });
         });
       });
+    })
+    .fail(function(err){
+      LogErr(err);
+      return RP('3');
     });
   });
 });
@@ -225,31 +226,25 @@ router.get('/list', function(req, res){
   } else {
     Q = { $or:[q1, q2, q3] };
   }
-  Problem.get(Q, page, function(err, problems, n) {
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
-    if (n < 0) {
-      return res.redirect('/problem/list');
-    }
+  var Response = {
+    title: 'ProblemList',
+    key: KEY.PROBLEM_LIST,
+    page: page,
+    search: search,
+    Tag: Tag,
+    Pt: ProTil
+  };
+  Problem.get(Q, page)
+  .then(function(o){
+    Response.problems = o.problems;
+    Response.n = o.totalPage;
     var RP = function(R){
-      res.render('problemlist', {
-        title: 'ProblemList',
-        key: KEY.PROBLEM_LIST,
-        n: n,
-        problems: problems,
-        page: page,
-        search: search,
-        Tag: Tag,
-        Pt: ProTil,
-        R: R
-      });
+      Response.R = R;
+      res.render('problemlist', Response);
     };
-    if (req.session.user && problems && problems.length > 0) {
-      var pids = new Array(), R = {};
-      problems.forEach(function(p){
+    if (req.session.user && o.problems && o.problems.length > 0) {
+      var pids = [], R = {};
+      o.problems.forEach(function(p){
         pids.push(p.problemID);
       });
       Solution.aggregate([
@@ -276,6 +271,9 @@ router.get('/list', function(req, res){
     } else {
       return RP({});
     }
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 
@@ -295,8 +293,12 @@ router.post('/get', function(req, res){
   var prob, con;
   var arr = [
     function(cb) {
-      Problem.watch(pid, function(err, problem){
+      Problem.watch(pid)
+      .then(function(problem){
         prob = problem;
+        return cb();
+      })
+      .fail(function(err){
         return cb(err);
       });
     },
@@ -389,11 +391,9 @@ router.post('/toggleHide', function(req, res){
   if (!pid) {
     return res.end(); //not allow
   }
-  Problem.watch(pid, function(err, problem){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  var resp;
+  Problem.watch(pid)
+  .then(function(problem){
     if (!problem) {
       return res.end(); //not allow
     }
@@ -403,15 +403,15 @@ router.post('/toggleHide', function(req, res){
       return res.end();
     }
     problem.hide = !problem.hide;
-    problem.save(function(err){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      if (problem.hide)
-        return res.end('h');
-      return res.end('s');
-    });
+    resp = problem.hide ? 'h' : 's';
+    return problem.save();
+  })
+  .then(function(){
+    return res.end(resp);
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 
@@ -431,32 +431,29 @@ router.post('/editTag', function(req, res){
   }
   var name = req.session.user.name;
   var RP = function(){
-    var Q;
+    var cond;
     if (req.body.add) {
-      Q = {$addToSet: {tags: tag}};
+      cond = {$addToSet: {tags: tag}};
     } else {
-      Q = {$pull: {tags: tag}};
+      cond = {$pull: {tags: tag}};
     }
-    Problem.update(pid, Q, function(err, problem){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
+    Problem.update(pid, cond)
+    .then(function(){
       if (req.body.add) {
         req.session.msg = 'Tag has been added to the problem successfully!';
       } else {
         req.session.msg = 'Tag has been removed from the problem successfully!';
       }
       return res.end();
-    });
-  };
-  Problem.watch(pid, function(err, problem){
-    if (err) {
+    })
+    .fail(function(err){
       LogErr(err);
       req.session.msg = '系统错误！';
       return res.end();
-    }
+    });
+  };
+  Problem.watch(pid)
+  .then(function(problem){
     if (!problem) {
       return res.end();  //not allow
     }
@@ -478,6 +475,11 @@ router.post('/editTag', function(req, res){
       }
       return RP();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 
@@ -506,7 +508,8 @@ router.post('/setManager', function(req, res){
     if (!user) {
       return res.end('1');
     }
-    Problem.watch(pid, function(err, prob){
+    Problem.watch(pid)
+    .then(function(prob){
       if (err) {
         LogErr(err);
         return res.end('3');
@@ -515,14 +518,15 @@ router.post('/setManager', function(req, res){
         return res.end(); //not allow
       }
       prob.manager = name;
-      prob.save(function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        req.session.msg = 'The manager has been changed successfully!';
-        return res.end();
-      });
+      return prob.save();
+    })
+    .then(function(){
+      req.session.msg = 'The manager has been changed successfully!';
+      return res.end();
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end('3');
     });
   });
 });

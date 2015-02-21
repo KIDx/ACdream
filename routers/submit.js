@@ -77,7 +77,11 @@ router.route('/')
         }
         var arr = [
           function(cb) {
-            Problem.update(pid, {$inc: {submit: 1}}, function(err){
+            Problem.update(pid, {$inc: {submit: 1}})
+            .then(function(){
+              return cb();
+            })
+            .fail(function(err){
               return cb(err);
             });
           },
@@ -102,11 +106,8 @@ router.route('/')
       });
     });
   };
-  Problem.watch(pid, function(err, problem){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  Problem.watch(pid)
+  .then(function(problem){
     if (!problem) {
       return res.end('4');
     }
@@ -145,6 +146,10 @@ router.route('/')
         return RP();
       });
     }
+  })
+  .fail(function(){
+    LogErr(err);
+    return res.end('3');
   });
 });
 

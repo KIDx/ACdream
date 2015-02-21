@@ -97,7 +97,8 @@ router.get('/', function(req, res){
         UC[p.name] = userCol(p.rating);
         UT[p.name] = userTit(p.rating);
       });
-      Problem.find({problemID: {$in: pids}}, function(err, probs){
+      Problem.find({problemID: {$in: pids}})
+      .then(function(probs){
         var P = {};
         probs.forEach(function(p){
           P[p.problemID] = p;
@@ -122,6 +123,9 @@ router.get('/', function(req, res){
           page: page,
           langs: languages
         });
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
     });
   });

@@ -52,12 +52,8 @@ router.route('/')
   if (!pid) {
     return RP(null, null, null, KEY.ADD_PROBLEM);
   } else {
-    Problem.watch(pid, function(err, problem){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    Problem.watch(pid)
+    .then(function(problem){
       if (!problem) {
         return RP(null, null, null);
       }
@@ -76,6 +72,9 @@ router.route('/')
           return RP(problem, files, imgs, KEY.EDIT_PROBLEM);
         });
       });
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   }
 })
@@ -111,14 +110,13 @@ router.route('/')
       hide: hide,
       TC: tc,
       lastmodified: (new Date()).getTime()
-    }}, function(err) {
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    }})
+    .then(function() {
       req.session.msg = 'Problem '+pid+' has been updated successfully!';
       return res.redirect('/problem?pid='+pid);
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   } else {
     IDs.get ('problemID', function(err, id) {
@@ -134,14 +132,13 @@ router.route('/')
         problemID: id,
         manager: manager
       });
-      newProblem.save(function(err){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
+      newProblem.save()
+      .then(function(err){
         req.session.msg = 'Problem '+id+' has been created successfully!';
         return res.redirect('/addproblem?pID='+id);
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
     });
   }
@@ -172,11 +169,8 @@ router.post('/imgUpload', function(req, res){
   if (req.files.info.mimetype.split('/')[0] != 'image') {
     return RP('2');
   }
-  Problem.watch(pid, function(err, problem){
-    if (err) {
-      LogErr(err);
-      return RP('3');
-    }
+  Problem.watch(pid)
+  .then(function(problem){
     if (!problem) {
       return RP();  //not allow
     }
@@ -199,6 +193,10 @@ router.post('/imgUpload', function(req, res){
         });
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return RP('3');
   });
 });
 

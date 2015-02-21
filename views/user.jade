@@ -6,21 +6,23 @@ fieldset
     .block-content
       .inner(style="padding:0 15px;")
         .row
-          .col-md-6
+          .col-md-8
             - var ut = UT(u.rating), uc = UC(u.rating);
             div(style="font-size:24px;margin-top:5px;")
               span(class="user user-"+uc title=ut+" "+u.name)= ut+' '+u.name
             if (user && user.name == 'admin')
-              div(style="margin:10px 0;")
-                a#addprob.btn.btn-default(style="margin:0 10px 0 0;" href="javascript:;")
+              .form-inline
+                a#addprob.btn.btn-default(href="javascript:;")
                   if(u.addprob == 1)
                     | 回收
                   else
                     | 赋予
                   = ' '+u.name+' 加题权限'
                 if (u.name == 'admin')
-                  a#recal.btn.btn-default(style="margin:0 10px 0 0;" href="javascript:;") 重新统计所有用户提交数和AC数
-                a#restore.btn.btn-default(style="margin:0;" href="javascript:;") 将 #{u.name} 的密码恢复默认
+                  = ' '
+                  a#recal.btn.btn-default(href="javascript:;") 重新统计所有用户提交数和AC数
+                = ' '
+                a#restore.btn.btn-default(href="javascript:;") 将 #{u.name} 的密码恢复默认
             div
               span.user-gray(title="nick name")= u.nick
             ul.user-info
@@ -67,7 +69,7 @@ fieldset
                   span.error-text NO
               li Last Visit: #{getTime(u.visTime)}
               li Registered: #{getTime(u.regTime)}
-          .col-md-6
+          .col-md-4
             span.pull-right(style="margin:20px 15px 0 0;")
               img.img-250.img-round(alt="avatar" src=img)
               if (user && user.name === u.name)

@@ -78,13 +78,12 @@ router.get('/:name', function(req, res){
           return RP(null);
         });
       } else {
-        Problem.distinct("problemID", {hide:true}, function(err, pids){
-          if (err) {
-            req.session.msg = '系统错误！';
-            LogErr(err);
-            return res.redirect('/');
-          }
+        Problem.distinct("problemID", {hide:true})
+        .then(function(pids){
           return RP(pids);
+        })
+        .fail(function(err){
+          FailRedirect(err, req, res);
         });
       }
     });

@@ -140,7 +140,7 @@ router.get('/', function(req, res) {
   //失败处理
   .fail(function(err){
     FailRedirect(err, req, res);
-  })
+  });
 });
 
 /*
@@ -199,7 +199,7 @@ router.get('/list', function(req, res){
   })
   .fail(function(err){
     FailRedirect(err, req, res);
-  })
+  });
 });
 
 /*

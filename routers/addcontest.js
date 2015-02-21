@@ -13,6 +13,7 @@ var addZero = Comm.addZero;
 var clearSpace = Comm.clearSpace;
 var nan = Comm.nan;
 var LogErr = Comm.LogErr;
+var FailRedirect = Comm.FailRedirect;
 
 /*
  * get: addcontest页面
@@ -79,18 +80,14 @@ router.route('/')
         }
       }
       var TP = function(E) {
-        var pids = new Array();
+        var pids = [];
         if (contest.probs) {
           contest.probs.forEach(function(p){
             pids.push(p[0]);
           });
         }
-        Problem.find({problemID: {$in: pids}}, function(err, problems){
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.redirect('/');
-          }
+        Problem.find({problemID: {$in: pids}})
+        .then(function(problems){
           var P = {};
           if (problems) {
             problems.forEach(function(p){
@@ -98,6 +95,9 @@ router.route('/')
             });
           }
           return RP(contest, clone, null, E, P);
+        })
+        .fail(function(err){
+          FailRedirect(err, req, res);
         });
       };
       if (clone == 1) {
@@ -155,7 +155,7 @@ router.route('/')
     psw = Comm.MD5(String(req.body.psw));
   }
 
-  var pids = new Array();
+  var pids = [];
   if (req.body.pids && req.body.pids.length) {
     req.body.pids.forEach(function(p){
       pids.push(p);
@@ -278,24 +278,23 @@ router.route('/')
       });
     }
   };
-  Problem.find({problemID: {$in: pids}}, function(err, problems){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  Problem.find({problemID: {$in: pids}})
+  .then(function(problems){
     var has = {};
     if (problems) {
       problems.forEach(function(p){
         has[p.problemID] = true;
       });
     }
-    var ary = new Array();
+    var ary = [];
     pids.forEach(function(p, i){
       if (has[p])
         ary.push([p, clearSpace(alias[i])]);
     });
     return RP(ary);
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 

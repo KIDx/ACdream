@@ -233,11 +233,11 @@ fieldset#widthfix
               +rankfooter(probNum, F, true)
         if (isManager)
           if (contest.type == 2)
-            .form-inline
+            .form-inline.form-group
               button#calrating.btn.btn-default 统计本场比赛Rating
               = ' '
               button#resetrating.btn.btn-default 撤销本场比赛Rating
-          .form-inline
+          .form-inline.form-group
             input#starstr.form-control(style="width:500px;" type="text" placeholder="用户名")
             = ' '
             select#type.form-control
@@ -249,7 +249,7 @@ fieldset#widthfix
             small.user-gray PS: 多个用户请用空格隔开
             = ' '
             span#starerr.error-text
-          .form-inline
+          .form-inline.form-group
             input#msg_data.form-control(style="width:500px;" type="text" placeholder="在此填写消息内容")
             = ' '
             button#broadcast.btn.btn-default 广播消息

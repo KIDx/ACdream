@@ -43,12 +43,8 @@ router.get('/:rid', function(req, res){
     if (name == sol.userName || name == 'admin') {
       return RP(true);
     }
-    Problem.watch(sol.problemID, function(err, prob){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    Problem.watch(sol.problemID)
+    .then(function(prob){
       if (!prob) {
         return res.redirect('/404');
       }
@@ -69,6 +65,9 @@ router.get('/:rid', function(req, res){
         }
         return RP(false);
       });
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   });
 });

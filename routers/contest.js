@@ -90,12 +90,8 @@ router.get('/', function(req, res){
         pids.push(p[0]);
       });
     }
-    Problem.find({problemID: {$in: pids}}, function(err, problems){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    Problem.find({problemID: {$in: pids}})
+    .then(function(problems){
       var Pt = {};
       if (problems) {
         problems.forEach(function(p){
@@ -126,6 +122,9 @@ router.get('/', function(req, res){
           langs: languages
         });
       });
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   });
 });
