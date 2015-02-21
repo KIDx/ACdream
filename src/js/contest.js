@@ -25,7 +25,7 @@ $(document).ready(function(){
     }).jqDrag('.jqDrag');
   }
   socket.on('connect', function(){
-    socket.emit('login', cid);
+    socket.emit('login', _cid);
     socket.on('broadcast', function(data){
       $bc_content.text(data);
       $dialog_bc.jqmShow();
@@ -42,7 +42,7 @@ $(document).ready(function(){
         return false;
       }
       $(this).addClass('disabled');
-      socket.emit('broadcast', {room: cid, msg: msg}, function(res){
+      socket.emit('broadcast', {room: _cid, msg: msg}, function(res){
         if (res) {
           $bc_content.text('消息广播成功！');
           $msg.val('');
@@ -59,10 +59,7 @@ var interceptorTime = 200; //截流响应
 var cnt; //行号
 
 var $div = $('#thumbnail');
-var $p_span = $('span.cpid');
-var pids = new Array();
-var alias = new Array();
-var passTime = -pending;
+var passTime = -_pending;
 
 var $progress = $('#progress');
 var $bar = $progress.children('.progress-bar');
@@ -105,7 +102,7 @@ var $result = $('#result');
 var $Filter = $('#fil');
 var $reset = $('#reset');
 var $singleRejudge;
-var statusQ = { cid:cid, page:1 };
+var statusQ = {cid: _cid, page: 1};
 var searchTimeout;
 var Ratings;
 var statusAjax;
@@ -304,7 +301,6 @@ var $o_td_submit = $overview.find('td.op_submit');
 var $o_sol = $overview.find('td.o_sol');
 var $clone = $('#clone');
 var $tdfooter = $('table tfoot td.footer');
-var prob_num = $p_span.length;
 var overviewTimeout;
 var overviewAjax;
 
@@ -315,7 +311,7 @@ function OverviewResponse(resp) {
 
   function renderStat(idx, $p, $pencent) {
     var ac = 0, all = 0;
-    var o = resp.stat[pids[idx]];
+    var o = resp.stat[_pids[idx]];
     if (o) {
       ac = o.ac ? o.ac : 0;
       all = o.all ? o.all : 0;
@@ -329,9 +325,9 @@ function OverviewResponse(resp) {
   }
 
   if (isActive(0)) {
-    for (var i = 0; i < prob_num; ++i) {
+    for (var i = 0; i < _prob_num; ++i) {
       var $oi = $o_index.eq(i);
-      var res = resp.self[pids[i]];
+      var res = resp.self[_pids[i]];
       if (res === true) {
         $oi.addClass('AC');
         $o_td_submit.eq(i).addClass('AC-fill');
@@ -346,7 +342,7 @@ function OverviewResponse(resp) {
   if (isActive(3)) {
     $.each($tdfooter, function(i, p){
       var idx = $(p).data('idx');
-      var res = resp.self[pids[idx]];
+      var res = resp.self[_pids[idx]];
       if (res === true) {
         $(p).find('span.footer-res').text('Yes').css({color: '#6f6'});
       } else if (res === false) {
@@ -364,7 +360,7 @@ function GetOverview() {
       type: 'POST',
       url: '/contest/overview',
       dataType: 'json',
-      data: {cid: cid},
+      data: {cid: _cid},
       timeout: 5000,
       error: function(){
         if (overviewAjax)
@@ -402,7 +398,7 @@ var ProblemCache = {};
 function ShowProblem(prob) {
   if (!prob) return ;
   function getTitle(i) {
-    return alias[i] ? alias[i] : prob.title;
+    return _alias[i] ? _alias[i] : prob.title;
   }
   $title.eq(0).text( F.charAt(ID) );
   $title.eq(1).text( getTitle(ID) );
@@ -504,8 +500,8 @@ function GetProblem() {
       url: '/problem/get',
       dataType: 'json',
       data: {
-        cid: cid,
-        pid: pids[ID],
+        cid: _cid,
+        pid: _pids[ID],
         lastmodified: ProblemCache[ID] ? ProblemCache[ID].lastmodified : null
       },
       timeout: 5000,
@@ -528,7 +524,7 @@ var $ranklist = $rank.find('#ranklist');
 var $ranklist_a;
 var $removebtn;
 var $rank_refresh = $rank.find('#rank_refresh');
-var rankQ = {cid:cid, page:1};
+var rankQ = {cid: _cid, page: 1};
 var rank = 1;
 var rankTimeout;
 var FB;
@@ -606,9 +602,9 @@ function buildRank(U) {
     html += '<span title="'+I[U.name]+'" class="u-info user-gray ellipsis">'+I[U.name]+'</span>';
   }
   html += '</td><td>'+user.solved+'</td>';
-  html += '<td>'+parseInt((user.penalty-user.solved*startTime)/60000, 10)+'</td>';
+  html += '<td>'+parseInt((user.penalty-user.solved*_startTime)/60000, 10)+'</td>';
 
-  for (i = 0; i < prob_num; i++) {
+  for (i = 0; i < _prob_num; i++) {
     var pid = fmap[F.charAt(i)];
     html += '<td';
     if (user.status && user.status[pid]) {
@@ -624,7 +620,7 @@ function buildRank(U) {
         html += '<span class="'+style+'">+';
         if (WA > 0) html += WA;
         html += '</span>';
-        html += '<span class="'+pt+'">'+deal((user.status[pid].inDate-startTime)/1000, 1)+'</span>';
+        html += '<span class="'+pt+'">'+deal((user.status[pid].inDate-_startTime)/1000, 1)+'</span>';
       } else if (WA < 0) {
         html += '><span class="failed">'+WA+'</span>';
       }
@@ -661,7 +657,7 @@ function RankResponse(res) {
   total = res.total;
 
   if (!users || users.length == 0) {
-    html = '<tr class="odd"><td class="error-text center" colspan="'+(5+prob_num)+'">No Records till Now.</tr>';
+    html = '<tr class="odd"><td class="error-text center" colspan="'+(5+_prob_num)+'">No Records till Now.</tr>';
   } else {
     cnt = 1;
     html = $.map(users, buildRank).join('');
@@ -693,7 +689,7 @@ function RankResponse(res) {
         type: 'POST',
         url: '/contest/removeContestant',
         data: {
-          cid: cid,
+          cid: _cid,
           name: $(this).attr('user')
         },
         dataType: 'text',
@@ -747,7 +743,7 @@ var $discuss_tips = $div.find('#discuss_tips');
 var $dislist = $('#dislist');
 var $dislist_a;
 var discuss_tips = 0;
-var discussQ = {cid:cid, page:1};
+var discussQ = {cid: _cid, page: 1};
 var discussTimeout;
 var Imgtype;
 var discussAjax;
@@ -916,7 +912,7 @@ function syncTime() {
     type: 'POST',
     url: '/contest/syncTime',
     data: {
-      cid: cid
+      cid: _cid
     },
     dataType: 'json'
   }).done(function(res){
@@ -959,7 +955,7 @@ function toRunning() {
   $('#beforecontest').hide();
   $('#conteststatus').text('Running').removeClass('info-text').addClass('wrong-text');
   $info.show();
-  if (!isManager) {
+  if (!_is_manager) {
     $end.addClass('hidden');
     $clone.hide();
   }
@@ -982,7 +978,7 @@ function toEnded() {
 var pendingInterval;
 
 function pendingTimer() {
-  var left = deal(pending);
+  var left = deal(_pending);
   var infoleft = '-'+left;
   if (infoleft != $info.text()) {
     $info.text(infoleft);
@@ -990,8 +986,8 @@ function pendingTimer() {
   if ($lefttime.length) {
     if (left != $lefttime.text()) $lefttime.text(left);
   }
-  --pending;
-  if (pending < 0) {
+  --_pending;
+  if (_pending < 0) {
     passTime = 0;
     toRunning();
   }
@@ -1000,13 +996,13 @@ function pendingTimer() {
 var runningInterval;
 
 function runningTimer() {
-  if (passTime > duration) {
+  if (passTime > _duration) {
     toEnded();
   } else {
-    var tp = passTime*100.0/duration;
+    var tp = passTime*100.0/_duration;
     $bar.css({width:tp+'%'});
     $info.css({width:(100<=tp+5)?'100%':tp+5+'%'});
-    $info.text('-'+deal(duration - passTime));
+    $info.text('-'+deal(_duration - passTime));
     ++passTime;
   }
 }
@@ -1032,24 +1028,24 @@ function updateTime(iSvrTime, iStartTime, iDuration, iRegisterState, iContestant
     curren_second = iSvrTime;
   }
   var pt = Math.round((iSvrTime - iStartTime) / 1000);
-  if (startTime != iStartTime/* ms */ || duration != iDuration/* s */ || Math.abs(pt - passTime) > 30/* s */) {
-    $('#start_time').text(getDate(startTime = iStartTime) + ':00');
-    $('#end_time').text(getDate(startTime + (duration = iDuration)*1000) + ':00');
+  if (_startTime != iStartTime/* ms */ || _duration != iDuration/* s */ || Math.abs(pt - passTime) > 30/* s */) {
+    $('#start_time').text(getDate(_startTime = iStartTime) + ':00');
+    $('#end_time').text(getDate(_startTime + (_duration = iDuration)*1000) + ':00');
     passTime = pt;
     if (pt < 0) {
       clearInterval(runningInterval);
-      pending = -passTime;
+      _pending = -passTime;
       forPending();
       $('#conteststatus').text('Pending').removeClass('wrong-text accept-text').addClass('info-text');
       $progress.removeClass('progress-danger progress-success');
       $bar.css({width: '100%'});
       $info.show().css({width: 'auto'});
-      if (!isManager) {
+      if (!_is_manager) {
         $clone.hide();
         window.location.hash = 'overview';
         $hid.addClass('hidden');
       }
-    } else if (pt <= duration) {
+    } else if (pt <= _duration) {
       toRunning();
     } else {
       toEnded();
@@ -1059,24 +1055,22 @@ function updateTime(iSvrTime, iStartTime, iDuration, iRegisterState, iContestant
 
 function runContest() {
   //bulid map pmap and fmap
-  $.each($p_span, function(i, p){
-    alias.push($(p).attr('alias'));
-    pids.push($(p).attr('pid'));
-    pmap[pids[i]] = F.charAt(i);
-    fmap[F.charAt(i)] = pids[i];
-  });
+  for (var i = 0; i < _prob_num; ++i) {
+    pmap[_pids[i]] = F.charAt(i);
+    fmap[F.charAt(i)] = _pids[i];
+  }
 
-  if (status == 'Pending') {
+  if (_status == 'Pending') {
     forPending();
-  } else if (status == 'Running') {
+  } else if (_status == 'Running') {
     forRunning();
   }
 
-  if (status == 'Ended' || isManager) {
+  if (_status == 'Ended' || _is_manager) {
     forEnded();
   }
 
-  if (status != 'Pending' || isManager) {
+  if (_status != 'Pending' || _is_manager) {
     forNotPending();
   } else {
     window.location.hash = 'overview';
@@ -1207,7 +1201,7 @@ $(document).ready(function(){
         url: '/submit',
         data: {
           pid: pid_index,
-          cid: cid,
+          cid: _cid,
           code: code,
           lang: lang
         },
@@ -1258,7 +1252,7 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/contest/del',
-        data: { cid : cid },
+        data: {cid: _cid},
         dataType: 'text',
         error: function() {
           $del.removeClass('disabled');
@@ -1337,7 +1331,7 @@ $(document).ready(function(){
         type: 'POST',
         url: '/contest/toggleStar',
         data: {
-          cid: cid,
+          cid: _cid,
           str: str,
           type: $('#type').val()
         },
@@ -1380,7 +1374,7 @@ $(document).ready(function(){
       type: 'POST',
       url: '/contest/addDiscuss',
       data: {
-        cid: cid,
+        cid: _cid,
         title: $publish_pid.val()+'题：'+title,
         content: content
       },
@@ -1398,7 +1392,7 @@ $(document).ready(function(){
         $publish_title.val('');
         $publish_content.attr('value', '');
         ChangeScrollTop(200);
-        socket.emit('addDiscuss', cid);
+        socket.emit('addDiscuss', _cid);
       } else if (res == '1') {
         window.location.href = '/';
         return ;
@@ -1466,7 +1460,7 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/contest/register',
-        data: {cid: cid},
+        data: {cid: _cid},
         dataType: 'text',
         error: function() {
           $register.removeClass('disabled');

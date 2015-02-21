@@ -3,6 +3,7 @@
 - var startTime = contest.startTime;
 - var pending = parseInt((startTime - time)/1000, 10);
 - var c, s, ps;
+- var pids = [], alias = [];
 
 if (pending > 0)
   - c = 'info';
@@ -17,10 +18,12 @@ else
   - s = 'Ended';
   - ps = 'progress-bar-success';
 
+each p, i in contest.probs
+  - ++probNum;
+  - pids.push(p[0]);
+  - alias.push(p[1]);
+
 fieldset#widthfix
-  each p, i in contest.probs
-    - ++probNum;
-    span.cpid(pid=p[0] alias=p[1] ? p[1] : "")
   .box.box-inner
     h3.mc.center(style="color:#3069BE")= contest.title
     marquee#marquee.error-text(onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
@@ -316,13 +319,15 @@ fieldset#widthfix
         | 请求失败，
         a(href="javascript:;") 重试
 script(type="text/javascript").
-  var cid = #{contest.contestID};
-  var ctype = #{contest.type};
-  var startTime = #{startTime};
-  var duration = #{contest.len * 60};
-  var pending = #{pending};
-  var status = '#{s}';
-  var isManager = #{isManager ? true : false};
+  var _prob_num = #{probNum};
+  var _pids = [#{pids}];
+  var _alias = [#{alias}];
+  var _cid = #{contest.contestID};
+  var _startTime = #{startTime};
+  var _duration = #{contest.len * 60};
+  var _pending = #{pending};
+  var _status = '#{s}';
+  var _is_manager = #{isManager ? true : false};
 if (user && user.name == 'admin')
   script(type="text/javascript").
     function bindCalRating($p) {
