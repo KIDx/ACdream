@@ -1,9 +1,8 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function Overview() {
 };
@@ -22,20 +21,26 @@ overviewObj.index({
 mongoose.model('overviews', overviewObj);
 var overviews = mongoose.model('overviews');
 
-Overview.find = function(Q, callback) {
-  overviews.find(Q, function(err, docs) {
+Overview.find = function(cond) {
+  var d = Q.defer();
+  overviews.find(cond, function(err, docs) {
     if (err) {
-      LogErr('Overview.find failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Overview.remove = function(Q, callback) {
-  overviews.remove(Q, function(err){
+Overview.remove = function(cond) {
+  var d = Q.defer();
+  overviews.remove(cond, function(err){
     if (err) {
-      LogErr('Overview.remove failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };

@@ -1,5 +1,6 @@
 
 var router = require('express').Router();
+var Q = require('q');
 
 var Contest = require('../models/contest.js');
 var ContestRank = require('../models/contestrank.js');
@@ -12,25 +13,18 @@ var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
 function ClearReduceData(cids, cb) {
-  ContestRank.clear({'_id.cid': {$in: cids}})
+  Q.all([
+    ContestRank.clear({'_id.cid': {$in: cids}}),
+    Overview.remove({'_id.cid': {$in: cids}}),
+    Contest.multiUpdate({contestID: {$in: cids}}, {$set: {
+      maxRunID: 0,
+      updateTime: 0,
+      overviewRunID: 0,
+      overviewUpdateTime: 0
+    }})
+  ])
   .then(function(){
-    Overview.remove({'_id.cid': {$in: cids}}, function(err){
-      if (err) {
-        return cb(err);
-      }
-      Contest.multiUpdate({contestID: {$in: cids}}, {$set: {
-        maxRunID: 0,
-        updateTime: 0,
-        overviewRunID: 0,
-        overviewUpdateTime: 0
-      }})
-      .then(function(){
-        return cb();
-      })
-      .fail(function(err){
-        return cb(err);
-      });
-    });
+    return cb();
   })
   .fail(function(err){
     return cb(err);

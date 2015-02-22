@@ -144,18 +144,18 @@ router.get('/list', function(req, res){
     return res.redirect(url);
   }
 
-  var Q = {type: type}, q1 = {}, q2 = {}, search = req.query.search;
+  var cond = {type: type}, q1 = {}, q2 = {}, search = req.query.search;
 
   if (search) {
     q1.title = q2.userName = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
-    Q.$or = [q1, q2];
+    cond.$or = [q1, q2];
   }
 
   if (type === 2 && family) {
-    Q.family = family;
+    cond.family = family;
   }
 
-  Contest.get(Q, page)
+  Contest.get(cond, page)
   .then(function(o){
     var T = new Array(), R = {}, now = (new Date()).getTime();
     var CS = {}, names = new Array();
@@ -216,10 +216,8 @@ router.post('/overview', function(req, res){
   }
   var resp = {stat: {}, self: {}};
   function getOverview(cb) {
-    Overview.find({'_id.cid': cid}, function(err, objs){
-      if (err) {
-        return cb(err);
-      }
+    Overview.find({'_id.cid': cid})
+    .then(function(objs){
       objs.forEach(function(p){
         if (!resp.stat[p._id.pid]) {
           resp.stat[p._id.pid] = {};
@@ -231,6 +229,9 @@ router.post('/overview', function(req, res){
         resp.stat[p._id.pid].all += p.value;
       });
       return cb();
+    })
+    .fail(function(err){
+      return cb(err);
     });
   }
   var arr = new Array();
@@ -484,7 +485,7 @@ router.post('/ranklist', function(req, res){
       });
     } else {
       var indate = {$gte: contest.startTime, $lte: contest.startTime+contest.len*60000};
-      var Q = {
+      var cond = {
         cID: cid,
         userName: {$ne: 'admin'},
         inDate: indate,
@@ -494,7 +495,7 @@ router.post('/ranklist', function(req, res){
       var arr = [
         function(cb) {
           Solution.mapReduce({
-            query: {$and: [Q, {runID: {$lte: maxRunID}}]},
+            query: {$and: [cond, {runID: {$lte: maxRunID}}]},
             sort: {runID: -1},
             map: function(){
               var val = { solved: 0, penalty: 0, status: {}, submitTime: this.inDate };
@@ -571,7 +572,7 @@ router.post('/ranklist', function(req, res){
           });
         }
       ];
-      Solution.findOne(Q, {runID: -1}, function(err, doc){
+      Solution.findOne(cond, {runID: -1}, function(err, doc){
         if (err) {
           LogErr(err);
           return res.end();
@@ -579,7 +580,7 @@ router.post('/ranklist', function(req, res){
         if (!doc) {
           return RP(contest);
         }
-        Solution.findOne({$and: [Q, {result: {$lt: 2}}]}, {runID: 1}, function(err, sol){
+        Solution.findOne({$and: [cond, {result: {$lt: 2}}]}, {runID: 1}, function(err, sol){
           if (err) {
             LogErr(err);
             return res.end();
