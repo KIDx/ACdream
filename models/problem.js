@@ -4,7 +4,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var pageNum = Settings.problemset_pageNum;
-var Comm = require('../comm');
 
 function Problem(problem) {
   this.problemID = problem.problemID;
@@ -38,7 +37,7 @@ var problemObj = new Schema({
 mongoose.model('problems', problemObj);
 var problems = mongoose.model('problems');
 
-Problem.prototype.save = function(callback) {
+Problem.prototype.save = function() {
   var d = Q.defer();
   problem = new problems();
   problem.problemID = this.problemID;

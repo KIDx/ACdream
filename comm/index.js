@@ -355,8 +355,12 @@ exports.getContestRank = function(cid, stars, name, V, callback) {
           {'value.solved': V.solved, 'value.penalty': {$lt: V.penalty}},
           {'value.solved': V.solved, 'value.penalty': V.penalty, 'value.submitTime': {$gt: V.submitTime}},
           {'value.solved': V.solved, 'value.penalty': V.penalty, 'value.submitTime': V.submitTime, '_id.name': {$lt: name}}]
-  }, function(err, rank) {
-    return callback(err, rank+1);
+  })
+  .then(function(rank){
+    return callback(null, rank+1);
+  })
+  .fail(function(err){
+    return callback(err, 0);
   });
 };
 

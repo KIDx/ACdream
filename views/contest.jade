@@ -344,7 +344,7 @@ if (user && user.name == 'admin')
         $.ajax({
           type: 'POST',
           url: '/rating/cal',
-          data: { cid: cid },
+          data: {cid: _cid},
           dataType: 'text',
           error: function() {
             $p.text(txt).removeClass('disabled');
@@ -380,7 +380,7 @@ if (user && user.name == 'admin')
         $.ajax({
           type: 'POST',
           url: '/rating/reset',
-          data: { cid: cid },
+          data: {cid: _cid},
           dataType: 'text',
           error: function() {
             $p.text('统计rating').removeClass('disabled');

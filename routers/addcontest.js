@@ -61,12 +61,8 @@ router.route('/')
       clone = 1;
       cid = -cid;
     }
-    Contest.watch(cid, function(err, contest){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    Contest.watch(cid)
+    .then(function(contest){
       if (!contest) {
         return res.redirect('/404');
       }
@@ -113,6 +109,9 @@ router.route('/')
           return TP(E);
         });
       }
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   }
 })
@@ -168,12 +167,8 @@ router.route('/')
     var len = dd*1440 + hh*60 + mm;
     var cid = parseInt(req.body.cid, 10);
     if (cid) {
-      Contest.watch(cid, function(err, con) {
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
+      Contest.watch(cid)
+      .then(function(con){
         if (!con || con.type != type) {
           return res.end();  //not allow
         }
@@ -208,13 +203,14 @@ router.route('/')
             if (!flg) {
               return res.end(tp);
             }
-            ContestRank.clear({'_id.cid':cid}, function(err){
-              if (err) {
-                LogErr(err);
-                req.session.msg = '系统错误！';
-                return res.end();
-              }
+            ContestRank.clear({'_id.cid':cid})
+            .then(function(){
               return res.end(tp);
+            })
+            .fail(function(err){
+              LogErr(err);
+              req.session.msg = '系统错误！';
+              return res.end();
             });
           });
         }, judge = function() {
@@ -241,6 +237,11 @@ router.route('/')
             con.probs = ary;
           return save();
         });
+      })
+      .fail(function(err){
+        LogErr(err);
+        req.session.msg = '系统错误！';
+        return res.end();
       });
     } else {
       if (!ary.length) {
@@ -266,14 +267,15 @@ router.route('/')
           open_reg: open_reg,
           type: type,
           family: family
-        })).save(function(err) {
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.end();
-          }
+        })).save()
+        .then(function(){
           req.session.msg = 'Your Contest has been added successfully!';
           return res.end(id.toString());
+        })
+        .fail(function(err){
+          LogErr(err);
+          req.session.msg = '系统错误！';
+          return res.end();
         });
       });
     }

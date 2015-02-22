@@ -188,11 +188,8 @@ router.post('/batchresult', function(req, res){
     if (req.session.user) {
       name = req.session.user.name;
     }
-    Contest.find({contestID: {$in: cids}}, function(err, contests){
-      if (err) {
-        LogErr(err);
-        return res.end();  //not refresh!
-      }
+    Contest.find({contestID: {$in: cids}})
+    .then(function(contests){
       var canSee = {};
       contests.forEach(function(p){
         if (name == p.userName || Comm.isEnded(p)) {
@@ -210,6 +207,10 @@ router.post('/batchresult', function(req, res){
         sols[p.runID] = {result: p.result, time: t, memory: m, userName: p.userName};
       });
       return res.json(sols);
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end();  //not refresh!
     });
   });
 });
@@ -265,8 +266,12 @@ router.post('/get', function(req, res){
   var contest, solutions, cnt;
   var arr = [
     function(cb) {
-      Contest.watch(cid, function(err, con){
+      Contest.watch(cid)
+      .then(function(con){
         contest = con;
+        return cb();
+      })
+      .fail(function(err){
         return cb(err);
       });
     },

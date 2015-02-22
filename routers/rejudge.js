@@ -12,10 +12,8 @@ var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
 function ClearReduceData(cids, cb) {
-  ContestRank.clear({'_id.cid': {$in: cids}}, function(err){
-    if (err) {
-      return cb(err);
-    }
+  ContestRank.clear({'_id.cid': {$in: cids}})
+  .then(function(){
     Overview.remove({'_id.cid': {$in: cids}}, function(err){
       if (err) {
         return cb(err);
@@ -25,10 +23,17 @@ function ClearReduceData(cids, cb) {
         updateTime: 0,
         overviewRunID: 0,
         overviewUpdateTime: 0
-      }}, function(err){
+      }})
+      .then(function(){
+        return cb();
+      })
+      .fail(function(err){
         return cb(err);
       });
     });
+  })
+  .fail(function(err){
+    return cb(err);
   });
 }
 

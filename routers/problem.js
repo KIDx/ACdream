@@ -306,8 +306,12 @@ router.post('/get', function(req, res){
   if (cid) {
     arr.push(
       function(cb) {
-        Contest.watch(cid, function(err, contest){
+        Contest.watch(cid)
+        .then(function(contest){
           con = contest;
+          return cb();
+        })
+        .fail(function(err){
           return cb(err);
         });
       }

@@ -54,16 +54,12 @@ router.get('/:rid', function(req, res){
       if (sol.cID < 0) {
         return RP(false);
       }
-      Contest.watch(sol.cID, function(err, contest){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
-        if (contest && name == contest.userName) {
-          return RP(true);
-        }
-        return RP(false);
+      Contest.watch(sol.cID)
+      .then(function(contest){
+        return RP(contest && name == contest.userName);
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
     })
     .fail(function(err){

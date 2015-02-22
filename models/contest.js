@@ -4,8 +4,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var pageNum = Settings.contest_pageNum;
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function Contest(contest) {
   this.contestID = contest.contestID;
@@ -53,7 +51,8 @@ contestObj.index({startTime: -1, contestID: -1});
 mongoose.model('contests', contestObj);
 var contests = mongoose.model('contests');
 
-Contest.prototype.save = function(callback) {
+Contest.prototype.save = function() {
+  var d = Q.defer();
   contest = new contests();
   contest.contestID = this.contestID;
   contest.userName = this.userName;
@@ -78,79 +77,108 @@ Contest.prototype.save = function(callback) {
   contest.overviewRunID = 0;
   contest.save(function(err){
     if (err) {
-      LogErr('Contest.save failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Contest.find = function(cond, callback) {
+Contest.find = function(cond) {
+  var d = Q.defer();
   contests.find(cond, function(err, docs){
     if (err) {
-      LogErr('Contest.find failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Contest.get = function(cond, page, callback) {
+Contest.get = function(cond, page) {
+  var d = Q.defer();
   contests.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
-      return callback(null, null, -1);
+      return d.resolve({
+        contests: [],
+        totalPage: 1
+      });
     }
     contests.find(cond).sort({startTime: -1, contestID: -1}).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
-        LogErr('Contest.get failed!');
+        d.reject(err);
+      } else {
+        d.resolve({
+          contests: docs,
+          totalPage: Math.floor((count+pageNum-1)/pageNum)
+        });
       }
-      return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
   });
+  return d.promise;
 };
 
-Contest.watch = function(cid, callback) {
+Contest.watch = function(cid) {
+  var d = Q.defer();
   contests.findOne({contestID: cid}, function(err, doc){
     if (err) {
-      LogErr('Contest.watch failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Contest.findOneAndUpdate = function(cond, H, O, callback) {
-  contests.findOneAndUpdate(cond, H, O, function(err, doc){
+Contest.findOneAndUpdate = function(cond, val, opt) {
+  var d = Q.defer();
+  contests.findOneAndUpdate(cond, val, opt, function(err, doc){
     if (err) {
-      LogErr('Contest.findOneAndUpdate failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Contest.update = function(cid, H, callback) {
-  contests.update({contestID: cid}, H, function(err){
+Contest.update = function(cid, val) {
+  var d = Q.defer();
+  contests.update({contestID: cid}, val, function(err){
     if (err) {
-      LogErr('Contest.update failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Contest.multiUpdate = function(cond, H, callback) {
-  contests.update(cond, H, {multi: true}, function(err){
+Contest.multiUpdate = function(cond, val) {
+  var d = Q.defer();
+  contests.update(cond, val, {multi: true}, function(err){
     if (err) {
-      LogErr('Contest.multiUpdate failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Contest.remove = function(cid, callback) {
+Contest.remove = function(cid) {
+  var d = Q.defer();
   contests.remove({contestID: cid}, function(err){
     if (err) {
-      LogErr('Contest.remove failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
 Contest.topFive = function(cond) {

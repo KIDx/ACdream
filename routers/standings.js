@@ -84,17 +84,16 @@ router.get('/', function(req, res){
     });
   };
   if (cid) {
-    Contest.watch(cid, function(err, con){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    Contest.watch(cid)
+    .then(function(con){
       if (!con || con.type != 2 || !con.contestants) {
-        return res.redirect('404');
+        return res.redirect('/404');
       }
       Q.name = {$in: con.contestants};
       return RP();
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   } else {
     return RP();

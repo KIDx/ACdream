@@ -115,11 +115,8 @@ router.route('/')
       cid = -1;
       return RP();
     } else {
-      Contest.watch(cid, function(err, contest){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
+      Contest.watch(cid)
+      .then(function(contest){
         if (!contest) {
           return res.end(); //not allow
         }
@@ -144,6 +141,10 @@ router.route('/')
           return res.end('1'); //refresh
         }
         return RP();
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end('3');
       });
     }
   })

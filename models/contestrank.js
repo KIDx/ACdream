@@ -1,11 +1,14 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var pageNum = Settings.contestRank_pageNum;
-var initialValue = { penalty: 0, solved: 0, submitTime: 0 };
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
+var initialValue = {
+  penalty: 0,
+  solved: 0,
+  submitTime: 0
+};
 
 function Rank(cid, name) {
   this.cid = cid;
@@ -30,84 +33,110 @@ rankObj.index({
 mongoose.model('ranks', rankObj);
 var ranks = mongoose.model('ranks');
 
-Rank.prototype.save = function(callback) {
-  //存入 Mongodb 的文档
+Rank.prototype.save = function() {
+  var d = Q.defer();
   rank = new ranks();
   rank.value = initialValue;
   rank._id = new Object({ name: this.name, cid: this.cid });
   rank.save(function(err){
     if (err) {
-      LogErr('Rank.save failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Rank.findOne = function(Q, callback) {
-  ranks.findOne(Q, function(err, doc){
+Rank.findOne = function(cond) {
+  var d = Q.defer();
+  ranks.findOne(cond, function(err, doc){
     if (err) {
-      LogErr('Rank.fineOne failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Rank.get = function(Q, page, callback) {
-  ranks.count(Q, function(err, count){
+Rank.get = function(cond, page) {
+  var d = Q.defer();
+  ranks.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
-      return callback(null, null, -1);
+      return d.resolve({
+        users: [],
+        totalPage: 1
+      });
     }
-    ranks.find(Q).sort({
+    ranks.find(cond).sort({
       'value.solved': -1,
       'value.penalty': 1,
       'value.submitTime': -1,
       '_id.name': 1
     }).skip((page-1)*pageNum).limit(pageNum).exec(function(err, docs) {
       if (err) {
-        LogErr('Rank.get failed!');
+        d.reject(err);
+      } else {
+        d.resolve({
+          users: docs,
+          totalPage: Math.floor((count+pageNum-1)/pageNum)
+        });
       }
-      return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
   });
+  return d.promise;
 };
 
-Rank.getAll = function(Q, callback) {
-  ranks.find(Q).sort({
+Rank.getAll = function(cond) {
+  var d = Q.defer();
+  ranks.find(cond).sort({
     'value.solved': -1,
     'value.penalty': 1,
     'value.submitTime': -1,
     '_id.name': 1
   }).exec(function(err, docs){
     if (err) {
-      LogErr('Rank.getAll failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Rank.count = function(Q, callback) {
-  ranks.count(Q, function(err, count){
+Rank.count = function(cond) {
+  var d = Q.defer();
+  ranks.count(cond, function(err, count){
     if (err) {
-      LogErr('Rank.count failed!');
+      d.reject(err);
+    } else {
+      d.resolve(count);
     }
-    return callback(err, count);
   });
+  return d.promise;
 };
 
-Rank.clear = function(Q, callback) {
-  ranks.update(Q, {value: initialValue}, {multi:true}, function(err){
+Rank.clear = function(cond) {
+  var d = Q.defer();
+  ranks.update(cond, {value: initialValue}, {multi:true}, function(err){
     if (err) {
-      LogErr('Rank.clear failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Rank.remove = function(Q, callback) {
-  ranks.remove(Q, function(err){
+Rank.remove = function(cond) {
+  var d = Q.defer();
+  ranks.remove(cond, function(err){
     if (err) {
-      LogErr('Rank.remove failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };

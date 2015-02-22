@@ -27,11 +27,8 @@ router.post('/cal', function(req, res){
   if (!cid) {
     return res.end(); //not allow
   }
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end('-3');
-    }
+  Contest.watch(cid)
+  .then(function(contest){
     if (!contest) {
       return res.end();       //not allow
     }
@@ -49,11 +46,8 @@ router.post('/cal', function(req, res){
         LogErr(err);
         return res.end('-3');
       }
-      ContestRank.getAll({'_id.cid': cid, '_id.name': {$in: names}}, function(err, R){
-        if (err) {
-          LogErr(err);
-          return res.end('-3');
-        }
+      ContestRank.getAll({'_id.cid': cid, '_id.name': {$in: names}})
+      .then(function(R){
         var rank = {}, act = {}, pos = -1;
         if (R && R.length) {
           R.forEach(function(p, i){
@@ -121,8 +115,16 @@ router.post('/cal', function(req, res){
             return res.end(String(cnt));
           });
         });
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end('-3');
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('-3');
   });
 });
 

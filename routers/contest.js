@@ -37,22 +37,15 @@ var getRegState = Comm.getRegState;
 /*
  * 注册比赛并且初始化该用户的ContestRank
  */
-function regContestAndUpdate(cid, name, callback) {
-  Contest.update(cid, {$addToSet: {contestants: name}}, function(err){
-    if (err) {
-      return callback(err);
+function regContestAndUpdate(cid, name) {
+  return Contest.update(cid, {$addToSet: {contestants: name}})
+  .then(function(){
+    return ContestRank.findOne({'_id.cid': cid, '_id.name': name});
+  })
+  .then(function(rank){
+    if (!rank) {
+      (new ContestRank(cid, name)).save();
     }
-    ContestRank.findOne({'_id.cid': cid, '_id.name': name}, function(err, doc){
-      if (err) {
-        return callback(err);
-      }
-      if (doc) {
-        return callback();
-      }
-      (new ContestRank(cid, name)).save(function(err){
-        return callback(err);
-      });
-    });
   });
 }
 
@@ -67,12 +60,8 @@ router.get('/', function(req, res){
 
   var name = req.session.user ? req.session.user.name : '';
 
-  Contest.watch(cid, function(err, contest) {
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
+  Contest.watch(cid)
+  .then(function(contest) {
     if (!contest) {
       return res.redirect('/404');
     }
@@ -126,6 +115,9 @@ router.get('/', function(req, res){
     .fail(function(err){
       FailRedirect(err, req, res);
     });
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 
@@ -163,34 +155,23 @@ router.get('/list', function(req, res){
     Q.family = family;
   }
 
-  Contest.get(Q, page, function(err, contests, n){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
-    if (n < 0) {
-      return res.redirect(url);
-    }
+  Contest.get(Q, page)
+  .then(function(o){
     var T = new Array(), R = {}, now = (new Date()).getTime();
     var CS = {}, names = new Array();
-    if (contests) {
+    if (o.contests) {
       if (req.session.cid) {
         CS = req.session.cid;
       }
-      contests.forEach(function(p, i){
+      o.contests.forEach(function(p, i){
         names.push(p.userName);
         T.push(p.startTime-now);
         if (req.session.user && isRegCon(p.contestants, req.session.user.name))
           R[i] = true;
       });
     }
-    User.find({name: {$in: names}}, function(err, users){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    User.qfind({name: {$in: names}})
+    .then(function(users){
       var UC = {}, UT = {};
       if (users) {
         users.forEach(function(p){
@@ -203,9 +184,9 @@ router.get('/list', function(req, res){
         key: KEY.CONTEST_LIST,
         type: type,
         family: family,
-        contests: contests,
+        contests: o.contests,
         getDate: getDate,
-        n: n,
+        n: o.totalPage,
         search: search,
         page: page,
         T: T,
@@ -214,7 +195,13 @@ router.get('/list', function(req, res){
         UC: UC,
         UT: UT
       });
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 
@@ -258,10 +245,8 @@ router.post('/overview', function(req, res){
         $set: { overviewUpdateTime: now }
       }, {
         new: false
-      }, function(err, contest){
-        if (err) {
-          return cb(err);
-        }
+      })
+      .then(function(contest){
         if (!contest) {
           return getOverview(cb);
         }
@@ -303,15 +288,19 @@ router.post('/overview', function(req, res){
               if (err) {
                 return cb(err);
               }
-              Contest.update(cid, {$set: {overviewRunID: maxRunID}}, function(err){
-                if (err) {
-                  return cb(err);
-                }
+              Contest.update(cid, {$set: {overviewRunID: maxRunID}})
+              .then(function(){
                 return getOverview(cb);
+              })
+              .fail(function(err){
+                return cb(err);
               });
             });
           });
         });
+      })
+      .fail(function(err){
+        return cb(err);
       });
     }
   );
@@ -364,24 +353,14 @@ router.post('/ranklist', function(req, res){
     $set: { updateTime: now }
   }, {
     new: false
-  }, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end();
-    }
+  })
+  .then(function(contest){
     var RP = function(con){
-      ContestRank.get({'_id.cid': cid}, page, function(err, users, n){
-        if (err) {
-          LogErr(err);
-          return res.end();
-        }
-        if (n < 0) {
-          return res.end();
-        }
-
+      ContestRank.get({'_id.cid': cid}, page)
+      .then(function(o){
         var currentUser = req.session.user ? req.session.user.name : '';
         var resp = {
-          pageNum: n,
+          pageNum: o.totalPage,
           startTime: con.startTime,
           reg_state: getRegState(con, currentUser),
           contestants: con.contestants.length,
@@ -389,19 +368,19 @@ router.post('/ranklist', function(req, res){
           svrTime: (new Date()).getTime()
         };
 
-        if (!users || users.length == 0) {
+        if (!o.users || o.users.length == 0) {
           return res.json(resp);
         }
         var has = {}, names = new Array();
         var Users = new Array();
-        var V = users[0].value, T = users[0]._id.name;
+        var V = o.users[0].value, T = o.users[0]._id.name;
         if (con.stars) {
           con.stars.forEach(function(p){
             has[p] = true;
           });
         }
         var hasMe = false;
-        users.forEach(function(p, i){
+        o.users.forEach(function(p, i){
           var tmp = {name: p._id.name, value: p.value};
           if (has[tmp.name]) {
             tmp.star = true;
@@ -432,8 +411,12 @@ router.post('/ranklist', function(req, res){
             });
           },
           function(cb) {
-            ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}}, function(err, res){
+            ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}})
+            .then(function(res){
               cnt = res;
+              return cb();
+            })
+            .fail(function(err){
               return cb(err);
             });
           }
@@ -442,10 +425,8 @@ router.post('/ranklist', function(req, res){
           names.push(currentUser);
           arr.push(
             function(cb) {
-              ContestRank.findOne({'_id.cid': cid, '_id.name': currentUser}, function(err, u){
-                if (err) {
-                  return cb(err);
-                }
+              ContestRank.findOne({'_id.cid': cid, '_id.name': currentUser})
+              .then(function(u){
                 if (!u) {
                   return cb();
                 }
@@ -461,6 +442,9 @@ router.post('/ranklist', function(req, res){
                   }
                   return cb();
                 });
+              })
+              .fail(function(err){
+                return cb(err);
               });
             }
           );
@@ -480,18 +464,23 @@ router.post('/ranklist', function(req, res){
           resp.total = cnt;
           return res.json(resp);
         });
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end();
       });
     };
     if (!contest) {
-      Contest.watch(cid, function(err, con){
-        if (err) {
-          LogErr(err);
-          return res.end();
-        }
+      Contest.watch(cid)
+      .then(function(con){
         if (!con) {
           return res.end();
         }
         return RP(con);
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end();
       });
     } else {
       var indate = {$gte: contest.startTime, $lte: contest.startTime+contest.len*60000};
@@ -571,8 +560,12 @@ router.post('/ranklist', function(req, res){
                 FB[p._id] = p.userName;
               });
             }
-            Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true}, function(err, con){
+            Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true})
+            .then(function(con){
               contest = con; //update contest because of the FB
+              return cb();
+            })
+            .fail(function(err){
               return cb(err);
             });
           });
@@ -611,6 +604,10 @@ router.post('/ranklist', function(req, res){
         });
       });
     }
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end();
   });
 });
 
@@ -630,11 +627,8 @@ router.post('/addDiscuss', function(req, res){
   if (!title || !content || !name || ! cid) {
     return res.end();    //not allow
   }
-  Contest.watch(cid, function(err, con){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  Contest.watch(cid)
+  .then(function(con){
     if (con.type == 2 && name != con.userName && !isRegCon(con.contestants, name)) {
       return res.end('2');
     }
@@ -660,6 +654,10 @@ router.post('/addDiscuss', function(req, res){
         return res.end('3');
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 
@@ -681,11 +679,8 @@ router.post('/discuss', function(req, res){
   if (!page || page < 0) {
     return res.end();  //not allow
   }
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end();  //not refresh
-    }
+  Contest.watch(cid)
+  .then(function(contest){
     if (!contest) {
       return res.end();  //not allow
     }
@@ -729,6 +724,10 @@ router.post('/discuss', function(req, res){
       LogErr(err);
       return res.end();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end();  //not refresh
   });
 });
 
@@ -744,16 +743,17 @@ router.post('/login', function(req, res){
   if(!cid) {
     return res.end();  //not allow
   }
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end();
-    }
+  Contest.watch(cid)
+  .then(function(contest){
     if (Comm.MD5(String(req.body.psw)) == contest.password) {
       if (!req.session.cid) req.session.cid = {};
       req.session.cid[req.body.cid] = true;
       return res.end('1');
     }
+    return res.end();
+  })
+  .fail(function(err){
+    LogErr(err);
     return res.end();
   });
 });
@@ -771,12 +771,8 @@ router.post('/del', function(req, res){
   if (!cid || !name) {
     return res.end();  //not allow
   }
-  Contest.watch(cid, function(err, con){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  Contest.watch(cid)
+  .then(function(con){
     if (name != con.userName && name != 'admin') {
       req.session.msg = 'Delete Failed! You are not the manager!';
       return res.end();
@@ -791,16 +787,22 @@ router.post('/del', function(req, res){
         req.session.msg = 'Can\'t delete the contest, because there are some submits in this contest!';
         return res.end();
       }
-      Contest.remove(cid, function(err){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
+      Contest.remove(cid)
+      .then(function(){
         req.session.msg = 'Contest '+cid+' has been Deleted successfully!';
+        return res.end();
+      })
+      .fail(function(err){
+        LogErr(err);
+        req.session.msg = '系统错误！';
         return res.end();
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 
@@ -818,25 +820,27 @@ router.post('/register', function(req, res){
     return res.end('1');
   }
   var cid = parseInt(req.body.cid, 10);
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end('2');
-    }
+  Contest.watch(cid)
+  .then(function(contest){
     if (!contest || contest.type != 2 || contest.password) {
       return res.end();  //not allow
     }
     if (getRegState(contest, name) === 2) {
       return res.end('3');
     }
-    regContestAndUpdate(cid, name, function(err){
-      if (err) {
-        LogErr(err);
-        return res.end('2');
-      }
+    regContestAndUpdate(cid, name)
+    .then(function(){
       req.session.msg = 'Your Registeration has been submited successfully!';
       return res.end();
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end('2');
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('2');
   });
 });
 
@@ -859,11 +863,8 @@ router.post('/addContestant', function(req, res){
   if (!cid || !name || !fa || !tid) {
     return res.end(); //not allow
   }
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  Contest.watch(cid)
+  .then(function(contest){
     if (!contest) {
       return res.end(); //not allow
     }
@@ -878,11 +879,8 @@ router.post('/addContestant', function(req, res){
       if (contest.contestants.indexOf(user.name) >= 0) {
         return res.end('1');
       }
-      regContestAndUpdate(cid, name, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
+      regContestAndUpdate(cid, name)
+      .then(function(){
         IDs.get('topicID', function(err, id){
           if (err) {
             LogErr(err);
@@ -896,23 +894,29 @@ router.post('/addContestant', function(req, res){
             fa: fa,
             at: name,
             inDate: (new Date()).getTime()
-          })).save(function(err){
-            if (err) {
-              LogErr(err);
-              return res.end('3');
-            }
-            Topic.update(tid, {$inc: {reviewsQty: 1}}, function(err){
-              if (err) {
-                LogErr(err);
-                return res.end('3');
-              }
-              req.session.msg = '添加完成！';
-              return res.end();
-            });
+          })).save()
+          .then(function(){
+            return Topic.update(tid, {$inc: {reviewsQty: 1}});
+          })
+          .then(function(){
+            req.session.msg = '添加完成！';
+            return res.end();
+          })
+          .fail(function(err){
+            LogErr(err);
+            return res.end('3');
           });
         });
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end('3');
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 
@@ -947,21 +951,18 @@ router.post('/removeContestant', function(req, res){
       req.session.msg = '该用户有提交记录，无法移除！';
       return res.end();
     }
-    Contest.update(cid, {$pull: {contestants: name}}, function(err){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
-      ContestRank.remove({'_id.cid': cid, '_id.name': name}, function(err){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
-        req.session.msg = name+'已成功从该比赛中移除！';
-        return res.end();
-      });
+    Contest.update(cid, {$pull: {contestants: name}})
+    .then(function(){
+      return ContestRank.remove({'_id.cid': cid, '_id.name': name});
+    })
+    .then(function(){
+      req.session.msg = name+'已成功从该比赛中移除！';
+      return res.end();
+    })
+    .fail(function(err){
+      LogErr(err);
+      req.session.msg = '系统错误！';
+      return res.end();
     });
   });
 });
@@ -981,12 +982,8 @@ router.post('/toggleStar', function(req, res){
   if (!cid || !str || !type) {
     return res.end();    //not allow!
   }
-  Contest.watch(cid, function(err, con){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  Contest.watch(cid)
+  .then(function(con){
     var name = req.session.user.name;
     if (name != con.userName && name != 'admin') {
       req.session.msg = 'You have no permission to do that!';
@@ -1011,16 +1008,22 @@ router.post('/toggleStar', function(req, res){
       } else {
         H = {$pullAll: {stars: users}};
       }
-      Contest.update(cid, H, function(err){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
+      Contest.update(cid, H)
+      .then(function(){
         req.session.msg = users.length+'个用户切换打星状态成功！';
+        return res.end();
+      })
+      .fail(function(err){
+        LogErr(err);
+        req.session.msg = '系统错误！';
         return res.end();
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 
@@ -1032,11 +1035,8 @@ router.post('/syncTime', function(req, res){
 
   var cid = parseInt(req.body.cid, 10);
   var name = req.session.user ? req.session.user.name : '';
-  Contest.watch(cid, function(err, contest){
-    if (err) {
-      LogErr(err);
-      return res.end();
-    }
+  Contest.watch(cid)
+  .then(function(contest){
     if (!contest) {
       return res.end();
     }
@@ -1047,6 +1047,10 @@ router.post('/syncTime', function(req, res){
       duration: contest.len * 60,
       svrTime: (new Date()).getTime()
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end();
   });
 });
 
