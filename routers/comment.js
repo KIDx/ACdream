@@ -29,35 +29,32 @@ router.post('/add', function(req, res){
   if (!user || !tid || !content || !fa || user == at) {
     return res.end();   //not allow!
   }
-  IDs.get('topicID', function(err, id){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
-    var now = (new Date()).getTime();
-    (new Comment({
-      id: id,
-      content: xss(content, xss_options),
-      user: user,
-      tid: tid,
-      fa: fa,
-      at: at,
-      inDate: now
-    })).save()
-    .then(function(){
-      return Topic.update(tid, {
+  var now = (new Date()).getTime();
+  IDs.get('topicID')
+  .then(function(id){
+    return [
+      (new Comment({
+        id: id,
+        content: xss(content, xss_options),
+        user: user,
+        tid: tid,
+        fa: fa,
+        at: at,
+        inDate: now
+      })).save(),
+      Topic.update(tid, {
         $set: {lastReviewer: user, lastReviewTime: now, lastComment: id},
         $inc: {reviewsQty: 1}
-      });
-    })
-    .then(function(){
-      req.session.msg = '回复成功！';
-      return res.end();
-    })
-    .fail(function(){
-      LogErr(err);
-      res.end('3');
-    });
+      })
+    ];
+  })
+  .then(function(){
+    req.session.msg = '回复成功！';
+    return res.end();
+  })
+  .fail(function(){
+    LogErr(err);
+    res.end('3');
   });
 });
 

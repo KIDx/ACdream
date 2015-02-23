@@ -1,8 +1,7 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function IDs (ids){
   this.name = ids.name;
@@ -19,16 +18,16 @@ var idsObj = new Schema({
 mongoose.model('idss', idsObj);
 var idss = mongoose.model('idss');
 
-IDs.get = function(idname, callback) {
+IDs.get = function(idname) {
+  var d = Q.defer();
   idss.findOneAndUpdate({name: idname}, {$inc:{'id':1}}, function(err, doc) {
     if (err) {
-      LogErr('IDs.get failed!');
-      return callback (err, null);
+      d.reject(err);
+    } else if (!doc) {
+      d.resolve('db.idss should be init first!');
+    } else {
+      d.resolve(doc.id);
     }
-    if (!doc) {
-      err = 'You should init the ids first!';
-      throw err;
-    }
-    return callback(err, doc.id);
   });
+  return d.promise;
 };

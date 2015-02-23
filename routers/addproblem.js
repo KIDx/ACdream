@@ -119,27 +119,25 @@ router.route('/')
       FailRedirect(err, req, res);
     });
   } else {
-    IDs.get ('problemID', function(err, id) {
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    var newID = 0;
+    IDs.get('problemID')
+    .then(function(id) {
+      newID = id;
       var manager = '';
-      if (req.session.user.name != 'admin')
+      if (req.session.user.name != 'admin') {
         manager = req.session.user.name;
-      var newProblem = new Problem({
+      }
+      return (new Problem({
         problemID: id,
         manager: manager
-      });
-      newProblem.save()
-      .then(function(err){
-        req.session.msg = 'Problem '+id+' has been created successfully!';
-        return res.redirect('/addproblem?pID='+id);
-      })
-      .fail(function(err){
-        FailRedirect(err, req, res);
-      });
+      })).save();
+    })
+    .then(function(err){
+      req.session.msg = 'Problem '+newID+' has been created successfully!';
+      return res.redirect('/addproblem?pID='+newID);
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   }
 });

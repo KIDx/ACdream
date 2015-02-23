@@ -145,15 +145,12 @@ router.post('/uploadCode', function(req, res){
     req.session.submitTime = now;
     Problem.watch(pid)
     .then(function(problem){
-      if (err) {
-        LogErr(err);
-        return RP('3');
-      }
       if (!problem) {
         return RP();  //not allow!
       }
       var name = req.session.user.name;
-      IDs.get ('runID', function(err, id){
+      IDs.get ('runID')
+      .then(function(id){
         var newSolution = new Solution({
           runID: id,
           problemID: pid,
@@ -185,6 +182,10 @@ router.post('/uploadCode', function(req, res){
             return RP('3');
           });
         });
+      })
+      .fail(function(err){
+        LogErr(err);
+        return RP('3');
       });
     })
     .fail(function(err){

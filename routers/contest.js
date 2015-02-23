@@ -631,32 +631,27 @@ router.post('/addDiscuss', function(req, res){
   Contest.watch(cid)
   .then(function(con){
     if (con.type == 2 && name != con.userName && !isRegCon(con.contestants, name)) {
-      return res.end('2');
+      throw new Error('2');
     }
-    IDs.get('topicID', function(err, id){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      (new Topic({
-        id: id,
-        title: title,
-        content: xss(content, xss_options),
-        cid: cid,
-        user: req.session.user.name,
-        inDate: (new Date()).getTime()
-      }))
-      .save()
-      .then(function(){
-        return res.end();
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end('3');
-      });
-    });
+    return IDs.get('topicID')
+  })
+  .then(function(id){
+    return (new Topic({
+      id: id,
+      title: title,
+      content: xss(content, xss_options),
+      cid: cid,
+      user: req.session.user.name,
+      inDate: (new Date()).getTime()
+    })).save();
+  })
+  .then(function(){
+    return res.end();
   })
   .fail(function(err){
+    if (err.message === '2') {
+      return res.end('2');
+    }
     LogErr(err);
     return res.end('3');
   });

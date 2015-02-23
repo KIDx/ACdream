@@ -55,11 +55,8 @@ router.route('/')
   }
   var now = (new Date()).getTime();
   var RP = function(){
-    IDs.get('runID', function(err, id){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
+    IDs.get('runID')
+    .then(function(id){
       var newSolution = new Solution({
         runID: id,
         problemID: pid,
@@ -104,6 +101,10 @@ router.route('/')
           return res.end();
         });
       });
+    })
+    .fail(function(){
+      LogErr(err);
+      return res.end('3');
     });
   };
   Problem.watch(pid)

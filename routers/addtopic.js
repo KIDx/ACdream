@@ -121,28 +121,26 @@ router.route('/')
     if (vcode.toLowerCase() != req.session.verifycode) {
       return res.end('1');
     }
-    IDs.get('topicID', function(err, id){
-      if (err) {
-        LogErr(err);
-        return res.end('2');
-      }
-      (new Topic({
+    var resp = '';
+    IDs.get('topicID')
+    .then(function(id){
+      resp = id.toString();
+      return (new Topic({
         id: id,
         title: title,
         content: xss(content, xss_options),
         cid: cid,
         user: req.session.user.name,
         inDate: (new Date()).getTime()
-      }))
-      .save()
-      .then(function(){
-        req.session.msg = '发布成功！';
-        return res.end(id.toString());
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end('2');
-      });
+      })).save();
+    })
+    .then(function(){
+      req.session.msg = '发布成功！';
+      return res.end(resp);
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end('2');
     });
   }
 });

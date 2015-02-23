@@ -247,13 +247,11 @@ router.route('/')
       if (!ary.length) {
         return res.end();  //not allow
       }
-      IDs.get('contestID', function(err, id) {
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        }
-        (new Contest({
+      var resp = '';
+      IDs.get('contestID')
+      .then(function(id){
+        resp = id.toString();
+        return (new Contest({
           contestID: id,
           userName: name,
           title: title,
@@ -267,16 +265,16 @@ router.route('/')
           open_reg: open_reg,
           type: type,
           family: family
-        })).save()
-        .then(function(){
-          req.session.msg = 'Your Contest has been added successfully!';
-          return res.end(id.toString());
-        })
-        .fail(function(err){
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        });
+        })).save();
+      })
+      .then(function(){
+        req.session.msg = 'Your Contest has been added successfully!';
+        return res.end(resp);
+      })
+      .fail(function(err){
+        LogErr(err);
+        req.session.msg = '系统错误！';
+        return res.end();
       });
     }
   };
