@@ -23,7 +23,7 @@ var getRegState = Comm.getRegState;
  * Status页面
  */
 router.get('/', function(req, res){
-  var Q = {}, page, name, pid, result, lang;
+  var cond = {}, page, name, pid, result, lang;
 
   page = parseInt(req.query.page, 10);
   if (!page) {
@@ -34,11 +34,11 @@ router.get('/', function(req, res){
 
   name = Comm.clearSpace(req.query.name);
   if (name) {
-    Q.userName = Comm.toEscape(name);
+    cond.userName = Comm.toEscape(name);
   }
 
   pid = parseInt(req.query.pid, 10);
-  if (pid) Q.problemID = pid;
+  if (pid) cond.problemID = pid;
 
   result = parseInt(req.query.result, 10);
   if (result < 0 || result > 15) {
@@ -46,9 +46,9 @@ router.get('/', function(req, res){
   }
   if (result >= 0) {
     if (result == 9) {
-      Q.result = { $in : [9, 10, 11, 12, 15] };
+      cond.result = { $in : [9, 10, 11, 12, 15] };
     } else {
-      Q.result = result;
+      cond.result = result;
     }
   }
 
@@ -57,23 +57,16 @@ router.get('/', function(req, res){
     if (lang < 1 || lang >= languages.length) {
       return res.redirect('/status');
     }
-    Q.language = lang;
+    cond.language = lang;
   }
 
-  Solution.get(Q, page, function(err, sols, n) {
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
-    if (n < 0) {
-      return res.redirect('/status');
-    }
+  Solution.get(cond, page)
+  .then(function(o) {
     var flg = false, has = {};
     var names = new Array(), pids = new Array();
     var R = new Array(), C = new Array();
-    if (sols) {
-      sols.forEach(function(p, i){
+    if (o.solutions) {
+      o.solutions.forEach(function(p, i){
         R.push(solRes(p.result));
         C.push(solCol(p.result));
         if (!has[p.userName]) {
@@ -106,8 +99,8 @@ router.get('/', function(req, res){
         res.render('status', {
           title: 'Status',
           key: KEY.STATUS,
-          n: n,
-          sols: sols,
+          n: o.totalPage,
+          sols: o.solutions,
           getDate: Comm.getDate,
           name: name,
           pid: pid,
@@ -128,6 +121,9 @@ router.get('/', function(req, res){
         FailRedirect(err, req, res);
       });
     });
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 
@@ -143,11 +139,8 @@ router.post('/CE', function(req, res){
   if (!rid) {
     return res.end();  //not allow
   }
-  Solution.watch({runID: rid}, function(err, solution){
-    if (err) {
-      LogErr(err);
-      return res.end('系统错误！');
-    }
+  Solution.findOne({runID: rid})
+  .then(function(solution){
     if (!solution) {
       return res.end(); //not allow
     }
@@ -155,6 +148,10 @@ router.post('/CE', function(req, res){
       return res.end('You have no permission to watch that Information!');
     }
     return res.end(solution.CE);
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('系统错误！');
   });
 });
 
@@ -175,11 +172,8 @@ router.post('/batchresult', function(req, res){
   if (rid_list.length > 100 || rid_list.length < 1) {
     return res.end();  //not allow
   }
-  Solution.find({runID: {$in: rid_list}}, function(err, solutions){
-    if (err) {
-      LogErr(err);
-      return res.end(); //not refresh!
-    }
+  Solution.find({runID: {$in: rid_list}})
+  .then(function(solutions){
     var cids = [];
     solutions.forEach(function(p, i){
       cids.push(p.cID);
@@ -212,6 +206,10 @@ router.post('/batchresult', function(req, res){
       LogErr(err);
       return res.end();  //not refresh!
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end();  //not refresh!
   });
 });
 
@@ -225,7 +223,7 @@ router.post('/get', function(req, res){
     return res.end(); //not allow!
   }
 
-  var Q = {cID: cid}, page, name, pid, result, lang;
+  var cond = {cID: cid}, page, name, pid, result, lang;
 
   page = parseInt(req.body.page, 10);
   if (!page) {
@@ -236,31 +234,31 @@ router.post('/get', function(req, res){
 
   name = String(req.body.name);
   if (name) {
-    Q.userName = String(req.body.name);
+    cond.userName = String(req.body.name);
   }
 
   pid = parseInt(req.body.pid, 10);
   if (pid) {
-    Q.problemID = pid;
+    cond.problemID = pid;
   }
 
   result = parseInt(req.body.result, 10);
   if (result >= 0) {
     if (result === 9) {
-      Q.result = { $in : [9, 10, 11, 12, 15] };
+      cond.result = { $in : [9, 10, 11, 12, 15] };
     } else {
-      Q.result = result;
+      cond.result = result;
     }
   }
 
   lang = parseInt(req.body.lang, 10);
   if (lang) {
-    Q.language = lang;
+    cond.language = lang;
   }
 
   name = req.session.user ? req.session.user.name : '';
   if (name !== 'admin') {
-    Q.$nor = [{userName: 'admin'}];
+    cond.$nor = [{userName: 'admin'}];
   }
 
   var contest, solutions, cnt;
@@ -276,9 +274,13 @@ router.post('/get', function(req, res){
       });
     },
     function(cb) {
-      Solution.get(Q, page, function(err, sols, n) {
-        solutions = sols;
-        cnt = n;
+      Solution.get(cond, page)
+      .then(function(o) {
+        solutions = o.solutions;
+        cnt = o.totalPage;
+        return cb();
+      })
+      .fail(function(err){
         return cb(err);
       });
     }

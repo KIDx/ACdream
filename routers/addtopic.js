@@ -88,7 +88,7 @@ router.route('/')
         req.session.msg = '修改成功！';
         return res.end(tid.toString());
       })
-      .fail(function(){
+      .fail(function(err){
         LogErr(err);
         return res.end('2');    //not refresh for error
       });
@@ -108,7 +108,7 @@ router.route('/')
         }
         return RP();
       })
-      .fail(function(){
+      .fail(function(err){
         LogErr(err);
         return res.end('2');
       })

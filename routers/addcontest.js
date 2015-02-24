@@ -99,14 +99,12 @@ router.route('/')
       if (clone == 1) {
         TP(true);
       } else {
-        Solution.watch({cID: cid}, function(err, sol){
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.redirect('/');
-          }
-          var E = sol ? false : true;
-          return TP(E);
+        Solution.findOne({cID: cid})
+        .then(function(sol){
+          return TP(sol ? false : true);
+        })
+        .fail(function(err){
+          FailRedirect(err, req, res);
         });
       }
     })
@@ -227,15 +225,17 @@ router.route('/')
           con.probs = ary;
           return save();
         }
-        Solution.watch({cID: cid}, function(err, sol){
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.end();
-          }
-          if (!sol)
+        Solution.findOne({cID: cid})
+        .then(function(sol){
+          if (!sol) {
             con.probs = ary;
+          }
           return save();
+        })
+        .fail(function(err){
+          LogErr(err);
+          req.session.msg = '系统错误！';
+          return res.end();
         });
       })
       .fail(function(err){

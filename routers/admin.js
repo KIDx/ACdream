@@ -58,12 +58,8 @@ router.post('/stat', function(req, res){
       }
     },
     sort: {runID: -1}
-  }, function(err, U){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  })
+  .then(function(U){
     if (!U) {
       return res.end();
     }
@@ -78,6 +74,11 @@ router.post('/stat', function(req, res){
       req.session.msg = '统计完成！';
       return res.end();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 

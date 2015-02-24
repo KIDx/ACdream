@@ -28,16 +28,12 @@ router.get('/:name', function(req, res){
       return res.redirect('/404');
     }
     Solution.aggregate([
-    { $match: { userName: name, result:{$gt:1} } }
-  , { $group: { _id: '$problemID', result: {$min: '$result'} } }
-  , { $sort: { _id: 1 } }
-    ], function(err, sols){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
-      var A = new Array(), B = new Array();
+      { $match: { userName: name, result: {$gt: 1} } },
+      { $group: { _id: '$problemID', result: {$min: '$result'} } },
+      { $sort: { _id: 1 } }
+    ])
+    .then(function(sols){
+      var A = [], B = [];
       if (sols) {
         sols.forEach(function(p){
           if (p.result == 2) {
@@ -86,6 +82,9 @@ router.get('/:name', function(req, res){
           FailRedirect(err, req, res);
         });
       }
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   });
 });

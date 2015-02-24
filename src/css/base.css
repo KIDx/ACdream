@@ -230,6 +230,10 @@ h3.problem-header {
   margin-bottom: 3px;
 }
 
+.prob-content img {
+  max-width: 100%;
+}
+
 .tag-box {
   margin-right: 5px;
   padding: 2px 3px;

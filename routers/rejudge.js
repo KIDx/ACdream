@@ -12,8 +12,8 @@ var Solution = require('../models/solution.js');
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 
-function ClearReduceData(cids, cb) {
-  Q.all([
+function ClearReduceData(cids) {
+  return Q.all([
     ContestRank.clear({'_id.cid': {$in: cids}}),
     Overview.remove({'_id.cid': {$in: cids}}),
     Contest.multiUpdate({contestID: {$in: cids}}, {$set: {
@@ -22,13 +22,7 @@ function ClearReduceData(cids, cb) {
       overviewRunID: 0,
       overviewUpdateTime: 0
     }})
-  ])
-  .then(function(){
-    return cb();
-  })
-  .fail(function(err){
-    return cb(err);
-  });
+  ]);
 }
 
 /*
@@ -59,44 +53,40 @@ router.post('/problem', function(req, res){
     var has = {};
     Problem.update(pid, {$set: {AC: 0}})
     .then(function(){
-      Solution.distinct('userName', {problemID: pid, result: 2}, function(err, users){
+      return Solution.distinct('userName', {problemID: pid, result: 2});
+    })
+    .then(function(users){
+      User.multiUpdate({'name': {$in: users}}, {$inc: {solved: -1}}, function(err){
         if (err) {
           LogErr(err);
           return res.end();
         }
-        User.multiUpdate({'name': {$in: users}}, {$inc: {solved: -1}}, function(err){
-          if (err) {
-            LogErr(err);
+        Solution.update({problemID: pid}, {$set: {result: 0}})
+        .then(function(){
+          return Solution.distinct('cID', {problemID: pid, cID: {$gt: -1}});
+        })
+        .then(function(cids){
+          return ClearReduceData(cids);
+        })
+        .then(function(){
+          if (!req.body.cid) {
+            req.session.msg = 'Problem '+pid+' has been Rejudged successfully!';
             return res.end();
           }
-          Solution.update({problemID: pid}, {$set: {result: 0}}, function(err){
-            if (err) {
-              LogErr(err);
-              return res.end();
-            }
-            Solution.distinct('cID', {problemID: pid, cID: {$gt: -1}}, function(err, cids){
-              if (err) {
-                LogErr(err);
-                return res.end();
-              }
-              ClearReduceData(cids, function(err){
-                if (err) {
-                  LogErr(err);
-                  return res.end();
-                }
-                if (!req.body.cid) {
-                  req.session.msg = 'Problem '+pid+' has been Rejudged successfully!';
-                  return res.end();
-                }
-                return res.end('1');
-              });
-            });
-          });
+          return res.end('1');
+        })
+        .fail(function(err){
+          LogErr(err);
+          return res.end();
         });
       });
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end();
     });
   })
-  .fail(function(){
+  .fail(function(err){
     LogErr(err);
     return res.end();
   });
@@ -115,11 +105,8 @@ router.post('/single', function(req, res){
   if (!rid || req.session.user.name != 'admin') {
     return res.end(); //not allow
   }
-  Solution.findOneAndUpdate({runID: rid, result: {$gt: 2}}, {$set: {result:0}}, function(err, sol){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  Solution.findOneAndUpdate({runID: rid, result: {$gt: 2}}, {$set: {result:0}})
+  .then(function(sol){
     if (!sol) {
       return res.end(); //not allow
     }
@@ -127,13 +114,18 @@ router.post('/single', function(req, res){
     if (cid == -1) {
       return res.end();
     }
-    ClearReduceData([cid], function(err){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
+    ClearReduceData([cid])
+    .then(function(){
       return res.end();
+    })
+    .fail(function(err){
+      LogErr(err);
+      return res.end('3');
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 

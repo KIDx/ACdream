@@ -108,7 +108,8 @@ router.get('/', function(req, res){
           Pt: Pt,
           Col: solCol,
           Res: solRes,
-          langs: languages
+          langs: languages,
+          family: contest.family
         });
       });
     })
@@ -251,17 +252,13 @@ router.post('/overview', function(req, res){
         if (!contest) {
           return getOverview(cb);
         }
-        Solution.findOne({cID: cid, runID: {$gt: contest.overviewRunID}}, {runID: -1}, function(err, sol){
-          if (err) {
-            return cb(err);
-          }
+        Solution.findOneBySort({cID: cid, runID: {$gt: contest.overviewRunID}}, {runID: -1})
+        .then(function(sol){
           if (!sol) {
             return getOverview(cb);
           }
-          Solution.findOne({cID: cid, result: {$lt: 2}}, {runID: 1}, function(err, sol2){
-            if (err) {
-              return cb(err);
-            }
+          Solution.findOneBySort({cID: cid, result: {$lt: 2}}, {runID: 1})
+          .then(function(sol2){
             var maxRunID;
             if (sol2 && sol.runID > sol2.runID - 1) {
               maxRunID = sol2.runID - 1;
@@ -285,19 +282,23 @@ router.post('/overview', function(req, res){
                 return val;
               },
               out: { reduce: 'overviews' }
-            }, function(err){
-              if (err) {
-                return cb(err);
-              }
-              Contest.update(cid, {$set: {overviewRunID: maxRunID}})
-              .then(function(){
-                return getOverview(cb);
-              })
-              .fail(function(err){
-                return cb(err);
-              });
+            })
+            .then(function(){
+              return Contest.update(cid, {$set: {overviewRunID: maxRunID}});
+            })
+            .then(function(){
+              return getOverview(cb);
+            })
+            .fail(function(err){
+              return cb(err);
             });
+          })
+          .fail(function(err){
+            return cb(err);
           });
+        })
+        .fail(function(err){
+          return cb(err);
         });
       })
       .fail(function(err){
@@ -309,12 +310,16 @@ router.post('/overview', function(req, res){
     arr.push(
       function(cb) {
         Solution.aggregate([
-          { $match: { userName: req.session.user.name, cID: cid, result: {$gt: 1} } }
-        , { $group: { _id: '$problemID', result: {$min: '$result'} } }
-        ], function(err, res){
+          { $match: { userName: req.session.user.name, cID: cid, result: {$gt: 1} } },
+          { $group: { _id: '$problemID', result: {$min: '$result'} } }
+        ])
+        .then(function(res){
           res.forEach(function(p){
             resp.self[p._id] = (p.result === 2);
           });
+          return cb();
+        })
+        .fail(function(err){
           return cb(err);
         });
       }
@@ -538,53 +543,45 @@ router.post('/ranklist', function(req, res){
             },
             scope: { penalty : contest.penalty },
             out: { reduce : 'ranks' }
-          }, function(err){
+          })
+          .then(function(){
+            return cb();
+          })
+          .fail(function(err){
             return cb(err);
           });
         },
         function(cb) {
-          Solution.aggregate([{
-            $match: {
-              cID: cid,
-              userName: {$ne: 'admin'},
-              inDate: indate,
-              result: 2
-            }
-          }, {$sort: {runID: 1}}, { $group: { _id: '$problemID', userName: {$first: '$userName'} } }
-          ], function(err, results){
-            if (err) {
-              return cb(err);
-            }
+          Solution.aggregate([
+            { $match: {cID: cid, userName: {$ne: 'admin'}, inDate: indate, result: 2} },
+            { $sort: {runID: 1} },
+            { $group: { _id: '$problemID', userName: {$first: '$userName'} } }
+          ])
+          .then(function(results){
             var FB = {};
             if (results) {
               results.forEach(function(p){
                 FB[p._id] = p.userName;
               });
             }
-            Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true})
-            .then(function(con){
-              contest = con; //update contest because of the FB
-              return cb();
-            })
-            .fail(function(err){
-              return cb(err);
-            });
+            return Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true});
+          })
+          .then(function(con){
+            contest = con; //update contest because of the FB
+            return cb();
+          })
+          .fail(function(err){
+            return cb(err);
           });
         }
       ];
-      Solution.findOne(cond, {runID: -1}, function(err, doc){
-        if (err) {
-          LogErr(err);
-          return res.end();
-        }
+      Solution.findOneBySort(cond, {runID: -1})
+      .then(function(doc){
         if (!doc) {
           return RP(contest);
         }
-        Solution.findOne({$and: [cond, {result: {$lt: 2}}]}, {runID: 1}, function(err, sol){
-          if (err) {
-            LogErr(err);
-            return res.end();
-          }
+        Solution.findOneBySort({$and: [cond, {result: {$lt: 2}}]}, {runID: 1})
+        .then(function(sol){
           if (sol) {
             maxRunID = sol.runID - 1;
           } else {
@@ -602,7 +599,15 @@ router.post('/ranklist', function(req, res){
             }
             return RP(contest);
           });
+        })
+        .fail(function(err){
+          LogErr(err);
+          return res.end();
         });
+      })
+      .fail(function(err){
+        LogErr(err);
+        return res.end();
       });
     }
   })
@@ -773,12 +778,8 @@ router.post('/del', function(req, res){
       req.session.msg = 'Delete Failed! You are not the manager!';
       return res.end();
     }
-    Solution.watch({cID: cid}, function(err, sol){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
+    Solution.findOne({cID: cid})
+    .then(function(sol){
       if (sol) {
         req.session.msg = 'Can\'t delete the contest, because there are some submits in this contest!';
         return res.end();
@@ -793,6 +794,11 @@ router.post('/del', function(req, res){
         req.session.msg = '系统错误！';
         return res.end();
       });
+    })
+    .fail(function(err){
+      LogErr(err);
+      req.session.msg = '系统错误！';
+      return res.end();
     });
   })
   .fail(function(err){
@@ -937,12 +943,8 @@ router.post('/removeContestant', function(req, res){
   if (!cid) {
     return res.end();  //not allow
   }
-  Solution.watch({userName: name, cID: cid}, function(err, sol){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  Solution.findOne({userName: name, cID: cid})
+  .then(function(sol){
     if (sol) {
       req.session.msg = '该用户有提交记录，无法移除！';
       return res.end();
@@ -960,6 +962,11 @@ router.post('/removeContestant', function(req, res){
       req.session.msg = '系统错误！';
       return res.end();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 

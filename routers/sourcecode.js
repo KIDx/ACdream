@@ -17,12 +17,8 @@ router.get('/:rid', function(req, res){
   if (!rid) {
     return res.redirect('/404');
   }
-  Solution.watch({runID: rid}, function(err, sol) {
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
+  Solution.findOne({runID: rid})
+  .then(function(sol) {
     if (!sol) {
       return res.redirect('/404');
     }
@@ -65,6 +61,9 @@ router.get('/:rid', function(req, res){
     .fail(function(err){
       FailRedirect(err, req, res);
     });
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 

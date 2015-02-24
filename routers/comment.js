@@ -52,7 +52,7 @@ router.post('/add', function(req, res){
     req.session.msg = '回复成功！';
     return res.end();
   })
-  .fail(function(){
+  .fail(function(err){
     LogErr(err);
     res.end('3');
   });

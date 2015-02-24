@@ -57,7 +57,7 @@ router.route('/')
   var RP = function(){
     IDs.get('runID')
     .then(function(id){
-      var newSolution = new Solution({
+      return (new Solution({
         runID: id,
         problemID: pid,
         userName: name,
@@ -66,43 +66,39 @@ router.route('/')
         length: Str.length,
         cID: cid,
         code: Str
-      });
-      newSolution.save(function(err){
+      })).save();
+    })
+    .then(function(){
+      var arr = [
+        function(cb) {
+          Problem.update(pid, {$inc: {submit: 1}})
+          .then(function(){
+            return cb();
+          })
+          .fail(function(err){
+            return cb(err);
+          });
+        },
+        function(cb) {
+          User.update({name: name}, {$inc: {submit: 1}}, function(err){
+            return cb(err);
+          });
+        }
+      ];
+      async.each(arr, function(func, cb){
+        func(cb);
+      }, function(err){
         if (err) {
           LogErr(err);
           return res.end('3');
         }
-        var arr = [
-          function(cb) {
-            Problem.update(pid, {$inc: {submit: 1}})
-            .then(function(){
-              return cb();
-            })
-            .fail(function(err){
-              return cb(err);
-            });
-          },
-          function(cb) {
-            User.update({name: name}, {$inc: {submit: 1}}, function(err){
-              return cb(err);
-            });
-          }
-        ];
-        async.each(arr, function(func, cb){
-          func(cb);
-        }, function(err){
-          if (err) {
-            LogErr(err);
-            return res.end('3');
-          }
-          if (cid < 0) {
-            req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-          }
-          return res.end();
-        });
+        if (cid < 0) {
+          req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+        }
+        return res.end();
       });
     })
-    .fail(function(){
+    .fail(function(err){
       LogErr(err);
       return res.end('3');
     });
@@ -149,7 +145,7 @@ router.route('/')
       });
     }
   })
-  .fail(function(){
+  .fail(function(err){
     LogErr(err);
     return res.end('3');
   });

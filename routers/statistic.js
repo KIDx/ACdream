@@ -35,19 +35,15 @@ router.get('/:pid', function(req, res) {
     if (!problem || (problem.hide && user!== problem.manager && user !== 'admin')) {
       return res.redirect('/404');
     }
-    var lang = parseInt(req.query.lang, 10), Q = {problemID:pid, result:2};
+    var lang = parseInt(req.query.lang, 10), cond = {problemID:pid, result:2};
     if (lang < 1 || lang >= languages.length) {
       return res.redirect('/statistic/'+pid);
     }
     if (lang) {
-      Q.language = lang;
+      cond.language = lang;
     }
-    Solution.distinct('userName', Q, function(err, users){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
+    Solution.distinct('userName', cond)
+    .then(function(users){
       var n = 0;
       if (users) n = users.length;
       if ((page-1)*stats_pageNum > n) {
@@ -64,13 +60,13 @@ router.get('/:pid', function(req, res) {
       } else if (sort_key == 2) {
         sq = {length: 1, time: 1, memory: 1, inDate: 1};
       }
-      var Q1 = {problemID: pid, result: 2};
-      var Q2 = {problemID: pid, result: {$gt: 1}};
+      var cond1 = {problemID: pid, result: 2};
+      var cond2 = {problemID: pid, result: {$gt: 1}};
       if (lang) {
-        Q1.language = Q2.language = lang;
+        cond1.language = cond2.language = lang;
       }
       Solution.aggregate([{
-        $match: Q1
+        $match: cond1
       }, {$sort: sq}, {
         $group: {
           _id: '$userName',
@@ -83,28 +79,20 @@ router.get('/:pid', function(req, res) {
           inDate: {$first: '$inDate'}
         }
       }, {$sort: sq}, {$skip: (page-1)*stats_pageNum}, {$limit: 20}
-      ], function(err, sols){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
+      ])
+      .then(function(sols){
         var names = new Array();
         if (sols) {
           sols.forEach(function(p){
             names.push(p._id);
           });
         }
-        var N = {}, sum = 0, Q = {problemID: pid};
+        var N = {}, sum = 0, cond = {problemID: pid};
         Solution.aggregate([
-          {$match : Q2}
-        , {$group : { _id: '$result', val: {$sum:1} }}
-        ], function(err, results){
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.redirect('/');
-          }
+          { $match: cond2 },
+          { $group: { _id: '$result', val: {$sum: 1} } }
+        ])
+        .then(function(results){
           if (results) {
             var sum = 0;
             results.forEach(function(p, i){
@@ -153,8 +141,17 @@ router.get('/:pid', function(req, res) {
               langs: languages
             });
           });
+        })
+        .fail(function(err){
+          FailRedirect(err, req, res);
         });
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   })
   .fail(function(err){

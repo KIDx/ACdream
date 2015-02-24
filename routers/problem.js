@@ -34,16 +34,9 @@ router.get('/', function(req, res){
     if (req.session.user) {
       name = req.session.user.name;
     }
-    Solution.watch({problemID:pid, userName:name, result:2}, function(err, solution) {
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
-      var pvl = 0;
-      if (solution) {
-        pvl = 1;
-      }
+    Solution.findOne({problemID:pid, userName:name, result:2})
+    .then(function(solution) {
+      var pvl = solution ? 1 : 0;
       Problem.watch(pid)
       .then(function(problem){
         var RP = function(U){
@@ -92,6 +85,9 @@ router.get('/', function(req, res){
       .fail(function(err){
         FailRedirect(err, req, res);
       });
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   }
 })
@@ -151,7 +147,7 @@ router.post('/uploadCode', function(req, res){
       var name = req.session.user.name;
       IDs.get ('runID')
       .then(function(id){
-        var newSolution = new Solution({
+        return (new Solution({
           runID: id,
           problemID: pid,
           userName: name,
@@ -160,27 +156,19 @@ router.post('/uploadCode', function(req, res){
           length: code.length,
           cID: -1,
           code: code
-        });
-        newSolution.save(function(err){
+        })).save();
+      })
+      .then(function(){
+        return Problem.update(pid, {$inc: {submit: 1}});
+      })
+      .then(function(){
+        User.update({name: name}, {$inc: {submit: 1}}, function(err){
           if (err) {
             LogErr(err);
             return RP('3');
           }
-          Problem.update(pid, {$inc: {submit: 1}})
-          .then(function(){
-            User.update({name: name}, {$inc: {submit: 1}}, function(err){
-              if (err) {
-                LogErr(err);
-                return RP('3');
-              }
-              req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-              return RP();
-            });
-          })
-          .fail(function(err){
-            LogErr(err);
-            return RP('3');
-          });
+          req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+          return RP();
         });
       })
       .fail(function(err){
@@ -249,15 +237,11 @@ router.get('/list', function(req, res){
         pids.push(p.problemID);
       });
       Solution.aggregate([
-      { $match: { userName: req.session.user.name, result:{$gt:1} } }
-    , { $group: { _id: '$problemID', result: {$min: '$result'} } }
-    , { $sort: { _id: 1 } }
-      ], function(err, sols){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
+        { $match: { userName: req.session.user.name, result:{$gt:1} } },
+        { $group: { _id: '$problemID', result: {$min: '$result'} } },
+        { $sort: { _id: 1 } }
+      ])
+      .then(function(sols){
         if (sols) {
           sols.forEach(function(p){
             if (p.result == 2) {
@@ -268,6 +252,9 @@ router.get('/list', function(req, res){
           });
           return RP(R);
         }
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
     } else {
       return RP({});
@@ -469,16 +456,17 @@ router.post('/editTag', function(req, res){
     if (name == 'admin' || name == problem.manager) {
       return RP();
     }
-    Solution.watch({problemID: pid, userName: name, result: 2}, function(err, solution) {
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
+    Solution.findOne({problemID: pid, userName: name, result: 2})
+    .then(function(solution) {
       if (!solution) {
         return res.end(); //not allow
       }
       return RP();
+    })
+    .fail(function(err){
+      LogErr(err);
+      req.session.msg = '系统错误！';
+      return res.end();
     });
   })
   .fail(function(err){

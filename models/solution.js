@@ -1,10 +1,9 @@
 
+var Q = require('q');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Settings = require('../settings');
 var pageNum = Settings.status_pageNum;
-var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 
 function Solution(solution) {
   this.runID = solution.runID;
@@ -43,8 +42,8 @@ solutionObj.index({result: 1, runID: -1});
 mongoose.model('solutions', solutionObj);
 var solutions = mongoose.model('solutions');
 
-Solution.prototype.save = function(callback) {
-  //存入 Mongodb 的文档
+Solution.prototype.save = function() {
+  var d = Q.defer();
   solution = new solutions();
   solution.runID = this.runID;
   solution.problemID = this.problemID;
@@ -59,104 +58,142 @@ Solution.prototype.save = function(callback) {
   solution.code = this.code;
   solution.save(function(err){
     if (err) {
-      LogErr('Solution.save failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Solution.find = function(Q, callback) {
-  solutions.find(Q, function(err, docs){
+Solution.find = function(cond) {
+  var d = Q.defer();
+  solutions.find(cond, function(err, docs){
     if (err) {
-      LogErr('Solution.find failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Solution.findOne = function(Q, sq, callback) {
-  solutions.findOne(Q).sort(sq).exec(function(err, doc){
+Solution.findOneBySort = function(cond, sort_cond) {
+  var d = Q.defer();
+  solutions.findOne(cond).sort(sort_cond).exec(function(err, doc){
     if (err) {
-      LogErr('Solution.findOne failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Solution.get = function(Q, page, callback) {
-  solutions.count(Q, function(err, count) {
+Solution.get = function(cond, page) {
+  var d = Q.defer();
+  solutions.count(cond, function(err, count) {
     if ((page-1)*pageNum > count) {
-      return callback(null, null, -1);
+      return d.resolve({
+        solutions: [],
+        totalPage: 1
+      });
     }
-    solutions.find(Q).sort({runID:-1}).skip((page-1)*pageNum).limit(pageNum)
+    solutions.find(cond).sort({runID: -1}).skip((page-1)*pageNum).limit(pageNum)
     .exec(function(err, docs){
       if (err) {
-        LogErr('Solution.get failed!');
+        d.reject(err);
+      } else {
+        d.resolve({
+          solutions: docs,
+          totalPage: Math.floor((count+pageNum-1)/pageNum)
+        });
       }
-      return callback(err, docs, parseInt((count+pageNum-1)/pageNum, 10));
     });
   });
+  return d.promise;
 };
 
-Solution.distinct = function(key, Q, callback) {
-  solutions.distinct(key, Q, function(err, docs){
+Solution.distinct = function(key, cond) {
+  var d = Q.defer();
+  solutions.distinct(key, cond, function(err, docs){
     if (err) {
-      LogErr('Solution.distinct failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    callback(err, docs);
   });
+  return d.promise;
 };
 
-Solution.update = function(Q, H, callback) {
-  solutions.update(Q, H, { multi:true }, function(err){
+Solution.update = function(cond, val) {
+  var d = Q.defer();
+  solutions.update(cond, val, {multi: true}, function(err){
     if (err) {
-      LogErr('Solution.update failed!');
+      d.reject(err);
+    } else {
+      d.resolve();
     }
-    return callback(err);
   });
+  return d.promise;
 };
 
-Solution.watch = function(Q, callback) {
-  solutions.findOne(Q, function(err, doc){
+Solution.findOne = function(cond) {
+  var d = Q.defer();
+  solutions.findOne(cond, function(err, doc){
     if (err) {
-      LogErr('Solution.watch failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
 
-Solution.mapReduce = function(o, callback) {
-  solutions.mapReduce(o, function(err, docs){
+Solution.mapReduce = function(opt) {
+  var d = Q.defer();
+  solutions.mapReduce(opt, function(err, docs){
     if (err) {
-      LogErr('Solution.mapReduce failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Solution.aggregate = function(o, callback) {
-  solutions.aggregate(o, function(err, docs){
+Solution.aggregate = function(opt) {
+  var d = Q.defer();
+  solutions.aggregate(opt, function(err, docs){
     if (err) {
-      LogErr('Solution.aggregate failed!');
+      d.reject(err);
+    } else {
+      d.resolve(docs);
     }
-    return callback(err, docs);
   });
+  return d.promise;
 };
 
-Solution.count = function(Q, callback) {
-  solutions.count(Q, function(err, count){
+Solution.count = function(cond) {
+  var d = Q.defer();
+  solutions.count(cond, function(err, cnt){
     if (err) {
-      LogErr('Solution.count failed!');
+      d.reject(err);
+    } else {
+      d.resolve(cnt);
     }
-    return callback(err, count);
   });
+  return d.promise;
 };
 
-Solution.findOneAndUpdate = function(Q, H, callback) {
-  solutions.findOneAndUpdate(Q, H, function(err, doc){
+Solution.findOneAndUpdate = function(cond, val) {
+  var d = Q.defer();
+  solutions.findOneAndUpdate(cond, val, function(err, doc){
     if (err) {
-      LogErr('Solution.findOneAndUpdate failed!');
+      d.reject(err);
+    } else {
+      d.resolve(doc);
     }
-    return callback(err, doc);
   });
+  return d.promise;
 };
