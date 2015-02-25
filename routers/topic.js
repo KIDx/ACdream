@@ -76,7 +76,7 @@ function GetComment(cond, author, currentUser) {
         has[p.user] = true;
       }
     });
-    return User.qfind({name: {$in: names}});
+    return User.find({name: {$in: names}});
   })
   .then(function(users){
     o.UT = {};
@@ -186,7 +186,7 @@ router.get('/list', function(req, res){
         has[p.lastReviewer] = true;
       }
     });
-    return User.qfind({name: {$in: names}});
+    return User.find({name: {$in: names}});
   })
   //遍历用户列表获取用户头像格式
   .then(function(users){

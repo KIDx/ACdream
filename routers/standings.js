@@ -28,30 +28,21 @@ router.get('/', function(req, res){
   if (search) {
     q1.name = q2.nick = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
   }
-  var Q = { $or: [q1, q2], name: {$ne: 'admin'} };
+  var cond = {$or: [q1, q2], name: {$ne: 'admin'}};
   function RP() {
-    User.get(Q, {rating: -1, name: 1}, page, standings_pageNum, function(err, users, n){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
-      if (n < 0) {
-        return res.redirect('/standings');
-      }
+    return User.get(cond, {rating: -1, name: 1}, page, standings_pageNum)
+    .then(function(o){
       var UC = {}, UT = {};
-      if (users) {
-        users.forEach(function(p, i){
-          UC[p.name] = userCol(p.rating);
-          UT[p.name] = userTit(p.rating);
-        });
-      }
+      o.users.forEach(function(p, i){
+        UC[p.name] = userCol(p.rating);
+        UT[p.name] = userTit(p.rating);
+      });
       var Render = function() {
         res.render('standings', {
           title: 'Standings',
           key: KEY.STANDINGS,
-          n: n,
-          users: users,
+          n: o.totalPage,
+          users: o.users,
           page: page,
           pageNum: standings_pageNum,
           search: search,
@@ -61,12 +52,8 @@ router.get('/', function(req, res){
         });
       };
       if (req.session.user && !search && !cid) {
-        User.watch(req.session.user.name, function(err, user){
-          if (err) {
-            LogErr(err);
-            req.session.msg = '系统错误！';
-            return res.redirect('/');
-          }
+        User.watch(req.session.user.name)
+        .then(function(user){
           if (!user) {
             return Render();
           }
@@ -77,10 +64,16 @@ router.get('/', function(req, res){
             res.locals.user.rank = rank;
             return Render();
           });
+        })
+        .fail(function(err){
+          FailRedirect(err, req, res);
         });
       } else {
         return Render();
       }
+    })
+    .fail(function(err){
+      FailRedirect(err, req, res);
     });
   };
   if (cid) {
@@ -89,7 +82,7 @@ router.get('/', function(req, res){
       if (!con || con.type != 2 || !con.contestants) {
         return res.redirect('/404');
       }
-      Q.name = {$in: con.contestants};
+      cond.name = {$in: con.contestants};
       return RP();
     })
     .fail(function(err){

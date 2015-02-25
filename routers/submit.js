@@ -55,7 +55,7 @@ router.route('/')
   }
   var now = (new Date()).getTime();
   var RP = function(){
-    IDs.get('runID')
+    return IDs.get('runID')
     .then(function(id){
       return (new Solution({
         runID: id,
@@ -69,38 +69,16 @@ router.route('/')
       })).save();
     })
     .then(function(){
-      var arr = [
-        function(cb) {
-          Problem.update(pid, {$inc: {submit: 1}})
-          .then(function(){
-            return cb();
-          })
-          .fail(function(err){
-            return cb(err);
-          });
-        },
-        function(cb) {
-          User.update({name: name}, {$inc: {submit: 1}}, function(err){
-            return cb(err);
-          });
-        }
+      return [
+        Problem.update(pid, {$inc: {submit: 1}}),
+        User.update({name: name}, {$inc: {submit: 1}})
       ];
-      async.each(arr, function(func, cb){
-        func(cb);
-      }, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        if (cid < 0) {
-          req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-        }
-        return res.end();
-      });
     })
-    .fail(function(err){
-      LogErr(err);
-      return res.end('3');
+    .then(function(){
+      if (cid < 0) {
+        req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+      }
+      return res.end();
     });
   };
   Problem.watch(pid)

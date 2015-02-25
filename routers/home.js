@@ -46,7 +46,7 @@ router.get('/', function(req, res){
       o.topics.forEach(function(p){
         names.push(p.user);
       });
-      return User.qfind({name: {$in: names}});
+      return User.find({name: {$in: names}});
     })
     .then(function(users){
       users.forEach(function(u){
@@ -85,11 +85,8 @@ router.post('/login', function(req, res) {
     return res.end();  //not allow
   }
 
-  User.watch(name, function(err, user) {
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  User.watch(name)
+  .then(function(user){
     if (!user) {
       return res.end('1');
     }
@@ -136,6 +133,10 @@ router.post('/login', function(req, res) {
         return Resp();
       }
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 
@@ -156,11 +157,8 @@ router.post('/loginByToken', function(req, res) {
     return res.end('1');
   }
 
-  User.watch(name, function(err, user) {
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  User.watch(name)
+  .then(function(user){
     var client = redis.createClient();
     var key = 'expire_' + Comm.MD5(user.name) + '_' + token;
     //get token expire time
@@ -186,6 +184,10 @@ router.post('/loginByToken', function(req, res) {
         return res.end();
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 

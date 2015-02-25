@@ -32,7 +32,7 @@ router.get('/:pid', function(req, res) {
     if (req.session.user) {
       user = req.session.user.name;
     }
-    if (!problem || (problem.hide && user!== problem.manager && user !== 'admin')) {
+    if (!problem || (problem.hide && user !== problem.manager && user !== 'admin')) {
       return res.redirect('/404');
     }
     var lang = parseInt(req.query.lang, 10), cond = {problemID:pid, result:2};
@@ -110,12 +110,8 @@ router.get('/:pid', function(req, res) {
             });
             N[0] = sum;
           }
-          User.find({name: {$in:names}}, function(err, users){
-            if (err) {
-              LogErr(err);
-              req.session.msg = '系统错误！';
-              return res.redirect('/');
-            }
+          User.find({name: {$in:names}})
+          .then(function(users){
             var UC = {}, UT = {};
             if (users) {
               users.forEach(function(p){
@@ -140,6 +136,9 @@ router.get('/:pid', function(req, res) {
               UT: UT,
               langs: languages
             });
+          })
+          .fail(function(err){
+            FailRedirect(err, req, res);
           });
         })
         .fail(function(err){

@@ -1,6 +1,7 @@
 
 var router = require('express').Router();
 var async = require('async');
+var Q = require('q');
 
 var User = require('../models/user.js');
 var Solution = require('../models/solution.js');
@@ -60,11 +61,25 @@ router.get('/', function(req, res){
     cond.language = lang;
   }
 
+  var Resp = {
+    title: 'Status',
+    key: KEY.STATUS,
+    getDate: Comm.getDate,
+    name: name,
+    pid: pid,
+    result: result,
+    lang: lang,
+    Res: solRes,
+    Col: solCol,
+    page: page,
+    langs: languages
+  };
+
+  var flg = false, has = {};
+  var names = [], pids = [];
   Solution.get(cond, page)
   .then(function(o) {
-    var flg = false, has = {};
-    var names = new Array(), pids = new Array();
-    var R = new Array(), C = new Array();
+    var R = [], C = [];
     if (o.solutions) {
       o.solutions.forEach(function(p, i){
         R.push(solRes(p.result));
@@ -79,48 +94,29 @@ router.get('/', function(req, res){
         }
       });
     }
-    User.find({name: {$in: names}}, function(err, users){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.redirect('/');
-      }
-      var UC = {}, UT = {};
-      users.forEach(function(p){
-        UC[p.name] = userCol(p.rating);
-        UT[p.name] = userTit(p.rating);
-      });
-      Problem.find({problemID: {$in: pids}})
-      .then(function(probs){
-        var P = {};
-        probs.forEach(function(p){
-          P[p.problemID] = p;
-        });
-        res.render('status', {
-          title: 'Status',
-          key: KEY.STATUS,
-          n: o.totalPage,
-          sols: o.solutions,
-          getDate: Comm.getDate,
-          name: name,
-          pid: pid,
-          result: result,
-          lang: lang,
-          Res: solRes,
-          Col: solCol,
-          P: P,
-          R: R,
-          C: C,
-          UC: UC,
-          UT: UT,
-          page: page,
-          langs: languages
-        });
-      })
-      .fail(function(err){
-        FailRedirect(err, req, res);
-      });
+    Resp.sols = o.solutions;
+    Resp.n = o.totalPage;
+    Resp.R = R;
+    Resp.C = C;
+    return User.find({name: {$in: names}});
+  })
+  .then(function(users){
+    var UC = {}, UT = {};
+    users.forEach(function(p){
+      UC[p.name] = userCol(p.rating);
+      UT[p.name] = userTit(p.rating);
     });
+    Resp.UC = UC;
+    Resp.UT = UT;
+    return Problem.find({problemID: {$in: pids}});
+  })
+  .then(function(probs){
+    var P = {};
+    probs.forEach(function(p){
+      P[p.problemID] = p;
+    });
+    Resp.P = P;
+    return res.render('status', Resp);
   })
   .fail(function(err){
     FailRedirect(err, req, res);
@@ -261,43 +257,19 @@ router.post('/get', function(req, res){
     cond.$nor = [{userName: 'admin'}];
   }
 
-  var contest, solutions, cnt;
-  var arr = [
-    function(cb) {
-      Contest.watch(cid)
-      .then(function(con){
-        contest = con;
-        return cb();
-      })
-      .fail(function(err){
-        return cb(err);
-      });
-    },
-    function(cb) {
-      Solution.get(cond, page)
-      .then(function(o) {
-        solutions = o.solutions;
-        cnt = o.totalPage;
-        return cb();
-      })
-      .fail(function(err){
-        return cb(err);
-      });
-    }
-  ];
+  var Resp = {
+    svrTime: (new Date()).getTime()
+  };
 
-  async.each(arr, function(func, cb){
-    func(cb);
-  }, function(err){
-    if (err) {
-      LogErr(err);
-      return res.end();
-    }
-    if (!contest || cnt < 0) {
+  Q.all([Contest.watch(cid), Solution.get(cond, page)])
+  .spread(function(contest, o){
+    if (!contest) {
       return res.end(); //not allow
     }
-    var sols = new Array(), names = new Array(), has = {};
-    solutions.forEach(function(p, i){
+    var sols = [];
+    var names = [];
+    var has = {};
+    o.solutions.forEach(function(p, i){
       var T = '', M = '', L = '';
       if (name === p.userName || name === contest.userName || Comm.isEnded(contest)) {
         T = p.time; M = p.memory; L = p.length;
@@ -318,26 +290,25 @@ router.post('/get', function(req, res){
         names.push(p.userName);
       }
     });
-    User.find({name: {$in: names}}, function(err, users){
-      if (err) {
-        LogErr(err);
-        return res.end();
-      }
-      var rt = {};
-      users.forEach(function(p){
-        rt[p.name] = p.rating;
-      });
-      return res.json({
-        sols: sols,
-        pageNum: cnt,
-        ratings: rt,
-        startTime: contest.startTime,
-        reg_state: getRegState(contest, name),
-        contestants: contest.contestants.length,
-        duration: contest.len * 60,
-        svrTime: (new Date()).getTime()
-      });
+    Resp.contestants = contest.contestants.length;
+    Resp.startTime = contest.startTime;
+    Resp.duration = contest.len * 60;
+    Resp.reg_state = getRegState(contest, name);
+    Resp.pageNum = o.totalPage;
+    Resp.sols = sols;
+    return User.find({name: {$in: names}});
+  })
+  .then(function(users){
+    var rt = {};
+    users.forEach(function(p){
+      rt[p.name] = p.rating;
     });
+    Resp.ratings = rt;
+    return res.json(Resp);
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end();  //not refresh!
   });
 });
 

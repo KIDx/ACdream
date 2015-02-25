@@ -96,12 +96,13 @@ router.post('/upload', function(req, res) {
                 return RP();
               }
               req.session.user.imgType = imgType;
-              User.update({name: req.session.user.name}, {imgType: imgType}, function(err){
-                if (err) {
-                  LogErr(err);
-                  return RP('3');
-                }
+              User.update({name: req.session.user.name}, {imgType: imgType})
+              .then(function(){
                 return RP();
+              })
+              .fail(function(){
+                LogErr(err);
+                return RP('3');
               });
             });
           });

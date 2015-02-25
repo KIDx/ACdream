@@ -172,11 +172,8 @@ router.post('/imgUpload', function(req, res){
     if (!problem) {
       return RP();  //not allow
     }
-    User.watch(req.session.user.name, function(err, user) {
-      if (err) {
-        LogErr(err);
-        return RP('3');
-      }
+    User.watch(req.session.user.name)
+    .then(function(user) {
       if (!user || !user.addprob) {
         return RP(); //not allow
       }
@@ -190,6 +187,10 @@ router.post('/imgUpload', function(req, res){
           return RP();
         });
       });
+    })
+    .fail(function(err){
+      LogErr(err);
+      return RP('3');
     });
   })
   .fail(function(err){
@@ -221,11 +222,8 @@ router.post('/dataUpload', function(req, res){
   if (sz > 50*1024*1024) {
     return RP('2');
   }
-  User.watch(req.session.user.name, function(err, user){
-    if (err) {
-      LogErr(err);
-      return RP('3');
-    }
+  User.watch(req.session.user.name)
+  .then(function(user){
     if (!user || !user.addprob) {
       return RP();
     }
@@ -244,6 +242,10 @@ router.post('/dataUpload', function(req, res){
         });
       });
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return RP('3');
   });
 });
 
@@ -263,18 +265,19 @@ router.post('/delData', function(req, res){
   if (!fname) {
     return res.end();  //not allow
   }
-  User.watch(req.session.user.name, function(err, user){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end('1');    //refresh!
-    }
+  User.watch(req.session.user.name)
+  .then(function(user){
     if (!user || !user.addprob) {
       return res.end();    //not allow!
     }
     fs.unlink(data_path+pid+'/'+fname, function(){
       return res.end();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end('1');    //refresh!
   });
 });
 
@@ -294,18 +297,19 @@ router.post('/delImg', function(req, res){
   if (!fname) {
     return res.end();  //not allow!
   }
-  User.watch(req.session.user.name, function(err, user){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end('1');    //refresh!
-    }
+  User.watch(req.session.user.name)
+  .then(function(user){
     if (!user || !user.addprob) {
       return res.end(); //not allow!
     }
     fs.unlink(root_path+'public/img/prob/'+pid+'/'+fname, function(){
       return res.end();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end('1');    //refresh!
   });
 });
 

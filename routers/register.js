@@ -44,15 +44,12 @@ router.route('/')
     return res.end('1');
   }
 
-  User.watch(name, function(err, user){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  User.watch(name)
+  .then(function(user){
     if (user) {
       return res.end('2');
     }
-    (new User({
+    return (new User({
       name: name,
       password: Comm.MD5(password),
       regTime: (new Date()).getTime(),
@@ -60,15 +57,16 @@ router.route('/')
       school: school,
       email: email,
       signature: sig
-    })).save(function(err, user) {
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      req.session.user = user;
-      req.session.msg = 'Welcome, '+name+'. :)';
-      return res.end();
-    });
+    })).save();
+  })
+  .then(function(user){
+    req.session.user = user;
+    req.session.msg = 'Welcome, '+name+'. :)';
+    return res.end();
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 

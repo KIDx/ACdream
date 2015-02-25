@@ -50,41 +50,25 @@ router.post('/problem', function(req, res){
       }
       return res.end('0');
     }
-    var has = {};
-    Problem.update(pid, {$set: {AC: 0}})
-    .then(function(){
-      return Solution.distinct('userName', {problemID: pid, result: 2});
-    })
-    .then(function(users){
-      User.multiUpdate({'name': {$in: users}}, {$inc: {solved: -1}}, function(err){
-        if (err) {
-          LogErr(err);
-          return res.end();
-        }
-        Solution.update({problemID: pid}, {$set: {result: 0}})
-        .then(function(){
-          return Solution.distinct('cID', {problemID: pid, cID: {$gt: -1}});
-        })
-        .then(function(cids){
-          return ClearReduceData(cids);
-        })
-        .then(function(){
-          if (!req.body.cid) {
-            req.session.msg = 'Problem '+pid+' has been Rejudged successfully!';
-            return res.end();
-          }
-          return res.end('1');
-        })
-        .fail(function(err){
-          LogErr(err);
-          return res.end();
-        });
-      });
-    })
-    .fail(function(err){
-      LogErr(err);
+    return [
+      Solution.distinct('userName', {problemID: pid, result: 2}),
+      Solution.distinct('cID', {problemID: pid, cID: {$gt: -1}}),
+    ];
+  })
+  .spread(function(users, cids){
+    return [
+      Solution.update({problemID: pid}, {$set: {result: 0}}),
+      Problem.update(pid, {$set: {AC: 0}}),
+      User.multiUpdate({'name': {$in: users}}, {$inc: {solved: -1}}),
+      ClearReduceData(cids)
+    ];
+  })
+  .then(function(){
+    if (!req.body.cid) {
+      req.session.msg = 'Problem '+pid+' has been Rejudged successfully!';
       return res.end();
-    });
+    }
+    return res.end('1');
   })
   .fail(function(err){
     LogErr(err);

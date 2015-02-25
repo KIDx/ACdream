@@ -26,19 +26,12 @@ router.get('/', function(req, res) {
   if (search) {
     q1.name = q2.nick = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
   }
-  var Q = { $or: [q1, q2], name: {$ne: 'admin'} };
-  User.get(Q, {solved: -1, submit: 1, name: 1}, page, ranklist_pageNum, function(err, users, n){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
-    if (n < 0) {
-      return res.redirect('/ranklist');
-    }
+  var cond = { $or: [q1, q2], name: {$ne: 'admin'} };
+  User.get(cond, {solved: -1, submit: 1, name: 1}, page, ranklist_pageNum)
+  .then(function(o){
     var UC = {}, UT = {};
-    if (users) {
-      users.forEach(function(p, i){
+    if (o.users) {
+      o.users.forEach(function(p, i){
         UC[p.name] = userCol(p.rating);
         UT[p.name] = userTit(p.rating);
       });
@@ -47,8 +40,8 @@ router.get('/', function(req, res) {
       res.render('ranklist', {
         title: 'Ranklist',
         key: KEY.RANKLIST,
-        n: n,
-        users: users,
+        n: o.totalPage,
+        users: o.users,
         page: page,
         pageNum: ranklist_pageNum,
         search: search,
@@ -57,12 +50,8 @@ router.get('/', function(req, res) {
       });
     };
     if (req.session.user && !search) {
-      User.watch(req.session.user.name, function(err, user){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
+      User.watch(req.session.user.name)
+      .then(function(user){
         if (!user) {
           return Render();
         }
@@ -73,10 +62,16 @@ router.get('/', function(req, res) {
           res.locals.user.rank = rank;
           return Render();
         });
+      })
+      .fail(function(err){
+        FailRedirect(err, req, res);
       });
     } else {
       return Render();
     }
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 

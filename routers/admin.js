@@ -60,20 +60,17 @@ router.post('/stat', function(req, res){
     sort: {runID: -1}
   })
   .then(function(U){
-    if (!U) {
-      return res.end();
+    var promiseList = [];
+    if (U) {
+      U.forEach(function(p){
+        promiseList.push(User.update({name: p._id}, {$set: p.value}));
+      });
     }
-    async.each(U, function(p, cb){
-      User.update({name: p._id}, {$set: p.value}, cb);
-    }, function(err){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
-      req.session.msg = '统计完成！';
-      return res.end();
-    });
+    return promiseList;
+  })
+  .then(function(){
+    req.session.msg = '统计完成！';
+    return res.end();
   })
   .fail(function(err){
     LogErr(err);

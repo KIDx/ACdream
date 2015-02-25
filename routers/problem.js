@@ -70,13 +70,12 @@ router.get('/', function(req, res){
           if (!problem.manager) {
             problem.manager = 'admin';
           }
-          User.watch(problem.manager, function(err, user){
-            if (err) {
-              LogErr(err);
-              req.session.msg = '系统错误！';
-              return res.redirect('/');
-            }
+          User.watch(problem.manager)
+          .then(function(user){
             return RP(user);
+          })
+          .fail(function(err){
+            FailRedirect(err, req, res);
           });
         } else {
           return RP(null);
@@ -147,29 +146,24 @@ router.post('/uploadCode', function(req, res){
       var name = req.session.user.name;
       IDs.get ('runID')
       .then(function(id){
-        return (new Solution({
-          runID: id,
-          problemID: pid,
-          userName: name,
-          inDate: (new Date()).getTime(),
-          language: lang,
-          length: code.length,
-          cID: -1,
-          code: code
-        })).save();
+        return [
+          (new Solution({
+            runID: id,
+            problemID: pid,
+            userName: name,
+            inDate: (new Date()).getTime(),
+            language: lang,
+            length: code.length,
+            cID: -1,
+            code: code
+          })).save(),
+          Problem.update(pid, {$inc: {submit: 1}}),
+          User.update({name: name}, {$inc: {submit: 1}})
+        ];
       })
       .then(function(){
-        return Problem.update(pid, {$inc: {submit: 1}});
-      })
-      .then(function(){
-        User.update({name: name}, {$inc: {submit: 1}}, function(err){
-          if (err) {
-            LogErr(err);
-            return RP('3');
-          }
-          req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-          return RP();
-        });
+        req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+        return RP();
       })
       .fail(function(err){
         LogErr(err);
@@ -493,26 +487,12 @@ router.post('/setManager', function(req, res){
   if (!pid || !name) {
     return res.end(); //not allow
   }
-  User.watch(name, function(err, user){
-    if (err) {
-      LogErr(err);
-      return res.end('3');
-    }
+  User.watch(name)
+  .then(function(user){
     if (!user) {
       return res.end('1');
     }
-    Problem.watch(pid)
-    .then(function(prob){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      if (!prob) {
-        return res.end(); //not allow
-      }
-      prob.manager = name;
-      return prob.save();
-    })
+    Problem.update({problemID: pid}, {$set: {manager: name}})
     .then(function(){
       req.session.msg = 'The manager has been changed successfully!';
       return res.end();
@@ -521,6 +501,10 @@ router.post('/setManager', function(req, res){
       LogErr(err);
       return res.end('3');
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    return res.end('3');
   });
 });
 

@@ -18,12 +18,8 @@ router.get('/:name', function(req, res){
   if (!name) {
     return res.redirect('/404');
   }
-  User.watch(name, function(err, user){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.redirect('/');
-    }
+  User.watch(name)
+  .then(function(user){
     if (!user) {
       return res.redirect('/404');
     }
@@ -86,6 +82,9 @@ router.get('/:name', function(req, res){
     .fail(function(err){
       FailRedirect(err, req, res);
     });
+  })
+  .fail(function(err){
+    FailRedirect(err, req, res);
   });
 });
 
@@ -106,26 +105,21 @@ router.post('/changeAddprob', function(req, res) {
   if (!name) {
     return res.end();  //not allow
   }
-  User.watch(name, function(err, user){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
+  User.watch(name)
+  .then(function(user){
+    if (!user) {
+      return ;
     }
-    user.addprob = !user.addprob;
-    user.save(function(err){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
-      if (user.addprob) {
-        req.session.msg = '赋予加题权限成功！';
-      } else {
-        req.session.msg = '回收加题权限成功！';
-      }
-      return res.end();
-    });
+    return User.update({name: name}, {$set: {addprob: !user.addprob}});
+  })
+  .then(function(){
+    req.session.msg = '操作成功！';
+    return res.end();
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 
@@ -155,36 +149,38 @@ router.post('/changeInfo', function(req, res) {
     return res.end();  //not allow
   }
 
-  User.watch(name, function(err, user){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  User.watch(name)
+  .then(function(user){
     if (!user) {
       return res.end();  //not allow
     }
     if (Comm.MD5(String(oldpsw)) != user.password) {
       return res.end('1');
     }
-    var H = {
-      nick    : nick,
-      school  : school,
-      email  : email,
-      signature : sig
+    var val = {
+      nick: nick,
+      school: school,
+      email: email,
+      signature: sig
     };
     if (psw) {
-      H.password = Comm.MD5(String(psw));
+      val.password = Comm.MD5(String(psw));
     }
-    User.update({name: name}, H, function(err){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
+    User.update({name: name}, val)
+    .then(function(){
       req.session.msg = 'Your Information has been updated successfully!';
       return res.end();
+    })
+    .fail(function(err){
+      LogErr(err);
+      req.session.msg = '系统错误！';
+      return res.end();
     });
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
+    return res.end();
   });
 });
 
@@ -205,13 +201,14 @@ router.post('/restorePsw', function(req, res) {
   if (!name) {
     return res.end();  //not allow
   }
-  User.update({name: name}, {$set: {password: Comm.MD5('123456')}}, function(err){
-    if (err) {
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    }
+  User.update({name: name}, {$set: {password: Comm.MD5('123456')}})
+  .then(function(){
     req.session.msg = '已成功将'+name+'的密码恢复为"123456"！';
+    return res.end();
+  })
+  .fail(function(err){
+    LogErr(err);
+    req.session.msg = '系统错误！';
     return res.end();
   });
 });

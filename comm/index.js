@@ -322,8 +322,12 @@ exports.getRatingRank = function(user, callback) {
       { rating: {$gt: user.rating} },
       { rating: user.rating, name: {$lt: user.name} }
     ]
-  }, function(err, rank) {
-    return callback(err, rank+1);
+  })
+  .then(function(rank) {
+    return callback(null, rank+1);
+  })
+  .fail(function(err){
+    return callback(err, 0);
   });
 };
 
@@ -338,8 +342,12 @@ exports.getRank = function(user, callback) {
       { solved: user.solved, submit: {$lt: user.submit} },
       { solved: user.solved, submit: user.submit, name: {$lt: user.name} }
     ]
-  }, function(err, rank) {
-    return callback(err, rank+1);
+  })
+  .then(function(rank) {
+    return callback(null, rank+1);
+  })
+  .fail(function(err){
+    return callback(err, 0);
   });
 };
 

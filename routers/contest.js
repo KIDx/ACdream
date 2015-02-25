@@ -42,8 +42,8 @@ function regContestAndUpdate(cid, name) {
   .then(function(){
     return ContestRank.findOne({'_id.cid': cid, '_id.name': name});
   })
-  .then(function(rank){
-    if (!rank) {
+  .then(function(user){
+    if (!user) {
       (new ContestRank(cid, name)).save();
     }
   });
@@ -59,6 +59,14 @@ router.get('/', function(req, res){
   }
 
   var name = req.session.user ? req.session.user.name : '';
+  var Resp = {
+    title: 'Contest '+cid,
+    key: KEY.CONTEST,
+    getDate: getDate,
+    Col: solCol,
+    Res: solRes,
+    langs: languages
+  };
 
   Contest.watch(cid)
   .then(function(contest) {
@@ -73,49 +81,32 @@ router.get('/', function(req, res){
         }
       }
     }
-    var pids = new Array();
+    Resp.contest = contest;
+    Resp.reg_state = getRegState(contest, name);
+    Resp.type = contest.type;
+    Resp.family = contest.family;
+    var pids = [];
     if (contest.probs) {
       contest.probs.forEach(function(p){
         pids.push(p[0]);
       });
     }
-    Problem.find({problemID: {$in: pids}})
-    .then(function(problems){
-      var Pt = {};
-      if (problems) {
-        problems.forEach(function(p){
-          Pt[p.problemID] = p;
-        });
-      }
-      User.watch(contest.userName, function(err, user){
-        if (err) {
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.redirect('/');
-        }
-        if (!user) {
-          return res.end();  //not allow
-        }
-        res.render('contest', {
-          title: 'Contest '+cid,
-          key: KEY.CONTEST,
-          contest: contest,
-          reg_state: getRegState(contest, name),
-          type: contest.type,
-          getDate: getDate,
-          MC: userCol(user.rating),
-          MT: userTit(user.rating),
-          Pt: Pt,
-          Col: solCol,
-          Res: solRes,
-          langs: languages,
-          family: contest.family
-        });
+    return [Problem.find({problemID: {$in: pids}}), User.watch(contest.userName)];
+  })
+  .spread(function(problems, user){
+    if (!user) {
+      return res.end();  //not allow
+    }
+    var Pt = {};
+    if (problems) {
+      problems.forEach(function(p){
+        Pt[p.problemID] = p;
       });
-    })
-    .fail(function(err){
-      FailRedirect(err, req, res);
-    });
+    }
+    Resp.Pt = Pt;
+    Resp.MC = userCol(user.rating);
+    Resp.MT = userTit(user.rating);
+    return res.render('contest', Resp);
   })
   .fail(function(err){
     FailRedirect(err, req, res);
@@ -156,10 +147,20 @@ router.get('/list', function(req, res){
     cond.family = family;
   }
 
+  var Resp = {
+    title: 'ContestList',
+    key: KEY.CONTEST_LIST,
+    type: type,
+    family: family,
+    getDate: getDate,
+    search: search,
+    page: page
+  };
+
   Contest.get(cond, page)
   .then(function(o){
-    var T = new Array(), R = {}, now = (new Date()).getTime();
-    var CS = {}, names = new Array();
+    var T = [], R = {}, now = (new Date()).getTime();
+    var CS = {}, names = [];
     if (o.contests) {
       if (req.session.cid) {
         CS = req.session.cid;
@@ -171,35 +172,24 @@ router.get('/list', function(req, res){
           R[i] = true;
       });
     }
-    User.qfind({name: {$in: names}})
-    .then(function(users){
-      var UC = {}, UT = {};
-      if (users) {
-        users.forEach(function(p){
-          UC[p.name] = userCol(p.rating);
-          UT[p.name] = userTit(p.rating);
-        });
-      }
-      res.render('contestlist', {
-        title: 'ContestList',
-        key: KEY.CONTEST_LIST,
-        type: type,
-        family: family,
-        contests: o.contests,
-        getDate: getDate,
-        n: o.totalPage,
-        search: search,
-        page: page,
-        T: T,
-        R: R,
-        CS: CS,
-        UC: UC,
-        UT: UT
+    Resp.contests = o.contests;
+    Resp.n = o.totalPage;
+    Resp.T = T;
+    Resp.R = R;
+    Resp.CS = CS;
+    return User.find({name: {$in: names}});
+  })
+  .then(function(users){
+    var UC = {}, UT = {};
+    if (users) {
+      users.forEach(function(p){
+        UC[p.name] = userCol(p.rating);
+        UT[p.name] = userTit(p.rating);
       });
-    })
-    .fail(function(err){
-      FailRedirect(err, req, res);
-    });
+    }
+    Resp.UC = UC;
+    Resp.UT = UT;
+    return res.render('contestlist', Resp);
   })
   .fail(function(err){
     FailRedirect(err, req, res);
@@ -235,7 +225,7 @@ router.post('/overview', function(req, res){
       return cb(err);
     });
   }
-  var arr = new Array();
+  var arr = [];
   var sols;
   arr.push(
     function(cb) {
@@ -377,8 +367,8 @@ router.post('/ranklist', function(req, res){
         if (!o.users || o.users.length == 0) {
           return res.json(resp);
         }
-        var has = {}, names = new Array();
-        var Users = new Array();
+        var has = {}, names = [];
+        var Users = [];
         var V = o.users[0].value, T = o.users[0]._id.name;
         if (con.stars) {
           con.stars.forEach(function(p){
@@ -406,13 +396,17 @@ router.post('/ranklist', function(req, res){
             });
           },
           function(cb) {
-            User.find({name: {$in: names}}, function(err, U){
+            User.find({name: {$in: names}})
+            .then(function(U){
               if (U) {
                 U.forEach(function(p){
                   rt[p.name] = p.rating;
                   I[p.name] = p.nick;
                 });
               }
+              return cb();
+            })
+            .fail(function(err){
               return cb(err);
             });
           },
@@ -711,7 +705,7 @@ router.post('/discuss', function(req, res){
       });
       Response.topics = tps;
       Response.totalPage = o.totalPage;
-      return User.qfind({name: {$in: names}});
+      return User.find({name: {$in: names}});
     })
     .then(function(users){
       var I = {};
@@ -870,51 +864,37 @@ router.post('/addContestant', function(req, res){
     if (!contest) {
       return res.end(); //not allow
     }
-    User.watch(name, function(err, user){
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      if (!user) {
-        return res.end(); //not allow
-      }
-      if (contest.contestants.indexOf(user.name) >= 0) {
-        return res.end('1');
-      }
-      regContestAndUpdate(cid, name)
-      .then(function(){
-        IDs.get('topicID', function(err, id){
-          if (err) {
-            LogErr(err);
-            return res.end('3');
-          }
-          (new Comment({
-            id: id,
-            content: '添加完成~',
-            user: 'admin',
-            tid: tid,
-            fa: fa,
-            at: name,
-            inDate: (new Date()).getTime()
-          })).save()
-          .then(function(){
-            return Topic.update(tid, {$inc: {reviewsQty: 1}});
-          })
-          .then(function(){
-            req.session.msg = '添加完成！';
-            return res.end();
-          })
-          .fail(function(err){
-            LogErr(err);
-            return res.end('3');
-          });
-        });
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end('3');
-      });
-    });
+    return User.watch(name);
+  })
+  .then(function(user){
+    if (!user) {
+      return res.end(); //not allow
+    }
+    if (contest.contestants.indexOf(user.name) >= 0) {
+      return res.end('1');
+    }
+    return regContestAndUpdate(cid, name);
+  })
+  .then(function(){
+    return IDs.get('topicID');
+  })
+  .then(function(id){
+    return [
+      (new Comment({
+        id: id,
+        content: '添加完成~',
+        user: 'admin',
+        tid: tid,
+        fa: fa,
+        at: name,
+        inDate: (new Date()).getTime()
+      })).save(),
+      Topic.update(tid, {$inc: {reviewsQty: 1}})
+    ];
+  })
+  .then(function(){
+    req.session.msg = '添加完成！';
+    return res.end();
   })
   .fail(function(err){
     LogErr(err);
@@ -995,33 +975,24 @@ router.post('/toggleStar', function(req, res){
     if (!con) {
       return res.end();   //not allow!
     }
-    var has = {}, names = new Array();
+    var has = {}, names = [];
     str.split(' ').forEach(function(p){
         names.push(p);
     });
-    User.distinct('name', {name: {$in: names}}, function(err, users){
-      if (err) {
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      }
-      var H;
-      if (type == 1) {
-        H = {$addToSet: {stars: {$each: users}}};
-      } else {
-        H = {$pullAll: {stars: users}};
-      }
-      Contest.update(cid, H)
-      .then(function(){
-        req.session.msg = users.length+'个用户切换打星状态成功！';
-        return res.end();
-      })
-      .fail(function(err){
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      });
-    });
+    return User.distinct('name', {name: {$in: names}});
+  })
+  .then(function(users){
+    var val;
+    if (type == 1) {
+      val = {$addToSet: {stars: {$each: users}}};
+    } else {
+      val = {$pullAll: {stars: users}};
+    }
+    return Contest.update(cid, val);
+  })
+  .then(function(){
+    req.session.msg = users.length+'个用户切换打星状态成功！';
+    return res.end();
   })
   .fail(function(err){
     LogErr(err);
