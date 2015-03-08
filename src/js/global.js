@@ -448,22 +448,23 @@ $(document).ready(function(){
           password: psw,
           remember: $('#remember').is(':checked')
         },
-        dataType : 'text',
+        dataType : 'json',
         error: function() {
           $loginsubmit.removeClass('disabled');
           errAnimate($loginerr, '无法连接到服务器！');
         }
       })
       .done(function(res){
-        if (!res) {
+        var ret = res.ret;
+        if (ret === 0) {
           $dialog_lg.jqmHide();
           GoToNextURL();
           return ;
-        } else if (res == '1') {
+        } else if (ret === 1) {
           errAnimate($loginerr, 'the user is not exist!');
-        } else if (res == '2') {
+        } else if (ret === 2) {
           errAnimate($loginerr, 'username and password do not match!');
-        } else if (res == '3') {
+        } else {
           errAnimate($loginerr, '系统错误！');
         }
         $loginsubmit.text('Login').removeClass('disabled');

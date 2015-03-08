@@ -390,22 +390,45 @@ function getpos() {
  * 错误日志
  */
 function LogErr(err) {
-  var res = getDate() + ' [' + getpos() + ']\n' + err + '\n\n';
+  var res = getDate() + ' [' + getpos() + ']\n' + err.stack + '\n\n';
   console.log(res);
   log.write(res);
 };
 exports.LogErr = LogErr;
 
 /*
+ * 错误码
+ */
+var ERR = {
+  WRONG_PASSWORD: 2,
+  USER_NOT_EXIT: 1,
+  OK: 0,
+  SYS: -1,
+  ARGS: -2,
+  PAGE_NOT_FOUND: -3
+};
+exports.ERR = ERR;
+
+/*
  * 失败跳转处理
  */
 exports.FailRedirect = function(err, req, res) {
-  if (err.message === '404') {
+  if (err.message == '404') {
     return res.redirect('/404');
   }
   LogErr(err);
   req.session.msg = '系统错误！';
   return res.redirect('/');
+};
+
+/*
+ * 失败响应处理
+ */
+exports.FailProcess = function(err, res, ret) {
+  if (ret < 0) {
+    LogErr(err);
+  }
+  return res.send({ret: ret, err_msg: err.message});
 };
 
 /*
