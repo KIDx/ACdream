@@ -400,6 +400,7 @@ exports.LogErr = LogErr;
  * 错误码
  */
 var ERR = {
+  INVALID_COOKIES: 3,
   WRONG_PASSWORD: 2,
   USER_NOT_EXIT: 1,
   OK: 0,

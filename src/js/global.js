@@ -382,20 +382,21 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/loginByToken',
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           $fast_login.removeClass('disabled');
           errAnimate($fast_login_err, '无法连接到服务器！');
         }
       }).done(function(res){
-        if (!res) {
+        var ret = res.ret;
+        if (ret === 0) {
           $dialog_lgbtk.jqmHide();
           GoToNextURL();
           return ;
-        } else if (res == '1') {
+        } else if (ret === 3) {
           Switch('登录信息过期，请重新登录！');
           $dialog_lgbtk.length = 0;
-        } else if (res == '3') {
+        } else {
           errAnimate($fast_login_err, '系统错误！');
         }
         $fast_login.removeClass('disabled');

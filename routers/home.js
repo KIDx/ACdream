@@ -116,14 +116,11 @@ router.post('/login', function(req, res){
     if (String(req.body.remember) === "true") {
       var maxAge = 2592000000; //a month
       var token = Comm.MD5(String(Math.random()));
-
-      var client = redis.createClient();
       var key = 'expire_' + Comm.MD5(user.name) + '_' + token;
       var val = String((new Date()).getTime() + maxAge);
       //save token and expire time by redis
-      return Logic.SetRedis(client, key, val)
+      return Logic.SetRedis(redis.createClient(), key, val)
       .then(function(){
-        client.quit();
         //save token to cookie for fast login
         res.cookie('loginInfo', {
           username: user.name,
@@ -149,50 +146,46 @@ router.post('/login', function(req, res){
  * 通过检查Cookie中的token进行快速登录
  */
 router.post('/loginByToken', function(req, res){
-  res.header('Content-Type', 'text/plain');
-
   var loginInfo = req.cookies.loginInfo;
-  if (!loginInfo ) {
-    return res.end('1');
-  }
-  var name = loginInfo.username;
-  var token = loginInfo.token;
-  if (!name || !token) {
-    res.clearCookie('loginInfo');
-    return res.end('1');
-  }
-
-  User.watch(name)
-  .then(function(user){
-    var client = redis.createClient();
-    var key = 'expire_' + Comm.MD5(user.name) + '_' + token;
+  var name = loginInfo ? loginInfo.username : null;
+  var token = loginInfo ? loginInfo.token : null;
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name || !token) {
+      res.clearCookie('loginInfo');
+      ret = ERR.INVALID_COOKIES;
+      throw new Error('invalid cookies.');
+    }
+  })
+  .then(function(){
+    var key = 'expire_' + Comm.MD5(name) + '_' + token;
     //get token expire time
-    client.get(key, function(err, val){
-      client.quit();
-      if (err) {
-        LogErr(err);
-        return res.end('3');
-      }
-      var expire_time = parseInt(val, 10);
-      if (!expire_time || (new Date()).getTime() > expire_time) {
-        res.clearCookie('loginInfo');
-        return res.end('1');
-      }
-      user.visTime = (new Date()).getTime();
-      user.save(function(err){
-        if (err) {
-          LogErr(err);
-          return res.end('3');
-        }
-        req.session.user = user;
-        req.session.msg = 'Welcome, '+user.name+'. :)';
-        return res.end();
-      });
-    });
+    return Logic.GetRedis(redis.createClient(), key);
+  })
+  .then(function(val){
+    var expire_time = parseInt(val, 10);
+    if (!expire_time || (new Date()).getTime() > expire_time) {
+      res.clearCookie('loginInfo');
+      ret = ERR.INVALID_COOKIES;
+      throw new Error('invalid cookies.');
+    }
+    return User.watch(name);
+  })
+  .then(function(user){
+    if (!user) {
+      ret = ERR.ARGS;
+      throw new Error('bad username.');
+    }
+    user.visTime = (new Date()).getTime();
+    return Logic.SaveDoc(user);
+  })
+  .then(function(user){
+    req.session.user = user;
+    req.session.msg = 'Welcome, '+user.name+'. :)';
+    return res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('3');
+    FailProcess(err, res, ret);
   });
 });
 
