@@ -1,0 +1,10 @@
+fieldset
+  .box
+    div(style="margin:0 auto;min-height:500px;padding-top:100px;text-align:center;font-size:16px;")
+      img(src="/img/err.png")
+      div(style="padding-top:20px;")
+        if (ret == ERR.PAGE_NOT_FOUND)
+          | 页面不存在，请点击
+          a(href='/') 返回首页
+        else
+          | 系统错误，请稍后重试

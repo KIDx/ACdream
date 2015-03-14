@@ -14,6 +14,8 @@ var Comm = require('../comm');
 var escapeHtml = Comm.escapeHtml;
 var clearSpace = Comm.clearSpace;
 var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * all: 验证登录态
@@ -74,7 +76,7 @@ router.route('/')
       });
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ERR.SYS);
     });
   }
 })
@@ -116,7 +118,7 @@ router.route('/')
       return res.redirect('/problem?pid='+pid);
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ERR.SYS);
     });
   } else {
     var newID = 0;
@@ -137,7 +139,7 @@ router.route('/')
       return res.redirect('/addproblem?pID='+newID);
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ERR.SYS);
     });
   }
 });

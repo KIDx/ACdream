@@ -11,6 +11,8 @@ var Comm = require('../comm');
 var userCol = Comm.userCol;
 var userTit = Comm.userTit;
 var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * Standings页面
@@ -66,27 +68,29 @@ router.get('/', function(req, res){
           });
         })
         .fail(function(err){
-          FailRedirect(err, req, res);
+          FailRender(err, res, ERR.SYS);
         });
       } else {
         return Render();
       }
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ERR.SYS);
     });
   };
   if (cid) {
+    var ret = ERR.SYS;
     Contest.watch(cid)
     .then(function(con){
       if (!con || con.type != 2 || !con.contestants) {
-        return res.redirect('/404');
+        ret = ERR.PAGE_NOT_FOUND;
+        throw new Error('page not found');
       }
       cond.name = {$in: con.contestants};
       return RP();
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ret);
     });
   } else {
     return RP();

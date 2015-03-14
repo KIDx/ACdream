@@ -411,19 +411,21 @@ var ERR = {
 exports.ERR = ERR;
 
 /*
- * 失败跳转处理
+ * 失败渲染处理，约定：ret < 0
  */
-exports.FailRedirect = function(err, req, res) {
-  if (err.message == '404') {
-    return res.redirect('/404');
+exports.FailRender = function(err, res, ret) {
+  if (err) {
+   LogErr(err);
   }
-  LogErr(err);
-  req.session.msg = '系统错误！';
-  return res.redirect('/');
+  return res.render('err', {
+    title: '发生错误',
+    ret: ret,
+    ERR: ERR
+  });
 };
 
 /*
- * 失败响应处理
+ * 失败响应处理，ret > 0 表示逻辑错误
  */
 exports.FailProcess = function(err, res, ret) {
   if (ret < 0) {

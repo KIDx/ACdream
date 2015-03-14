@@ -19,6 +19,8 @@ var userTit = Comm.userTit;
 var solCol = Comm.solCol;
 var solRes = Comm.solRes;
 var getRegState = Comm.getRegState;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * Status页面
@@ -119,7 +121,7 @@ router.get('/', function(req, res){
     return res.render('status', Resp);
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ERR.SYS);
   });
 });
 

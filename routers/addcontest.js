@@ -13,7 +13,8 @@ var addZero = Comm.addZero;
 var clearSpace = Comm.clearSpace;
 var nan = Comm.nan;
 var LogErr = Comm.LogErr;
-var FailRedirect = Comm.FailRedirect;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * get: addcontest页面
@@ -93,7 +94,7 @@ router.route('/')
           return RP(contest, clone, null, E, P);
         })
         .fail(function(err){
-          FailRedirect(err, req, res);
+          FailRender(err, res, ERR.SYS);
         });
       };
       if (clone == 1) {
@@ -104,12 +105,12 @@ router.route('/')
           return TP(sol ? false : true);
         })
         .fail(function(err){
-          FailRedirect(err, req, res);
+          FailRender(err, res, ERR.SYS);
         });
       }
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ERR.SYS);
     });
   }
 })
@@ -294,7 +295,7 @@ router.route('/')
     return RP(ary);
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ERR.SYS);
   });
 });
 

@@ -13,9 +13,8 @@ var KEY = require('./key');
 var Comm = require('../comm');
 var Logic = require('../logic');
 var clearSpace = Comm.clearSpace;
-var LogErr = Comm.LogErr;
 var ERR = Comm.ERR;
-var FailRedirect = Comm.FailRedirect;
+var FailRender = Comm.FailRender;
 var FailProcess = Comm.FailProcess;
 
 /*
@@ -30,6 +29,7 @@ router.get('/', function(req, res){
     UT: Comm.userTit,
     UC: Comm.userCol
   };
+
   //并发执行
   Q.all([
     //获取最近5场比赛
@@ -62,8 +62,7 @@ router.get('/', function(req, res){
     res.render('index', resp);
   })
   .fail(function(err){
-    LogErr(err);
-    res.redirect('/404');
+    FailRender(err, res, ERR.SYS);
   });
 });
 

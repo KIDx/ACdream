@@ -10,6 +10,8 @@ var Comm = require('../comm');
 var userCol = Comm.userCol;
 var userTit = Comm.userTit;
 var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * Ranklist页面
@@ -64,14 +66,14 @@ router.get('/', function(req, res) {
         });
       })
       .fail(function(err){
-        FailRedirect(err, req, res);
+        FailRender(err, res, ERR.SYS);
       });
     } else {
       return Render();
     }
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ERR.SYS);
   });
 });
 

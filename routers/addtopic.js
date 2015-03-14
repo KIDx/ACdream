@@ -12,6 +12,8 @@ var xss_options = Settings.xss_options;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 var clearSpace = Comm.clearSpace;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * get: addtopic页面
@@ -41,10 +43,12 @@ router.route('/')
     return RP(null, 'Add');
   } else {
     var user = req.session.user.name;
+    var ret = ERR.SYS;
     Topic.watch(tid)
     .then(function(topic){
       if (!topic) {
-        throw new Error('404');
+        ret = ERR.PAGE_NOT_FOUND;
+        throw new Error('page not found');
       }
       if (user != 'admin' && user != topic.user) {
         req.session.msg = '抱歉，您不是该话题的主人，无法进入编辑！';
@@ -53,7 +57,7 @@ router.route('/')
       return RP(topic, 'Edit');
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ret);
     });
   }
 })

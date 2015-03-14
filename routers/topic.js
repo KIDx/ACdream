@@ -12,8 +12,8 @@ var Settings = require('../settings');
 var xss_options = Settings.xss_options;
 var Comm = require('../comm');
 var getTime = Comm.getTime;
-var LogErr = Comm.LogErr;
-var FailRedirect = Comm.FailRedirect;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 //获取评论，子评论，以及相关用户信息
 function GetComment(cond, author, currentUser) {
@@ -100,18 +100,23 @@ function GetComment(cond, author, currentUser) {
  */
 router.get('/', function(req, res) {
   var tid = parseInt(req.query.tid, 10);
-  if (!tid) {
-    return res.redirect('/404');
-  }
   var Response = {
     key: KEY.TOPIC,
   };
-  //获取一篇话题
-  Topic.watch(tid)
-  //处理话题
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!tid) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
+    }
+  })
+  .then(function(){
+    return Topic.watch(tid)
+  })
   .then(function(doc){
     if (!doc) {
-      throw new Error('404');
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
     }
     Response.title = doc.title;
     Response.topic = {
@@ -137,9 +142,8 @@ router.get('/', function(req, res) {
     Response.haveMore = o.haveMore;
     return res.render('topic', Response);
   })
-  //失败处理
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ret);
   });
 });
 
@@ -198,7 +202,7 @@ router.get('/list', function(req, res){
     return res.render('topiclist', Response);
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ERR.SYS);
   });
 });
 

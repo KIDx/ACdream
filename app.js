@@ -11,6 +11,7 @@ var server = http.Server(app);
 var sessionStore = new redisStore();
 var socket_opt = {};
 var KEY = require('./routers/key');
+var Comm = require('./comm');
 
 //connect mongodb
 require('./models/connect');
@@ -95,18 +96,10 @@ app.get('/notsupported', function(req, res){
   });
 });
 
-app.get('/404', function(req, res, nxt){
-  nxt();
-});
-
 app.use(function(req, res){
-  res.status('404');
   if (req.accepts('html')) {
-    return res.render('404', {
-      layout: null
-    });
+    Comm.FailRender(null, res, Comm.ERR.PAGE_NOT_FOUND);
   }
-  res.type('txt').send('Not found');
 });
 
 //running server

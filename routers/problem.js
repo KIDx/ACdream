@@ -17,6 +17,8 @@ var languages = Settings.languages;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
 var getRegState = Comm.getRegState;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * problem页面
@@ -75,18 +77,18 @@ router.get('/', function(req, res){
             return RP(user);
           })
           .fail(function(err){
-            FailRedirect(err, req, res);
+            FailRender(err, res, ERR.SYS);
           });
         } else {
           return RP(null);
         }
       })
       .fail(function(err){
-        FailRedirect(err, req, res);
+        FailRender(err, res, ERR.SYS);
       });
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ERR.SYS);
     });
   }
 })
@@ -248,14 +250,14 @@ router.get('/list', function(req, res){
         }
       })
       .fail(function(err){
-        FailRedirect(err, req, res);
+        FailRender(err, res, ERR.SYS);
       });
     } else {
       return RP({});
     }
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ERR.SYS);
   });
 });
 

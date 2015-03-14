@@ -9,19 +9,28 @@ var KEY = require('./key');
 var Comm = require('../comm');
 var clearSpace = Comm.clearSpace;
 var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * 显示某个用户具体信息的页面
  */
 router.get('/:name', function(req, res){
   var name = req.params.name;
-  if (!name) {
-    return res.redirect('/404');
-  }
-  User.watch(name)
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
+    }
+  })
+  .then(function(){
+    return User.watch(name);
+  })
   .then(function(user){
     if (!user) {
-      return res.redirect('/404');
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
     }
     Solution.aggregate([
       { $match: { userName: name, result: {$gt: 1} } },
@@ -75,16 +84,16 @@ router.get('/:name', function(req, res){
           return RP(pids);
         })
         .fail(function(err){
-          FailRedirect(err, req, res);
+          FailRender(err, res, ret);
         });
       }
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ret);
     });
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ret);
   });
 });
 

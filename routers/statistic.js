@@ -11,29 +11,38 @@ var languages = Settings.languages;
 var stats_pageNum = Settings.stats_pageNum;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * Statistic页面
  */
 router.get('/:pid', function(req, res) {
   var pid = parseInt(req.params.pid, 10);
-  if (!pid) {
-    return res.redirect('/404');
-  }
   var page = parseInt(req.query.page, 10);
   if (!page) {
     page = 1;
   } else if (page < 0) {
     return res.redirect('/statistic/'+pid);
   }
-  Problem.watch(pid)
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!pid) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
+    }
+  })
+  .then(function(){
+    return Problem.watch(pid);
+  })
   .then(function(problem){
     var user = "";
     if (req.session.user) {
       user = req.session.user.name;
     }
     if (!problem || (problem.hide && user !== problem.manager && user !== 'admin')) {
-      return res.redirect('/404');
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
     }
     var lang = parseInt(req.query.lang, 10), cond = {problemID:pid, result:2};
     if (lang < 1 || lang >= languages.length) {
@@ -138,23 +147,23 @@ router.get('/:pid', function(req, res) {
             });
           })
           .fail(function(err){
-            FailRedirect(err, req, res);
+            FailRender(err, res, ret);
           });
         })
         .fail(function(err){
-          FailRedirect(err, req, res);
+          FailRender(err, res, ret);
         });
       })
       .fail(function(err){
-        FailRedirect(err, req, res);
+        FailRender(err, res, ret);
       });
     })
     .fail(function(err){
-      FailRedirect(err, req, res);
+      FailRender(err, res, ret);
     });
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ret);
   });
 });
 

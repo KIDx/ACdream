@@ -7,6 +7,7 @@
 var router = require('express').Router();
 var async = require('async');
 var xss = require('xss');
+var Q = require('q');
 
 var IDs = require('../models/ids.js');
 var Contest = require('../models/contest.js');
@@ -33,6 +34,8 @@ var solCol = Comm.solCol;
 var solRes = Comm.solRes;
 var getContestRank = Comm.getContestRank;
 var getRegState = Comm.getRegState;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
 
 /*
  * 注册比赛并且初始化该用户的ContestRank
@@ -54,10 +57,6 @@ function regContestAndUpdate(cid, name) {
  */
 router.get('/', function(req, res){
   var cid = parseInt(req.query.cid, 10);
-  if (!cid) {
-    return res.redirect('/404');
-  }
-
   var name = req.session.user ? req.session.user.name : '';
   var Resp = {
     title: 'Contest '+cid,
@@ -68,10 +67,20 @@ router.get('/', function(req, res){
     langs: languages
   };
 
-  Contest.watch(cid)
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
+    }
+  })
+  .then(function(){
+    return Contest.watch(cid)
+  })
   .then(function(contest) {
     if (!contest) {
-      return res.redirect('/404');
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
     }
     if (contest.type !== 2 && contest.password) {
       if (name !== contest.userName && name !== 'admin') {
@@ -109,7 +118,7 @@ router.get('/', function(req, res){
     return res.render('contest', Resp);
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ret);
   });
 });
 
@@ -192,7 +201,7 @@ router.get('/list', function(req, res){
     return res.render('contestlist', Resp);
   })
   .fail(function(err){
-    FailRedirect(err, req, res);
+    FailRender(err, res, ERR.SYS);
   });
 });
 
