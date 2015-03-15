@@ -88,7 +88,7 @@ router.post('/login', function(req, res){
   Q.fcall(function(){
     if (!name || !psw) {
       ret = ERR.ARGS;
-      throw new Error('name or psw can NOT be empty.');
+      throw new Error('name or psw can NOT be empty');
     }
   })
   .then(function(){
@@ -97,11 +97,11 @@ router.post('/login', function(req, res){
   .then(function(user){
     if (!user) {
       ret = ERR.USER_NOT_EXIT;
-      throw new Error(name + ' is not exist.');
+      throw new Error(name + ' is not exist');
     }
     if (user.password != Comm.MD5(psw)) {
       ret = ERR.WRONG_PASSWORD;
-      throw new Error('wrong password.');
+      throw new Error('wrong password');
     }
     user.visTime = (new Date()).getTime();
     return Logic.SaveDoc(user);
@@ -153,7 +153,7 @@ router.post('/loginByToken', function(req, res){
     if (!name || !token) {
       res.clearCookie('loginInfo');
       ret = ERR.INVALID_COOKIES;
-      throw new Error('invalid cookies.');
+      throw new Error('invalid cookies');
     }
   })
   .then(function(){
@@ -166,14 +166,14 @@ router.post('/loginByToken', function(req, res){
     if (!expire_time || (new Date()).getTime() > expire_time) {
       res.clearCookie('loginInfo');
       ret = ERR.INVALID_COOKIES;
-      throw new Error('invalid cookies.');
+      throw new Error('invalid cookies');
     }
     return User.watch(name);
   })
   .then(function(user){
     if (!user) {
       ret = ERR.ARGS;
-      throw new Error('bad username.');
+      throw new Error('bad username');
     }
     user.visTime = (new Date()).getTime();
     return Logic.SaveDoc(user);

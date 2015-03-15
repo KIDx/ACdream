@@ -14,6 +14,7 @@ var Comm = require('../comm');
 var getTime = Comm.getTime;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 //获取评论，子评论，以及相关用户信息
 function GetComment(cond, author, currentUser) {
@@ -210,29 +211,33 @@ router.get('/list', function(req, res){
  * 切换置顶状态
  */
 router.post('/toggleTop', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user || req.session.user.name !== 'admin') {
-    return res.end();  //not allow!
-  }
   var tid = parseInt(req.body.tid, 10);
-  if (!tid) {
-    return res.end();  //not allow!
-  }
-
-  Topic.watch(tid)
-  .then(function(topic){
-    if (topic) {
-      topic.top = !topic.top;
-      return topic.save();
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!req.session.user || req.session.user.name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
     }
+    if (!tid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid topic id');
+    }
+    return Topic.watch(tid);
+  })
+  .then(function(topic){
+    if (!topic) {
+      ret = ERR.ARGS;
+      throw new Error('topic not exist');
+    }
+    topic.top = !topic.top;
+    return topic.save();
   })
   .then(function(){
     req.session.msg = '操作成功！';
-    return res.end();
+    return res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    res.end('3');
+    FailProcess(err, res, ret);
   });
 });
 
@@ -242,17 +247,19 @@ router.post('/toggleTop', function(req, res){
 router.post('/getComments', function(req, res){
   var tid = parseInt(req.body.tid, 10);
   var minID = parseInt(req.body.min_id, 10);
-  if (!tid || !minID) {
-    return res.end(); //not allow
-  }
-
-  GetComment({tid: tid, id: {$lt: minID}})
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!tid || !minID) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    return GetComment({tid: tid, id: {$lt: minID}});
+  })
   .then(function(o){
-    return res.send(o);
+    return res.send({ret: 0, data: o});
   })
   .fail(function(err){
-    LogErr(err);
-    res.end('3');
+    FailProcess(err, res, ret);
   });
 
 });

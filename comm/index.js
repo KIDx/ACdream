@@ -406,7 +406,8 @@ var ERR = {
   OK: 0,
   SYS: -1,
   ARGS: -2,
-  PAGE_NOT_FOUND: -3
+  PAGE_NOT_FOUND: -3,
+  ACCESS_DENIED: -4
 };
 exports.ERR = ERR;
 

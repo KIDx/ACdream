@@ -224,14 +224,15 @@ $(document).ready(function(){
         type: 'POST',
         url: '/topic/toggleTop',
         data: { tid: _tid },
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           ShowMessage('无法连接到服务器！');
         }
       }).done(function(res){
-        if (!res) {
+        var ret = res.ret;
+        if (ret === 0) {
           window.location.reload(true);
-        } else if (res == '3') {
+        } else {
           ShowMessage('系统错误！');
         }
       });
@@ -336,13 +337,12 @@ $(document).ready(function(){
       }).done(function(res){
         $('#processing').hide();
         $getMore.removeClass('hide');
-        if (res) {
-          if (res === '3') {
-            ShowMessage('系统错误！');
-          } else {
-            Render(res);
-            BindActions();
-          }
+        var ret = res.ret;
+        if (ret === 0) {
+          Render(res.data);
+          BindActions();
+        } else {
+          ShowMessage('系统错误！');
         }
       });
     });
