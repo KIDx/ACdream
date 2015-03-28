@@ -184,13 +184,11 @@ $(document).ready(function(){
       errAnimate($err, 'one or more Valid problem has been found!');
       return false;
     }
-    pids = new Array(); alias = new Array();
+    pids = []; alias = {};
     $.each($pid_in, function(i, p){
       var tp = parseInt($(p).val(), 10);
       pids.push(tp);
-      var tmp = JudgeString($alias_in.eq(i).val());
-      if (!tmp) tmp = ' ';
-      alias.push(tmp);
+      alias[tp] = JudgeString($alias_in.eq(i).val());
     });
     $err.text('');
     $submit.text('Submitting...').addClass('disabled');
@@ -216,13 +214,19 @@ $(document).ready(function(){
         pids: pids,
         alias: alias
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
         $submit.text('Submit').removeClass('disabled');
         errAnimate($err, '无法连接到服务器！');
       }
     }).done(function(res){
-      window.location.href = '/contest?cid=' + res;
+      var ret = res.ret;
+      if (ret == 0) {
+        window.location.href = '/contest?cid=' + res.id;
+      } else {
+        ShowMessage('系统错误！');
+        $submit.text('Submit').removeClass('disabled');
+      }
     });
   });
 });

@@ -484,7 +484,7 @@ $(document).ready(function(){
         dataType : 'text'
       })
       .done(function(){
-        window.location.reload(true);
+        window.location.href = "/";
       });
     });
   }

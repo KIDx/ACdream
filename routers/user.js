@@ -1,5 +1,6 @@
 
 var router = require('express').Router();
+var Q = require('q');
 
 var User = require('../models/user.js');
 var Solution = require('../models/solution.js');

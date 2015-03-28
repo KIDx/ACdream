@@ -1,5 +1,6 @@
 
 var router = require('express').Router();
+var Q = require('q');
 
 var IDs = require('../models/ids.js');
 var Solution = require('../models/solution.js');
@@ -9,12 +10,14 @@ var ContestRank = require('../models/contestrank.js');
 
 var KEY = require('./key');
 var Comm = require('../comm');
+var Logic = require('../logic');
 var addZero = Comm.addZero;
 var clearSpace = Comm.clearSpace;
 var nan = Comm.nan;
 var LogErr = Comm.LogErr;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 /*
  * get: addcontest页面
@@ -22,101 +25,93 @@ var FailRender = Comm.FailRender;
  */
 router.route('/')
 .get(function(req, res){
-  var type = parseInt(req.query.type, 10);
-  if (!type || type < 1 || type > 2) {
-    return res.redirect('/404');
-  }
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.redirect('/contest/list?type='+type);
-  }
-  var RP = function(C, clone, type, E, P) {
-    res.render('addcontest', {
-      title: 'AddContest',
-      contest: C,
-      getDate: Comm.getDate,
-      key: KEY.ADD_CONTEST,
-      clone: clone,
-      type: type,
-      family: String(req.query.family),
-      edit: E,
-      P: P
-    });
-  };
-  var name = req.session.user.name;
-  var cid = parseInt(req.query.cID, 10);
   /*
    * !cid: add a new contest
    * cid < 0: clone a contest (clone to DIY Contest)
    * cid > 0: edit a contest
    */
-  if (!cid) {
-    if (type == 2 && name != 'admin') {
-      req.session.msg = 'You have no permission to add VIP Contest!';
-      return res.redirect('/contest/list?type=2');
+  var cid = parseInt(req.query.cID, 10);
+  var type = parseInt(req.query.type, 10);
+  var name;
+  var resp = {
+    title: 'AddContest',
+    contest: null,
+    getDate: Comm.getDate,
+    key: KEY.ADD_CONTEST,
+    clone: 0,
+    type: type,
+    family: String(req.query.family),
+    edit: true,
+    P: {}
+  };
+  var clone = 0;
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!type || type < 1 || type > 2) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
     }
-    return RP(null, 0, type, true, {});
-  } else {
-    var clone = 0;
-    if (cid < 0) {
-      clone = 1;
-      cid = -cid;
+    if (!req.session.user) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session');
     }
-    Contest.watch(cid)
-    .then(function(contest){
-      if (!contest) {
-        return res.redirect('/404');
+    name = req.session.user.name;
+    if (!cid && type == 2 && name != 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
+    }
+    if (cid) {
+      if (cid < 0) {
+        clone = 1;
+        cid = -cid;
       }
-      if (clone == 0 && name != contest.userName && name != 'admin') {
-        req.session.msg = 'You are not the manager of this contest!';
-        return res.redirect('/contest?cid='+cid);
-      }
-      if (clone == 1 && name != contest.userName && name != 'admin') {
-        if ((new Date()).getTime() - contest.startTime < contest.len*60000) {
-          return res.redirect('/404');  //not allow
+      return Contest.watch(cid)
+      .then(function(contest){
+        if (!contest) {
+          ret = ERR.PAGE_NOT_FOUND;
+          throw new Error('page not found');
         }
-      }
-      var TP = function(E) {
+        if (clone == 0 && name != contest.userName && name != 'admin' ||
+            clone == 1 && name != contest.userName && name != 'admin' && !Comm.isEnded(contest)) {
+          ret = ERR.ACCESS_DENIED;
+          throw new Error('access denied');
+        }
+        resp.contest = contest;
         var pids = [];
         if (contest.probs) {
           contest.probs.forEach(function(p){
             pids.push(p[0]);
           });
         }
-        Problem.find({problemID: {$in: pids}})
-        .then(function(problems){
-          var P = {};
-          if (problems) {
-            problems.forEach(function(p){
-              P[p.problemID] = p;
-            });
-          }
-          return RP(contest, clone, null, E, P);
-        })
-        .fail(function(err){
-          FailRender(err, res, ERR.SYS);
-        });
-      };
-      if (clone == 1) {
-        TP(true);
-      } else {
-        Solution.findOne({cID: cid})
-        .then(function(sol){
-          return TP(sol ? false : true);
-        })
-        .fail(function(err){
-          FailRender(err, res, ERR.SYS);
-        });
-      }
-    })
-    .fail(function(err){
-      FailRender(err, res, ERR.SYS);
-    });
-  }
+        return Problem.find({problemID: {$in: pids}});
+      }).then(function(problems){
+        var P = {};
+        if (problems) {
+          problems.forEach(function(p){
+            P[p.problemID] = p;
+          });
+        }
+        resp.P = P;
+        if (clone == 1) {
+          resp.edit = true;
+        } else {
+          return Solution.findOne({cID: cid})
+          .then(function(sol){
+            resp.edit = sol ? false : true;
+          });
+        }
+      });
+    }
+  })
+  .then(function(){
+    res.render('addcontest', resp);
+  })
+  .fail(function(err){
+    FailRender(err, res, ret);
+  })
+  .done();
 })
 .post(function(req, res){
-  res.header('Content-Type', 'text/plain');
-
   var psw = '';
   var title = clearSpace(req.body.title);
   var date = clearSpace(req.body.date);
@@ -130,128 +125,62 @@ router.route('/')
   var anc = clearSpace(req.body.anc);
   var type = parseInt(req.body.type, 10);
   var family = clearSpace(req.body.family);
-
-  if (!title || !date || !hour || !min ||
-      nan(dd) || nan(hh) || nan(mm) || !penalty ||
-      !type || type < 1 || type > 2) {
-    return res.end();  //not allow!
+  var open_reg = req.body.open_reg === 'true' ? true : false;
+  var alias = req.body.alias ? req.body.alias : {};
+  var cid = parseInt(req.body.cid, 10);
+  var pids = [];
+  if (req.body.pids && req.body.pids instanceof Array) {
+    req.body.pids.forEach(function(p){
+      var pid = parseInt(p);
+      if (pid) {
+        pids.push(p);
+      }
+    });
   }
-
-  if (!req.session.user) {
-    req.session.msg = 'Failed! Please login first!';
-    return res.end();
-  }
-  var name = req.session.user.name;
-  if (type == 2 && name != 'admin') {
-    req.session.msg = 'Failed! You have no permission to add VIP Contest!';
-    return res.end();
-  }
-
   if (type == 2) {
     psw = req.body.psw ? '1' : '';
   } else if (req.body.psw) {
     psw = Comm.MD5(String(req.body.psw));
   }
 
-  var pids = [];
-  if (req.body.pids && req.body.pids.length) {
-    req.body.pids.forEach(function(p){
-      pids.push(p);
+  var name = '';
+  var probList = [];
+  var resp = {ret: ERR.OK};
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!title || !date || !hour || !min ||
+        nan(dd) || nan(hh) || nan(mm) || !penalty ||
+        !type || type < 1 || type > 2) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    if (!req.session.user) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session');
+    }
+    name = req.session.user.name;
+    if (type === 2 && name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
+    }
+    return Problem.find({problemID: {$in: pids}});
+  })
+  .then(function(problems){
+    problems.forEach(function(p){
+      if (!p.hide || name === p.manager || name === 'admin') {
+        probList.push([p.problemID, clearSpace(alias[p.problemID])]);
+      }
     });
-  }
-  var open_reg = String(req.body.open_reg) === 'true' ? true : false;
-  var alias = req.body.alias ? req.body.alias : {};
-  var RP = function(ary) {
+    if (probList.length === 0) {
+      ret = ERR.ARGS;
+      throw new Error('empty probList.');
+    }
     var startTime = (new Date(date+' '+hour+':'+min)).getTime();
     var len = dd*1440 + hh*60 + mm;
-    var cid = parseInt(req.body.cid, 10);
-    if (cid) {
-      Contest.watch(cid)
-      .then(function(con){
-        if (!con || con.type != type) {
-          return res.end();  //not allow
-        }
-        if (name != con.userName && name != 'admin') {
-          req.session.msg = 'Update Failed! You are not the manager!';
-          return res.end();
-        }
-        con.title = title;
-        var flg = false;
-        if (con.startTime != startTime || con.len > len || con.penalty != penalty) {
-          flg = true;
-          con.updateTime = con.maxRunID = 0;
-        }
-        con.startTime = startTime;
-        con.len = len;
-        con.penalty = penalty;
-        con.description = desc;
-        con.msg = anc;
-        con.open_reg = open_reg;
-        con.family = family;
-        if (con.password != req.body.psw)
-          con.password = psw;
-        var save = function() {
-          con.save(function(err){
-            if (err) {
-              LogErr(err);
-              req.session.msg = '系统错误！';
-              return res.end();
-            }
-            req.session.msg = 'Your Contest has been updated successfully!';
-            var tp = cid.toString();
-            if (!flg) {
-              return res.end(tp);
-            }
-            ContestRank.clear({'_id.cid':cid})
-            .then(function(){
-              return res.end(tp);
-            })
-            .fail(function(err){
-              LogErr(err);
-              req.session.msg = '系统错误！';
-              return res.end();
-            });
-          });
-        }, judge = function() {
-          if (ary.length != con.probs.length) {
-            return false;
-          }
-          for (var i = 0; i < ary.length; i++) {
-            if (ary[i][0] != con.probs[i][0])
-              return false;
-          }
-          return true;
-        };
-        if (judge()) {
-          con.probs = ary;
-          return save();
-        }
-        Solution.findOne({cID: cid})
-        .then(function(sol){
-          if (!sol) {
-            con.probs = ary;
-          }
-          return save();
-        })
-        .fail(function(err){
-          LogErr(err);
-          req.session.msg = '系统错误！';
-          return res.end();
-        });
-      })
-      .fail(function(err){
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      });
-    } else {
-      if (!ary.length) {
-        return res.end();  //not allow
-      }
-      var resp = '';
-      IDs.get('contestID')
+    if (!cid) {
+      return IDs.get('contestID')
       .then(function(id){
-        resp = id.toString();
+        resp.id = id;
         return (new Contest({
           contestID: id,
           userName: name,
@@ -261,42 +190,70 @@ router.route('/')
           penalty: penalty,
           description: desc,
           msg: anc,
-          probs: ary,
+          probs: probList,
           password: psw,
           open_reg: open_reg,
           type: type,
           family: family
         })).save();
+      });
+    } else {
+      var bNeedClear = false;
+      var contest;
+      return Contest.watch(cid)
+      .then(function(con){
+        if (!con || type != con.type) {
+          ret = ERR.ARGS;
+          throw new Error('invalid args.');
+        }
+        if (name != con.userName && name != 'admin') {
+          ret = ERR.ACCESS_DENIED;
+          throw new Error('access denied');
+        }
+        con.title = title;
+        if (con.startTime !== startTime || con.len > len || con.penalty !== penalty) {
+          bNeedClear = true;
+          con.updateTime = con.maxRunID = 0;
+        }
+        con.startTime = startTime;
+        con.len = len;
+        con.penalty = penalty;
+        con.description = desc;
+        con.msg = anc;
+        con.open_reg = open_reg;
+        con.family = family;
+        if (con.password != psw) {
+          con.password = psw;
+        }
+        resp.id = cid;
+        contest = con;
+        return Solution.findOne({cID: cid});
+      })
+      .then(function(sol){
+        if (!sol) {
+          contest.probs = probList;
+        }
+        return Logic.SaveDoc(contest);
       })
       .then(function(){
-        req.session.msg = 'Your Contest has been added successfully!';
-        return res.end(resp);
-      })
-      .fail(function(err){
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
+        if (bNeedClear) {
+          return ContestRank.clear({'_id.cid':cid});
+        }
       });
     }
-  };
-  Problem.find({problemID: {$in: pids}})
-  .then(function(problems){
-    var has = {};
-    if (problems) {
-      problems.forEach(function(p){
-        has[p.problemID] = true;
-      });
+  })
+  .then(function(err){
+    if (cid) {
+      req.session.msg = 'Your Contest has been updated successfully!';
+    } else {
+      req.session.msg = 'Your Contest has been added successfully!';
     }
-    var ary = [];
-    pids.forEach(function(p, i){
-      if (has[p])
-        ary.push([p, clearSpace(alias[i])]);
-    });
-    return RP(ary);
+    res.send(resp);
   })
   .fail(function(err){
-    FailRender(err, res, ERR.SYS);
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

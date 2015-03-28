@@ -63,7 +63,8 @@ router.get('/', function(req, res){
   })
   .fail(function(err){
     FailRender(err, res, ERR.SYS);
-  });
+  })
+  .done();
 });
 
 /*
@@ -138,7 +139,8 @@ router.post('/login', function(req, res){
   })
   .fail(function(err){
     FailProcess(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*
@@ -185,7 +187,8 @@ router.post('/loginByToken', function(req, res){
   })
   .fail(function(err){
     FailProcess(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*

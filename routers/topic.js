@@ -92,7 +92,8 @@ function GetComment(cond, author, currentUser) {
   })
   .fail(function(err){
     d.reject(err);
-  });
+  })
+  .done();
   return d.promise;
 }
 
@@ -145,7 +146,8 @@ router.get('/', function(req, res) {
   })
   .fail(function(err){
     FailRender(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*
@@ -204,7 +206,8 @@ router.get('/list', function(req, res){
   })
   .fail(function(err){
     FailRender(err, res, ERR.SYS);
-  });
+  })
+  .done();
 });
 
 /*
@@ -238,7 +241,8 @@ router.post('/toggleTop', function(req, res){
   })
   .fail(function(err){
     FailProcess(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*
@@ -260,7 +264,8 @@ router.post('/getComments', function(req, res){
   })
   .fail(function(err){
     FailProcess(err, res, ret);
-  });
+  })
+  .done();
 
 });
 

@@ -407,7 +407,8 @@ var ERR = {
   SYS: -1,
   ARGS: -2,
   PAGE_NOT_FOUND: -3,
-  ACCESS_DENIED: -4
+  ACCESS_DENIED: -4,
+  INVALID_SESSION: -5
 };
 exports.ERR = ERR;
 

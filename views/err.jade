@@ -1,10 +1,18 @@
 fieldset
   .box
-    div(style="margin:0 auto;min-height:500px;padding-top:100px;text-align:center;font-size:16px;")
-      img(src="/img/err.png")
-      div(style="padding-top:20px;")
-        if (ret == ERR.PAGE_NOT_FOUND)
-          | 页面不存在，请点击
-          a(href='/') 返回首页
-        else
-          | 系统错误，请稍后重试
+    div(style="margin:0 auto;min-height:500px;padding-top:100px;font-size:16px;")
+      .mc(style="width:150px;height:117px;")
+        img(src="/img/err.png")
+      div(style="padding-top:20px;text-align:center;")
+        case ret
+          when ERR.PAGE_NOT_FOUND
+            | 页面不存在，请点击
+            a(href="/") 返回首页
+          when ERR.ACCESS_DENIED
+            | 没有权限访问该页面，请点击
+            a(href="/") 返回首页
+          when ERR.INVALID_SESSION
+            | 登录超时，请重新
+            a.checklogin(href="javascript:;" data-url="/") 登录
+          when ERR.SYS
+            | 系统错误，请稍后重试
