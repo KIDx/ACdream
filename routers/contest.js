@@ -32,10 +32,10 @@ var userCol = Comm.userCol;
 var userTit = Comm.userTit;
 var solCol = Comm.solCol;
 var solRes = Comm.solRes;
-var getContestRank = Comm.getContestRank;
 var getRegState = Comm.getRegState;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 /*
  * 注册比赛并且初始化该用户的ContestRank
@@ -82,13 +82,11 @@ router.get('/', function(req, res){
       ret = ERR.PAGE_NOT_FOUND;
       throw new Error('page not found');
     }
-    if (contest.type !== 2 && contest.password) {
-      if (name !== contest.userName && name !== 'admin') {
-        if (!req.session.cid || !req.session.cid[cid]) {
-          req.session.msg = 'You should login the contest '+cid+' first!';
-          return res.redirect('/contest/list?type=1');
-        }
-      }
+    if (contest.type === 1 && contest.password &&
+        name !== contest.userName && name !== 'admin' &&
+        (!req.session.cid || !req.session.cid[cid])) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
     }
     Resp.contest = contest;
     Resp.reg_state = getRegState(contest, name);
@@ -104,7 +102,7 @@ router.get('/', function(req, res){
   })
   .spread(function(problems, user){
     if (!user) {
-      return res.end();  //not allow
+      throw new Error('data error');
     }
     var Pt = {};
     if (problems) {
@@ -119,7 +117,8 @@ router.get('/', function(req, res){
   })
   .fail(function(err){
     FailRender(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*
@@ -127,46 +126,44 @@ router.get('/', function(req, res){
  */
 router.get('/list', function(req, res){
   var type = parseInt(req.query.type, 10);
-  if (!type || type < 1 || type > 2) {
-    return res.redirect('/404');
-  }
-
-  var family = req.query.family;
-
-  if (!req.query.page) {
+  var family = clearSpace(req.query.family);
+  var page = parseInt(req.query.page, 10);
+  if (!page) {
     page = 1;
-  } else {
-    page = parseInt(req.query.page, 10);
   }
-
-  var url = '/contest/list?type='+type + (family ? "&family="+family : "");
-
-  if (!page || page < 0) {
-    return res.redirect(url);
-  }
-
-  var cond = {type: type}, q1 = {}, q2 = {}, search = req.query.search;
-
+  var cond = {type: type};
+  var cond1 = {};
+  var cond2 = {};
+  var search = clearSpace(req.query.search);
   if (search) {
-    q1.title = q2.userName = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
-    cond.$or = [q1, q2];
+    cond1.title = cond2.userName = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
+    cond.$or = [cond1, cond2];
   }
-
   if (type === 2 && family) {
     cond.family = family;
   }
-
-  var Resp = {
+  var resp = {
     title: 'ContestList',
     key: KEY.CONTEST_LIST,
     type: type,
-    family: family,
+    family: cond.family,
     getDate: getDate,
     search: search,
     page: page
   };
 
-  Contest.get(cond, page)
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!type || type < 1 || type > 2) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found');
+    }
+    if (page < 0) {
+      ret = ERR.REDIRECT;
+      throw new Error('redirect');
+    }
+    return Contest.get(cond, page);
+  })
   .then(function(o){
     var T = [], R = {}, now = (new Date()).getTime();
     var CS = {}, names = [];
@@ -177,15 +174,14 @@ router.get('/list', function(req, res){
       o.contests.forEach(function(p, i){
         names.push(p.userName);
         T.push(p.startTime-now);
-        if (req.session.user && isRegCon(p.contestants, req.session.user.name))
-          R[i] = true;
+        R[i] = req.session.user && isRegCon(p.contestants, req.session.user.name);
       });
     }
-    Resp.contests = o.contests;
-    Resp.n = o.totalPage;
-    Resp.T = T;
-    Resp.R = R;
-    Resp.CS = CS;
+    resp.contests = o.contests;
+    resp.totalPage = o.totalPage;
+    resp.T = T;
+    resp.R = R;
+    resp.CS = CS;
     return User.find({name: {$in: names}});
   })
   .then(function(users){
@@ -196,300 +192,248 @@ router.get('/list', function(req, res){
         UT[p.name] = userTit(p.rating);
       });
     }
-    Resp.UC = UC;
-    Resp.UT = UT;
-    return res.render('contestlist', Resp);
+    resp.UC = UC;
+    resp.UT = UT;
+    return res.render('contestlist', resp);
   })
   .fail(function(err){
-    FailRender(err, res, ERR.SYS);
-  });
+    if (ret === ERR.REDIRECT) {
+      return res.redirect('/contest/list?type='+type + (cond.family ? "&family="+cond.family : ""));
+    }
+    FailRender(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 比赛的overview页的AC/submit数以及当前用户AC状态的聚合
  */
 router.post('/overview', function(req, res){
-  res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
-  if (!cid) {
-    return res.end(); //not allow!
-  }
-  var resp = {stat: {}, self: {}};
-  function getOverview(cb) {
-    Overview.find({'_id.cid': cid})
-    .then(function(objs){
-      objs.forEach(function(p){
-        if (!resp.stat[p._id.pid]) {
-          resp.stat[p._id.pid] = {};
-          resp.stat[p._id.pid].ac = resp.stat[p._id.pid].all = 0;
-        }
-        if (p._id.result === true) {
-          resp.stat[p._id.pid].ac += p.value;
-        }
-        resp.stat[p._id.pid].all += p.value;
+  var resp = {
+    ret: ERR.OK,
+    stat: {},
+    self: {}
+  };
+
+  var now = (new Date()).getTime();
+  var sol = null;
+  var promiseReduceAndGetOverview = Contest.findOneAndUpdate({
+    contestID: cid,
+    overviewUpdateTime: {$lt: now - 30000}    //距离上次聚合>=30秒, 聚合一次Overview
+  }, {
+    $set: {overviewUpdateTime: now}
+  }, {
+    new: false
+  })
+  .then(function(contest){
+    if (contest) {
+      return Solution.findOneBySort({cID: cid, runID: {$gt: contest.overviewRunID}}, {runID: -1});
+    }
+  })
+  .then(function(tmpSol){
+    if (tmpSol) {
+      sol = tmpSol;
+      return Solution.findOneBySort({cID: cid, result: {$lt: 2}}, {runID: 1});
+    }
+  })
+  .then(function(sol2){
+    if (sol) {
+      var maxRunID;
+      if (sol2 && sol.runID > sol2.runID - 1) {
+        maxRunID = sol2.runID - 1;
+      } else {
+        maxRunID = sol.runID;
+      }
+      return Solution.mapReduce({
+        query: {userName: {$ne: 'admin'}, cID: cid, runID: {$gt: contest.overviewRunID, $lte: maxRunID}},
+        map: function(){
+          return emit({
+            cid: this.cID,
+            pid: this.problemID,
+            result: this.result === 2
+          }, 1);
+        },
+        reduce: function(key, vals){
+          var val = 0;
+          vals.forEach(function(p){
+            val += p;
+          });
+          return val;
+        },
+        out: {reduce: 'overviews'}
+      })
+      .then(function(){
+        return Contest.update(cid, {$set: {overviewRunID: maxRunID}});
       });
-      return cb();
-    })
-    .fail(function(err){
-      return cb(err);
+    }
+  })
+  .then(function(){
+    return Overview.find({'_id.cid': cid});
+  })
+  .then(function(objs){
+    objs.forEach(function(p){
+      if (!resp.stat[p._id.pid]) {
+        resp.stat[p._id.pid] = {};
+        resp.stat[p._id.pid].ac = resp.stat[p._id.pid].all = 0;
+      }
+      if (p._id.result === true) {
+        resp.stat[p._id.pid].ac += p.value;
+      }
+      resp.stat[p._id.pid].all += p.value;
+    });
+  });
+  
+  var promiseReduceUserRes = null
+  if (req.session.user) {
+    promiseReduceUserRes = Solution.aggregate([
+      { $match: { userName: req.session.user.name, cID: cid, result: {$gt: 1} } },
+      { $group: { _id: '$problemID', result: {$min: '$result'} } }
+    ])
+    .then(function(res){
+      res.forEach(function(p){
+        resp.self[p._id] = (p.result === 2);
+      });
     });
   }
-  var arr = [];
-  var sols;
-  arr.push(
-    function(cb) {
-      var now = (new Date()).getTime();
-      Contest.findOneAndUpdate({
-        contestID: cid,
-        overviewUpdateTime: { $lt: now-30000 }    //距离上次聚合>=30秒, 聚合一次Overview
-      }, {
-        $set: { overviewUpdateTime: now }
-      }, {
-        new: false
-      })
-      .then(function(contest){
-        if (!contest) {
-          return getOverview(cb);
-        }
-        Solution.findOneBySort({cID: cid, runID: {$gt: contest.overviewRunID}}, {runID: -1})
-        .then(function(sol){
-          if (!sol) {
-            return getOverview(cb);
-          }
-          Solution.findOneBySort({cID: cid, result: {$lt: 2}}, {runID: 1})
-          .then(function(sol2){
-            var maxRunID;
-            if (sol2 && sol.runID > sol2.runID - 1) {
-              maxRunID = sol2.runID - 1;
-            } else {
-              maxRunID = sol.runID;
-            }
-            Solution.mapReduce({
-              query: { userName: {$ne: 'admin'}, cID: cid, runID: {$gt: contest.overviewRunID, $lte: maxRunID} },
-              map: function() {
-                return emit({
-                  cid: this.cID,
-                  pid: this.problemID,
-                  result: this.result === 2
-                }, 1);
-              },
-              reduce: function(key, vals) {
-                var val = 0;
-                vals.forEach(function(p){
-                  val += p;
-                });
-                return val;
-              },
-              out: { reduce: 'overviews' }
-            })
-            .then(function(){
-              return Contest.update(cid, {$set: {overviewRunID: maxRunID}});
-            })
-            .then(function(){
-              return getOverview(cb);
-            })
-            .fail(function(err){
-              return cb(err);
-            });
-          })
-          .fail(function(err){
-            return cb(err);
-          });
-        })
-        .fail(function(err){
-          return cb(err);
-        });
-      })
-      .fail(function(err){
-        return cb(err);
-      });
+
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid) {
+      ret = ERR.ARGS;
+      throw new Error('cid can NOT be empty');
     }
-  );
-  if (req.session.user) {
-    arr.push(
-      function(cb) {
-        Solution.aggregate([
-          { $match: { userName: req.session.user.name, cID: cid, result: {$gt: 1} } },
-          { $group: { _id: '$problemID', result: {$min: '$result'} } }
-        ])
-        .then(function(res){
-          res.forEach(function(p){
-            resp.self[p._id] = (p.result === 2);
-          });
-          return cb();
-        })
-        .fail(function(err){
-          return cb(err);
-        });
-      }
-    );
-  }
-  async.each(arr, function(f, cb){
-    f(cb);
-  }, function(err){
-    if (err) {
-      LogErr(err);
-      return res.end();  //not refresh!
-    }
+    return [promiseReduceAndGetOverview, promiseReduceUserRes];
+  })
+  .spread(function(){
     return res.json(resp);
-  });
+  })
+  .fail(function(err){
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 比赛排名的聚合
  */
 router.post('/ranklist', function(req, res){
-  res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
-  if (!cid || cid < 0) {
-    return res.end();
-  }
   var page = parseInt(req.body.page, 10);
   if (!page) {
     page = 1;
-  } else if (page < 0) {
-    return res.end();
   }
-  var now = (new Date()).getTime();
-  Contest.findOneAndUpdate({
-    contestID: cid,
-    updateTime: { $lt: now-30000 }    //距离上次聚合>=30秒, 聚合一次排名
-  }, {
-    $set: { updateTime: now }
-  }, {
-    new: false
-  })
-  .then(function(contest){
-    var RP = function(con){
-      ContestRank.get({'_id.cid': cid}, page)
-      .then(function(o){
-        var currentUser = req.session.user ? req.session.user.name : '';
-        var resp = {
-          pageNum: o.totalPage,
-          startTime: con.startTime,
-          reg_state: getRegState(con, currentUser),
-          contestants: con.contestants.length,
-          duration: con.len * 60,
-          svrTime: (new Date()).getTime()
-        };
 
-        if (!o.users || o.users.length == 0) {
-          return res.json(resp);
+  var now = (new Date()).getTime();
+  var resp = {
+    ret: ERR.OK,
+    svrTime: now
+  };
+  var getBeforeCount = function(cid, stars, name, val, callback){
+    return ContestRank.count({
+      '_id.cid': cid,
+      '_id.name': {$nin: stars},
+      $or: [
+        {'value.solved': {$gt: val.solved}},
+        {'value.solved': val.solved, 'value.penalty': {$lt: val.penalty}},
+        {'value.solved': val.solved, 'value.penalty': val.penalty, 'value.submitTime': {$gt: val.submitTime}},
+        {'value.solved': val.solved, 'value.penalty': val.penalty, 'value.submitTime': val.submitTime, '_id.name': {$lt: name}}
+      ]
+    });
+  };
+  var getContestRank = function(con){
+    var currentUser = req.session.user ? req.session.user.name : '';
+    resp.reg_state = getRegState(con, currentUser);
+    resp.fb = con.FB;
+    resp.contestants = con.contestants.length;
+    resp.duration = con.len * 60;
+    resp.startTime = con.startTime;
+    return ContestRank.get({'_id.cid': cid}, page)
+    .then(function(o){
+      resp.pageNum = o.totalPage;
+      if (!o.users || o.users.length == 0) {
+        return ;
+      }
+      var has = {};
+      var names = [];
+      if (con.stars) {
+        con.stars.forEach(function(p){
+          has[p] = true;
+        });
+      }
+      var hasMe = false;
+      resp.users = [];
+      o.users.forEach(function(p, i){
+        var tmp = {name: p._id.name, value: p.value};
+        if (has[tmp.name]) {
+          tmp.star = true;
         }
-        var has = {}, names = [];
-        var Users = [];
-        var V = o.users[0].value, T = o.users[0]._id.name;
-        if (con.stars) {
-          con.stars.forEach(function(p){
-            has[p] = true;
+        resp.users.push(tmp);
+        names.push(tmp.name);
+        if (!hasMe && currentUser === tmp.name) {
+          hasMe = true;
+        }
+      });
+      var promise = null;
+      if (currentUser && !hasMe) {
+        names.push(currentUser);
+        promise = ContestRank.findOne({'_id.cid': cid, '_id.name': currentUser}); 
+      }
+      return Q.all([
+        getBeforeCount(cid, con.stars, o.users[0].name, o.users[0].value),
+        User.find({name: {$in: names}}),
+        ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}}),
+        promise
+      ])
+      .spread(function(cnt, users, total, user){
+        resp.rank = cnt + 1;
+        resp.ratings = {};
+        resp.I = {};
+        users.forEach(function(p){
+          resp.ratings[p.name] = p.rating;
+          resp.I[p.name] = p.nick;
+        });
+        resp.total = total;
+        if (user) {
+          return getBeforeCount(cid, con.stars, user._id.name, user.value)
+          .then(function(cnt){
+            var rank = cnt + 1;
+            var tp = {name: user._id.name, value: user.value, rank: rank};
+            if (rank <= resp.rank) {
+              resp.users.unshift(tp);
+            } else {
+              resp.users.push(tp);
+            }
           });
         }
-        var hasMe = false;
-        o.users.forEach(function(p, i){
-          var tmp = {name: p._id.name, value: p.value};
-          if (has[tmp.name]) {
-            tmp.star = true;
-          }
-          Users.push(tmp);
-          names.push(tmp.name);
-          if (!hasMe && currentUser == tmp.name) {
-            hasMe = true;
-          }
-        });
-        var rank, rt = {}, I = {}, me, cnt;
-        var arr = [
-          function(cb) {
-            getContestRank(cid, con.stars, T, V, function(err, res){
-              rank = res;
-              return cb(err);
-            });
-          },
-          function(cb) {
-            User.find({name: {$in: names}})
-            .then(function(U){
-              if (U) {
-                U.forEach(function(p){
-                  rt[p.name] = p.rating;
-                  I[p.name] = p.nick;
-                });
-              }
-              return cb();
-            })
-            .fail(function(err){
-              return cb(err);
-            });
-          },
-          function(cb) {
-            ContestRank.count({'_id.cid': cid, 'value.submitTime': {$gt: 0}})
-            .then(function(res){
-              cnt = res;
-              return cb();
-            })
-            .fail(function(err){
-              return cb(err);
-            });
-          }
-        ];
-        if (currentUser && !hasMe) {
-          names.push(currentUser);
-          arr.push(
-            function(cb) {
-              ContestRank.findOne({'_id.cid': cid, '_id.name': currentUser})
-              .then(function(u){
-                if (!u) {
-                  return cb();
-                }
-                getContestRank(cid, con.stars, u._id.name, u.value, function(err, rk){
-                  if (err) {
-                    return cb(err);
-                  }
-                  var tp = {name: u._id.name, value: u.value, rank: rk};
-                  if (rk <= rank) {
-                    Users.unshift(tp);
-                  } else {
-                    Users.push(tp);
-                  }
-                  return cb();
-                });
-              })
-              .fail(function(err){
-                return cb(err);
-              });
-            }
-          );
-        }
-        async.each(arr, function(func, cb){
-          func(cb);
-        }, function(err){
-          if (err) {
-            LogErr(err);
-            return res.end();
-          }
-          resp.users = Users;
-          resp.ratings = rt;
-          resp.I = I;
-          resp.fb = con.FB;
-          resp.rank = rank;
-          resp.total = cnt;
-          return res.json(resp);
-        });
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end();
       });
-    };
+    });
+  };
+
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid || page < 0) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    return Contest.findOneAndUpdate({
+      contestID: cid,
+      updateTime: { $lt: now - 30000 }    //距离上次聚合>=30秒, 聚合一次排名
+    }, {
+      $set: { updateTime: now }
+    }, {
+      new: false
+    })
+  })
+  .then(function(contest){
     if (!contest) {
-      Contest.watch(cid)
+      return Contest.watch(cid)
       .then(function(con){
         if (!con) {
-          return res.end();
+          ret = ERR.ARGS;
+          throw new Error('invalid cid');
         }
-        return RP(con);
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end();
+        return getContestRank(con);
       });
     } else {
       var indate = {$gte: contest.startTime, $lte: contest.startTime+contest.len*60000};
@@ -499,124 +443,93 @@ router.post('/ranklist', function(req, res){
         inDate: indate,
         runID: {$gt: contest.maxRunID}
       };
-      var maxRunID;
-      var arr = [
-        function(cb) {
-          Solution.mapReduce({
-            query: {$and: [cond, {runID: {$lte: maxRunID}}]},
-            sort: {runID: -1},
-            map: function(){
-              var val = { solved: 0, penalty: 0, status: {}, submitTime: this.inDate };
-              if (this.result == 2) {
-                val.solved = 1;
-                val.penalty = this.inDate;
-                val.status[this.problemID] = {wa: 0, inDate: val.penalty};
-              } else {
-                val.status[this.problemID] = {wa: -1};
-              }
-              return emit({cid: this.cID, name: this.userName}, val);
-            },
-            reduce: function(key, vals){
-              var val = { solved: 0, penalty: 0, status: {}, submitTime: vals.length ? vals[0].submitTime : 0 };
-              for (var j = vals.length-1; j >= 0; j--) {
-                p = vals[j];
-                if (p.status) {
-                  for (var i in p.status) {
-                    var o = p.status[i];
-                    if (!val.status[i]) {
-                      if (o.wa >= 0) {
-                        val.solved++;
-                        val.penalty += o.wa*penalty*60000 + o.inDate;
-                      }
-                      val.status[i] = o;
-                    } else if (val.status[i].wa < 0) {
-                      if (o.wa >= 0) {
-                        val.solved++;
-                        val.status[i].wa = o.wa - val.status[i].wa;
-                        val.status[i].inDate = o.inDate;
-                        val.penalty += val.status[i].wa*penalty*60000 + o.inDate;
-                      } else {
-                        val.status[i].wa += o.wa;
-                      }
-                    }
-                  }
-                }
-              }
-              return val;
-            },
-            scope: { penalty : contest.penalty },
-            out: { reduce : 'ranks' }
-          })
-          .then(function(){
-            return cb();
-          })
-          .fail(function(err){
-            return cb(err);
-          });
-        },
-        function(cb) {
-          Solution.aggregate([
-            { $match: {cID: cid, userName: {$ne: 'admin'}, inDate: indate, result: 2} },
-            { $sort: {runID: 1} },
-            { $group: { _id: '$problemID', userName: {$first: '$userName'} } }
-          ])
-          .then(function(results){
-            var FB = {};
-            if (results) {
-              results.forEach(function(p){
-                FB[p._id] = p.userName;
-              });
-            }
-            return Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true});
-          })
-          .then(function(con){
-            contest = con; //update contest because of the FB
-            return cb();
-          })
-          .fail(function(err){
-            return cb(err);
-          });
-        }
-      ];
-      Solution.findOneBySort(cond, {runID: -1})
+      return Solution.findOneBySort(cond, {runID: -1})
       .then(function(doc){
         if (!doc) {
-          return RP(contest);
+          return getContestRank(contest);
         }
-        Solution.findOneBySort({$and: [cond, {result: {$lt: 2}}]}, {runID: 1})
+        return Solution.findOneBySort({$and: [cond, {result: {$lt: 2}}]}, {runID: 1})
         .then(function(sol){
+          var maxRunID;
           if (sol) {
             maxRunID = sol.runID - 1;
           } else {
             maxRunID = doc.runID;
           }
-          async.each(arr, function(func, cb){
-            func(cb);
-          }, function(err){
-            if (err) {
-              LogErr(err);
-              return res.end();
-            }
-            if (!contest) {
-              return res.end();
-            }
-            return RP(contest);
-          });
+          return [
+            Solution.mapReduce({
+              query: {$and: [cond, {runID: {$lte: maxRunID}}]},
+              sort: {runID: -1},
+              map: function(){
+                var val = { solved: 0, penalty: 0, status: {}, submitTime: this.inDate };
+                if (this.result == 2) {
+                  val.solved = 1;
+                  val.penalty = this.inDate;
+                  val.status[this.problemID] = {wa: 0, inDate: val.penalty};
+                } else {
+                  val.status[this.problemID] = {wa: -1};
+                }
+                return emit({cid: this.cID, name: this.userName}, val);
+              },
+              reduce: function(key, vals){
+                var val = { solved: 0, penalty: 0, status: {}, submitTime: vals.length ? vals[0].submitTime : 0 };
+                for (var j = vals.length-1; j >= 0; j--) {
+                  p = vals[j];
+                  if (p.status) {
+                    for (var i in p.status) {
+                      var o = p.status[i];
+                      if (!val.status[i]) {
+                        if (o.wa >= 0) {
+                          val.solved++;
+                          val.penalty += o.wa*penalty*60000 + o.inDate;
+                        }
+                        val.status[i] = o;
+                      } else if (val.status[i].wa < 0) {
+                        if (o.wa >= 0) {
+                          val.solved++;
+                          val.status[i].wa = o.wa - val.status[i].wa;
+                          val.status[i].inDate = o.inDate;
+                          val.penalty += val.status[i].wa*penalty*60000 + o.inDate;
+                        } else {
+                          val.status[i].wa += o.wa;
+                        }
+                      }
+                    }
+                  }
+                }
+                return val;
+              },
+              scope: { penalty : contest.penalty },
+              out: { reduce : 'ranks' }
+            }),
+            Solution.aggregate([
+              { $match: {cID: cid, userName: {$ne: 'admin'}, inDate: indate, result: 2} },
+              { $sort: {runID: 1} },
+              { $group: { _id: '$problemID', userName: {$first: '$userName'} } }
+            ])
+            .then(function(results){
+              var FB = {};
+              results.forEach(function(p){
+                FB[p._id] = p.userName;
+              });
+              return Contest.findOneAndUpdate({contestID: cid}, {$set: {FB: FB, maxRunID: maxRunID}}, {new: true});
+            })
+            .then(function(con){
+              contest = con; //update contest because of the FB
+            })
+          ];
         })
-        .fail(function(err){
-          LogErr(err);
-          return res.end();
+        .spread(function(){
+          return getContestRank(contest);
         });
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end();
       });
     }
   })
+  .then(function(){
+    res.send(resp);
+  })
   .fail(function(err){
-    LogErr(err);
-    return res.end();
+    FailProcess(err, res, ret);
   });
 });
 

@@ -351,28 +351,6 @@ exports.getRank = function(user, callback) {
   });
 };
 
-/*
- * cid(contestID), stars(打星列表), name(用户名), V(ContestRank.vaule)
- * 返回某用户在某个比赛中的排名
- */
-exports.getContestRank = function(cid, stars, name, V, callback) {
-  ContestRank.count({
-    '_id.cid': cid,
-    '_id.name': {$nin: stars},
-    $or: [{'value.solved': {$gt: V.solved}},
-          {'value.solved': V.solved, 'value.penalty': {$lt: V.penalty}},
-          {'value.solved': V.solved, 'value.penalty': V.penalty, 'value.submitTime': {$gt: V.submitTime}},
-          {'value.solved': V.solved, 'value.penalty': V.penalty, 'value.submitTime': V.submitTime, '_id.name': {$lt: name}}]
-  })
-  .then(function(rank){
-    return callback(null, rank+1);
-  })
-  .fail(function(err){
-    return callback(err, 0);
-  });
-};
-
-
 var fs = require('fs');
 var log = fs.createWriteStream(Settings.root_path + 'error.log', {
   flags: 'a'
@@ -400,6 +378,7 @@ exports.LogErr = LogErr;
  * 错误码
  */
 var ERR = {
+  REDIRECT: 4,
   INVALID_COOKIES: 3,
   WRONG_PASSWORD: 2,
   USER_NOT_EXIT: 1,

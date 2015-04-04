@@ -22,36 +22,24 @@ router.get('/:pid', function(req, res) {
   var page = parseInt(req.query.page, 10);
   if (!page) {
     page = 1;
-  } else if (page < 0) {
-    return res.redirect('/statistic/'+pid);
   }
   var lang = parseInt(req.query.lang, 10);
   var cond = {problemID: pid, result: 2};
-  if (lang < 1 || lang >= languages.length) {
-    return res.redirect('/statistic/'+pid);
-  }
   if (lang) {
     cond.language = lang;
   }
   var sort_key = parseInt(req.query.sort), sq = {};
-  if (sort_key < 1 || sort_key > 2) {
-    return res.redirect('/statistic/'+pid);
-  }
   if (!sort_key) {
     sq = {time: 1, memory: 1, length: 1, inDate: 1};
-  } else if (sort_key == 1) {
+  } else if (sort_key === 1) {
     sq = {memory: 1, time: 1, length: 1, inDate: 1};
-  } else if (sort_key == 2) {
+  } else if (sort_key === 2) {
     sq = {length: 1, time: 1, memory: 1, inDate: 1};
   }
   var cond1 = {problemID: pid, result: 2};
   var cond2 = {problemID: pid, result: {$gt: 1}};
   if (lang) {
     cond1.language = cond2.language = lang;
-  }
-  var user = "";
-  if (req.session.user) {
-    user = req.session.user.name;
   }
   var resp = {
     title: 'Problem Statistic',
@@ -65,29 +53,35 @@ router.get('/:pid', function(req, res) {
     sort_key: sort_key,
     langs: languages
   };
+
   var names = [];
-  var redirectUrl = null;
   var ret = ERR.SYS;
   Q.fcall(function(){
     if (!pid) {
       ret = ERR.PAGE_NOT_FOUND;
       throw new Error('page not found');
     }
+    if (page < 0 || lang < 1 || lang >= languages.length || sort_key < 1 || sort_key > 2) {
+      ret = ERR.REDIRECT;
+      throw new Error('redirect');
+    }
   })
   .then(function(){
     return Problem.watch(pid);
   })
   .then(function(problem){
+    var user = req.session.user ? req.session.user.name : '';
     if (!problem || (problem.hide && user !== problem.manager && user !== 'admin')) {
       ret = ERR.PAGE_NOT_FOUND;
       throw new Error('page not found');
     }
     return Solution.distinct('userName', cond);
-  }).then(function(users){
+  })
+  .then(function(users){
     var total = users.length;
     var skip = (page - 1) * stats_pageNum;
     if (skip > total) {
-      redirectUrl = '/statistic/' + pid;
+      ret = ERR.REDIRECT;
       throw new Error('redirect');
     }
     resp.totalPage = Math.floor((total + stats_pageNum - 1) / stats_pageNum);
@@ -123,7 +117,8 @@ router.get('/:pid', function(req, res) {
       { $match: cond2 },
       { $group: { _id: '$result', val: {$sum: 1} } }
     ]);
-  }).then(function(results){
+  })
+  .then(function(results){
     var calResult = {};
     var sum = 0;
     results.forEach(function(p, i){
@@ -142,7 +137,8 @@ router.get('/:pid', function(req, res) {
     calResult[0] = sum;
     resp.calResult = calResult;
     return User.find({name: {$in: names}});
-  }).then(function(users){
+  })
+  .then(function(users){
     var UC = {};
     var UT = {};
     if (users) {
@@ -156,11 +152,12 @@ router.get('/:pid', function(req, res) {
     return res.render('statistic', resp);
   })
   .fail(function(err){
-    if (redirectUrl) {
-      return res.redirect(redirectUrl);
+    if (ret === ERR.REDIRECT) {
+      return res.redirect('/statistic/' + pid);
     }
     FailRender(err, res, ret);
-  });
+  })
+  .done();
 });
 
 module.exports = router;
