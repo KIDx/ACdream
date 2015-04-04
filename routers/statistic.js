@@ -11,7 +11,6 @@ var Settings = require('../settings');
 var languages = Settings.languages;
 var stats_pageNum = Settings.stats_pageNum;
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
 

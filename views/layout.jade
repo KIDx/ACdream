@@ -1,18 +1,18 @@
 - var nvgurl = ['/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/topic/list', '/topic?tid=100'];
 - var nvgname = ['ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'Discuss', 'FAQ'];
-- var contesturl = ['/contest/list?type=2&family=speed', '/contest/list?type=2&family=rating', '/contest/list?type=2&family=training'];
-- var contestname = ['Speed Contest', 'Rating Contest', 'Training Contest'];
+- var families = ['speed', 'rating', 'training', 'vip'];
+- var familyName = ['Speed Contest', 'Rating Contest', 'Training Contest', 'VIP Contest'];
 include post_list
 mixin dropdown
   li.dropdown
-    a.dropdown-toggle(href="javascript:;" data-toggle="dropdown")= 'VIP Contest '
+    a.dropdown-toggle(href="javascript:;" data-toggle="dropdown")= 'Contest '
       span.caret
     ul.dropdown-menu(role="menu")
-      each url, i in contesturl
+      each family, i in families
         if (i > 0)
           li.divider
         li
-          a(href=url)= contestname[i]
+          a(href="/contest/list?type=2&family="+family)= familyName[i]
 doctype HTML
 html
   head
