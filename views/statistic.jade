@@ -21,7 +21,7 @@ fieldset
                 else
                   - c = 'even';
                 - var v = 0;
-                - if (N[p]) v = N[p];
+                - if (calResult[p]) v = calResult[p];
                 - var title = Res(p);
                 if (p > 0 && p < 10)
                   - data.push({name: names[i], title: title, y: v});
@@ -88,7 +88,7 @@ fieldset
                   td(colspan="9")
                     #pager
                       include pager
-                      +pager(page, n)
+                      +pager(page, totalPage)
 script(type="text/javascript")
   | var pid = #{pid};
   | var sort = #{sort_key};

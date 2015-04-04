@@ -1,6 +1,5 @@
 
 var router = require('express').Router();
-var async = require('async');
 var Q = require('q');
 var verifyCode = require('verify-code');
 var redis = require('redis');
