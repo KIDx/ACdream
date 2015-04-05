@@ -76,24 +76,19 @@ $(document).ready(function(){
           type: 'POST',
           url: '/contest/register',
           data: {cid: cid},
-          dataType: 'text',
+          dataType: 'json',
           error: function() {
             $clickreg.removeClass('disabled');
             ShowMessage('无法连接到服务器！');
           }
         }).done(function(res){
-          if (!res) {
+          var ret = res.ret;
+          if (ret === 0) {
             window.location.reload(true);
-            return ;
-          }
-          if (res == '1') {
-            ShowMessage('管理员无需注册！');
-          } else if (res == '2') {
-            ShowMessage('系统错误！');
           } else {
-            ShowMessage('Registration Closed.');
+            $clickreg.removeClass('disabled');
+            ShowMessage(res.msg);
           }
-          $clickreg.removeClass('disabled');
         });
       });
     });
@@ -131,18 +126,19 @@ $(document).ready(function(){
               cid: cid,
               psw: $psw.val()
             },
-            dataType: 'text',
+            dataType: 'json',
             error: function() {
               $submit.removeClass('disabled');
               errAnimate($err, '无法连接到服务器！');
             }
           }).done(function(res){
-            if (res) {
+            var ret = res.ret;
+            if (ret == 0) {
               window.location.href = '/contest?cid='+cid;
-              return ;
+            } else {
+              $submit.removeClass('disabled');
+              errAnimate($err, res.msg);
             }
-            $submit.removeClass('disabled');
-            errAnimate($err, 'the password is not correct!');
           });
         });
         simulateClick($psw, $submit);

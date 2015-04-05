@@ -56,16 +56,16 @@ fieldset#widthfix
       li(style="padding-left:10px;")
         a.tablink(href="#overview")
           span Overview
-      li.hidden
+      li(style="display:none;")
         a.tablink(href="#problem")
           span Problem
-      li.hidden
+      li(style="display:none;")
         a.tablink(href="#status")
           span Status
-      li.hidden
+      li(style="display:none;")
         a.tablink(href="#rank")
           span Rank
-      li.hidden
+      li(style="display:none;")
         a.tablink(href="#discuss")
           span Discuss
           = ' '
@@ -241,7 +241,11 @@ fieldset#widthfix
               = ' '
               button#resetrating.btn.btn-default 撤销本场比赛Rating
           .form-inline.form-group
-            input#starstr.form-control(style="width:500px;" type="text" placeholder="用户名")
+            input#addcontestant_name.form-control(style="width:200px;" type="text" placeholder="一个用户名")
+            = ' '
+            button#addcontestant.btn.btn-default 添加参赛者
+          .form-inline.form-group
+            input#starstr.form-control(style="width:500px;" type="text" placeholder="多个用户名")
             = ' '
             select#type.form-control
               option(value="1") 给他们打星
@@ -329,7 +333,7 @@ script(type="text/javascript").
   var _pending = #{pending};
   var _status = '#{s}';
   var _is_manager = #{isManager ? true : false};
-if (user && user.name == 'admin')
+if (user && user.name === 'admin')
   script(type="text/javascript").
     function bindCalRating($p) {
       $p.click(function(){
@@ -400,6 +404,40 @@ if (user && user.name == 'admin')
             ShowMessage('成功撤销了'+res+'个用户的rating！');
           }
           $p.text('撤销本场比赛Rating').removeClass('disabled');
+        });
+      });
+    }
+
+    function bindAddContestant($p) {
+      $p.click(function(){
+        if ($p.hasClass('disabled')) {
+          return false;
+        }
+        var name = $('#addcontestant_name').val();
+        if (!name) {
+          ShowMessage('用户名不能为空！');
+          return false;
+        }
+        $p.addClass('disabled');
+        $.ajax({
+          type: 'POST',
+          url: '/contest/addContestant',
+          data: {
+            cid: _cid,
+            name: $('#addcontestant_name').val()
+          },
+          dataType: 'json',
+          error: function() {
+            $p.removeClass('disabled');
+            ShowMessage('无法连接到服务器！');
+          }
+        }).done(function(res){
+          var ret = res.ret;
+          if (ret === 0) {
+            GetRanklist();
+          }
+          $p.removeClass('disabled');
+          ShowMessage(res.msg);
         });
       });
     }

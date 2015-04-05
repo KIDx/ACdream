@@ -1,5 +1,5 @@
 //socket
-var socket = io.connect('/');
+var socket = io('/');
 var $msg = $('#msg_data');
 var $msg_err = $('#msg_err');
 var $broadcast = $('#broadcast');
@@ -692,13 +692,18 @@ function RankResponse(res) {
           cid: _cid,
           name: $(this).attr('user')
         },
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           $removebtn.removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
-      }).done(function(){
-        window.location.reload(true);
+      }).done(function(res){
+        var ret = res.ret;
+        if (ret === 0) {
+          GetRanklist();
+        }
+        $removebtn.removeClass('disabled');
+        ShowMessage(res.msg);
       });
     });
   }
@@ -916,7 +921,7 @@ function syncTime() {
     },
     dataType: 'json'
   }).done(function(res){
-    if (res) {
+    if (res.ret === 0) {
       updateTime(res.svrTime, res.startTime, res.duration, res.reg_state, res.contestants);
     }
   });
@@ -1253,17 +1258,20 @@ $(document).ready(function(){
         type: 'POST',
         url: '/contest/del',
         data: {cid: _cid},
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           $del.removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
-      }).done(function(){
-        var url = '/contest/list?type='+contest_type;
-        if (contest_type === 2) {
-          url += '&family=' + contest_family;
+      }).done(function(res){
+        var ret = res.ret;
+        if (ret === 0) {
+          window.location.href = '/contest/list?type=' + contest_type +
+            (contest_type === 2 ? '&family='+contest_family : '');
+        } else {
+          $del.removeClass('disabled');
+          ShowMessage(res.msg);
         }
-        window.location.href = url;
       });
     });
   }
@@ -1335,13 +1343,18 @@ $(document).ready(function(){
           str: str,
           type: $('#type').val()
         },
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           $star.removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
-      }).done(function(){
-        window.location.reload(true);
+      }).done(function(res){
+        var ret = res.ret;
+        if (ret === 0) {
+          GetRanklist();
+        }
+        $star.removeClass('disabled');
+        ShowMessage(res.msg);
       });
     });
   }
@@ -1378,13 +1391,14 @@ $(document).ready(function(){
         title: $publish_pid.val()+'题：'+title,
         content: content
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
         $publish.removeClass('disabled');
         ShowMessage('无法连接到服务器！');
       }
     }).done(function(res){
-      if (!res) {
+      var ret = res.ret;
+      if (ret === 0) {
         window.location.hash = 'discuss';
         GetDiscuss();
         ShowMessage('发表成功！');
@@ -1393,13 +1407,8 @@ $(document).ready(function(){
         $publish_content.attr('value', '');
         ChangeScrollTop(200);
         socket.emit('addDiscuss', _cid);
-      } else if (res == '1') {
-        window.location.href = '/';
-        return ;
-      } else if (res == '2') {
-        ShowMessage('发表失败！你还没注册该比赛！');
-      } else if (res == '3') {
-        ShowMessage('系统错误！');
+      } else {
+        ShowMessage(res.msg);
       }
       $publish.removeClass('disabled');
     });
@@ -1434,11 +1443,14 @@ function clearAjax() {
   if (discussAjax) discussAjax.abort();
 }
 
-//calculate ratings
+var $addContestant = $('#addcontestant');
 var $cal = $('#calrating');
 var $resetRating = $('#resetrating');
 
 $(document).ready(function(){
+  if ($addContestant.length) {
+    bindAddContestant($addContestant);
+  }
   if ($cal.length) {
     bindCalRating($cal);
   }
@@ -1461,24 +1473,19 @@ $(document).ready(function(){
         type: 'POST',
         url: '/contest/register',
         data: {cid: _cid},
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           $register.removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
       }).done(function(res){
-        if (!res) {
+        var ret = res.ret;
+        if (ret === 0) {
           window.location.reload(true);
-          return ;
-        }
-        if (res == '1') {
-          ShowMessage('管理员无需注册！');
-        } else if (res == '2') {
-          ShowMessage('系统错误！');
         } else {
-          ShowMessage('Registration Closed.');
+          $register.removeClass('disabled');
+          ShowMessage(res.msg);
         }
-        $register.removeClass('disabled');
       });
     });
   };

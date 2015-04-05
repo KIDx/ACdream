@@ -47,7 +47,7 @@ function regContestAndUpdate(cid, name) {
   })
   .then(function(user){
     if (!user) {
-      (new ContestRank(cid, name)).save();
+      return (new ContestRank(cid, name)).save();
     }
   });
 }
@@ -530,31 +530,38 @@ router.post('/ranklist', function(req, res){
   })
   .fail(function(err){
     FailProcess(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*
  * 在一个比赛中发帖
  */
 router.post('/addDiscuss', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = '请先登录！';
-    return res.end('1');    //refresh
-  }
   var title = clearSpace(req.body.title);
   var content = clearSpace(req.body.content);
-  var name = req.session.user.name;
   var cid = parseInt(req.body.cid, 10);
-  if (!title || !content || !name || ! cid) {
-    return res.end();    //not allow
-  }
-  Contest.watch(cid)
-  .then(function(con){
-    if (con.type == 2 && name != con.userName && !isRegCon(con.contestants, name)) {
-      throw new Error('2');
+  var name;
+
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!title || !content || !cid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
     }
-    return IDs.get('topicID')
+    if (!req.session.user) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session');
+    }
+    name = req.session.user.name;
+    return Contest.watch(cid);
+  })
+  .then(function(contest){
+    if (contest.type === 2 && name != contest.userName && !isRegCon(contest.contestants, name)) {
+      ret = ERR.ARGS;
+      throw new Error('you are NOT contestant of this contest.');
+    }
+    return IDs.get('topicID');
   })
   .then(function(id){
     return (new Topic({
@@ -562,265 +569,237 @@ router.post('/addDiscuss', function(req, res){
       title: title,
       content: xss(content, xss_options),
       cid: cid,
-      user: req.session.user.name,
+      user: name,
       inDate: (new Date()).getTime()
     })).save();
   })
   .then(function(){
-    return res.end();
+    return res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    if (err.message === '2') {
-      return res.end('2');
-    }
-    LogErr(err);
-    return res.end('3');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 显示一个比赛的所有帖子
  */
 router.post('/discuss', function(req, res){
-  res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
-  if (!cid) {
-    return res.end();   //not allow
-  }
-  var page;
-  if (!req.body.page) {
+  var page = parseInt(req.body.page, 10);
+  if (!page) {
     page = 1;
-  } else {
-    page = parseInt(req.body.page, 10);
   }
-  if (!page || page < 0) {
-    return res.end();  //not allow
-  }
-  Contest.watch(cid)
+  var resp = {ret: ERR.OK};
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid || page < 0) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    return Contest.watch(cid);
+  })
   .then(function(contest){
     if (!contest) {
-      return res.end();  //not allow
+      ret = ERR.ARGS;
+      throw new Error('contest NOT found');
     }
-    Response = {};
-    Topic.get({cid: cid}, page)
-    .then(function(o){
-      var names = [], has = {}, tps = [];
-      o.topics.forEach(function(p){
-        if (!has[p.user]) {
-          names.push(p.user);
-          has[p.user] = true;
-        }
-        if (p.lastReviewer && !has[p.lastReviewer]) {
-          names.push(p.lastReviewer);
-          has[p.lastReviewer] = true;
-        }
-        tps.push({
-          id: p.id,
-          title: p.title,
-          user: p.user,
-          reviewsQty: p.reviewsQty,
-          browseQty: p.browseQty,
-          lastReviewer: p.lastReviewer,
-          lastReviewTime: Comm.getTime(p.lastReviewTime),
-          lastComment: p.lastComment
-        });
+    return Topic.get({cid: cid}, page);
+  })
+  .then(function(o){
+    var names = [], has = {}, tps = [];
+    o.topics.forEach(function(p){
+      if (!has[p.user]) {
+        names.push(p.user);
+        has[p.user] = true;
+      }
+      if (p.lastReviewer && !has[p.lastReviewer]) {
+        names.push(p.lastReviewer);
+        has[p.lastReviewer] = true;
+      }
+      tps.push({
+        id: p.id,
+        title: p.title,
+        user: p.user,
+        reviewsQty: p.reviewsQty,
+        browseQty: p.browseQty,
+        lastReviewer: p.lastReviewer,
+        lastReviewTime: Comm.getTime(p.lastReviewTime),
+        lastComment: p.lastComment
       });
-      Response.topics = tps;
-      Response.totalPage = o.totalPage;
-      return User.find({name: {$in: names}});
-    })
-    .then(function(users){
-      var I = {};
-      users.forEach(function(p){
-        I[p.name] = p.imgType;
-      });
-      Response.imgFormat = I;
-      return res.json(Response);
-    })
-    .fail(function(err){
-      LogErr(err);
-      return res.end();
     });
+    resp.topics = tps;
+    resp.totalPage = o.totalPage;
+    return User.find({name: {$in: names}});
+  })
+  .then(function(users){
+    var I = {};
+    users.forEach(function(p){
+      I[p.name] = p.imgType;
+    });
+    resp.imgFormat = I;
+    return res.json(resp);
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end();  //not refresh
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 密码登录私有比赛(DIY Contest)
  */
 router.post('/login', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.body.psw) {
-    return res.end();  //not allow
-  }
+  var psw = String(req.body.psw);
   var cid = parseInt(req.body.cid, 10);
-  if(!cid) {
-    return res.end();  //not allow
-  }
-  Contest.watch(cid)
-  .then(function(contest){
-    if (Comm.MD5(String(req.body.psw)) == contest.password) {
-      if (!req.session.cid) req.session.cid = {};
-      req.session.cid[req.body.cid] = true;
-      return res.end('1');
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!req.body.psw || !psw || !cid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
     }
-    return res.end();
+    return Contest.watch(cid);
+  })
+  .then(function(contest){
+    if (!contest) {
+      ret = ERR.ARGS;
+      throw new Error('contest NOT exist.');
+    }
+    if (Comm.MD5(psw) !== contest.password) {
+      ret = ERR.WRONG_PASSWORD;
+      throw new Error('the password is not correct.');
+    }
+    if (!req.session.cid) {
+      req.session.cid = {};
+    }
+    req.session.cid[req.body.cid] = true;
+    res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 删除一个比赛
  */
 router.post('/del', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    return res.end();  //not allow
-  }
   var cid = parseInt(req.body.cid, 10);
-  var name = req.session.user.name;
-  if (!cid || !name) {
-    return res.end();  //not allow
-  }
-  Contest.watch(cid)
-  .then(function(con){
-    if (name != con.userName && name != 'admin') {
-      req.session.msg = 'Delete Failed! You are not the manager!';
-      return res.end();
+  var name = req.session.user ? req.session.user.name : '';
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid || !name) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
     }
-    Solution.findOne({cID: cid})
-    .then(function(sol){
-      if (sol) {
-        req.session.msg = 'Can\'t delete the contest, because there are some submits in this contest!';
-        return res.end();
-      }
-      Contest.remove(cid)
-      .then(function(){
-        req.session.msg = 'Contest '+cid+' has been Deleted successfully!';
-        return res.end();
-      })
-      .fail(function(err){
-        LogErr(err);
-        req.session.msg = '系统错误！';
-        return res.end();
-      });
-    })
-    .fail(function(err){
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    });
+    return Contest.watch(cid);
+  })
+  .then(function(contest){
+    if (name !== contest.userName && name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
+    return Solution.findOne({cID: cid});
+  })
+  .then(function(sol){
+    if (sol) {
+      ret = ERR.ARGS;
+      throw new Error('can NOT delete because the contest HAS submissions.');
+    }
+    return Contest.remove(cid);
+  })
+  .then(function(){
+    req.session.msg = 'Contest '+cid+' has been Deleted successfully!';
+    res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    req.session.msg = '系统错误！';
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 注册一个比赛(contest.type = 2)
  */
 router.post('/register', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
-  var name = req.session.user.name;
-  if (name === 'admin') {
-    return res.end('1');
-  }
   var cid = parseInt(req.body.cid, 10);
-  Contest.watch(cid)
+  var name = req.session.user ? req.session.user.name : '';
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid || !name) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    if (name === 'admin') {
+      ret = ERR.ARGS;
+      throw new Error('admin NO need to register.');
+    }
+    return Contest.watch(cid);
+  })
   .then(function(contest){
-    if (!contest || contest.type != 2 || contest.password) {
-      return res.end();  //not allow
+    if (!contest || contest.type !== 2 || contest.password) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
     }
     if (getRegState(contest, name) === 2) {
-      return res.end('3');
+      ret = ERR.ARGS;
+      throw new Error('registration closed.');
     }
-    regContestAndUpdate(cid, name)
-    .then(function(){
-      req.session.msg = 'Your Registeration has been submited successfully!';
-      return res.end();
-    })
-    .fail(function(err){
-      LogErr(err);
-      return res.end('2');
-    });
+    return regContestAndUpdate(cid, name);
+  })
+  .then(function(){
+    req.session.msg = 'Your Registeration has been submited successfully!';
+    res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('2');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
- * 添加一个用户到参赛者
+ * 添加一个用户到参赛者(contest.type = 2)
  */
 router.post('/addContestant', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
-  if (req.session.user.name != 'admin') {
-    return res.end(); //not allow
-  }
   var name = clearSpace(req.body.name);
   var cid = parseInt(req.body.cid, 10);
-  var fa = parseInt(req.body.fa, 10);
-  var tid = parseInt(req.body.tid, 10);
-  if (!cid || !name || !fa || !tid) {
-    return res.end(); //not allow
-  }
-  Contest.watch(cid)
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!req.session.user || req.session.user.name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
+    }
+    if (!cid || !name) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    return Contest.watch(cid);
+  })
   .then(function(contest){
-    if (!contest) {
-      return res.end(); //not allow
+    if (!contest || contest.type !== 2) {
+      ret = ERR.ARGS;
+      throw new Error('invalid contest');
+    }
+    if (contest.contestants.indexOf(name) >= 0) {
+      ret = ERR.OK;
+      throw new Error('the user is already contestant of this contest.');
     }
     return User.watch(name);
   })
   .then(function(user){
     if (!user) {
-      return res.end(); //not allow
-    }
-    if (contest.contestants.indexOf(user.name) >= 0) {
-      return res.end('1');
+      ret = ERR.USER_NOT_EXIT;
+      throw new Error('the user is not exist.');
     }
     return regContestAndUpdate(cid, name);
   })
   .then(function(){
-    return IDs.get('topicID');
-  })
-  .then(function(id){
-    return [
-      (new Comment({
-        id: id,
-        content: '添加完成~',
-        user: 'admin',
-        tid: tid,
-        fa: fa,
-        at: name,
-        inDate: (new Date()).getTime()
-      })).save(),
-      Topic.update(tid, {$inc: {reviewsQty: 1}})
-    ];
-  })
-  .then(function(){
-    req.session.msg = '添加完成！';
-    return res.end();
+    return res.send({ret: ERR.OK, msg: 'add user to contest successfully.'});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('3');
+    FailProcess(err, res, ret);
   });
 });
 
@@ -828,84 +807,78 @@ router.post('/addContestant', function(req, res){
  * 移除一个参赛者
  */
 router.post('/removeContestant', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
-  if (req.session.user.name != 'admin') {
-    req.session.msg = 'You have no permission to do that!';
-    return res.end();
-  }
   var name = clearSpace(req.body.name);
-  if (!name) {
-    return res.end();  //not allow
-  }
   var cid = parseInt(req.body.cid, 10);
-  if (!cid) {
-    return res.end();  //not allow
-  }
-  Solution.findOne({userName: name, cID: cid})
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!req.session.user || req.session.user.name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
+    }
+    if (!cid || !name) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    return Solution.findOne({userName: name, cID: cid})
+  })
   .then(function(sol){
     if (sol) {
-      req.session.msg = '该用户有提交记录，无法移除！';
-      return res.end();
+      ret = ERR.ARGS;
+      throw new Error('he has submissions for the contest, can NOT be removed.');
     }
-    Contest.update(cid, {$pull: {contestants: name}})
-    .then(function(){
-      return ContestRank.remove({'_id.cid': cid, '_id.name': name});
-    })
-    .then(function(){
-      req.session.msg = name+'已成功从该比赛中移除！';
-      return res.end();
-    })
-    .fail(function(err){
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    });
+    return Contest.update(cid, {$pull: {contestants: name}});
+  })
+  .then(function(){
+    return ContestRank.remove({'_id.cid': cid, '_id.name': name});
+  })
+  .then(function(){
+    res.send({ret: ERR.OK, msg: 'the user has been removed successfully.'});
   })
   .fail(function(err){
-    LogErr(err);
-    req.session.msg = '系统错误！';
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 切换打星状态
  */
 router.post('/toggleStar', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
   var cid = parseInt(req.body.cid, 10);
   var str = clearSpace(req.body.str);
   var type = parseInt(req.body.type, 10);
-  if (!cid || !str || !type) {
-    return res.end();    //not allow!
-  }
-  Contest.watch(cid)
-  .then(function(con){
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!cid || !str || !type) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    if (!req.session.user) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session');
+    }
+    return Contest.watch(cid);
+  })
+  .then(function(contest){
+    if (!contest) {
+      ret = ERR.ARGS;
+      throw new Error('contest NOT exist');
+    }
     var name = req.session.user.name;
-    if (name != con.userName && name != 'admin') {
-      req.session.msg = 'You have no permission to do that!';
-      return res.end();
+    if (name !== contest.userName && name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
     }
-    if (!con) {
-      return res.end();   //not allow!
-    }
-    var has = {}, names = [];
+    var has = {};
+    var names = [];
     str.split(' ').forEach(function(p){
-        names.push(p);
+      names.push(p);
     });
     return User.distinct('name', {name: {$in: names}});
   })
   .then(function(users){
     var val;
-    if (type == 1) {
+    if (type === 1) {
       val = {$addToSet: {stars: {$each: users}}};
     } else {
       val = {$pullAll: {stars: users}};
@@ -913,30 +886,34 @@ router.post('/toggleStar', function(req, res){
     return Contest.update(cid, val);
   })
   .then(function(){
-    req.session.msg = users.length+'个用户切换打星状态成功！';
-    return res.end();
+    res.send({ret: ERR.OK, msg: 'mission complete.'});
   })
   .fail(function(err){
-    LogErr(err);
-    req.session.msg = '系统错误！';
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 当contest处于pending状态时，需要每隔一段时间获取最新的contest.startTime, contest.len, svrTime
  */
 router.post('/syncTime', function(req, res){
-  res.header('Content-Type', 'text/plain');
-
   var cid = parseInt(req.body.cid, 10);
   var name = req.session.user ? req.session.user.name : '';
-  Contest.watch(cid)
+  Q.fcall(function(){
+    if (!cid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
+    return Contest.watch(cid);
+  })
   .then(function(contest){
     if (!contest) {
-      return res.end();
+      ret = ERR.ARGS;
+      throw new Error('contest NOT exist');
     }
-    return res.json({
+    res.send({
+      ret: ERR.OK,
       startTime: contest.startTime,
       reg_state: getRegState(contest, name),
       contestants: contest.contestants.length,
@@ -945,9 +922,9 @@ router.post('/syncTime', function(req, res){
     });
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

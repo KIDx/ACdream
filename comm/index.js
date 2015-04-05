@@ -395,8 +395,8 @@ exports.ERR = ERR;
  * 失败渲染处理，约定：ret < 0
  */
 exports.FailRender = function(err, res, ret) {
-  if (err) {
-   LogErr(err);
+  if (ret === ERR.SYS) {
+    LogErr(err);
   }
   return res.render('err', {
     title: '发生错误',
@@ -409,10 +409,10 @@ exports.FailRender = function(err, res, ret) {
  * 失败响应处理，ret > 0 表示逻辑错误
  */
 exports.FailProcess = function(err, res, ret) {
-  if (ret < 0) {
+  if (ret === ERR.SYS) {
     LogErr(err);
   }
-  return res.send({ret: ret, err_msg: err.message});
+  return res.send({ret: ret, msg: err.message});
 };
 
 /*
