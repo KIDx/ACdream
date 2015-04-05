@@ -61,8 +61,7 @@ var cnt; //行号
 var $div = $('#thumbnail');
 var passTime = -_pending;
 
-var $progress = $('#progress');
-var $bar = $progress.children('.progress-bar');
+var $bar = $('#progress').children('.progress-bar');
 var $info = $('#contest-info');
 var $lefttime = $('#lefttime');
 
@@ -964,7 +963,7 @@ function toRunning() {
     $end.addClass('hidden');
     $clone.hide();
   }
-  $progress.removeClass('progress-success').addClass('progress-danger');
+  $bar.removeClass('progress-bar-success').addClass('progress-bar-danger');
   forNotPending();
 }
 
@@ -974,7 +973,7 @@ function toEnded() {
   clearInterval(runningInterval);
   $('#beforecontest').hide();
   $('#conteststatus').text('Ended').removeClass('wrong-text').addClass('accept-text');
-  $progress.removeClass('progress-danger').addClass('progress-success');
+  $bar.removeClass('progress-bar-danger').addClass('progress-bar-success');
   forNotPending();
   forEnded();
   $info.html('&nbsp;');
@@ -1042,7 +1041,7 @@ function updateTime(iSvrTime, iStartTime, iDuration, iRegisterState, iContestant
       _pending = -passTime;
       forPending();
       $('#conteststatus').text('Pending').removeClass('wrong-text accept-text').addClass('info-text');
-      $progress.removeClass('progress-danger progress-success');
+      $bar.removeClass('progress-bar-danger progress-bar-success');
       $bar.css({width: '100%'});
       $info.show().css({width: 'auto'});
       if (!_is_manager) {

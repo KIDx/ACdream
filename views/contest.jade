@@ -56,23 +56,23 @@ fieldset#widthfix
       li(style="padding-left:10px;")
         a.tablink(href="#overview")
           span Overview
-      li(style="display:none;")
+      li.hidden
         a.tablink(href="#problem")
           span Problem
-      li(style="display:none;")
+      li.hidden
         a.tablink(href="#status")
           span Status
-      li(style="display:none;")
+      li.hidden
         a.tablink(href="#rank")
           span Rank
-      li(style="display:none;")
+      li.hidden
         a.tablink(href="#discuss")
           span Discuss
           = ' '
           sup#discuss_tips.badge(style="display:none;")
     div(style="padding:15px 10px;overflow:visible;")
       //overviewtab
-      #overviewtab
+      #overviewtab(style="display:none;")
         .mc(style="width:60%;")
           .table-responsive
             table#overviewtable.table(style="min-width:500px;")
@@ -142,7 +142,7 @@ fieldset#widthfix
             .box.box-inner
               p= contest.description
       //problemtab
-      #problemtab
+      #problemtab(style="display:none;")
         .center
           ul.pagination
             each prob, i in contest.probs
@@ -176,7 +176,7 @@ fieldset#widthfix
             = ' '
             a.btn.btn-default.btn-sm(href="javascript:;") Status
       //statustab
-      #statustab
+      #statustab(style="display:none;")
         .block.block-info
           .heading.form-inline
             .pull-right
@@ -223,7 +223,7 @@ fieldset#widthfix
                         ul.pagination.pagination-sm
       //ranktab
       - var mw = 41 + 181 + 81 + 41 + 61 + 81*probNum;
-      #ranktab
+      #ranktab(style="display:none;")
         #rankheader(style="width:"+mw+"px;")
           table.table.table-bordered.table-rank
             thead
@@ -277,7 +277,7 @@ fieldset#widthfix
                 include rankfooter
                 +rankfooter(probNum, F, false)
       //discusstab
-      #discusstab
+      #discusstab(style="display:none;")
         .block.block-danger
           .block-content
             .heading
