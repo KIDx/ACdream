@@ -32,11 +32,12 @@ function bindSingleRejudge($ps) {
       } else if (res == '3') {
         ShowMessage('系统错误！');
       }
-      $td.addClass('unknow');
+      $td.next().removeClass();
+      $td.removeClass().addClass('unknow bold info-text');
       $p.unbind().remove();
       $td.text(Res(0));
       $td.next().html(pendingImg);
-      getResult($td);
+      getStatus();
     });
   });
 }
