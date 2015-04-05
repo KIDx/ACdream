@@ -191,7 +191,7 @@ router.post('/batchresult', function(req, res){
       var sols = {};
       solutions.forEach(function(p, i){
         var t, m;
-        if (name == 'admin' || name == p.userName || canSee[p.cID]) {
+        if (p.cID == -1 || name == 'admin' || name == p.userName || canSee[p.cID]) {
           t = p.time; m = p.memory;
         } else {
           t = m = '---';

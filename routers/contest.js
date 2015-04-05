@@ -24,7 +24,6 @@ var Settings = require('../settings');
 var languages = Settings.languages;
 var xss_options = Settings.xss_options;
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
 var clearSpace = Comm.clearSpace;
 var isRegCon = Comm.isRegCon;
 var getDate = Comm.getDate;
