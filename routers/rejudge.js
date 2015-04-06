@@ -11,19 +11,7 @@ var Solution = require('../models/solution.js');
 
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
-
-function ClearReduceData(cids) {
-  return Q.all([
-    ContestRank.clear({'_id.cid': {$in: cids}}),
-    Overview.remove({'_id.cid': {$in: cids}}),
-    Contest.multiUpdate({contestID: {$in: cids}}, {$set: {
-      maxRunID: 0,
-      updateTime: 0,
-      overviewRunID: 0,
-      overviewUpdateTime: 0
-    }})
-  ]);
-}
+var Logic = require('../logic');
 
 /*
  * 将某个题目的所有提交rejudge
@@ -60,7 +48,7 @@ router.post('/problem', function(req, res){
       Solution.update({problemID: pid}, {$set: {result: 0}}),
       Problem.update(pid, {$set: {AC: 0}}),
       User.multiUpdate({'name': {$in: users}}, {$inc: {solved: -1}}),
-      ClearReduceData(cids)
+      Logic.ClearReduceData(cids)
     ];
   })
   .then(function(){
@@ -98,7 +86,7 @@ router.post('/single', function(req, res){
     if (cid == -1) {
       return res.end();
     }
-    ClearReduceData([cid])
+    Logic.ClearReduceData([cid])
     .then(function(){
       return res.end();
     })

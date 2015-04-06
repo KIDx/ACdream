@@ -217,6 +217,7 @@ router.post('/overview', function(req, res){
 
   var now = (new Date()).getTime();
   var sol = null;
+  var overviewRunID = 0;
   var promiseReduceAndGetOverview = Contest.findOneAndUpdate({
     contestID: cid,
     overviewUpdateTime: {$lt: now - 30000}    //距离上次聚合>=30秒, 聚合一次Overview
@@ -227,7 +228,8 @@ router.post('/overview', function(req, res){
   })
   .then(function(contest){
     if (contest) {
-      return Solution.findOneBySort({cID: cid, runID: {$gt: contest.overviewRunID}}, {runID: -1});
+      overviewRunID = contest.overviewRunID;
+      return Solution.findOneBySort({cID: cid, runID: {$gt: overviewRunID}}, {runID: -1});
     }
   })
   .then(function(tmpSol){
@@ -245,7 +247,7 @@ router.post('/overview', function(req, res){
         maxRunID = sol.runID;
       }
       return Solution.mapReduce({
-        query: {userName: {$ne: 'admin'}, cID: cid, runID: {$gt: contest.overviewRunID, $lte: maxRunID}},
+        query: {userName: {$ne: 'admin'}, cID: cid, runID: {$gt: overviewRunID, $lte: maxRunID}},
         map: function(){
           return emit({
             cid: this.cID,

@@ -237,7 +237,7 @@ router.route('/')
       })
       .then(function(){
         if (bNeedClear) {
-          return ContestRank.clear({'_id.cid':cid});
+          return Logic.ClearReduceData([cid]);
         }
       });
     }
