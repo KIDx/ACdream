@@ -740,7 +740,7 @@ router.post('/register', function(req, res){
     return Contest.watch(cid);
   })
   .then(function(contest){
-    if (!contest || contest.type !== 2 || contest.password) {
+    if (!contest || contest.type !== 2) {
       ret = ERR.ARGS;
       throw new Error('invalid args');
     }

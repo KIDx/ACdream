@@ -190,7 +190,7 @@ exports.getRegState = function(contest, name) {
     return 0;
   }
   var now = (new Date()).getTime();
-  if (now > contest.startTime + contest.len*60000 ||
+  if (contest.password || now > contest.startTime + contest.len*60000 ||
       (!contest.open_reg && contest.startTime - now < Settings.reg_close_time)) {
     return 2;
   }
