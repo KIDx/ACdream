@@ -20,11 +20,13 @@ fieldset
                 span.user.user-red(title="答案不唯一，符合题意即可") Special Judge
               else if (problem.TC == 1)
                 span.user.user-red(title="什么是TC模式？详情请参考FAQ") TC 模式
+              = ' '
               span.user-black Time Limit:&nbsp;
                 = 2*problem.timeLimit
                 | /
                 = problem.timeLimit
                 | MS (Java/Others)
+              = ' '
               span.user-black Memory Limit:&nbsp;
                 = 2*problem.memoryLimit
                 | /
