@@ -34,12 +34,12 @@ fieldset#widthfix
         if (contest.type === 2)
           - var c1, c2, c3;
           - c1 = c2 = c3 = "display:none;";
-          if (reg_state === 0)
+          if (contest.password || reg_state === 2)
+            - c3 = '';
+          else if (reg_state === 0)
             - c1 = '';
           else if (reg_state === 1)
             - c2 = '';
-          else if (reg_state === 2)
-            - c3 = '';
           span#reg_completed.user-green(style=c1) Registration Completed
           a#register(href="javascript:;" style=c2)= "Register Now !!!"
           span#reg_close.user-gray(style=c3 title="已关闭注册") Registration Closed
