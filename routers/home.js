@@ -32,7 +32,7 @@ router.get('/', function(req, res){
   //并发执行
   Q.all([
     //获取最近5场比赛
-    Contest.topFive({type: 2})
+    Contest.topFive({type: 2, password: ""})
     .then(function(contests){
       resp.contests = contests;
     }),
