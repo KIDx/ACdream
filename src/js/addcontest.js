@@ -81,14 +81,14 @@ function getProblem($p, $t) {
         .text('无法连接到服务器！');
     }
   }).done(function(res){
-    if (!res) {
+    if (!res.title) {
       $t.removeClass('success-text')
         .addClass('error-text')
         .text('No Such Problem!');
     } else {
       $t.removeClass('error-text')
         .addClass('success-text')
-        .text(res);
+        .text(res.title);
     }
   }));
 }
