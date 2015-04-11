@@ -87,6 +87,11 @@ router.get('/', function(req, res){
       ret = ERR.ACCESS_DENIED;
       throw new Error('access denied');
     }
+    if (contest.type === 2 && contest.password &&
+        name != 'admin' && !isRegCon(contest.contestants, name)) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied');
+    }
     Resp.contest = contest;
     Resp.reg_state = getRegState(contest, name);
     Resp.type = contest.type;
