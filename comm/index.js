@@ -186,7 +186,7 @@ exports.isRegCon = isRegCon;
  * 获取用户对于该比赛的注册状态
  */
 exports.getRegState = function(contest, name) {
-  if (isRegCon(contest.contestants, name)) {
+  if (name === 'admin' || isRegCon(contest.contestants, name)) {
     return 0;
   }
   var now = (new Date()).getTime();

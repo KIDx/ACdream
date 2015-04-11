@@ -64,7 +64,7 @@ fieldset
               tr(class=c)
                 td= p.contestID
                 td(style="text-align:left;")
-                  if (type != 2 && p.password && (!user || (user.name != p.userName && user.name != 'admin')) && !CS[p.contestID])
+                  if (type === 1 && p.password && (!user || (user.name !== p.userName && user.name !== 'admin')) && !CS[p.contestID])
                     a.cid(href="javascript:;" id=p.contestID)= p.title
                   else
                     a(href="/contest?cid="+p.contestID)= p.title
@@ -72,21 +72,16 @@ fieldset
                     .table-tab
                       if (s || user && user.name == 'admin')
                         a.standings(href="/contest?cid="+p.contestID+"#rank" title="查看排名") Standings
-                      else 
-                        if (R[i])
+                      else
+                        if (R[i] === 0)
                           span.user.user-green Registration Completed
+                        else if (R[i] === 1)
+                          if (!p.open_reg)
+                            = 'Until Closed: '
+                            span.user-gray(style="margin-right:20px;")
+                          a.register(href="javascript:;" id=p.contestID left=T[i] title="点击注册")= "Register >>"
                         else
-                          if (p.password)
-                            span.user.user-gray Not Registered
-                          else
-                            - T[i] -= 300000;
-                            if (T[i] < 0)
-                              span.user-gray Registration Closed
-                            else
-                              - T[i] /= 1000;
-                              | Until Closed:&nbsp;
-                              span.user-gray(style="margin-right:20px;")
-                              a.register(href="javascript:;" id=p.contestID left=T[i] title="点击注册")= "Register >>"
+                          span.user-gray Registration Closed
                 td= getDate(p.startTime)
                   .progress
                     .progress-bar.progress-bar-striped.active(class=s style="width:100%;")

@@ -169,6 +169,7 @@ router.get('/list', function(req, res){
     return Contest.get(cond, page);
   })
   .then(function(o){
+    var name = req.session.user ? req.session.user.name : '';
     var T = [], R = {}, now = (new Date()).getTime();
     var CS = {}, names = [];
     if (o.contests) {
@@ -177,8 +178,8 @@ router.get('/list', function(req, res){
       }
       o.contests.forEach(function(p, i){
         names.push(p.userName);
-        T.push(p.startTime-now);
-        R[i] = req.session.user && isRegCon(p.contestants, req.session.user.name);
+        T.push(Math.floor((p.startTime-now-Settings.reg_close_time)/1000));
+        R[i] = getRegState(p, name);
       });
     }
     resp.contests = o.contests;
