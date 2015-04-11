@@ -99,7 +99,7 @@ router.route('/')
           if (now > contest.startTime+contest.len*60000) {
             return res.end('7');
           }
-          if (name != contest.userName && !Comm.isRegCon(contest.contestants, name)) {
+          if (name != contest.userName && !Comm.isRegCon(contest, name)) {
             return res.end('2');
           }
         }

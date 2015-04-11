@@ -177,8 +177,8 @@ exports.escapeHtml = function(s) {
 /*
  * 判断name是否在参赛列表中
  */
-function isRegCon(contestants, name) {
-  return contestants.indexOf(name) >= 0 ? true : false;
+function isRegCon(contest, name) {
+  return contest.contestants.indexOf(name) >= 0 ? true : false;
 }
 exports.isRegCon = isRegCon;
 
@@ -186,7 +186,7 @@ exports.isRegCon = isRegCon;
  * 获取用户对于该比赛的注册状态
  */
 exports.getRegState = function(contest, name) {
-  if (name === 'admin' || isRegCon(contest.contestants, name)) {
+  if (name === 'admin' || isRegCon(contest, name)) {
     return 0;
   }
   var now = (new Date()).getTime();

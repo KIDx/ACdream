@@ -108,6 +108,7 @@ var statusAjax;
 
 var $loading = $('#loading');
 var $retry = $('#retry');
+var $retry_s = $retry.find('span');
 var $retry_a = $retry.find('a');
 var retryFunc;
 
@@ -125,7 +126,11 @@ $(document).ready(function(){
   });
 });
 
-function setRetry(func) {
+function setRetry(func, wording) {
+  if (!wording) {
+    wording = '请求失败';
+  }
+  $retry_s.text(wording+'，');
   $retry_a.removeClass('disabled');
   retryFunc = func;
   $loading.hide();
@@ -474,12 +479,14 @@ function ProblemResponse(res) {
     return ;
   }
 
-  if (!problemAjax || !res) {
-    setRetry(GetProblem);
+  var ret = res.ret;
+
+  if (ret !== 0) {
+    setRetry(GetProblem, ret === -4 ? '没有权限访问' : null);
     return ;
   }
 
-  if (res.ret == 1) {
+  if (res.prob) {
     ShowProblem(ProblemCache[ID] = res.prob);
   }
 

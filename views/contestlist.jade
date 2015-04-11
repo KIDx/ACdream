@@ -55,9 +55,9 @@ fieldset
               - dd = parseInt(p.len/1440, 10); hh = parseInt(p.len%1440/60, 10); mm = p.len%1440%60;
               - if (hh < 10) hh = '0'+hh;
               - if (mm < 10) mm = '0'+mm;
-              if (T[i] > 0)
+              if (dTime[i] > 0)
                 - s = '';
-              else if (T[i] + p.len*60000 > 0)
+              else if (dTime[i] + p.len*60000 > 0)
                 - s = 'progress-bar-danger';
               else
                 - s = 'progress-bar-success';
@@ -79,7 +79,7 @@ fieldset
                           if (!p.open_reg)
                             = 'Until Closed: '
                             span.user-gray(style="margin-right:20px;")
-                          a.register(href="javascript:;" id=p.contestID left=T[i] title="点击注册")= "Register >>"
+                          a.register(href="javascript:;" id=p.contestID left=leftTime[i] title="点击注册")= "Register >>"
                         else
                           span.user-gray Registration Closed
                 td= getDate(p.startTime)

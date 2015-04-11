@@ -5,7 +5,6 @@
  */
 
 var router = require('express').Router();
-var async = require('async');
 var xss = require('xss');
 var Q = require('q');
 
@@ -87,11 +86,6 @@ router.get('/', function(req, res){
       ret = ERR.ACCESS_DENIED;
       throw new Error('access denied');
     }
-    if (contest.type === 2 && contest.password &&
-        name != 'admin' && !isRegCon(contest.contestants, name)) {
-      ret = ERR.ACCESS_DENIED;
-      throw new Error('access denied');
-    }
     Resp.contest = contest;
     Resp.reg_state = getRegState(contest, name);
     Resp.type = contest.type;
@@ -170,7 +164,8 @@ router.get('/list', function(req, res){
   })
   .then(function(o){
     var name = req.session.user ? req.session.user.name : '';
-    var T = [], R = {}, now = (new Date()).getTime();
+    var leftTime = [], dTime = [], R = {};
+    var now = (new Date()).getTime();
     var CS = {}, names = [];
     if (o.contests) {
       if (req.session.cid) {
@@ -178,13 +173,15 @@ router.get('/list', function(req, res){
       }
       o.contests.forEach(function(p, i){
         names.push(p.userName);
-        T.push(Math.floor((p.startTime-now-Settings.reg_close_time)/1000));
+        dTime.push(p.startTime-now);
+        leftTime.push(Math.floor((p.startTime-now-Settings.reg_close_time)/1000));
         R[i] = getRegState(p, name);
       });
     }
     resp.contests = o.contests;
     resp.totalPage = o.totalPage;
-    resp.T = T;
+    resp.dTime = dTime;
+    resp.leftTime = leftTime;
     resp.R = R;
     resp.CS = CS;
     return User.find({name: {$in: names}});
@@ -564,7 +561,7 @@ router.post('/addDiscuss', function(req, res){
     return Contest.watch(cid);
   })
   .then(function(contest){
-    if (contest.type === 2 && name != contest.userName && !isRegCon(contest.contestants, name)) {
+    if (contest.type === 2 && name != contest.userName && !isRegCon(contest, name)) {
       ret = ERR.ARGS;
       throw new Error('you are NOT contestant of this contest.');
     }

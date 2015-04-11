@@ -1,7 +1,7 @@
 
 var router = require('express').Router();
 var fs = require('fs');
-var async = require('async');
+var Q = require('q');
 
 var IDs = require('../models/ids.js');
 var User = require('../models/user.js');
@@ -16,9 +16,9 @@ var ProTil = Settings.P;
 var languages = Settings.languages;
 var Comm = require('../comm');
 var LogErr = Comm.LogErr;
-var getRegState = Comm.getRegState;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 /*
  * problem页面
@@ -266,104 +266,73 @@ router.get('/list', function(req, res){
  * 否则，获取一个题目的全部信息，供比赛使用
  */
 router.post('/get', function(req, res){
-  res.header('Content-Type', 'text/plain');
   var pid = parseInt(req.body.pid, 10);
-  if (!pid) {
-    return res.end();  //not allow!
-  }
-
   var name = req.session.user ? req.session.user.name : '';
   var cid = parseInt(req.body.cid, 10);
-  var prob, con;
-  var arr = [
-    function(cb) {
-      Problem.watch(pid)
-      .then(function(problem){
-        prob = problem;
-        return cb();
-      })
-      .fail(function(err){
-        return cb(err);
-      });
-    },
-  ];
-  if (cid) {
-    arr.push(
-      function(cb) {
-        Contest.watch(cid)
-        .then(function(contest){
-          con = contest;
-          return cb();
-        })
-        .fail(function(err){
-          return cb(err);
-        });
-      }
-    );
-  }
-  async.each(arr, function(func, cb){
-    func(cb);
-  }, function(err){
-    if (err) {
-      LogErr(err);
-      return res.end();
+  var resp = {
+    ret: ERR.OK
+  };
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!pid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
     }
-
-    if (!prob) {
-      return res.end(); //not allow
-    }
-
-    //get problem title for addcontest page
     if (!cid) {
-      if (prob.hide === true && name !== 'admin' && name !== prob.manager) {
-        return res.end();
+      cid = 0;
+    }
+    return [Problem.watch(pid), Contest.watch(cid)];
+  })
+  .spread(function(problem, contest){
+    if (!problem) {
+      ret = ERR.ARGS;
+      throw new Error('problem NOT exist.');
+    }
+    if (!contest) {
+      if (problem.hide === true && name !== 'admin' && name !== problem.manager) {
+        ret = ERR.ACCESS_DENIED;
+        throw new Error('access denied.');
       }
-      return res.end(prob.title);
+      resp.title = problem.title;
+    } else {
+      var now = (new Date()).getTime();
+      if (name !== contest.userName && name !== 'admin' &&
+          (now < contest.startTime || contest.type === 2 && contest.password && !Comm.isRegCon(contest, name))) {
+        ret = ERR.ACCESS_DENIED;
+        throw new Error('access denied.');
+      }
+      resp.startTime = contest.startTime;
+      resp.reg_state = Comm.getRegState(contest, name);
+      resp.contestants = contest.contestants.length;
+      resp.duration = contest.len * 60;
+      resp.svrTime = now;
+      var lm = parseInt(req.body.lastmodified, 10);
+      if (lm !== problem.lastmodified) { //problem cache is not the latest.
+        resp.prob = {
+          problemID: problem.problemID,
+          title: problem.title,
+          timeLimit: problem.timeLimit,
+          memoryLimit: problem.memoryLimit,
+          description: problem.description,
+          input: problem.input,
+          output: problem.output,
+          sampleInput: problem.sampleInput,
+          sampleOutput: problem.sampleOutput,
+          hint: problem.hint,
+          spj: problem.spj,
+          TC: problem.TC,
+          lastmodified: problem.lastmodified,
+        };
+      }
     }
-
-    //get a problem for contest page
-    if (!con) {
-      return res.end();
-    }
-
-    var now = (new Date()).getTime();
-    var resp = {
-      startTime: con.startTime,
-      reg_state: getRegState(con, name),
-      contestants: con.contestants.length,
-      duration: con.len * 60,
-      svrTime: now
-    };
-
-    if (name !== con.userName && name !== 'admin' && now < con.startTime) {
-      resp.ret = 2;
-      return res.json(resp);
-    }
-
-    var lm = parseInt(req.body.lastmodified, 10);
-    if (lm && lm == prob.lastmodified) { //problem cache is ok.
-      resp.ret = 0;
-      return res.json(resp);
-    }
-
-    resp.ret = 1;
-    resp.prob = {
-      problemID: prob.problemID,
-      title: prob.title,
-      timeLimit: prob.timeLimit,
-      memoryLimit: prob.memoryLimit,
-      description: prob.description,
-      input: prob.input,
-      output: prob.output,
-      sampleInput: prob.sampleInput,
-      sampleOutput: prob.sampleOutput,
-      hint: prob.hint,
-      spj: prob.spj,
-      TC: prob.TC,
-      lastmodified: prob.lastmodified,
-    };
-    return res.json(resp);
-  });
+  })
+  .then(function(){
+    res.send(resp);
+  })
+  .fail(function(err){
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
