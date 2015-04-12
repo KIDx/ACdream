@@ -235,15 +235,15 @@ fieldset#widthfix
               include rankfooter
               +rankfooter(probNum, F, true)
         if (isManager)
-          if (contest.type == 2)
+          if (contest.type === 2)
             .form-inline.form-group
               button#calrating.btn.btn-default 统计本场比赛Rating
               = ' '
               button#resetrating.btn.btn-default 撤销本场比赛Rating
-          .form-inline.form-group
-            input#addcontestant_name.form-control(style="width:200px;" type="text" placeholder="一个用户名")
-            = ' '
-            button#addcontestant.btn.btn-default 添加参赛者
+            .form-inline.form-group
+              input#addcontestant_name.form-control(style="width:200px;" type="text" placeholder="一个用户名")
+              = ' '
+              button#addcontestant.btn.btn-default 添加参赛者
           .form-inline.form-group
             input#starstr.form-control(style="width:500px;" type="text" placeholder="多个用户名")
             = ' '
