@@ -32,7 +32,7 @@ module.exports = function(io, sessionStore) {
   });
   
   //socket连接
-  io.sockets.on('connection', function(socket){
+  io.on('connection', function(socket){
     var session = socket.session;
     if (session && session.user) {
       var name = session.user.name;
