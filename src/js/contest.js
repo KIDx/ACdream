@@ -1,5 +1,5 @@
 //socket
-var socket = io('/');
+var socket = io();
 var $msg = $('#msg_data');
 var $msg_err = $('#msg_err');
 var $broadcast = $('#broadcast');
@@ -1417,13 +1417,16 @@ $(document).ready(function(){
 
 //use socket to listen addDiscuss event
 $(document).ready(function(){
-  socket.on('addDiscuss', function(){
-    if (!isActive(4)) {
-      ++discuss_tips;
-      $discuss_tips.text(discuss_tips).show();
-    } else {
-      GetDiscuss();
-    }
+  socket.on('connect', function(){
+    socket.on('addDiscuss', function(){
+      console.log('socket ok.');
+      if (!isActive(4)) {
+        ++discuss_tips;
+        $discuss_tips.text(discuss_tips).show();
+      } else {
+        GetDiscuss();
+      }
+    });
   });
 });
 
