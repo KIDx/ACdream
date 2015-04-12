@@ -1,4 +1,5 @@
 var cookie = require('express/node_modules/cookie');
+var Contest = require('./models/contest.js');
 
 module.exports = function(io, sessionStore) {
   //多进程运行需要
@@ -34,34 +35,24 @@ module.exports = function(io, sessionStore) {
   io.sockets.on('connection', function(socket){
     var session = socket.session;
     if (session && session.user) {
+      var name = session.user.name;
       //监听广播请求
       socket.on('broadcast', function(data, fn){
         if (data) {
           var cid = parseInt(data.room, 10);
           if (!cid) {
-            return; //not allow
+            return ; //not allow
           }
-          var RP = function() {
-            socket.broadcast.to(data.room).emit('broadcast', data.msg);
-            if (fn) {
-              fn(true);
-            }
-          };
-          if (session.user.name == 'admin') {
-            return RP();
-          }
-          Contest.watch(cid, function(err, con){
-            if (err) {
-              OE(err);
+          Contest.watch(cid)
+          .then(function(contest){
+            if (contest && (name === 'admin' || name === contest.userName)) {
+              socket.broadcast.to(data.room).emit('broadcast', data.msg);
               if (fn) {
-                fn(false);
+                fn(true);
               }
-              return;
             }
-            if (con && con.userName == session.user.name) {
-              return RP();
-            }
-          });
+          })
+          .done();
         }
       });
     }
