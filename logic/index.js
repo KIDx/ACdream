@@ -5,6 +5,18 @@ var Contest = require('../models/contest.js');
 var ContestRank = require('../models/contestrank.js');
 var Overview = require('../models/overview.js');
 
+exports.ReadFile = function(fs, path) {
+  var d = Q.defer();
+  fs.readFile(path, function(err, data){
+    if (err) {
+      d.reject(err);
+    } else {
+      d.resolve(data);
+    }
+  });
+  return d.promise;
+};
+
 exports.SaveDoc = function(doc) {
   var d = Q.defer();
   doc.save(function(err){

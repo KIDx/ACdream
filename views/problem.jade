@@ -1,134 +1,130 @@
 fieldset
-  if (!problem)
-    .alert.alert-danger(style="padding:100px;")
-      h1(align="center") The Problem is not Available!!
-  else
-    mixin submit
-      if (user)
-        a.btn.btn-default.btn-sm(href="/submit?pid="+problem.problemID) Submit
-      else
-        a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url="/submit?pid="+problem.problemID) Submit
-      = ' '
-      a.btn.btn-default.btn-sm(href="/statistic/"+problem.problemID) Statistic
-    .row
-      .col-md-8
-        .block.block-success
-          .block-content.block-container.istyle
-            h3.problem-header= problem.title
-            .prob-info
-              if (problem.spj == 1)
-                span.user.user-red(title="答案不唯一，符合题意即可") Special Judge
-              else if (problem.TC == 1)
-                span.user.user-red(title="什么是TC模式？详情请参考FAQ") TC 模式
-              = ' '
-              span.user-black Time Limit:&nbsp;
-                = 2*problem.timeLimit
-                | /
-                = problem.timeLimit
-                | MS (Java/Others)
-              = ' '
-              span.user-black Memory Limit:&nbsp;
-                = 2*problem.memoryLimit
-                | /
-                = problem.memoryLimit
-                | KB (Java/Others)
-            .form-group.form-inline(align="center")
-              +submit
-              if (!cid)
+  mixin submit
+    if (user)
+      a.btn.btn-default.btn-sm(href="/submit?pid="+problem.problemID) Submit
+    else
+      a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url="/submit?pid="+problem.problemID) Submit
+    = ' '
+    a.btn.btn-default.btn-sm(href="/statistic/"+problem.problemID) Statistic
+  .row
+    .col-md-8
+      .block.block-success
+        .block-content.block-container.istyle
+          h3.problem-header= problem.title
+          .prob-info
+            if (problem.spj == 1)
+              span.user.user-red(title="答案不唯一，符合题意即可") Special Judge
+            else if (problem.TC == 1)
+              span.user.user-red(title="什么是TC模式？详情请参考FAQ") TC 模式
+            = ' '
+            span.user-black Time Limit:&nbsp;
+              = 2*problem.timeLimit
+              | /
+              = problem.timeLimit
+              | MS (Java/Others)
+            = ' '
+            span.user-black Memory Limit:&nbsp;
+              = 2*problem.memoryLimit
+              | /
+              = problem.memoryLimit
+              | KB (Java/Others)
+          .form-group.form-inline(align="center")
+            +submit
+            = ' '
+            a.btn.btn-default.btn-sm(href="/problem?pid="+(problem.problemID+1)) Next Problem
+            if (user)
+              if (user.addprob == 1)
                 = ' '
-                a.btn.btn-default.btn-sm(href="/problem?pid="+(problem.problemID+1)) Next Problem
-              if (user)
-                if (user.addprob == 1)
+                a.btn.btn-default.btn-sm(href="/addproblem?pID="+problem.problemID) Edit Problem
+              if (user.name == 'admin'|| user.name == problem.manager)
+                = ' '
+                a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
+          - var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint', 'Source', 'Manager'];
+          - var q = [problem.description, problem.input, problem.output, problem.sampleInput, problem.sampleOutput, problem.hint, problem.source, problem.manager];
+          each name, i in S
+            if (q[i])
+              h4= name
+              .prob-content
+                if (i === 3 || i === 4)
+                  pre.sample= q[i]
+                else if (i === 7)
+                  a#manager(href="/user/"+problem.manager title=UT class="user user-"+UC)= q[i]
+                  if (user && user.name === 'admin')
+                    input#manager_input.form-control.input-sm(style="display:none;width:200px;")
+                    a#edit_btn.img_link.edit(href="javascript:;" title="edit" style="display:inline-block;margin-left:8px;")
+                else
+                  != q[i]
+          .form-inline(align="center")
+            +submit
+    .col-md-4
+      .block.block-info
+        .block-content
+          .heading Information
+          table.table-acdream
+            tr
+              td Solved Number
+              td
+                a(href="/status?pid="+problem.problemID+"&result=2")= problem.AC
+            tr
+              td Submit Number
+              td
+                a(href="/status?pid="+problem.problemID)= problem.submit
+      if (user)
+        #submit_block.block.block-info
+          .block-content
+            .heading Submit
+            .form-horizontal.block-container.block-mini
+              .form-group.form-group-sm
+                label.col-sm-3.control-label Language
+                .col-sm-9
+                  include lang
+                  +lang(langs)
+              .form-group.form-group-sm
+                label.col-sm-3.control-label ChooseFile
+                .col-sm-9
+                  include upload
+                  +upload('file', 'info', '/problem/uploadCode?pid='+problem.problemID)
+              .form-group
+                .col-sm-offset-3.col-sm-9
+                  button#submit.btn.btn-default.btn-sm submit
                   = ' '
-                  a.btn.btn-default.btn-sm(href="/addproblem?pID="+problem.problemID) Edit Problem
-                if (user.name == 'admin'|| user.name == problem.manager)
-                  = ' '
-                  a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
-            - var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint', 'Source', 'Manager'], tmp;
-            if (UC)
-              - tmp = '<a id="manager" href="/user/'+problem.manager+'" title="'+UT+'" class="user user-'+UC+'">'+problem.manager+'</a>';
-            if (user && user.name == 'admin')
-              - tmp += '<input id="manager_input" type="text" style="display:none;margin:0;padding:2px;"><a href="javascript:;" id="edit_btn" class="img_link edit" title="change" style="display:inline-block;margin-left:8px;"></a>';
-            - var q = [problem.description, problem.input, problem.output, problem.sampleInput, problem.sampleOutput, problem.hint, problem.source, tmp];
-            each name, i in S
-              if (q[i])
-                h4= name
-                .prob-content
-                  if (i == 3 || i == 4)
-                    pre.sample= q[i]
-                  else
-                    != q[i]
-            .form-inline(align="center")
-              +submit
-      .col-md-4
+                  span#error.error-text
+              #alert.alert.alert-warning(style="display:none;")
+                include i64_info
+      #tag_block.block.block-info
+        .block-content
+          .heading Problem Tags
+          .form-horizontal.block-container.block-mini
+            if (problem.tags && problem.tags.length)
+              div
+                each p in problem.tags.sort(function(a, b){return a-b;})
+                  .tag-box(title=PT[p])= Tag[p]
+                    if(pvl == 1)
+                      span.del(tag=p) ×
+            if(pvl == 1)
+              #tag_select.form-group.hidden
+                label.col-sm-3.control-label AddTag
+                .col-sm-9
+                  select.form-control.input-sm
+                    each p, i in Tag
+                      option(value=i title=PT[i])= p
+              div(style="text-align:right;")
+                a#add-tag(href="javascript:;") Add tag
+              .alert.alert-success 温馨提示：你可以编辑标签啦~
+            else
+              span.user-gray No tag edit access
+              .alert.alert-success(style="margin:0;") 温馨提示：AC后可以编辑标签哦. ^-^
+      if (user && (user.name == problem.manager || user.name == 'admin'))
         .block.block-info
           .block-content
-            .heading Information
-            table.table-acdream
-              tr
-                td Solved Number
-                td
-                  a(href="/status?pid="+problem.problemID+"&result=2")= problem.AC
-              tr
-                td Submit Number
-                td
-                  a(href="/status?pid="+problem.problemID)= problem.submit
-        if (user)
-          #submit_block.block.block-info
-            .block-content
-              .heading Submit
-              .form-horizontal.block-container.block-mini
-                .form-group.form-group-sm
-                  label.col-sm-3.control-label Language
-                  .col-sm-9
-                    include lang
-                    +lang(langs)
-                .form-group.form-group-sm
-                  label.col-sm-3.control-label ChooseFile
-                  .col-sm-9
-                    include upload
-                    +upload('file', 'info', '/problem/uploadCode?pid='+problem.problemID)
-                .form-group
-                  .col-sm-offset-3.col-sm-9
-                    button#submit.btn.btn-default.btn-sm submit
-                    = ' '
-                    span#error.error-text
-                #alert.alert.alert-warning(style="display:none;")
-                  include i64_info
-        #tag_block.block.block-info
-          .block-content
-            .heading Problem Tags
+            .heading Problem Edit
             .form-horizontal.block-container.block-mini
-              if (problem.tags && problem.tags.length)
-                div(style="margin-bottom:5px;")
-                  each p in problem.tags.sort(function(a, b){return a-b;})
-                    .tag-box(title=PT[p])= Tag[p]
-                      if(pvl == 1)
-                        span.del(tag=p) ×
-              if(pvl == 1)
-                #tag_select.form-group.hidden
-                  label.col-sm-3.control-label AddTag
-                  .col-sm-9
-                    select.form-control.input-sm
-                      each p, i in Tag
-                        option(value=i title=PT[i])= p
-                div(style="text-align:right;margin:8px 0;")
-                  a#add-tag(href="javascript:;") Add tag
-                .alert.alert-success 温馨提示：你可以编辑标签啦~
-              else
-                span.user-gray No tag edit access
-                .alert.alert-success(style="margin:0;") 温馨提示：AC后可以编辑标签哦. ^-^
-        if (user && (user.name == problem.manager || user.name == 'admin'))
-          .block.block-info
-            .block-content
-              .heading Problem Edit
-              .form-horizontal.block-container.block-mini
-                .form-group
-                  label.col-sm-3.control-label Hidden
-                  .col-sm-9
-                    select#phide.form-control.input-sm
-                      option(value="1") Yes
-                      option(value="" selected=problem.hide ? false : true) No
+              .form-group
+                label.col-sm-3.control-label Hidden
+                .col-sm-9
+                  select#phide.form-control.input-sm
+                    option(value="1") Yes
+                    option(value="" selected=problem.hide ? false : true) No
 script(type="text/javascript")
   | var pid = #{problem? problem.problemID : 0};
 if (user && user.name == 'admin')
@@ -142,22 +138,19 @@ if (user && user.name == 'admin')
           $.ajax({
             type: 'POST',
             url: '/problem/setManager',
-            data: { pid: pid, name: $input.val() },
-            dataType: 'text',
+            data: {pid: pid, username: $input.val()},
+            dataType: 'json',
             error: function() {
               $input.attr('disabled', false);
               ShowMessage('无法连接到服务器！');
             }
           })
           .done(function(res){
-            if (!res) {
-              window.location.reload(true);
-              return ;
-            } else if (res == '1') {
-              ShowMessage('The user does NOT exist!');
-            } else if (res == '3') {
-              ShowMessage('系统错误！');
+            var ret = res.ret;
+            if (ret === 0) {
+              $manager.text($input.val());
             }
+            ShowMessage(res.msg);
             $input.hide();
             $manager.show();
             $edit_btn.show();
@@ -169,5 +162,6 @@ if (user && user.name == 'admin')
         $edit_btn.hide();
         $manager.hide();
         $input.val($manager.text()).show();
+        $input.focus();
       });
     }

@@ -4,7 +4,7 @@ fieldset
       .row
         .col-sm-6
           .btn-group.btn-group-sm
-            - for (var i = 1; i <= n; i++)
+            - for (var i = 1; i <= totalPage; i++)
               a.btn.btn-default(href="/problem/list?page="+i)= i
         .col-sm-6.form-inline
           .pull-right
@@ -36,7 +36,7 @@ fieldset
                 - c = 'even';
               else
                 - c = 'odd';
-              case R[p.problemID]
+              case Result[p.problemID]
                 when 1
                   - s = 'WA';
                 when 2
@@ -74,4 +74,4 @@ fieldset
             td(colspan="6")
               #pager
                 include pager
-                +pager(page, n)
+                +pager(page, totalPage)

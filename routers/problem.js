@@ -15,7 +15,7 @@ var Tag = Settings.T;
 var ProTil = Settings.P;
 var languages = Settings.languages;
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
+var Logic = require('../logic');
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
 var FailProcess = Comm.FailProcess;
@@ -25,240 +25,237 @@ var FailProcess = Comm.FailProcess;
  */
 router.get('/', function(req, res){
   var pid = parseInt(req.query.pid, 10);
-  if (!pid) {
-    res.render('problem', {
-      title: 'Problem',
-      key: KEY.HOME,
-      problem: null
-    });
-  } else {
-    var name = '', cid = parseInt(req.query.cid, 10);
-    if (req.session.user) {
-      name = req.session.user.name;
+  var name = req.session.user ? req.session.user.name : '';
+  var resp = {
+    title: 'Problem ' + pid,
+    key: KEY.PROBLEM,
+    pvl: 0,
+    Tag: Tag,
+    PT: ProTil,
+    langs: languages
+  };
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!pid) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found.');
     }
-    Solution.findOne({problemID:pid, userName:name, result:2})
-    .then(function(solution) {
-      var pvl = solution ? 1 : 0;
+    return [
+      Solution.findOne({problemID: pid, userName: name, result: 2}),
       Problem.watch(pid)
-      .then(function(problem){
-        var RP = function(U){
-          var UT, UC;
-          if (U) {
-            UT = Comm.userTit(U.rating);
-            UC = Comm.userCol(U.rating);
-          }
-          res.render('problem', {
-            title: 'Problem ' + pid,
-            key: KEY.PROBLEM,
-            problem: problem,
-            pvl: pvl,
-            Tag: Tag,
-            PT: ProTil,
-            cid: cid,
-            UT: UT,
-            UC: UC,
-            langs: languages
-          });
-        };
-        if (problem) {
-          if (pvl == 0 && (name == 'admin' || problem.manager == name)) {
-            pvl = 1;
-          }
-          if (problem.hide == true && (!req.session.user ||
-            (req.session.user.name != 'admin' && req.session.user.name != problem.manager))) {
-            problem = null;
-            return RP(null);
-          }
-          if (!problem.manager) {
-            problem.manager = 'admin';
-          }
-          User.watch(problem.manager)
-          .then(function(user){
-            return RP(user);
-          })
-          .fail(function(err){
-            FailRender(err, res, ERR.SYS);
-          });
-        } else {
-          return RP(null);
-        }
-      })
-      .fail(function(err){
-        FailRender(err, res, ERR.SYS);
-      });
-    })
-    .fail(function(err){
-      FailRender(err, res, ERR.SYS);
-    });
-  }
+    ];
+  })
+  .spread(function(solution, problem) {
+    if (!problem) {
+      ret = ERR.PAGE_NOT_FOUND;
+      throw new Error('page not found.');
+    }
+    if (problem.hide === true && name !== 'admin' && name !== problem.manager) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
+    if (solution || name === 'admin' || name === problem.manager) {
+      resp.pvl = 1;
+    }
+    if (!problem.manager) {
+      problem.manager = 'admin';
+    }
+    resp.problem = problem;
+    return User.watch(problem.manager);
+  })
+  .then(function(user){
+    if (!user) {
+      throw new Error('date error.');
+    }
+    resp.UT = Comm.userTit(user.rating);
+    resp.UC = Comm.userCol(user.rating);
+    res.render('problem', resp);
+  })
+  .fail(function(err){
+    FailRender(err, res, ret);
+  });
 })
 
 /*
  * 上传代码
  */
 router.post('/uploadCode', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.files || !req.files.info) {
-    return res.end();  //not allow
-  }
-  var path = req.files.info.path;
-  var sz = req.files.info.size;
-  var RP = function(s) {
-    fs.unlink(path, function(){
-      return res.end(s);
-    });
-  };
-  if (!req.session.user) {
-    req.session.msg = 'Failed! Please login first!';
-    return RP('4');    //refresh!
-  }
+  var name = req.session.user ? req.session.user.name : '';
   var pid = parseInt(req.query.pid, 10);
-  if (!pid) {
-    return RP();    //not allow!
-  }
   var lang = parseInt(req.body.lang, 10);
-  if (!lang || lang < 1 || lang >= languages.length) {
-    return RP('5'); //language not exist
-  }
-  if (sz < 50) {
-    return RP('1');
-  }
-  if (sz > 65535){
-    return RP('2');
-  }
   var now = (new Date()).getTime();
-  if (req.session.submitTime && now - req.session.submitTime <= 5000) {
-    return RP('7');
-  }
-  fs.readFile(path, function(err, data){
-    if (err) {
-      LogErr(err);
-      return RP('3');
+  var path = null;
+  var sz = null;
+  var code = null;
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
     }
-    var code = String(data);
+    if (!lang || lang < 1 || lang >= languages.length ||
+        !pid || !req.files || !req.files.info) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    path = req.files.info.path;
+    sz = req.files.info.size;
+    if (!path || !sz) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    if (sz < 50) {
+      ret = ERR.ARGS;
+      throw new Error('too small. (<50B)');
+    }
+    if (sz > 65535){
+      ret = ERR.ARGS;
+      throw new Error('too large. (>65535B)');
+    }
+    if (req.session.submitTime && now - req.session.submitTime <= 5000) {
+      ret = ERR.FREQ_LIMIT;
+      throw new Error('too frequent, please submit later.');
+    }
+    return Logic.ReadFile(fs, path);
+  })
+  .then(function(data){
+    code = String(data);
     if (lang < 3 && !req.body.ignore_i64 && code.indexOf("%I64") >= 0) {
-      return RP('6'); //i64 alert
+      ret = ERR.WARNNING;
+      throw new Error('warnning.');
     }
     req.session.submitTime = now;
-    Problem.watch(pid)
-    .then(function(problem){
-      if (!problem) {
-        return RP();  //not allow!
-      }
-      var name = req.session.user.name;
-      IDs.get ('runID')
-      .then(function(id){
-        return [
-          (new Solution({
-            runID: id,
-            problemID: pid,
-            userName: name,
-            inDate: (new Date()).getTime(),
-            language: lang,
-            length: code.length,
-            cID: -1,
-            code: code
-          })).save(),
-          Problem.update(pid, {$inc: {submit: 1}}),
-          User.update({name: name}, {$inc: {submit: 1}})
-        ];
-      })
-      .then(function(){
-        req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-        return RP();
-      })
-      .fail(function(err){
-        LogErr(err);
-        return RP('3');
-      });
-    })
-    .fail(function(err){
-      LogErr(err);
-      return RP('3');
-    });
-  });
+    return Problem.watch(pid);
+  })
+  .then(function(problem){
+    if (!problem) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    return IDs.get('runID');
+  })
+  .then(function(id){
+    return [
+      (new Solution({
+        runID: id,
+        problemID: pid,
+        userName: name,
+        inDate: now,
+        language: lang,
+        length: code.length,
+        cID: -1,
+        code: code
+      })).save(),
+      Problem.update(pid, {$inc: {submit: 1}}),
+      User.update({name: name}, {$inc: {submit: 1}})
+    ];
+  })
+  .then(function(){
+    fs.unlink(path);
+    req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+    res.send({ret: ERR.OK});
+  })
+  .fail(function(err){
+    if (path) {
+      fs.unlink(path);
+    }
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 题目列表页面
  */
 router.get('/list', function(req, res){
+  var name = req.session.user ? req.session.user.name : '';
   var page = parseInt(req.query.page, 10);
-  if (!page) {
-    page = 1;
-  } else if (page < 0) {
-    return res.redirect('/problem/list');
-  }
-
-  var q1 = {}, q2 = {}, q3 = {}, Q, search = Comm.clearSpace(req.query.search);
+  var search = Comm.clearSpace(req.query.search);
+  var cond1 = {};
+  var cond2 = {};
+  var cond3 = {};
+  var cond = {};
 
   if (search) {
-    var pattern = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i'), tag = new Array();
+    var pattern = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
+    var tag = [];
     for (i = 0; i < Tag.length; i++) {
       if (pattern.test(Tag[i])) {
         tag.push(i);
       }
     }
-    q1.title = pattern;
-    q2.tags = {$in: tag};
-    q3.source = pattern;
+    cond1.title = pattern;
+    cond2.tags = {$in: tag};
+    cond3.source = pattern;
   }
 
-  if (!req.session.user) {
-    Q = { $or:[q1, q2, q3], hide:false };
-  } else if (req.session.user.name != 'admin') {
-    Q = { $and: [{$or:[q1, q2, q3]}, {$or:[{hide:false}, {manager:req.session.user.name}]}] };
+  if (!name) {
+    cond = {
+      $or: [cond1, cond2, cond3],
+      hide: false
+    };
+  } else if (name !== 'admin') {
+    cond = {
+      $and: [
+        {$or: [cond1, cond2, cond3]},
+        {$or: [{hide: false}, {manager: name}]}
+      ]
+    };
   } else {
-    Q = { $or:[q1, q2, q3] };
+    cond = {$or: [cond1, cond2, cond3]};
   }
-  var Response = {
+
+  var resp = {
     title: 'ProblemList',
     key: KEY.PROBLEM_LIST,
-    page: page,
     search: search,
     Tag: Tag,
     Pt: ProTil
   };
-  Problem.get(Q, page)
-  .then(function(o){
-    Response.problems = o.problems;
-    Response.n = o.totalPage;
-    var RP = function(R){
-      Response.R = R;
-      res.render('problemlist', Response);
-    };
-    if (req.session.user && o.problems && o.problems.length > 0) {
-      var pids = [], R = {};
-      o.problems.forEach(function(p){
-        pids.push(p.problemID);
-      });
-      Solution.aggregate([
-        { $match: { userName: req.session.user.name, result:{$gt:1} } },
-        { $group: { _id: '$problemID', result: {$min: '$result'} } },
-        { $sort: { _id: 1 } }
-      ])
-      .then(function(sols){
-        if (sols) {
-          sols.forEach(function(p){
-            if (p.result == 2) {
-              R[p._id] = 2;
-            } else {
-              R[p._id] = 1;
-            }
-          });
-          return RP(R);
-        }
-      })
-      .fail(function(err){
-        FailRender(err, res, ERR.SYS);
-      });
-    } else {
-      return RP({});
+
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!page) {
+      page = 1;
+    } else if (page < 0) {
+      ret = ERR.REDIRECT;
+      throw new Error('redirect.');
     }
+    resp.page = page;
+    return Problem.get(cond, page);
+  })
+  .then(function(o){
+    resp.problems = o.problems;
+    resp.totalPage = o.totalPage;
+    var pids = [];
+    o.problems.forEach(function(p){
+      pids.push(p.problemID);
+    });
+    return Solution.aggregate([
+      {$match: {userName: name, result: {$gt: 1}, problemID: {$in: pids}}},
+      {$group: {_id: '$problemID', result: {$min: '$result'}}},
+      {$sort: {_id: 1}}
+    ]);
+  })
+  .then(function(sols){
+    var Result = {};
+    sols.forEach(function(p){
+      if (p.result === 2) {
+        Result[p._id] = 2;
+      } else {
+        Result[p._id] = 1;
+      }
+    });
+    resp.Result = Result;
+    res.render('problemlist', resp);
   })
   .fail(function(err){
-    FailRender(err, res, ERR.SYS);
-  });
+    if (ret === ERR.REDIRECT) {
+      return res.redirect('/problem/list');
+    }
+    FailRender(err, res, ret);
+  })
+  .done();
 });
 
 /*
@@ -285,7 +282,7 @@ router.post('/get', function(req, res){
   })
   .spread(function(problem, contest){
     if (!problem) {
-      ret = ERR.ARGS;
+      ret = ERR.NOT_EXIT;
       throw new Error('problem NOT exist.');
     }
     if (!contest) {
@@ -339,144 +336,127 @@ router.post('/get', function(req, res){
  * 切换一个题目的隐藏状态
  */
 router.post('/toggleHide', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
+  var name = req.session.user ? req.session.user.name : '';
   var pid = parseInt(req.body.pid, 10);
-  if (!pid) {
-    return res.end(); //not allow
-  }
-  var resp;
-  Problem.watch(pid)
+  var resp = {ret: ERR.OK, msg: 'Problem '+pid+' has been Updated successfully!'};
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
+    }
+    if (!pid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    return Problem.watch(pid);
+  })
   .then(function(problem){
     if (!problem) {
-      return res.end(); //not allow
+      ret = ERR.NOT_EXIT;
+      throw new Error('problem NOT exist.');
     }
-    var name = req.session.user.name;
-    if (name != 'admin' && name != problem.manager) {
-      req.session.msg = 'You have no permission to do that!';
-      return res.end();
+    if (name !== 'admin' && name !== problem.manager) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
     }
     problem.hide = !problem.hide;
-    resp = problem.hide ? 'h' : 's';
-    return problem.save();
+    resp.hide = problem.hide;
+    return Logic.SaveDoc(problem);
   })
   .then(function(){
-    return res.end(resp);
+    return res.send(resp);
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('3');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 编辑一个题目的标签
  */
 router.post('/editTag', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
+  var name = req.session.user ? req.session.user.name : '';
   var pid = parseInt(req.body.pid, 10);
   var tag = parseInt(req.body.tag, 10);
-  if (!pid || !tag) {
-    return res.end();  //not allow
-  }
-  var name = req.session.user.name;
-  var RP = function(){
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
+    }
+    if (!pid || !tag || tag < 1 || tag > Tag.length) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    return [
+      Problem.watch(pid),
+      Solution.findOne({problemID: pid, userName: name, result: 2})
+    ];
+  })
+  .spread(function(problem, sol){
+    if (!problem) {
+      ret = ERR.NOT_EXIT;
+      throw new Error('problem NOT exist.');
+    }
+    if (req.body.add && problem.tags.length >= 5) {
+      ret = ERR.ARGS;
+      throw new Error('too manay tags.');
+    }
+    if (!sol && name !== 'admin' && name !== problem.manager) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
     var cond;
     if (req.body.add) {
       cond = {$addToSet: {tags: tag}};
     } else {
       cond = {$pull: {tags: tag}};
     }
-    Problem.update(pid, cond)
-    .then(function(){
-      if (req.body.add) {
-        req.session.msg = 'Tag has been added to the problem successfully!';
-      } else {
-        req.session.msg = 'Tag has been removed from the problem successfully!';
-      }
-      return res.end();
-    })
-    .fail(function(err){
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    });
-  };
-  Problem.watch(pid)
-  .then(function(problem){
-    if (!problem) {
-      return res.end();  //not allow
-    }
-    if (req.body.add && problem.tags.length >= 5) {
-      req.session.msg = 'The number of tags should not larger than 5!';
-      return res.end();
-    }
-    if (name == 'admin' || name == problem.manager) {
-      return RP();
-    }
-    Solution.findOne({problemID: pid, userName: name, result: 2})
-    .then(function(solution) {
-      if (!solution) {
-        return res.end(); //not allow
-      }
-      return RP();
-    })
-    .fail(function(err){
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    });
+    return Problem.update(pid, cond);
+  })
+  .then(function(){
+    req.session.msg = 'tags has been updated successfully.';
+    res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    req.session.msg = '系统错误！';
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 设置某个题目的管理员
  */
 router.post('/setManager', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
-  if (req.session.user.name != 'admin') {
-    return res.end(); //not allow
-  }
+  var name = req.session.user ? req.session.user.name : '';
   var pid = parseInt(req.body.pid, 10);
-  var name = String(req.body.name);
-  if (!pid || !name) {
-    return res.end(); //not allow
-  }
-  User.watch(name)
+  var username = Comm.clearSpace(req.body.username);
+  Q.fcall(function(){
+    if (name !== 'admin') {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
+    if (!pid || !username) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    return User.watch(username);
+  })
   .then(function(user){
     if (!user) {
-      return res.end('1');
+      ret = ERR.NOT_EXIT;
+      throw new Error('user NOT exist.');
     }
-    Problem.update({problemID: pid}, {$set: {manager: name}})
-    .then(function(){
-      req.session.msg = 'The manager has been changed successfully!';
-      return res.end();
-    })
-    .fail(function(err){
-      LogErr(err);
-      return res.end('3');
-    });
+    return Problem.update(pid, {$set: {manager: user.name}});
+  })
+  .then(function(){
+    res.send({ret: ERR.OK, msg: 'manager has been updated successfully.'});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('3');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

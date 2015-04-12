@@ -74,7 +74,7 @@ function getProblem($p, $t) {
     type: 'POST',
     url: '/problem/get',
     data: { pid: $p.val() },
-    dataType: 'text',
+    dataType: 'json',
     error: function() {
       $t.removeClass('success-text')
         .addClass('error-text')

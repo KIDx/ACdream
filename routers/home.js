@@ -88,7 +88,7 @@ router.post('/login', function(req, res){
   Q.fcall(function(){
     if (!name || !psw) {
       ret = ERR.ARGS;
-      throw new Error('name or psw can NOT be empty');
+      throw new Error('invalid args.');
     }
   })
   .then(function(){
@@ -96,12 +96,12 @@ router.post('/login', function(req, res){
   })
   .then(function(user){
     if (!user) {
-      ret = ERR.USER_NOT_EXIT;
-      throw new Error(name + ' is not exist');
+      ret = ERR.NOT_EXIT;
+      throw new Error('user NOT exist.');
     }
     if (user.password != Comm.MD5(psw)) {
       ret = ERR.WRONG_PASSWORD;
-      throw new Error('wrong password');
+      throw new Error('wrong password.');
     }
     user.visTime = (new Date()).getTime();
     return Logic.SaveDoc(user);

@@ -25,7 +25,7 @@ $(document).ready(function() {
     }
   });
   $file.fileupload({
-    dataType: 'text',
+    dataType: 'json',
     add: function(e, data) {
       var f = data.files[0];
       $ui.removeClass('user-green').text(f.name);
@@ -33,10 +33,10 @@ $(document).ready(function() {
       $submit.click(function(){
         if (f.size) {
           if (f.size < 50) {
-            errAnimate($error, 'too small! ( < 50B )');
+            errAnimate($error, 'too small. (<50B)');
             return false;
           } else if (f.size > 65535) {
-            errAnimate($error, 'too large! ( > 65535B )');
+            errAnimate($error, 'too large. (>65535B)');
             return false;
           }
         }
@@ -49,17 +49,15 @@ $(document).ready(function() {
       $ui.addClass('user-green').text(p+'%');
     },
     done: function(e, data) {
-      var res = data.response().result, tp;
-      if (!res) window.location.href = '/status';
-      else if (res == '6') $alert.slideDown();
-      else if (res == '7') tp = '同一个会话在5秒内只能交一次代码，请稍候再交';
-      else if (res == '1') tp = 'too small!(<50)';
-      else if (res == '2') tp = 'too large!(>65535)';
-      else if (res == '3') tp = '异常错误！';
-      else if (res == '4') window.location.reload(true);
-      else if (res == '5') tp = 'the language is not exit!';
-      if (tp) {
-        errAnimate($error, tp);
+      var res = data.response().result;
+      var ret = res.ret;
+      if (ret === 0) {
+        window.location.href = '/status';
+      }
+      else if (ret === -7) {
+        $alert.slideDown();
+      } else {
+        errAnimate($error, res.msg);
       }
     }
   });
@@ -86,9 +84,14 @@ $(document).ready(function(){
             pid: pid,
             add: true
           },
-          dataType: 'text'
-        }).done(function(){
-          window.location.reload(true);
+          dataType: 'json'
+        }).done(function(res){
+          var ret = res.ret;
+          if (ret === 0) {
+            window.location.reload(true);
+          } else {
+            ShowMessage(res.msg);
+          }
         });
       });
     });
@@ -100,9 +103,14 @@ $(document).ready(function(){
           tag: $(this).attr('tag'),
           pid: pid
         },
-        dataType: 'text'
-      }).done(function(){
-        window.location.reload(true);
+        dataType: 'json'
+      }).done(function(res){
+        var ret = res.ret;
+        if (ret === 0) {
+          window.location.reload(true);
+        } else {
+          ShowMessage(res.msg);
+        }
       });
     });
   }
@@ -141,16 +149,10 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/problem/toggleHide',
-        data: { pid: pid },
-        dataType: 'text'
+        data: {pid: pid},
+        dataType: 'json'
       }).done(function(res){
-        if (!res) {
-          window.location.reload(true);
-        } else if (res == '3') {
-          ShowMessage('系统错误！');
-        } else {
-          ShowMessage('Problem '+pid+' has been Updated successfully!');
-        }
+        ShowMessage(res.msg);
       });
     });
   }

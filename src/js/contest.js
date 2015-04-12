@@ -1298,25 +1298,19 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/problem/toggleHide',
-        data: { pid: pid },
-        dataType: 'text',
+        data: {pid: pid},
+        dataType: 'json',
         error: function() {
           $p.removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
       }).done(function(res){
-        if (!res) {
-          window.location.reload(true);
-          return ;
-        } else if (res == '3') {
-          ShowMessage('系统错误！');
+        ShowMessage(res.msg);
+        var ret = res.ret;
+        if (ret === 0 && res.hide) {
+          $p.text('显示到题库');
         } else {
-          if (res == 'h') {
-            $p.text('显示到题库');
-          } else {
-            $p.text('隐藏');
-          }
-          ShowMessage('Problem '+pid+' have been Updated successfully!');
+          $p.text('隐藏');
         }
         $p.removeClass('disabled');
       });

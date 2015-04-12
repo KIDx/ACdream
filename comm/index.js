@@ -381,18 +381,20 @@ var ERR = {
   REDIRECT: 4,
   INVALID_COOKIES: 3,
   WRONG_PASSWORD: 2,
-  USER_NOT_EXIT: 1,
+  NOT_EXIT: 1,
   OK: 0,
   SYS: -1,
   ARGS: -2,
   PAGE_NOT_FOUND: -3,
   ACCESS_DENIED: -4,
-  INVALID_SESSION: -5
+  INVALID_SESSION: -5,
+  FREQ_LIMIT: -6,
+  WARNNING: -7,
 };
 exports.ERR = ERR;
 
 /*
- * 失败渲染处理，约定：ret < 0
+ * 失败渲染处理
  */
 exports.FailRender = function(err, res, ret) {
   if (ret === ERR.SYS) {
@@ -406,7 +408,7 @@ exports.FailRender = function(err, res, ret) {
 };
 
 /*
- * 失败响应处理，ret > 0 表示逻辑错误
+ * 失败响应处理
  */
 exports.FailProcess = function(err, res, ret) {
   if (ret === ERR.SYS) {

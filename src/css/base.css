@@ -235,7 +235,7 @@ h3.problem-header {
 }
 
 .tag-box {
-  margin-right: 5px;
+  margin: 0 5px 5px 0;
   padding: 2px 3px;
   border: 1px solid #ccc;
   background: whitesmoke;

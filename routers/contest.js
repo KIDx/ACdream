@@ -794,8 +794,8 @@ router.post('/addContestant', function(req, res){
   })
   .then(function(user){
     if (!user) {
-      ret = ERR.USER_NOT_EXIT;
-      throw new Error('the user is not exist.');
+      ret = ERR.NOT_EXIT;
+      throw new Error('user NOT exist.');
     }
     return regContestAndUpdate(cid, name);
   })
