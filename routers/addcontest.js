@@ -32,33 +32,31 @@ router.route('/')
    */
   var cid = parseInt(req.query.cID, 10);
   var type = parseInt(req.query.type, 10);
-  var name;
+  var name = req.session.user ? req.session.user.name : '';
+  var clone = 0;
   var resp = {
     title: 'AddContest',
     contest: null,
     getDate: Comm.getDate,
     key: KEY.ADD_CONTEST,
-    clone: 0,
     type: type,
     family: String(req.query.family),
     edit: true,
     P: {}
   };
-  var clone = 0;
   var ret = ERR.SYS;
   Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
+    }
     if (!type || type < 1 || type > 2) {
       ret = ERR.PAGE_NOT_FOUND;
-      throw new Error('page not found');
+      throw new Error('page not found.');
     }
-    if (!req.session.user) {
-      ret = ERR.INVALID_SESSION;
-      throw new Error('invalid session');
-    }
-    name = req.session.user.name;
-    if (!cid && type == 2 && name != 'admin') {
+    if (!cid && type === 2 && name !== 'admin') {
       ret = ERR.ACCESS_DENIED;
-      throw new Error('access denied');
+      throw new Error('access denied.');
     }
     if (cid) {
       if (cid < 0) {
@@ -69,14 +67,15 @@ router.route('/')
       .then(function(contest){
         if (!contest) {
           ret = ERR.PAGE_NOT_FOUND;
-          throw new Error('page not found');
+          throw new Error('page not found.');
         }
-        if (clone == 0 && name != contest.userName && name != 'admin' ||
-            clone == 1 && name != contest.userName && name != 'admin' && !Comm.isEnded(contest)) {
+        if (clone === 0 && name !== contest.userName && name !== 'admin' ||
+            clone === 1 && name !== contest.userName && name !== 'admin' && !Comm.isEnded(contest)) {
           ret = ERR.ACCESS_DENIED;
-          throw new Error('access denied');
+          throw new Error('access denied.');
         }
         resp.contest = contest;
+        resp.family = contest.family;
         var pids = [];
         if (contest.probs) {
           contest.probs.forEach(function(p){
@@ -85,14 +84,12 @@ router.route('/')
         }
         return Problem.find({problemID: {$in: pids}});
       }).then(function(problems){
-        var P = {};
-        if (problems) {
-          problems.forEach(function(p){
-            P[p.problemID] = p;
-          });
-        }
-        resp.P = P;
-        if (clone == 1) {
+        var Probs = {};
+        problems.forEach(function(p){
+          Probs[p.problemID] = p;
+        });
+        resp.Probs = Probs;
+        if (clone === 1) {
           resp.edit = true;
         } else {
           return Solution.findOne({cID: cid})
@@ -104,6 +101,7 @@ router.route('/')
     }
   })
   .then(function(){
+    resp.clone = clone;
     res.render('addcontest', resp);
   })
   .fail(function(err){

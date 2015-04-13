@@ -1,7 +1,7 @@
 - var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", ProbNum = 1;
 - var str, time, cday, chour, cmin, op, tp;
 
-if (contest && clone == 0)
+if (contest && clone === 0)
   - str = getDate(contest.startTime).split(' ');
   - cday = parseInt(contest.len/1440, 10);
   - chour = parseInt(contest.len%1440/60, 10);
@@ -9,15 +9,15 @@ if (contest && clone == 0)
 
 - if (str && str[1]) time = str[1].split(':');
 
-if (contest && clone == 0)
+if (contest && clone === 0)
   - op = 'Edit';
 else
   - op = 'Add';
 
-if (clone == 1)
-  - tp = 1;
-else if (contest)
+if (contest && clone === 0 || contest && clone === 1 && user && user.name === 'admin')
   - tp = contest.type;
+else if (clone === 1)
+  - tp = 1;
 else
   - tp = type;
 
@@ -57,13 +57,7 @@ fieldset
                   = ' : '
                   input#mm.form-control.width-mini(maxlength="2" type="text" value=cmin ? cmin : 0)
                   = ' : 00'
-              if ((!contest && tp != 2) || (contest && (clone == 1 || contest.type != 2)))
-                tr
-                  th= 'Password'
-                  td.form-group-sm
-                    input#psw.form-control(type="password" value=(contest && contest.password && clone == 0 ? contest.password : ""))
-                    span.text-info= 'Leave blank to make it Public.'
-              else
+              if (tp === 2)
                 tr
                   th
                   td(style="position:relative;")
@@ -84,6 +78,12 @@ fieldset
                       option(value="rating" selected=(family==="rating" ? true : false)) Rating Contest
                       option(value="training" selected=(family==="training" ? true : false)) Training Contest
                       option(value="vip" selected=(family==="vip" ? true : false)) VIP Contest
+              else
+                tr
+                  th= 'Password'
+                  td.form-group-sm
+                    input#psw.form-control(type="password" value="")
+                    span.text-info= 'Leave blank to make it Public.'
               tr
                 th= 'Penalty'
                 td
@@ -97,13 +97,13 @@ fieldset
                 th= 'Description'
                 td
                   textarea#desc.form-control(type="text" rows="5")
-                    if (contest && clone == 0)
+                    if (contest && clone === 0)
                       = contest.description
               tr
                 th= 'Announcement'
                 td
                   textarea#anc.form-control(type="text" rows="5")
-                    if (contest && clone == 0)
+                    if (contest && clone === 0)
                       = contest.msg
       .col-md-6
         .block.block-info
@@ -127,15 +127,17 @@ fieldset
                       if (edit)
                         a.img_link.delete(title="delete" href="javascript:;")
                     td
-                      input.probnum.form-control.input-sm(type="text" value=(p[0] ? p[0] : "") disabled=(edit ? false : true))
+                      input.probnum.form-control.input-sm(type="text" value=(p[0]) disabled=(edit ? false : true))
                     td
-                      input.alias.form-control.input-sm(type="text" value=(p[1] ? p[1] : ""))
+                      input.alias.form-control.input-sm(type="text" value=(p[1]))
                     td.bold.p_index= F[i]
-                    td(class="title "+(p[0] ? "success-text" : "error-text") style="text-align:left;")
-                      if (p[0])
-                        = P[p[0]].title
+                    - var problem = p[0] ? Probs[p[0]] : {title: ''};
+                    - var canAdd = !problem.hide || (user && (user.name === problem.manager || user.name === 'admin'));
+                    td(class="title "+(canAdd ? "success-text" : "error-text") style="text-align:left;")
+                      if (canAdd)
+                        = problem.title
                       else
-                        | No Such Problem!
+                        = 'access denied.'
     .row
       .col-md-offset-6.col-md-6
         a#submit.btn.btn-default(href="javascript:;") Submit

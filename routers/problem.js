@@ -286,7 +286,7 @@ router.post('/get', function(req, res){
       throw new Error('problem NOT exist.');
     }
     if (!contest) {
-      if (problem.hide === true && name !== 'admin' && name !== problem.manager) {
+      if (problem.hide && name !== 'admin' && name !== problem.manager) {
         ret = ERR.ACCESS_DENIED;
         throw new Error('access denied.');
       }
