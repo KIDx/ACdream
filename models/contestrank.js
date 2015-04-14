@@ -117,6 +117,31 @@ Rank.count = function(cond) {
   return d.promise;
 };
 
+Rank.create = function(cid, names) {
+  var docs = [];
+  names.forEach(function(p){
+    if (p !== 'admin') {
+      docs.push({
+        _id: {name: p, cid: cid},
+        value: initialValue
+      });
+    }
+  });
+  var d = Q.defer();
+  if (docs.length === 0) {
+    d.resolve();
+  } else {
+    ranks.create(docs, function(err){
+      if (err && err.code !== 11000 && err.code !== 11001) {
+        d.reject(err);
+      } else {
+        d.resolve();
+      }
+    });
+  }
+  return d.promise;
+};
+
 Rank.clear = function(cond) {
   var d = Q.defer();
   ranks.update(cond, {value: initialValue}, {multi:true}, function(err){

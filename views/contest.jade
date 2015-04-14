@@ -241,9 +241,10 @@ fieldset#widthfix
               = ' '
               button#resetrating.btn.btn-default 撤销本场比赛Rating
             .form-inline.form-group
-              input#addcontestant_name.form-control(style="width:200px;" type="text" placeholder="一个用户名")
+              input#addcontestant_name.form-control(style="width:500px;" type="text" placeholder="多个用户名")
               = ' '
               button#addcontestant.btn.btn-default 添加参赛者
+              = ' '
           .form-inline.form-group
             input#starstr.form-control(style="width:500px;" type="text" placeholder="多个用户名")
             = ' '
@@ -424,7 +425,7 @@ if (user && user.name === 'admin')
           url: '/contest/addContestant',
           data: {
             cid: _cid,
-            name: $('#addcontestant_name').val()
+            str: $('#addcontestant_name').val()
           },
           dataType: 'json',
           error: function() {

@@ -36,21 +36,6 @@ var FailRender = Comm.FailRender;
 var FailProcess = Comm.FailProcess;
 
 /*
- * 注册比赛并且初始化该用户的ContestRank
- */
-function regContestAndUpdate(cid, name) {
-  return Contest.update(cid, {$addToSet: {contestants: name}})
-  .then(function(){
-    return ContestRank.findOne({'_id.cid': cid, '_id.name': name});
-  })
-  .then(function(user){
-    if (!user) {
-      return (new ContestRank(cid, name)).save();
-    }
-  });
-}
-
-/*
  * 一个比赛的页面
  */
 router.get('/', function(req, res){
@@ -751,9 +736,12 @@ router.post('/register', function(req, res){
       ret = ERR.ARGS;
       throw new Error('registration closed.');
     }
-    return regContestAndUpdate(cid, name);
+    return [
+      Contest.update(cid, {$addToSet: {contestants: name}}),
+      ContestRank.create(cid, [name])
+    ];
   })
-  .then(function(){
+  .spread(function(){
     req.session.msg = 'Your Registeration has been submited successfully!';
     res.send({ret: ERR.OK});
   })
@@ -767,15 +755,16 @@ router.post('/register', function(req, res){
  * 添加一个用户到参赛者(contest.type = 2)
  */
 router.post('/addContestant', function(req, res){
-  var name = clearSpace(req.body.name);
+  var name = req.session.user ? req.session.user.name : '';
   var cid = parseInt(req.body.cid, 10);
+  var str = clearSpace(req.body.str);
   var ret = ERR.SYS;
   Q.fcall(function(){
-    if (!req.session.user || req.session.user.name !== 'admin') {
+    if (name !== 'admin') {
       ret = ERR.ACCESS_DENIED;
       throw new Error('access denied');
     }
-    if (!cid || !name) {
+    if (!cid || !str) {
       ret = ERR.ARGS;
       throw new Error('invalid args');
     }
@@ -786,21 +775,20 @@ router.post('/addContestant', function(req, res){
       ret = ERR.ARGS;
       throw new Error('invalid contest');
     }
-    if (contest.contestants.indexOf(name) >= 0) {
-      ret = ERR.OK;
-      throw new Error('the user is already contestant of this contest.');
-    }
-    return User.watch(name);
+    var names = [];
+    str.split(' ').forEach(function(p){
+      names.push(p);
+    });
+    return User.distinct('name', {name: {$in: names}});
   })
-  .then(function(user){
-    if (!user) {
-      ret = ERR.NOT_EXIT;
-      throw new Error('user NOT exist.');
-    }
-    return regContestAndUpdate(cid, name);
+  .then(function(users){
+    return [
+      Contest.update(cid, {$addToSet: {contestants: {$each: users}}}),
+      ContestRank.create(cid, users)
+    ];
   })
-  .then(function(){
-    return res.send({ret: ERR.OK, msg: 'add user to contest successfully.'});
+  .spread(function(){
+    return res.send({ret: ERR.OK, msg: 'mission complete.'});
   })
   .fail(function(err){
     FailProcess(err, res, ret);
@@ -808,7 +796,7 @@ router.post('/addContestant', function(req, res){
 });
 
 /*
- * 移除一个参赛者
+ * 移除一个参赛者(type = 2)
  */
 router.post('/removeContestant', function(req, res){
   var name = clearSpace(req.body.name);
@@ -823,9 +811,17 @@ router.post('/removeContestant', function(req, res){
       ret = ERR.ARGS;
       throw new Error('invalid args');
     }
-    return Solution.findOne({userName: name, cID: cid})
+    return [Contest.watch(cid), Solution.findOne({userName: name, cID: cid})];
   })
-  .then(function(sol){
+  .spread(function(contest, sol){
+    if (!contest) {
+      ret = ERR.NOT_EXIT;
+      throw new Error('contest NOT exist.');
+    }
+    if (contest.type !== 2) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args');
+    }
     if (sol) {
       ret = ERR.ARGS;
       throw new Error('he has submissions for the contest, can NOT be removed.');
@@ -873,7 +869,6 @@ router.post('/toggleStar', function(req, res){
       ret = ERR.ACCESS_DENIED;
       throw new Error('access denied');
     }
-    var has = {};
     var names = [];
     str.split(' ').forEach(function(p){
       names.push(p);

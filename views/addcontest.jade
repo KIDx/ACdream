@@ -133,8 +133,10 @@ fieldset
                     td.bold.p_index= F[i]
                     - var problem = p[0] ? Probs[p[0]] : {title: ''};
                     - var canAdd = !problem.hide || (user && (user.name === problem.manager || user.name === 'admin'));
-                    td(class="title "+(canAdd ? "success-text" : "error-text") style="text-align:left;")
-                      if (canAdd)
+                    td(class="title "+(p[0] && canAdd ? "success-text" : "error-text") style="text-align:left;")
+                      if (!p[0])
+                        = ''
+                      else if (canAdd)
                         = problem.title
                       else
                         = 'access denied.'
