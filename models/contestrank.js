@@ -120,12 +120,10 @@ Rank.count = function(cond) {
 Rank.create = function(cid, names) {
   var docs = [];
   names.forEach(function(p){
-    if (p !== 'admin') {
-      docs.push({
-        _id: {name: p, cid: cid},
-        value: initialValue
-      });
-    }
+    docs.push({
+      _id: {name: p, cid: cid},
+      value: initialValue
+    });
   });
   var d = Q.defer();
   if (docs.length === 0) {

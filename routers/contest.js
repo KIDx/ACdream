@@ -752,7 +752,7 @@ router.post('/register', function(req, res){
 });
 
 /*
- * 添加一个用户到参赛者(contest.type = 2)
+ * 添加多个用户到参赛者(contest.type = 2)
  */
 router.post('/addContestant', function(req, res){
   var name = req.session.user ? req.session.user.name : '';
@@ -779,7 +779,7 @@ router.post('/addContestant', function(req, res){
     str.split(' ').forEach(function(p){
       names.push(p);
     });
-    return User.distinct('name', {name: {$in: names}});
+    return User.distinct('name', {name: {$in: names, $ne: 'admin'}});
   })
   .then(function(users){
     return [
