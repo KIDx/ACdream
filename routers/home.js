@@ -96,7 +96,7 @@ router.post('/login', function(req, res){
   })
   .then(function(user){
     if (!user) {
-      ret = ERR.NOT_EXIT;
+      ret = ERR.NOT_EXIST;
       throw new Error('user NOT exist.');
     }
     if (user.password != Comm.MD5(psw)) {

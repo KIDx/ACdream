@@ -815,7 +815,7 @@ router.post('/removeContestant', function(req, res){
   })
   .spread(function(contest, sol){
     if (!contest) {
-      ret = ERR.NOT_EXIT;
+      ret = ERR.NOT_EXIST;
       throw new Error('contest NOT exist.');
     }
     if (contest.type !== 2) {

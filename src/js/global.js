@@ -176,15 +176,15 @@ function BindCE() {
       $.ajax({
         type: 'POST',
         url: '/status/CE',
-        data: { rid: rid },
-        dataType: 'text',
+        data: {rid: rid},
+        dataType: 'json',
         error: function() {
           $text.text('无法连接到服务器！');
         }
       })
       .done(function(res){
-        CE[rid] = res;
-        $text.text(res);
+        CE[rid] = res.msg;
+        $text.text(res.msg);
       });
     });
   }

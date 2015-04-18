@@ -1,6 +1,5 @@
 
 var router = require('express').Router();
-var async = require('async');
 var Q = require('q');
 
 var User = require('../models/user.js');
@@ -9,61 +8,22 @@ var Problem = require('../models/problem.js');
 var Contest = require('../models/contest.js');
 
 var Settings = require('../settings');
-var languages = Settings.languages;
-
 var KEY = require('./key');
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
-var userCol = Comm.userCol;
-var userTit = Comm.userTit;
-var solCol = Comm.solCol;
-var solRes = Comm.solRes;
-var getRegState = Comm.getRegState;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 /*
  * Status页面
  */
 router.get('/', function(req, res){
-  var cond = {}, page, name, pid, result, lang;
-
-  page = parseInt(req.query.page, 10);
-  if (!page) {
-    page = 1;
-  } else if (page < 0) {
-    return res.redirect('/status');
-  }
-
-  name = Comm.clearSpace(req.query.name);
-  if (name) {
-    cond.userName = Comm.toEscape(name);
-  }
-
-  pid = parseInt(req.query.pid, 10);
-  if (pid) cond.problemID = pid;
-
-  result = parseInt(req.query.result, 10);
-  if (result < 0 || result > 15) {
-    return res.redirect('/status');
-  }
-  if (result >= 0) {
-    if (result == 9) {
-      cond.result = { $in : [9, 10, 11, 12, 15] };
-    } else {
-      cond.result = result;
-    }
-  }
-
-  lang = parseInt(req.query.lang, 10);
-  if (lang) {
-    if (lang < 1 || lang >= languages.length) {
-      return res.redirect('/status');
-    }
-    cond.language = lang;
-  }
-
-  var Resp = {
+  var page = parseInt(req.query.page, 10);
+  var name = Comm.clearSpace(req.query.name);
+  var pid = parseInt(req.query.pid, 10);
+  var result = parseInt(req.query.result, 10);
+  var lang = parseInt(req.query.lang, 10);
+  var resp = {
     title: 'Status',
     key: KEY.STATUS,
     getDate: Comm.getDate,
@@ -71,21 +31,47 @@ router.get('/', function(req, res){
     pid: pid,
     result: result,
     lang: lang,
-    Res: solRes,
-    Col: solCol,
+    Res: Comm.solRes,
+    Col: Comm.solCol,
     page: page,
-    langs: languages
+    langs: Settings.languages
   };
-
-  var flg = false, has = {};
-  var names = [], pids = [];
-  Solution.get(cond, page)
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (page < 0 || result < 0 || result > 15 || lang < 0 || lang >= Settings.languages.length) {
+      ret = ERR.REDIRECT;
+      throw new Error('redirect.');
+    }
+    if (!page) {
+      page = 1;
+    }
+    var cond = {};
+    if (name) {
+      cond.userName = Comm.toEscape(name);
+    }
+    if (pid) {
+      cond.problemID = pid;
+    }
+    if (result >= 0) {
+      if (result == 9) {
+        cond.result = { $in : [9, 10, 11, 12, 15] };
+      } else {
+        cond.result = result;
+      }
+    }
+    if (lang) {
+      cond.language = lang;
+    }
+    return Solution.get(cond, page);
+  })
   .then(function(o) {
+    var has = {};
     var R = [], C = [];
+    var names = [], pids = [];
     if (o.solutions) {
       o.solutions.forEach(function(p, i){
-        R.push(solRes(p.result));
-        C.push(solCol(p.result));
+        R.push(Comm.solRes(p.result));
+        C.push(Comm.solCol(p.result));
         if (!has[p.userName]) {
           has[p.userName] = true;
           names.push(p.userName);
@@ -96,195 +82,197 @@ router.get('/', function(req, res){
         }
       });
     }
-    Resp.sols = o.solutions;
-    Resp.n = o.totalPage;
-    Resp.R = R;
-    Resp.C = C;
-    return User.find({name: {$in: names}});
+    resp.sols = o.solutions;
+    resp.totalPage = o.totalPage;
+    resp.R = R;
+    resp.C = C;
+    return [User.find({name: {$in: names}}), Problem.find({problemID: {$in: pids}})];
   })
-  .then(function(users){
+  .spread(function(users, probs){
     var UC = {}, UT = {};
-    users.forEach(function(p){
-      UC[p.name] = userCol(p.rating);
-      UT[p.name] = userTit(p.rating);
-    });
-    Resp.UC = UC;
-    Resp.UT = UT;
-    return Problem.find({problemID: {$in: pids}});
-  })
-  .then(function(probs){
     var P = {};
+    users.forEach(function(p){
+      UC[p.name] = Comm.userCol(p.rating);
+      UT[p.name] = Comm.userTit(p.rating);
+    });
     probs.forEach(function(p){
       P[p.problemID] = p;
     });
-    Resp.P = P;
-    return res.render('status', Resp);
+    resp.UC = UC;
+    resp.UT = UT;
+    resp.P = P;
+    return res.render('status', resp);
   })
   .fail(function(err){
-    FailRender(err, res, ERR.SYS);
-  });
+    if (ret === ERR.REDIRECT) {
+      return res.redirect('/status');
+    }
+    FailRender(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 获取某个提交的CE信息
  */
 router.post('/CE', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user)
-    return res.end('Please login first!');
   var rid = parseInt(req.body.rid, 10);
-  var name = req.session.user.name;
-  if (!rid) {
-    return res.end();  //not allow
-  }
-  Solution.findOne({runID: rid})
-  .then(function(solution){
-    if (!solution) {
-      return res.end(); //not allow
+  var name = req.session.user ? req.session.user.name : '';
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
     }
-    if (name != 'admin' && name != solution.userName) {
-      return res.end('You have no permission to watch that Information!');
+    if (!rid) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
     }
-    return res.end(solution.CE);
+    return Solution.findOne({runID: rid});
+  })
+  .then(function(sol){
+    if (!sol) {
+      ret = ERR.NOT_EXIST;
+      throw new Error('solution NOT exist.');
+    }
+    if (name !== 'admin' && name !== sol.userName) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
+    return res.send({ret: ERR.OK, msg: sol.CE});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('系统错误！');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 获取一批提交的评测结果
  */
 router.post('/batchresult', function(req, res){
-  res.header('Content-Type', 'text/plain');
-  var rid_list = [];
-  if (req.body.rid_list) {
+  var solutions;
+  var name = req.session.user ? req.session.user.name : '';
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!Array.isArray(req.body.rid_list)) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    var rid_list = [];
     req.body.rid_list.forEach(function(str){
       var rid = parseInt(str, 10);
       if (rid) {
         rid_list.push(rid);
       }
     });
-  }
-  if (rid_list.length > 100 || rid_list.length < 1) {
-    return res.end();  //not allow
-  }
-  Solution.find({runID: {$in: rid_list}})
-  .then(function(solutions){
+    if (rid_list.length > 100 || rid_list.length < 1) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    return Solution.find({runID: {$in: rid_list}});
+  })
+  .then(function(docs){
+    solutions = docs;
     var cids = [];
     solutions.forEach(function(p, i){
       cids.push(p.cID);
     });
-    var name = '';
-    if (req.session.user) {
-      name = req.session.user.name;
-    }
-    Contest.find({contestID: {$in: cids}})
-    .then(function(contests){
-      var canSee = {};
-      contests.forEach(function(p){
-        if (name == p.userName || Comm.isEnded(p)) {
-          canSee[p.contestID] = true;
-        }
-      });
-      var sols = {};
-      solutions.forEach(function(p, i){
-        var t, m;
-        if (p.cID == -1 || name == 'admin' || name == p.userName || canSee[p.cID]) {
-          t = p.time; m = p.memory;
-        } else {
-          t = m = '---';
-        }
-        sols[p.runID] = {result: p.result, time: t, memory: m, userName: p.userName};
-      });
-      return res.json(sols);
-    })
-    .fail(function(err){
-      LogErr(err);
-      return res.end();  //not refresh!
+    return Contest.find({contestID: {$in: cids}});
+  })
+  .then(function(contests){
+    var canSee = {};
+    contests.forEach(function(p){
+      if (name === p.userName || Comm.isEnded(p)) {
+        canSee[p.contestID] = true;
+      }
     });
+    var sols = {};
+    solutions.forEach(function(p, i){
+      var time, memory;
+      if (p.cID === -1 || name === 'admin' || name === p.userName || canSee[p.cID]) {
+        time = p.time;
+        memory = p.memory;
+      } else {
+        time = memory = '---';
+      }
+      sols[p.runID] = {result: p.result, time: time, memory: memory, userName: p.userName};
+    });
+    return res.send({ret: ERR.OK, sols: sols});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end();  //not refresh!
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*
  * 获取某个比赛的提交(列表)
  */
 router.post('/get', function(req, res){
-  res.header('Content-Type', 'text/plain');
   var cid = parseInt(req.body.cid, 10);
-  if (!cid) {
-    return res.end(); //not allow!
-  }
-
-  var cond = {cID: cid}, page, name, pid, result, lang;
-
-  page = parseInt(req.body.page, 10);
-  if (!page) {
-    page = 1;
-  } else if (page < 0) {
-    return res.end(); //not allow!
-  }
-
-  name = String(req.body.name);
-  if (name) {
-    cond.userName = String(req.body.name);
-  }
-
-  pid = parseInt(req.body.pid, 10);
-  if (pid) {
-    cond.problemID = pid;
-  }
-
-  result = parseInt(req.body.result, 10);
-  if (result >= 0) {
-    if (result === 9) {
-      cond.result = { $in : [9, 10, 11, 12, 15] };
-    } else {
-      cond.result = result;
-    }
-  }
-
-  lang = parseInt(req.body.lang, 10);
-  if (lang) {
-    cond.language = lang;
-  }
-
-  name = req.session.user ? req.session.user.name : '';
-  if (name !== 'admin') {
-    cond.$nor = [{userName: 'admin'}];
-  }
-
-  var Resp = {
+  var pid = parseInt(req.body.pid, 10);
+  var page = parseInt(req.body.page, 10);
+  var result = parseInt(req.body.result, 10);
+  var name = req.session.user ? req.session.user.name : '';
+  var resp = {
+    ret: ERR.OK,
     svrTime: (new Date()).getTime()
   };
-
-  Q.all([Contest.watch(cid), Solution.get(cond, page)])
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!page) {
+      page = 1;
+    }
+    if (!cid || page < 0) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    var cond = {cID: cid};
+    if (req.body.name) {
+      cond.userName = Comm.clearSpace(req.body.name);
+    }
+    if (pid) {
+      cond.problemID = pid;
+    }
+    if (result >= 0) {
+      if (result === 9) {
+        cond.result = { $in : [9, 10, 11, 12, 15] };
+      } else {
+        cond.result = result;
+      }
+    }
+    if (name !== 'admin') {
+      cond.$nor = [{userName: 'admin'}];
+    }
+    return [Contest.watch(cid), Solution.get(cond, page)];
+  })
   .spread(function(contest, o){
     if (!contest) {
-      return res.end(); //not allow
+      ret = ERR.NOT_EXIST;
+      throw new Error('contest NOT exist.');
     }
     var sols = [];
     var names = [];
     var has = {};
     o.solutions.forEach(function(p, i){
-      var T = '', M = '', L = '';
+      var time = '';
+      var memory = '';
+      var len = '';
       if (name === p.userName || name === contest.userName || Comm.isEnded(contest)) {
-        T = p.time; M = p.memory; L = p.length;
+        time = p.time;
+        memory = p.memory;
+        len = p.length;
       }
       sols.push({
         runID: p.runID,
         userName: p.userName,
         problemID: p.problemID,
         result: p.result,
-        time: T,
-        memory: M,
+        time: time,
+        memory: memory,
         language: p.language,
-        length: L,
+        length: len,
         inDate: p.inDate
       });
       if (!has[p.userName]) {
@@ -292,12 +280,12 @@ router.post('/get', function(req, res){
         names.push(p.userName);
       }
     });
-    Resp.contestants = contest.contestants.length;
-    Resp.startTime = contest.startTime;
-    Resp.duration = contest.len * 60;
-    Resp.reg_state = getRegState(contest, name);
-    Resp.pageNum = o.totalPage;
-    Resp.sols = sols;
+    resp.contestants = contest.contestants.length;
+    resp.startTime = contest.startTime;
+    resp.duration = contest.len * 60;
+    resp.reg_state = Comm.getRegState(contest, name);
+    resp.pageNum = o.totalPage;
+    resp.sols = sols;
     return User.find({name: {$in: names}});
   })
   .then(function(users){
@@ -305,13 +293,13 @@ router.post('/get', function(req, res){
     users.forEach(function(p){
       rt[p.name] = p.rating;
     });
-    Resp.ratings = rt;
-    return res.json(Resp);
+    resp.ratings = rt;
+    return res.send(resp);
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end();  //not refresh!
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

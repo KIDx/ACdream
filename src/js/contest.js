@@ -207,7 +207,8 @@ function Response(res) {
     return ;
   }
 
-  if (!statusAjax || !res) {
+  var ret = res.ret;
+  if (!statusAjax || ret !== 0) {
     setRetry(GetStatus);
     return ;
   }

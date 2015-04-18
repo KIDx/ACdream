@@ -282,7 +282,7 @@ router.post('/get', function(req, res){
   })
   .spread(function(problem, contest){
     if (!problem) {
-      ret = ERR.NOT_EXIT;
+      ret = ERR.NOT_EXIST;
       throw new Error('problem NOT exist.');
     }
     if (!contest) {
@@ -353,7 +353,7 @@ router.post('/toggleHide', function(req, res){
   })
   .then(function(problem){
     if (!problem) {
-      ret = ERR.NOT_EXIT;
+      ret = ERR.NOT_EXIST;
       throw new Error('problem NOT exist.');
     }
     if (name !== 'admin' && name !== problem.manager) {
@@ -396,7 +396,7 @@ router.post('/editTag', function(req, res){
   })
   .spread(function(problem, sol){
     if (!problem) {
-      ret = ERR.NOT_EXIT;
+      ret = ERR.NOT_EXIST;
       throw new Error('problem NOT exist.');
     }
     if (req.body.add && problem.tags.length >= 5) {
@@ -445,7 +445,7 @@ router.post('/setManager', function(req, res){
   })
   .then(function(user){
     if (!user) {
-      ret = ERR.NOT_EXIT;
+      ret = ERR.NOT_EXIST;
       throw new Error('user NOT exist.');
     }
     return Problem.update(pid, {$set: {manager: user.name}});

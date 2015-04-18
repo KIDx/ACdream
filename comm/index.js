@@ -381,7 +381,7 @@ var ERR = {
   REDIRECT: 4,
   INVALID_COOKIES: 3,
   WRONG_PASSWORD: 2,
-  NOT_EXIT: 1,
+  NOT_EXIST: 1,
   OK: 0,
   SYS: -1,
   ARGS: -2,

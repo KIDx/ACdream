@@ -62,10 +62,10 @@ function getStatus() {
           rid_list: rid_list
         },
         timeout: 5000
-      }).done(function(sols){
-        if (sols) {
+      }).done(function(res){
+        if (res.sols) {
           $.each($verdict, function(i, p){
-            updateStatus($(p), sols[$(p).attr('rid')]);
+            updateStatus($(p), res.sols[$(p).attr('rid')]);
           });
         }
       });
