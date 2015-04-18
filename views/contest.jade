@@ -127,6 +127,10 @@ fieldset#widthfix
                     th(style="width:90px;") Solved
                 tbody
                   each p, i in contest.probs
+                    if (!p[1])
+                      - p[1] = Pt[p[0]].title;
+                    if (bAccessDenied)
+                      - p[1] = "非参赛者无法访问";
                     tr(class=i % 2 == 0 ? "odd" : "even")
                       td.center.bold.o_index= F[i]
                       td.center.end.hidden
@@ -134,9 +138,9 @@ fieldset#widthfix
                       td
                         if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
                           a.pull-right.btn.btn-default.btn-xs.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
-                        a(href="#problem-"+F[i])= p[1] ? p[1] : Pt[p[0]].title
+                        a(href="#problem-"+F[i])= p[1]
                       td.op_submit
-                        a.submit.img_link(href="javascript:;" pid=p[0] tname=Pt[p[0]].title title="Submit")
+                        a.submit.img_link(href="javascript:;" pid=p[0] tname=p[1] title="Submit")
                       td.center.o_sol
           if(contest.description)
             .box.box-inner
@@ -189,7 +193,7 @@ fieldset#widthfix
                 select#pid.form-control
                   option(value="nil") All
                   each p, i in contest.probs
-                    option(value=F[i])= F[i]+" - "+Pt[p[0]].title
+                    option(value=F[i])= F[i]+" - "+p[1]
               = ' '
               .input-group.input-group-sm
                 span.input-group-addon verdict

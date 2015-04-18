@@ -41,7 +41,7 @@ var FailProcess = Comm.FailProcess;
 router.get('/', function(req, res){
   var cid = parseInt(req.query.cid, 10);
   var name = req.session.user ? req.session.user.name : '';
-  var Resp = {
+  var resp = {
     title: 'Contest '+cid,
     key: KEY.CONTEST,
     getDate: getDate,
@@ -49,7 +49,6 @@ router.get('/', function(req, res){
     Res: solRes,
     langs: languages
   };
-
   var ret = ERR.SYS;
   Q.fcall(function(){
     if (!cid) {
@@ -71,10 +70,13 @@ router.get('/', function(req, res){
       ret = ERR.ACCESS_DENIED;
       throw new Error('access denied');
     }
-    Resp.contest = contest;
-    Resp.reg_state = getRegState(contest, name);
-    Resp.type = contest.type;
-    Resp.family = contest.family;
+    resp.contest = contest;
+    resp.reg_state = getRegState(contest, name);
+    resp.type = contest.type;
+    resp.family = contest.family;
+    if (contest.type === 2 && contest.password && name !== contest.userName && resp.reg_state !== 0) {
+      resp.bAccessDenied = true;
+    }
     var pids = [];
     if (contest.probs) {
       contest.probs.forEach(function(p){
@@ -93,10 +95,10 @@ router.get('/', function(req, res){
         Pt[p.problemID] = p;
       });
     }
-    Resp.Pt = Pt;
-    Resp.MC = userCol(user.rating);
-    Resp.MT = userTit(user.rating);
-    return res.render('contest', Resp);
+    resp.Pt = Pt;
+    resp.MC = userCol(user.rating);
+    resp.MT = userTit(user.rating);
+    return res.render('contest', resp);
   })
   .fail(function(err){
     FailRender(err, res, ret);
