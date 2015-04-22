@@ -49,7 +49,7 @@ router.get('/', function(req, res){
   })
   .then(function(contest){
     if (contest && contest.type === 2) {
-      cond.name = {$in: con.contestants};
+      cond.name = {$in: contest.contestants};
     }
     return [
       User.get(cond, {rating: -1, name: 1}, page, resp.pageNum),
