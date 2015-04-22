@@ -4,6 +4,7 @@ var Q = require('q');
 var Contest = require('../models/contest.js');
 var ContestRank = require('../models/contestrank.js');
 var Overview = require('../models/overview.js');
+var User = require('../models/user.js');
 
 exports.ReadFile = function(fs, path) {
   var d = Q.defer();
@@ -64,4 +65,25 @@ exports.ClearReduceData = function(cids) {
       overviewUpdateTime: 0
     }})
   ]);
+};
+
+exports.GetRatingBeforeCount = function(user) {
+  return User.count({
+    name: {$ne: 'admin'},
+    $or:[
+      { rating: {$gt: user.rating} },
+      { rating: user.rating, name: {$lt: user.name} }
+    ]
+  });
+};
+
+exports.GetRankBeforeCount = function(user) {
+  return User.count({
+    name: {$ne: 'admin'},
+    $or:[
+      { solved: {$gt: user.solved} },
+      { solved: user.solved, submit: {$lt: user.submit} },
+      { solved: user.solved, submit: user.submit, name: {$lt: user.name} }
+    ]
+  });
 };

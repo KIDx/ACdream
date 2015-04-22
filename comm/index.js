@@ -308,49 +308,6 @@ exports.getTime = function(n) {
   return future ? '1分钟内' : '刚刚';
 };
 
-
-var ContestRank = require('../models/contestrank.js');
-var User = require('../models/user.js');
-
-/*
- * 传入user(user.rating, user.name)，返回其rating排名
- */
-exports.getRatingRank = function(user, callback) {
-  User.count({
-    name: {$ne: 'admin'},
-    $or:[
-      { rating: {$gt: user.rating} },
-      { rating: user.rating, name: {$lt: user.name} }
-    ]
-  })
-  .then(function(rank) {
-    return callback(null, rank+1);
-  })
-  .fail(function(err){
-    return callback(err, 0);
-  });
-};
-
-/*
- * 传入user(user.solved...)，返回其ranklist排名
- */
-exports.getRank = function(user, callback) {
-  User.count({
-    name: {$ne: 'admin'},
-    $or:[
-      { solved: {$gt: user.solved} },
-      { solved: user.solved, submit: {$lt: user.submit} },
-      { solved: user.solved, submit: user.submit, name: {$lt: user.name} }
-    ]
-  })
-  .then(function(rank) {
-    return callback(null, rank+1);
-  })
-  .fail(function(err){
-    return callback(err, 0);
-  });
-};
-
 var fs = require('fs');
 var log = fs.createWriteStream(Settings.root_path + 'error.log', {
   flags: 'a'

@@ -1,15 +1,13 @@
 
 var router = require('express').Router();
+var Q = require('q');
 
 var User = require('../models/user.js');
 
 var KEY = require('./key');
 var Settings = require('../settings');
-var ranklist_pageNum = Settings.ranklist_pageNum;
+var Logic = require('../logic');
 var Comm = require('../comm');
-var userCol = Comm.userCol;
-var userTit = Comm.userTit;
-var LogErr = Comm.LogErr;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
 
@@ -17,64 +15,64 @@ var FailRender = Comm.FailRender;
  * Ranklist页面
  */
 router.get('/', function(req, res) {
+  var name = req.session.user ? req.session.user.name : '';
   var page = parseInt(req.query.page, 10);
   if (!page) {
     page = 1;
-  } else if (page < 0) {
-    return res.redirect('/ranklist');
   }
-  var q1 = {}, q2 = {};
   var search = Comm.clearSpace(req.query.search);
-  if (search) {
-    q1.name = q2.nick = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
-  }
-  var cond = { $or: [q1, q2], name: {$ne: 'admin'} };
-  User.get(cond, {solved: -1, submit: 1, name: 1}, page, ranklist_pageNum)
-  .then(function(o){
-    var UC = {}, UT = {};
-    if (o.users) {
-      o.users.forEach(function(p, i){
-        UC[p.name] = userCol(p.rating);
-        UT[p.name] = userTit(p.rating);
-      });
+  var resp = {
+    title: 'Ranklist',
+    key: KEY.RANKLIST,
+    page: page,
+    pageNum: Settings.ranklist_pageNum,
+    search: search
+  };
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (page < 0) {
+      ret = ERR.REDIRECT;
+      throw new Error('redirect.');
     }
-    var Render = function() {
-      res.render('ranklist', {
-        title: 'Ranklist',
-        key: KEY.RANKLIST,
-        n: o.totalPage,
-        users: o.users,
-        page: page,
-        pageNum: ranklist_pageNum,
-        search: search,
-        UC: UC,
-        UT: UT
-      });
-    };
-    if (req.session.user && !search) {
-      User.watch(req.session.user.name)
-      .then(function(user){
-        if (!user) {
-          return Render();
-        }
-        UC[user.name] = userCol(user.rating);
-        UT[user.name] = userTit(user.rating);
-        Comm.getRank(user, function(err, rank){
-          res.locals.user = user;
-          res.locals.user.rank = rank;
-          return Render();
-        });
-      })
-      .fail(function(err){
-        FailRender(err, res, ERR.SYS);
+    var cond1 = {}, cond2 = {};
+    if (search) {
+      cond1.name = cond2.nick = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
+    }
+    var cond = {$or: [cond1, cond2], name: {$ne: 'admin'}};
+    return [
+      User.get(cond, {solved: -1, submit: 1, name: 1}, page, resp.pageNum),
+      name && name !== 'admin' ? User.watch(name) : null
+    ];
+  })
+  .spread(function(o, user){
+    resp.totalPage = o.totalPage;
+    resp.users = o.users;
+    resp.UC = {};
+    resp.UT = {};
+    o.users.forEach(function(p, i){
+      resp.UC[p.name] = Comm.userCol(p.rating);
+      resp.UT[p.name] = Comm.userTit(p.rating);
+    });
+    if (user && !search) {
+      resp.UC[user.name] = Comm.userCol(user.rating);
+      resp.UT[user.name] = Comm.userTit(user.rating);
+      return Logic.GetRankBeforeCount(user)
+      .then(function(cnt){
+        res.locals.user = user;
+        res.locals.user.rank = cnt + 1;
+        res.render('ranklist', resp);
       });
     } else {
-      return Render();
+      res.render('ranklist', resp);
     }
   })
   .fail(function(err){
-    FailRender(err, res, ERR.SYS);
-  });
+    if (ret === ERR.REDIRECT) {
+      return res.redirect('/ranklist');
+    }
+    FailRender(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

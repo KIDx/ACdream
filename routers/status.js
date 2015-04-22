@@ -19,6 +19,9 @@ var FailProcess = Comm.FailProcess;
  */
 router.get('/', function(req, res){
   var page = parseInt(req.query.page, 10);
+  if (!page) {
+    page = 1;
+  }
   var name = Comm.clearSpace(req.query.name);
   var pid = parseInt(req.query.pid, 10);
   var result = parseInt(req.query.result, 10);
@@ -41,9 +44,6 @@ router.get('/', function(req, res){
     if (page < 0 || result < 0 || result > 15 || lang < 0 || lang >= Settings.languages.length) {
       ret = ERR.REDIRECT;
       throw new Error('redirect.');
-    }
-    if (!page) {
-      page = 1;
     }
     var cond = {};
     if (name) {

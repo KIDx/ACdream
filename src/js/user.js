@@ -164,18 +164,19 @@ $(document).ready(function(){
           email: email,
           signature: signature
         },
-        dataType: 'text',
+        dataType: 'json',
         error: function() {
           $setsubmit.removeClass('disabled');
           errAnimate($seterr, '无法连接到服务器！');
         }
       }).done(function(res){
-        if (res) {
-          errAnimate($seterr, 'The old password is NOT true!');
-        } else {
+        var ret = res.ret;
+        if (ret === 0) {
           window.location.reload(true);
+        } else {
+          errAnimate($seterr, res.msg);
+          $setsubmit.removeClass('disabled');
         }
-        $setsubmit.removeClass('disabled');
       });
     });
 

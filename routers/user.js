@@ -8,24 +8,30 @@ var Problem = require('../models/problem.js');
 
 var KEY = require('./key');
 var Comm = require('../comm');
-var clearSpace = Comm.clearSpace;
+var Logic = require('../logic');
 var LogErr = Comm.LogErr;
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 /*
  * 显示某个用户具体信息的页面
  */
 router.get('/:name', function(req, res){
   var name = req.params.name;
+  var resp = {
+    title: 'User',
+    key: KEY.USER,
+    UC: Comm.userCol,
+    UT: Comm.userTit,
+    getTime: Comm.getAboutTime,
+  };
   var ret = ERR.SYS;
   Q.fcall(function(){
     if (!name) {
       ret = ERR.PAGE_NOT_FOUND;
       throw new Error('page not found');
     }
-  })
-  .then(function(){
     return User.watch(name);
   })
   .then(function(user){
@@ -33,69 +39,41 @@ router.get('/:name', function(req, res){
       ret = ERR.PAGE_NOT_FOUND;
       throw new Error('page not found');
     }
-    Solution.aggregate([
-      { $match: { userName: name, result: {$gt: 1} } },
-      { $group: { _id: '$problemID', result: {$min: '$result'} } },
-      { $sort: { _id: 1 } }
-    ])
-    .then(function(sols){
-      var A = [], B = [];
-      if (sols) {
-        sols.forEach(function(p){
-          if (p.result == 2) {
-            A.push(p._id);
-          } else {
-            B.push(p._id);
-          }
-        });
+    resp.u = user;
+    resp.minRating = 1100;
+    user.ratedRecord.forEach(function(i, p){
+      if (p.rating < resp.minRating) {
+        resp.minRating = p.rating;
       }
-      var RP = function(H) {
-        var mins = 1100;
-        user.ratedRecord.forEach(function(i, p){
-            if (p.rating < mins) {
-              mins = p.rating;
-            }
-        });
-        res.render('user', {
-          title: 'User',
-          key: KEY.USER,
-          u: user,
-          A: A,
-          B: B,
-          H: H,
-          UC: Comm.userCol,
-          UT: Comm.userTit,
-          getTime: Comm.getAboutTime,
-          minRating: mins
-        });
-      };
-      if (user.name !== 'admin') {
-        Comm.getRatingRank(user, function(err, rank){
-          if (err) {
-            req.session.msg = '系统错误！';
-            LogErr(err);
-            return res.redirect('/');
-          }
-          user.rank = rank;
-          return RP(null);
-        });
-      } else {
-        Problem.distinct("problemID", {hide:true})
-        .then(function(pids){
-          return RP(pids);
-        })
-        .fail(function(err){
-          FailRender(err, res, ret);
-        });
-      }
-    })
-    .fail(function(err){
-      FailRender(err, res, ret);
     });
+    return [
+      Solution.aggregate([
+        { $match: { userName: name, result: {$gt: 1} } },
+        { $group: { _id: '$problemID', result: {$min: '$result'} } },
+        { $sort: { _id: 1 } }
+      ]),
+      Logic.GetRatingBeforeCount(user),
+      name === 'admin' ? Problem.distinct("problemID", {hide:true}) : null
+    ];
+  })
+  .spread(function(sols, cnt, pids){
+    resp.A = [];
+    resp.B = [];
+    sols.forEach(function(p){
+      if (p.result === 2) {
+        resp.A.push(p._id);
+      } else {
+        resp.B.push(p._id);
+      }
+    });
+    resp.u.rank = cnt + 1;
+    resp.H = pids;
+    res.render('user', resp);
   })
   .fail(function(err){
     FailRender(err, res, ret);
-  });
+  })
+  .done();
 });
 
 /*
@@ -111,7 +89,7 @@ router.post('/changeAddprob', function(req, res) {
     req.session.msg = 'You have no permission to do that!';
     return res.end();
   }
-  var name = clearSpace(req.body.name);
+  var name = Comm.clearSpace(req.body.name);
   if (!name) {
     return res.end();  //not allow
   }
@@ -137,35 +115,37 @@ router.post('/changeAddprob', function(req, res) {
  * 用户修改自己的基本信息
  */
 router.post('/changeInfo', function(req, res) {
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end();
-  }
-  if (req.session.user.name != req.body.name) {
-    req.session.msg = 'Failed! You have no permission to do that!';
-    return res.end();
-  }
-
-  var name = clearSpace(req.body.name);
-  var nick = clearSpace(req.body.nick);
+  var name = req.body.name;
+  var nick = Comm.clearSpace(req.body.nick);
   var oldpsw = req.body.oldpassword;
   var psw = req.body.password;
-  var school = clearSpace(req.body.school);
-  var email = clearSpace(req.body.email);
-  var sig = clearSpace(req.body.signature);
-  if (!name || !nick || !oldpsw ||
-      school.length > 50 || email.length > 50 || sig.length > 200) {
-    return res.end();  //not allow
-  }
-
-  User.watch(name)
+  var school = Comm.clearSpace(req.body.school);
+  var email = Comm.clearSpace(req.body.email);
+  var sig = Comm.clearSpace(req.body.signature);
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!req.session.user) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
+    }
+    if (!name || !nick || !oldpsw || school.length > 50 || email.length > 50 || sig.length > 200) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    if (req.session.user.name !== name) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
+    return User.watch(name)
+  })
   .then(function(user){
     if (!user) {
-      return res.end();  //not allow
+      ret = ERR.NOT_EXIST;
+      throw new Error('user NOT exist.');
     }
-    if (Comm.MD5(String(oldpsw)) != user.password) {
-      return res.end('1');
+    if (Comm.MD5(String(oldpsw)) !== user.password) {
+      ret = ERR.WRONG_PASSWORD;
+      throw new Error('wrong password.');
     }
     var val = {
       nick: nick,
@@ -176,22 +156,16 @@ router.post('/changeInfo', function(req, res) {
     if (psw) {
       val.password = Comm.MD5(String(psw));
     }
-    User.update({name: name}, val)
-    .then(function(){
-      req.session.msg = 'Your Information has been updated successfully!';
-      return res.end();
-    })
-    .fail(function(err){
-      LogErr(err);
-      req.session.msg = '系统错误！';
-      return res.end();
-    });
+    return User.update({name: name}, val);
+  })
+  .then(function(){
+    req.session.msg = 'Your Information has been updated successfully.';
+    return res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    req.session.msg = '系统错误！';
-    return res.end();
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 /*

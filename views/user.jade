@@ -94,7 +94,7 @@ fieldset
               a.pid(href="/problem?pid="+pid)= pid
   +box("solved", A, "No problems has been solved :(", true)
   +box("unsolved", B, "No unsolved problems :)")
-  if (u.name == 'admin')
+  if (u.name === 'admin')
     +box("hidden", H, "No hidden problems :)")
 script(type="text/javascript")
   != 'var _username = "'+u.name+'";'
