@@ -16,66 +16,52 @@ var FailRender = Comm.FailRender;
  * 查看源代码的页面
  */
 router.get('/:rid', function(req, res){
+  var name = req.session.user ? req.session.user.name : '';
   var rid = parseInt(req.params.rid, 10);
+  var resp = {
+    title: 'Sourcecode',
+    key: KEY.SOURCE_CODE,
+    getDate: Comm.getDate,
+    Res: Comm.solRes
+  };
   var ret = ERR.SYS;
   Q.fcall(function(){
     if (!rid) {
       ret = ERR.PAGE_NOT_FOUND;
-      throw new Error('page not found');
+      throw new Error('page not found.');
     }
-  })
-  .then(function(){
+    if (!name) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
+    }
     return Solution.findOne({runID: rid});
   })
   .then(function(sol) {
     if (!sol) {
       ret = ERR.PAGE_NOT_FOUND;
-      throw new Error('page not found');
+      throw new Error('page not found.');
     }
-    var RP = function(flg){
-      res.render('sourcecode', {
-        title: 'Sourcecode',
-        key: KEY.SOURCE_CODE,
-        solution: sol,
-        getDate: Comm.getDate,
-        flg: flg,
-        Res: Comm.solRes
-      });
-    };
-    if (!req.session.user) {
-      return RP(false);
+    resp.solution = sol;
+    return [
+      Problem.watch(sol.problemID),
+      sol.cID > 0 ? Contest.watch(sol.cID) : null
+    ];
+  })
+  .spread(function(problem, contest){
+    if (!problem) {
+      throw new Error('data error.');
     }
-    var name = req.session.user.name;
-    if (name == sol.userName || name == 'admin') {
-      return RP(true);
+    if (name !== resp.solution.userName && name !== 'admin' && name !== problem.manager &&
+        (!contest || name !== contest.userName)) {
+      ret = ERR.ACCESS_DENIED;
+      throw new Error('access denied.');
     }
-    Problem.watch(sol.problemID)
-    .then(function(prob){
-      if (!prob) {
-        ret = ERR.PAGE_NOT_FOUND;
-        throw new Error('page not found');
-      }
-      if (name == prob.manager) {
-        return RP(true);
-      }
-      if (sol.cID < 0) {
-        return RP(false);
-      }
-      Contest.watch(sol.cID)
-      .then(function(contest){
-        return RP(contest && name == contest.userName);
-      })
-      .fail(function(err){
-        FailRender(err, res, ret);
-      });
-    })
-    .fail(function(err){
-      FailRender(err, res, ret);
-    });
+    res.render('sourcecode', resp);
   })
   .fail(function(err){
     FailRender(err, res, ret);
-  });
+  })
+  .done();
 });
 
 module.exports = router;
