@@ -102,47 +102,47 @@ function GetComment(cond, author, currentUser) {
  */
 router.get('/', function(req, res) {
   var tid = parseInt(req.query.tid, 10);
-  var Response = {
+  var resp = {
     key: KEY.TOPIC,
   };
   var ret = ERR.SYS;
   Q.fcall(function(){
     if (!tid) {
       ret = ERR.PAGE_NOT_FOUND;
-      throw new Error('page not found');
+      throw new Error('page not found.');
     }
   })
   .then(function(){
     return Topic.watch(tid)
   })
-  .then(function(doc){
-    if (!doc) {
+  .then(function(topic){
+    if (!topic) {
       ret = ERR.PAGE_NOT_FOUND;
-      throw new Error('page not found');
+      throw new Error('page not found.');
     }
-    Response.title = doc.title;
-    Response.topic = {
-      id: doc.id,
-      title: doc.title,
-      content: doc.content,
-      user: doc.user,
-      cid: doc.cid,
-      top: doc.top,
-      inDate: getTime(doc.inDate)
+    resp.title = topic.title;
+    resp.topic = {
+      id: topic.id,
+      title: topic.title,
+      content: topic.content,
+      user: topic.user,
+      cid: topic.cid,
+      top: topic.top,
+      inDate: getTime(topic.inDate)
     };
-    return Topic.update(tid, {$inc: {browseQty: 1}});
+    return [
+      GetComment({tid: tid, fa: -1}, topic.user, req.session.user ? req.session.user.name : null),
+      Topic.update(tid, {$inc: {browseQty: 1}})
+    ];
   })
-  .then(function(){
-    return GetComment({tid: tid, fa: -1}, Response.topic.user, req.session.user ? req.session.user.name : null);
-  })
-  .then(function(o){
-    Response.comments = o.comments;
-    Response.sub = o.sub;
-    Response.UT = o.UT;
-    Response.UC = o.UC;
-    Response.IT = o.IT;
-    Response.haveMore = o.haveMore;
-    return res.render('topic', Response);
+  .spread(function(o){
+    resp.comments = o.comments;
+    resp.sub = o.sub;
+    resp.UT = o.UT;
+    resp.UC = o.UC;
+    resp.IT = o.IT;
+    resp.haveMore = o.haveMore;
+    res.render('topic', resp);
   })
   .fail(function(err){
     FailRender(err, res, ret);
@@ -154,34 +154,33 @@ router.get('/', function(req, res) {
  * 显示帖子列表的页面
  */
 router.get('/list', function(req, res){
-  if (!req.query.page) {
+  var page = parseInt(req.query.page, 10);
+  if (!page) {
     page = 1;
-  } else {
-    page = parseInt(req.query.page, 10);
   }
-  if (!page || page < 0) {
-    return res.redirect('/topic/list');
-  }
-  var search = req.query.search, q1 = {cid: -1}, q2 = {cid: -1};
-
-  if (search) {
-    q1.title = q2.user = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
-  }
-
-  var Response = {
+  var search = req.query.search;
+  var resp = {
     title: 'TopicList',
     key: KEY.TOPIC_LIST,
     page: page,
     search: search,
     getDate: getTime
   };
-
-  //获取第page页话题列表信息
-  Topic.get({$or:[q1, q2]}, page)
-  //根据话题列表信息拿到用户列表
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (page < 0) {
+      ret = ERR.REDIRECT;
+      throw new Error('redirect.');
+    }
+    var cond1 = {cid: -1}, cond2 = {cid: -1};
+    if (search) {
+      cond1.title = cond2.user = new RegExp("^.*"+Comm.toEscape(search)+".*$", 'i');
+    }
+    return Topic.get({$or: [cond1, cond2]}, page);
+  })
   .then(function(o){
-    Response.topics = o.topics;
-    Response.n = o.totalPage;
+    resp.topics = o.topics;
+    resp.totalPage = o.totalPage;
     var names = new Array(), has = {};
     o.topics.forEach(function(p){
       if (!has[p.user]) {
@@ -201,11 +200,14 @@ router.get('/list', function(req, res){
     users.forEach(function(p){
       I[p.name] = p.imgType;
     });
-    Response.I = I;
-    return res.render('topiclist', Response);
+    resp.I = I;
+    res.render('topiclist', resp);
   })
   .fail(function(err){
-    FailRender(err, res, ERR.SYS);
+    if (ret === ERR.REDIRECT) {
+      return res.redirect('/topic/list');
+    }
+    FailRender(err, res, ret);
   })
   .done();
 });
@@ -219,24 +221,24 @@ router.post('/toggleTop', function(req, res){
   Q.fcall(function(){
     if (!req.session.user || req.session.user.name !== 'admin') {
       ret = ERR.ACCESS_DENIED;
-      throw new Error('access denied');
+      throw new Error('access denied.');
     }
     if (!tid) {
       ret = ERR.ARGS;
-      throw new Error('invalid topic id');
+      throw new Error('invalid args.');
     }
     return Topic.watch(tid);
   })
   .then(function(topic){
     if (!topic) {
-      ret = ERR.ARGS;
-      throw new Error('topic not exist');
+      ret = ERR.NOT_EXIST;
+      throw new Error('topic not exist.');
     }
     topic.top = !topic.top;
     return topic.save();
   })
   .then(function(){
-    req.session.msg = '操作成功！';
+    req.session.msg = 'toggle success.';
     return res.send({ret: ERR.OK});
   })
   .fail(function(err){
@@ -255,7 +257,7 @@ router.post('/getComments', function(req, res){
   Q.fcall(function(){
     if (!tid || !minID) {
       ret = ERR.ARGS;
-      throw new Error('invalid args');
+      throw new Error('invalid args.');
     }
     return GetComment({tid: tid, id: {$lt: minID}});
   })
