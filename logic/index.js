@@ -1,18 +1,52 @@
 
+var fs = require('fs');
 var Q = require('q');
+var gm = require('gm');
 
 var Contest = require('../models/contest.js');
 var ContestRank = require('../models/contestrank.js');
 var Overview = require('../models/overview.js');
 var User = require('../models/user.js');
 
-exports.ReadFile = function(fs, path) {
+exports.ReadFile = function(path) {
   var d = Q.defer();
   fs.readFile(path, function(err, data){
     if (err) {
       d.reject(err);
     } else {
       d.resolve(data);
+    }
+  });
+  return d.promise;
+};
+
+exports.MkDir = function(path) {
+  var d = Q.defer();
+  fs.exists(path, function(bIsExist){
+    if (bIsExist) {
+      d.resolve();
+    } else {
+      fs.mkdir(path, function(err){
+        if (err) {
+          d.reject(err);
+        } else {
+          d.resolve();
+        }
+      });
+    }
+  });
+  return d.promise;
+};
+
+exports.ResizeAndWriteImg = function(src, dst, w, h) {
+  var d = Q.defer();
+  gm.subClass({ imageMagick : true })(src).resize(w, h, '!')
+  .autoOrient()
+  .write(dst, function(err){
+    if (err) {
+      d.reject(err);
+    } else {
+      d.resolve();
     }
   });
   return d.promise;

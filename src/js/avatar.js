@@ -11,7 +11,7 @@ $(document).ready(function(){
     }
   });
   $file.fileupload({
-    dataType: 'text',
+    dataType: 'json',
     add: function(e, data) {
       var f = data.files[0];
       $ui.text(f.name);
@@ -35,13 +35,11 @@ $(document).ready(function(){
       $ui.text(p+'%');
     },
     done: function(e, data) {
-      var res = data.response().result, tp;
-      if (!res) window.location.reload(true);
-      else if (res == '1') tp = '图片大小不得超过2m！';
-      else if (res == '2') tp = '不支持的格式！';
-      else if (res == '3') tp = '异常错误！';
-      if (tp) {
-        errAnimate($imgerr, tp);
+      var res = data.response().result;
+      if (res.ret === 0) {
+        window.location.reload(true);
+      } else {
+        errAnimate($imgerr, res.msg);
       }
     }
   });

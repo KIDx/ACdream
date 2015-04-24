@@ -14,8 +14,8 @@ var Settings = require('../settings');
 var Tag = Settings.T;
 var ProTil = Settings.P;
 var languages = Settings.languages;
-var Comm = require('../comm');
 var Logic = require('../logic');
+var Comm = require('../comm');
 var ERR = Comm.ERR;
 var FailRender = Comm.FailRender;
 var FailProcess = Comm.FailProcess;
@@ -116,7 +116,7 @@ router.post('/uploadCode', function(req, res){
       ret = ERR.FREQ_LIMIT;
       throw new Error('too frequent, please submit later.');
     }
-    return Logic.ReadFile(fs, path);
+    return Logic.ReadFile(path);
   })
   .then(function(data){
     code = String(data);

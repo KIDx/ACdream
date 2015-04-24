@@ -1,27 +1,35 @@
 
 var router = require('express').Router();
 var fs = require('fs');
-var gm = require('gm').subClass({ imageMagick : true });
-var exec = require('child_process').exec;
+var Q = require('q');
 
 var User = require('../models/user.js');
 
 var KEY = require('./key');
 var Settings = require('../settings');
+var Logic = require('../logic');
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailRender = Comm.FailRender;
+var FailProcess = Comm.FailProcess;
 
 /*
  * 修改头像的页面
  */
 router.get('/', function(req, res) {
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.redirect('/');
-  }
-  res.render('avatar', {
-    title: 'Avatar Setting',
-    key: KEY.AVATAR
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!req.session.user) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
+    }
+    res.render('avatar', {
+      title: 'Avatar Setting',
+      key: KEY.AVATAR
+    });
+  })
+  .fail(function(err){
+    FailRender(err, res, ret);
   });
 });
 
@@ -29,87 +37,56 @@ router.get('/', function(req, res) {
  * 上传头像
  */
 router.post('/upload', function(req, res) {
-  res.header('Content-Type', 'text/plain');
-  if (!req.files || !req.files.img || !req.files.img.mimetype) {
-    return res.end();   //not allow
-  }
-  var path = req.files.img.path;
-  var sz = req.files.img.size;
-  var tmp = req.files.img.mimetype.split('/');
-  var imgType = tmp[1];
-  var RP = function(s) {
-    fs.unlink(path, function(){
-      return res.end(s);
-    });
-  };
-  if (!req.session.user) {
-    return RP();  //not allow
-  }
-  if (sz > 2*1024*1024) {
-    return RP('1');
-  }
-  if (tmp[0] != 'image') {
-    return RP('2');
-  }
-  var pre = Settings.root_path+'public/img/avatar/' + req.session.user.name;
-  var originImg = gm(path);
-  exec('rm -rf '+pre, function(err){
-    if (err) {
-      LogErr(err);
-      return RP('3');
+  var name = req.session.user ? req.session.user.name : '';
+  var pre, path, sz, imgType;
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
     }
-    fs.mkdir(pre, function(err){
-      if (err) {
-        LogErr(err);
-        return RP('3');
-      }
-      originImg.resize(250, 250, '!')
-      .autoOrient()
-      .write(pre+'/1.'+imgType, function(err){
-        if (err) {
-          LogErr(err);
-          return RP('3');
-        }
-        originImg.resize(150, 150, '!')
-        .autoOrient()
-        .write(pre+'/2.'+imgType, function(err){
-          if (err) {
-            LogErr(err);
-            return RP('3');
-          }
-          originImg.resize(75, 75, '!')
-          .autoOrient()
-          .write(pre+'/3.'+imgType, function(err){
-            if (err) {
-              LogErr(err);
-              return RP('3');
-            }
-            originImg.resize(50, 50, '!')
-            .autoOrient()
-            .write(pre+'/4.'+imgType, function(err){
-              if (err) {
-                LogErr(err);
-                return RP('3');
-              }
-              req.session.msg = '头像修改成功！';
-              if (req.session.user.imgType == imgType) {
-                return RP();
-              }
-              req.session.user.imgType = imgType;
-              User.update({name: req.session.user.name}, {imgType: imgType})
-              .then(function(){
-                return RP();
-              })
-              .fail(function(){
-                LogErr(err);
-                return RP('3');
-              });
-            });
-          });
-        });
-      });
-    });
-  });
+    if (!req.files || !req.files.img || !req.files.img.mimetype) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    sz = req.files.img.size;
+    if (sz > 2*1024*1024) {
+      return RP('1');
+    }
+    path = req.files.img.path;
+    var tmp = req.files.img.mimetype.split('/');
+    if (tmp[0] !== 'image' || !Comm.CheckImageType(tmp[1])) {
+      ret = ERR.ARGS;
+      throw new Error('NOT supported format.');
+    }
+    imgType = tmp[1];
+    pre = Settings.root_path + 'public/img/avatar/' + name;
+    return Logic.MkDir(pre);
+  })
+  .then(function(){
+    return [
+      Logic.ResizeAndWriteImg(path, pre+'/1.'+imgType, 250, 250),
+      Logic.ResizeAndWriteImg(path, pre+'/2.'+imgType, 150, 150),
+      Logic.ResizeAndWriteImg(path, pre+'/3.'+imgType, 75, 75),
+      Logic.ResizeAndWriteImg(path, pre+'/4.'+imgType, 50, 50)
+    ];
+  })
+  .spread(function(){
+    return User.update({name: name}, {imgType: imgType});
+  })
+  .then(function(){
+    fs.unlink(path);
+    req.session.user.imgType = imgType;
+    req.session.msg = 'Your avatar has been updated successfully.';
+    res.send({ret: ERR.OK});
+  })
+  .fail(function(err){
+    if (path) {
+      fs.unlink(path);
+    }
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

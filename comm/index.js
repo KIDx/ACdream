@@ -380,3 +380,10 @@ exports.FailProcess = function(err, res, ret) {
 exports.MD5 = function(str) {
   return crypto.createHash('md5').update(str).digest('base64');
 };
+
+/*
+ * 正则检测图片类型
+ */
+exports.CheckImageType = function(type) {
+  return (new RegExp('^(jpg|jpeg|png)$', 'i')).test(type);
+};
