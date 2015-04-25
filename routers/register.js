@@ -1,13 +1,13 @@
 
 var router = require('express').Router();
+var Q = require('q');
 
 var KEY = require('./key');
 var User = require('../models/user.js');
 
-//var Settings = require('../settings');
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
-var clearSpace = Comm.clearSpace;
+var ERR = Comm.ERR;
+var FailProcess = Comm.FailProcess;
 
 /*
  * get: 注册页面
@@ -21,33 +21,30 @@ router.route('/')
   });
 })
 .post(function(req, res){
-  res.header('Content-Type', 'text/plain');
-
-  var name = clearSpace(req.body.username);
-  var nick = clearSpace(req.body.nick);
+  var name = Comm.clearSpace(req.body.username);
+  var nick = Comm.clearSpace(req.body.nick);
   var password = req.body.password;
-  var vcode = clearSpace(req.body.vcode);
-  var school = clearSpace(req.body.school);
-  var email = clearSpace(req.body.email);
-  var sig = clearSpace(req.body.signature);
-
-  if (!name || !nick || !password || !vcode ||
-      school.length > 50 || email.length > 50 || sig.length > 200) {
-    return res.end();  //not allow
-  }
-
-  if (!Comm.isUsername(name)) {
-    return res.end();  //not allow
-  }
-
-  if (vcode.toLowerCase() != req.session.verifycode) {
-    return res.end('1');
-  }
-
-  User.watch(name)
+  var vcode = Comm.clearSpace(req.body.vcode);
+  var school = Comm.clearSpace(req.body.school);
+  var email = Comm.clearSpace(req.body.email);
+  var sig = Comm.clearSpace(req.body.signature);
+  var ret = ERR.SYS;
+  Q.fcall(function(){
+    if (!name || !nick || !Comm.isString(password) || !password || !vcode || school.length > 50 ||
+        email.length > 50 || sig.length > 200 || !Comm.isUsername(name)) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    if (vcode.toLowerCase() !== req.session.verifycode) {
+      ret = ERR.ARGS;
+      throw new Error('wrong verify code.');
+    }
+    return User.watch(name);
+  })
   .then(function(user){
     if (user) {
-      return res.end('2');
+      ret = ERR.ARGS;
+      throw new Error('the user name has already been registered.');
     }
     return (new User({
       name: name,
@@ -62,12 +59,12 @@ router.route('/')
   .then(function(user){
     req.session.user = user;
     req.session.msg = 'Welcome, '+name+'. :)';
-    return res.end();
+    res.send({ret: ERR.OK});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('3');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

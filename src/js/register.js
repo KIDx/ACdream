@@ -88,7 +88,7 @@ $(document).ready(function(){
     $.ajax({
       type : 'POST',
       url : '/register',
-      dataType : 'text',
+      dataType : 'json',
       data: {
         username: username,
         password: password,
@@ -104,18 +104,13 @@ $(document).ready(function(){
       }
     })
     .done(function(res){
-      if (!res) {
+      var ret = res.ret;
+      if (ret === 0) {
         window.location.href = '/';
-        return ;
-      }
-      if (res == '1') {
-        errAnimate($regerr, '验证码错误!');
-      } else if (res == '2') {
-        errAnimate($regerr, 'this user already exists!');
       } else {
-        errAnimate($regerr, '系统错误！');
+        errAnimate($regerr, res.msg);
+        $regsubmit.text('Submit').removeClass('disabled');
       }
-      $regsubmit.text('Submit').removeClass('disabled');
     });
   });
   simulateClick($reginput, $regsubmit);

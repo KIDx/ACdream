@@ -114,8 +114,15 @@ exports.nan = function(n) {
   return n != n;
 }
 
+/*
+ * 判断一个变量的类型是否string
+ */
+exports.isString = function(s) {
+  return typeof(s) === 'string';
+}
+
 function nil(n) {
-  return (typeof(n) == 'undefined');
+  return typeof(n) === 'undefined';
 }
 
 function trim(s) {
@@ -156,7 +163,9 @@ function checkEscape(ch) {
 exports.toEscape = function(str) {
   var res = '';
   for (var i = 0; i < str.length; i++) {
-    if (checkEscape(str.charAt(i))) res += '\\';
+    if (checkEscape(str.charAt(i))) {
+      res += '\\';
+    }
     res += str.charAt(i);
   }
   return res;
