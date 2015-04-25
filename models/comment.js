@@ -114,25 +114,13 @@ Comment.findOneAndRemove = function(cond) {
   return d.promise;
 };
 
-Comment.count = function(cond) {
-  var d = Q.defer();
-  comments.count(cond, function(err, cnt){
-    if (err) {
-      d.reject(err);
-    } else {
-      d.resolve(cnt);
-    }
-  });
-  return d.promise;
-};
-
 Comment.remove = function(cond) {
   var d = Q.defer();
-  comments.remove(cond, function(err){
+  comments.remove(cond, function(err, res){
     if (err) {
       d.reject(err);
     } else {
-      d.resolve();
+      d.resolve(res);
     }
   });
   return d.promise;

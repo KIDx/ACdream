@@ -30,17 +30,19 @@ $(document).ready(function(){
         content: content.getData(),
         fa: -1
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
-        $reply.removeClass('disabled');
         errAnimate($err, '无法连接到服务器！');
+        $reply.removeClass('disabled');
       }
     }).done(function(res){
-      if (res === '3') {
-        ShowMessage('系统错误！');
-        return ;
+      var ret = res.ret;
+      if (ret === 0) {
+        window.location.reload(true);
+      } else {
+        errAnimate($err, res.msg);
+        $reply.removeClass('disabled');
       }
-      window.location.reload(true);
     });
   });
 });
@@ -86,18 +88,21 @@ function bindEdit(id) {
         id: id,
         content: edit_content.getData()
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
         $edit_submit.removeClass('disabled');
         ShowMessage('无法连接到服务器！');
       }
     }).done(function(res){
-      if (!res) {
-        ShowMessage('修改成功！');
+      var ret = res.ret;
+      if (ret === 0) {
         $content_tag.html( edit_content.getData() );
-      } else if (res == '3') {
-        ShowMessage('系统错误！');
+        $edit_submit.unbind();
+        CKEDITOR.remove( edit_content );
+        $editbox.remove();
+        $editbox = null;
       }
+      ShowMessage(res.msg);
       $edit_submit.removeClass('disabled');
     });
   });
@@ -114,19 +119,19 @@ function bindReply(fa, at) {
         fa: fa,
         at: at
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
         $reply_submit.removeClass('disabled');
         ShowMessage('无法连接到服务器！');
       }
     }).done(function(res){
-      if (!res) {
+      var ret = res.ret;
+      if (ret === 0) {
         window.location.reload(true);
-        return ;
-      } else if (res == '3') {
-        ShowMessage('系统错误！');
+      } else {
+        ShowMessage(res.msg);
+        $reply_submit.removeClass('disabled');
       }
-      $reply_submit.removeClass('disabled');
     });
   });
 }
@@ -195,17 +200,16 @@ function BindActions() {
       data: {
         id: $p.data('id')
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
         ShowMessage('无法连接到服务器！');
       }
     }).done(function(res){
-      if (!res) {
+      var ret = res.ret;
+      if (ret === 0) {
         $p.parent().parent().parent().parent().remove();
-        ShowMessage('删除成功！');
-      } else if (res == '3') {
-        ShowMessage('系统错误！');
       }
+      ShowMessage(res.msg);
     });
   });
 }
