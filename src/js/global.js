@@ -394,10 +394,10 @@ $(document).ready(function(){
           GoToNextURL();
           return ;
         } else if (ret === 3) {
-          Switch('登录信息过期，请重新登录！');
+          Switch(res.msg);
           $dialog_lgbtk.length = 0;
         } else {
-          errAnimate($fast_login_err, '系统错误！');
+          errAnimate($fast_login_err, res.msg);
         }
         $fast_login.removeClass('disabled');
       });
@@ -460,15 +460,10 @@ $(document).ready(function(){
         if (ret === 0) {
           $dialog_lg.jqmHide();
           GoToNextURL();
-          return ;
-        } else if (ret === 1) {
-          errAnimate($loginerr, 'the user is not exist!');
-        } else if (ret === 2) {
-          errAnimate($loginerr, 'username and password do not match!');
         } else {
-          errAnimate($loginerr, '系统错误！');
+          errAnimate($loginerr, res.msg);
+          $loginsubmit.text('Login').removeClass('disabled');
         }
-        $loginsubmit.text('Login').removeClass('disabled');
       });
     });
 

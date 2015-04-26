@@ -167,14 +167,14 @@ router.post('/loginByToken', function(req, res){
     if (!expire_time || (new Date()).getTime() > expire_time) {
       res.clearCookie('loginInfo');
       ret = ERR.INVALID_COOKIES;
-      throw new Error('invalid cookies');
+      throw new Error('expired cookies.');
     }
     return User.watch(name);
   })
   .then(function(user){
     if (!user) {
-      ret = ERR.ARGS;
-      throw new Error('bad username');
+      ret = ERR.NOT_EXIST;
+      throw new Error('user NOT exist.');
     }
     user.visTime = (new Date()).getTime();
     return Logic.SaveDoc(user);
