@@ -1,6 +1,6 @@
 
 var router = require('express').Router();
-var async = require('async');
+var Q = require('q');
 
 var IDs = require('../models/ids.js');
 var Solution = require('../models/solution.js');
@@ -10,9 +10,9 @@ var User = require('../models/user.js');
 
 var KEY = require('./key');
 var Settings = require('../settings');
-var languages = Settings.languages;
 var Comm = require('../comm');
-var LogErr = Comm.LogErr;
+var ERR = Comm.ERR;
+var FailProcess = Comm.FailProcess;
 
 /*
  * get: submit页面
@@ -24,40 +24,70 @@ router.route('/')
     title: 'Submit',
     key: KEY.SUBMIT,
     id: req.query.pid,
-    langs: languages
+    langs: Settings.languages
   });
 })
 .post(function(req, res) {
-  res.header('Content-Type', 'text/plain');
-  if (!req.session.user) {
-    req.session.msg = 'Please login first!';
-    return res.end('1');
-  }
+  var name = req.session.user ? req.session.user.name : '';
   var now = (new Date()).getTime();
-  //5秒内只能提交一次
-  if (req.session.submitTime && now - req.session.submitTime <= 5000) {
-    return res.end('6');
-  }
-  req.session.submitTime = now;
   var cid = parseInt(req.body.cid, 10);
-  var name = Comm.clearSpace(req.session.user.name);
   var pid = parseInt(req.body.pid, 10);
   var Str = String(req.body.code);
   var lang = parseInt(req.body.lang, 10);
-  if (!name) {
-    return res.end();  //not allow
-  }
-  if (!pid || !Str || Str.length < 50 || Str.length > 65536) {
-    return res.end('4');
-  }
-  if (!lang || lang < 1 || lang >= languages.length) {
-    return res.end('5');
-  }
-  var now = (new Date()).getTime();
-  var RP = function(){
-    return IDs.get('runID')
-    .then(function(id){
-      return (new Solution({
+  Q.fcall(function(){
+    if (!name) {
+      ret = ERR.INVALID_SESSION;
+      throw new Error('invalid session.');
+    }
+    if (!pid || !Str || Str.length < 50 || Str.length > 65536 ||
+        !lang || lang < 1 || lang >= Settings.languages.length) {
+      ret = ERR.ARGS;
+      throw new Error('invalid args.');
+    }
+    if (!cid) {
+      cid = -1;
+    }
+    return [
+      Problem.watch(pid),
+      Contest.watch(cid)
+    ];
+  })
+  .spread(function(problem, contest){
+    if (!problem) {
+      ret = ERR.NOT_EXIST;
+      throw new Error('problem NOT exist.');
+    }
+    if (cid !== -1 && !contest) {
+      ret = ERR.NOT_EXIST;
+      throw new Error('contest NOT exist.');
+    }
+    if (contest) {
+      if (contest.type == 2) {
+        if (now > contest.startTime+contest.len*60000) {
+          ret = ERR.WARNNING;
+          throw new Error('contest already ended.');
+        }
+        if (name != contest.userName && !Comm.isRegCon(contest, name)) {
+          ret = ERR.ACCESS_DENIED;
+          throw new Error('access denied.');
+        }
+      }
+      var bIsProbInContest = false;
+      for (var i = 0; i < contest.probs.length; i++) {
+        if (pid === contest.probs[i][0]) {
+          bIsProbInContest = true;
+        }
+      }
+      if (!bIsProbInContest) {
+        ret = ERR.NOT_EXIST;
+        throw new Error('problem NOT exist.');
+      }
+    }
+    return IDs.get('runID');
+  })
+  .then(function(id){
+    return [
+      (new Solution({
         runID: id,
         problemID: pid,
         userName: name,
@@ -66,67 +96,22 @@ router.route('/')
         length: Str.length,
         cID: cid,
         code: Str
-      })).save();
-    })
-    .then(function(){
-      return [
-        Problem.update(pid, {$inc: {submit: 1}}),
-        User.update({name: name}, {$inc: {submit: 1}})
-      ];
-    })
-    .then(function(){
-      if (cid < 0) {
-        req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
-      }
-      return res.end();
-    });
-  };
-  Problem.watch(pid)
-  .then(function(problem){
-    if (!problem) {
-      return res.end('4');
+      })).save(),
+      Problem.update(pid, {$inc: {submit: 1}}),
+      User.update({name: name}, {$inc: {submit: 1}})
+    ];
+  })
+  .spread(function(){
+    var msg = 'submit successfully.';
+    if (cid === -1) {
+      req.session.msg = msg;
     }
-    if (!cid) {
-      cid = -1;
-      return RP();
-    } else {
-      Contest.watch(cid)
-      .then(function(contest){
-        if (!contest) {
-          return res.end(); //not allow
-        }
-        if (contest.type == 2) {
-          if (now > contest.startTime+contest.len*60000) {
-            return res.end('7');
-          }
-          if (name != contest.userName && !Comm.isRegCon(contest, name)) {
-            return res.end('2');
-          }
-        }
-        var check = function() {
-          for (var i = 0; i < contest.probs.length; i++) {
-            if (pid == contest.probs[i][0]) {
-              return true;
-            }
-          }
-          return false;
-        };
-        if (!check()) {
-          req.session.msg = 'The problem is not exist!';
-          return res.end('1'); //refresh
-        }
-        return RP();
-      })
-      .fail(function(err){
-        LogErr(err);
-        return res.end('3');
-      });
-    }
+    return res.send({ret: ERR.OK, msg: msg});
   })
   .fail(function(err){
-    LogErr(err);
-    return res.end('3');
-  });
+    FailProcess(err, res, ret);
+  })
+  .done();
 });
 
 module.exports = router;

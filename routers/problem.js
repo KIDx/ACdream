@@ -112,10 +112,6 @@ router.post('/uploadCode', function(req, res){
       ret = ERR.ARGS;
       throw new Error('too large. (>65535B)');
     }
-    if (req.session.submitTime && now - req.session.submitTime <= 5000) {
-      ret = ERR.FREQ_LIMIT;
-      throw new Error('too frequent, please submit later.');
-    }
     return Logic.ReadFile(path);
   })
   .then(function(data){
@@ -124,7 +120,6 @@ router.post('/uploadCode', function(req, res){
       ret = ERR.WARNNING;
       throw new Error('warnning.');
     }
-    req.session.submitTime = now;
     return Problem.watch(pid);
   })
   .then(function(problem){
@@ -152,7 +147,7 @@ router.post('/uploadCode', function(req, res){
   })
   .then(function(){
     fs.unlink(path);
-    req.session.msg = 'The code for problem '+pid+' has been submited successfully!';
+    req.session.msg = 'submit successfully.';
     res.send({ret: ERR.OK});
   })
   .fail(function(err){

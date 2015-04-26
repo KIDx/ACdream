@@ -34,25 +34,18 @@ $(document).ready(function(){
         code: code,
         lang: lang
       },
-      dataType: 'text',
+      dataType: 'json',
       error: function() {
         $submit.text('Submit').removeClass('disabled');
         U('无法连接到服务器！');
       }
     }).done(function(res){
-      if (!res) {
+      if (res.ret === 0) {
         window.location.href = '/status';
-        return ;
-      } else if (res == '6') {
-        U('同一个会话在5秒内只能交一次代码，请稍候再交。');
-      } else if (res == '3') {
-        U('系统错误！');
-      } else if (res == '4') {
-        U('The problem is not exist!');
-      } else if (res == '5') {
-        U('The language is not exit!');
+      } else {
+        U(res.msg);
+        $submit.text('Submit').removeClass('disabled');
       }
-      $submit.text('Submit').removeClass('disabled');
     });
   });
 });
