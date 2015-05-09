@@ -35,14 +35,19 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: '/admin/stat',
-        data: { name : _username },
-        dataType: 'text',
+        data: {name: _username},
+        dataType: 'json',
         error: function() {
           $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
           ShowMessage('无法连接到服务器！');
         }
       }).done(function(res){
-        window.location.href = '/ranklist';
+        if (res.ret === 0) {
+          window.location.href = '/ranklist';
+        } else {
+          $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
+          ShowMessage(res.msg);
+        }
       });
     });
   }
