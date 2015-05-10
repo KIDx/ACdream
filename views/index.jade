@@ -41,6 +41,12 @@ fieldset
                   img.img-50.img-round(src=img)
                 td
                   .title
+                    if (now - o.inDate < 86400000)
+                      span.label.label-warning 新帖
+                    = ' '
+                    if (o.lastReviewer && now - o.lastReviewTime < 28800000)
+                      span.label.label-danger 热帖
+                    = ' '
                     a(href="/topic?tid="+o.id)= o.title
                   .footer
                     = '作者：' + o.user

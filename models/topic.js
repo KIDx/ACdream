@@ -58,7 +58,7 @@ Topic.prototype.save = function() {
   return d.promise;
 };
 
-Topic.get = function(cond, page) {
+Topic.get = function(cond, page, notSortByTop) {
   var d = Q.defer();
   topics.count(cond, function(err, count){
     if ((page-1)*pageNum > count) {
@@ -67,7 +67,12 @@ Topic.get = function(cond, page) {
         totalPage: 1
       });
     }
-    topics.find(cond).sort({top: -1, lastReviewTime: -1}).skip((page-1)*pageNum)
+    var sq = {};
+    if (!notSortByTop) {
+      sq.top = -1;
+    }
+    sq.lastReviewTime = -1;
+    topics.find(cond).sort(sq).skip((page-1)*pageNum)
       .limit(pageNum).exec(function(err, docs){
       if (err) {
         d.reject(err);

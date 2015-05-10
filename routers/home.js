@@ -42,7 +42,7 @@ router.get('/', function(req, res){
       resp.users = users;
     }),
     //获取话题列表以及相关用户信息
-    Topic.get({cid: -1}, 1)
+    Topic.get({cid: -1}, 1, true)
     .then(function(o){
       resp.topics = o.topics;
       var names = [];

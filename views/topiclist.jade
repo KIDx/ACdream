@@ -42,11 +42,13 @@ fieldset
                       if (p.top)
                         span.label.label-warning 置顶
                       = ' '
-                      a(href="/topic?tid="+p.id)= p.title
                       if (now - p.inDate < 86400000)
-                        img.top(src="/img/new.gif")
+                        span.label.label-warning 新帖
+                      = ' '
                       if (p.lastReviewer && now - p.lastReviewTime < 28800000)
-                        img.top(src="/img/hot.gif")
+                        span.label.label-danger 热帖
+                      = ' '
+                      a(href="/topic?tid="+p.id)= p.title
                     .footer
                       = '作者：'
                       a(href="/user/"+p.user)= p.user
