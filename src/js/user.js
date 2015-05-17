@@ -23,36 +23,6 @@ $(document).ready(function(){
   }
 });
 
-var $recal = $('#recal');
-
-$(document).ready(function(){
-  if ($recal.length) {
-    $recal.click(function(){
-      if ($(this).hasClass('disabled')) {
-        return false;
-      }
-      $recal.text('处理中...').addClass('disabled');
-      $.ajax({
-        type: 'POST',
-        url: '/admin/stat',
-        data: {name: _username},
-        dataType: 'json',
-        error: function() {
-          $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
-          ShowMessage('无法连接到服务器！');
-        }
-      }).done(function(res){
-        if (res.ret === 0) {
-          window.location.href = '/ranklist';
-        } else {
-          $recal.text('重新统计所有用户提交数和AC数').removeClass('disabled');
-          ShowMessage(res.msg);
-        }
-      });
-    });
-  }
-});
-
 var $restore = $('#restore');
 
 $(document).ready(function(){

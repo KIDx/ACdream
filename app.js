@@ -1,16 +1,21 @@
-var settings = require('./settings');
+
 var express = require('express');
-var routers = require('./routers');
+var redis = require('redis');
 var http = require('http');
 var path = require('path');
 var partials = require('express-partials');
 var session = require('express-session');
 var redisStore = require('connect-redis')(session);
+
 var app = express();
 var server = http.createServer(app);
 var sessionStore = new redisStore();
 var socket_opt = {};
+
+var routers = require('./routers');
+var settings = require('./settings');
 var KEY = require('./routers/key');
+var Logic = require('./logic');
 var Comm = require('./comm');
 
 //connect mongodb
@@ -72,6 +77,20 @@ app.use(require('serve-favicon')(__dirname + '/public/favicon.ico', {
 
 //控制台日志
 app.use(require('morgan')('dev'));
+
+app.use(function(req, res, next){
+  Logic.GetRedis(redis.createClient(), "marquee_data")
+  .then(function(json){
+    if (json) {
+      res.locals.marquees = JSON.parse(json);
+    }
+    next();
+  })
+  .fail(function(err){
+    next(err);
+  })
+  .done();
+});
 
 app.use(function(req, res, next){
   req.session.reload(function(){

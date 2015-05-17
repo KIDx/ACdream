@@ -37,10 +37,7 @@ var problemObj = new Schema({
 mongoose.model('problems', problemObj);
 var problems = mongoose.model('problems');
 
-Problem.prototype.save = function() {
-  var d = Q.defer();
-  problem = new problems();
-  problem.problemID = this.problemID;
+function InitProblem(problem) {
   problem.title = 'NULL';
   problem.description = '';
   problem.input = '';
@@ -48,7 +45,6 @@ Problem.prototype.save = function() {
   problem.sampleInput = '';
   problem.sampleOutput = '';
   problem.hint = '';
-  problem.source = '';
   problem.spj = 0;
   problem.AC = 0;
   problem.submit = 0;
@@ -57,8 +53,18 @@ Problem.prototype.save = function() {
   problem.hide = true;
   problem.TC = false;
   problem.lastmodified = (new Date()).getTime();
-  if (this.manager) problem.manager = this.manager;
   problem.tags = new Array();
+};
+
+Problem.prototype.save = function() {
+  var d = Q.defer();
+  problem = new problems();
+  InitProblem(problem);
+  problem.problemID = this.problemID;
+  if (this.manager) {
+    problem.manager = this.manager;
+  }
+  problem.source = '';
   problem.save(function(err){
     if (err) {
       d.reject(err);
@@ -66,6 +72,25 @@ Problem.prototype.save = function() {
       d.resolve();
     }
   });
+  return d.promise;
+};
+
+Problem.create = function(docs) {
+  docs.forEach(function(p){
+    InitProblem(p);
+  });
+  var d = Q.defer();
+  if (docs.length == 0) {
+    d.resolve();
+  } else {
+    problems.create(docs, function(err){
+      if (err) {
+        d.reject(err);
+      } else {
+        d.resolve();
+      }
+    });
+  }
   return d.promise;
 };
 

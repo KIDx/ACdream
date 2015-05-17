@@ -2,7 +2,6 @@
 - var nvgname = ['ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'Discuss', 'FAQ'];
 - var families = ['speed', 'rating', 'training', 'vip'];
 - var familyName = ['Speed Contest', 'Rating Contest', 'Training Contest', 'VIP Contest'];
-include post_list
 mixin dropdown
   li.dropdown
     a.dropdown-toggle(href="javascript:;" data-toggle="dropdown")= 'Contest '
@@ -46,7 +45,8 @@ html
           a.navbar-brand(href="/" title="ACdream Online Judge")
             img(alt="brand" src="/img/brand.jpg")
         div.collapse.navbar-collapse#bs-navbar-collapse-1
-          marquee.navbar-text.user-green(style="width:50%" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")= stc[Math.floor(Math.random()*stc.length)]
+          if (marquees.length)
+            marquee.navbar-text.user-green(style="width:50%" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")= marquees[Math.floor(Math.random()*marquees.length)]
           ul.nav.navbar-nav.navbar-right
             if (user)
               li
@@ -58,9 +58,12 @@ html
                 a(href="/user/"+user.name)
                   img(alt="avatar" src=img)
                   = user.name
+              if (user.name === 'admin')
+                li
+                  a(href="/admin") 运营工具
               if (user.addprob)
                 li
-                  a(href="/addproblem") Add Problem
+                  a(href="/addproblem") AddProblem
               li
                 a#logout(href="javascript:;") Logout
             else
@@ -222,3 +225,5 @@ html
         script(src="/js/addtopic.js")
       when KEY.REGISTER
         script(src="/js/register.js")
+      when KEY.ADMIN
+        script(src="/js/admin.js")

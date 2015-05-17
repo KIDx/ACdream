@@ -27,5 +27,6 @@ module.exports = {
   STANDINGS: 17,
 
   REGISTER: 18,
+  ADMIN: 19,
 
 };

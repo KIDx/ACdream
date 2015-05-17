@@ -34,7 +34,9 @@ var userObj = new Schema({
   lastRatedContest: Number,
 
   addprob: Boolean,
-  imgType: String
+  imgType: String,
+
+  recalID: Number,
 });
 
 userObj.index({rating: -1, name: 1});

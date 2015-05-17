@@ -18,9 +18,6 @@ fieldset
                   else
                     | 赋予
                   = ' '+u.name+' 加题权限'
-                if (u.name == 'admin')
-                  = ' '
-                  a#recal.btn.btn-default(href="javascript:;") 重新统计所有用户提交数和AC数
                 = ' '
                 a#restore.btn.btn-default(href="javascript:;") 将 #{u.name} 的密码恢复默认
             div

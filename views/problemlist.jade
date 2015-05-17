@@ -53,6 +53,10 @@ fieldset
                           | ,&nbsp;
                         a.tag(href="javascript:;" title=Pt[t])= Tag[t]
                   a(href="/problem?pid="+p.problemID)= p.title
+                  if (user && user.name === 'admin')
+                    = ' ('
+                    span.user-gray= p.manager ? p.manager : 'admin'
+                    = ')'
                 td(class=s ? s+"-fill" : "")
                   if (user)
                     a.submit.img_link(href="/submit?pid="+p.problemID title="Submit")

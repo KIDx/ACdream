@@ -200,6 +200,12 @@ router.get('/list', function(req, res){
     cond = {$or: [cond1, cond2, cond3]};
   }
 
+  var start = parseInt(req.query.start);
+  var end = parseInt(req.query.end);
+  if (start && end && start < end) {
+    cond = {$and: [cond, {problemID: {$gte: start, $lte: end}}]};
+  }
+
   var resp = {
     title: 'ProblemList',
     key: KEY.PROBLEM_LIST,
