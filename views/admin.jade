@@ -1,0 +1,52 @@
+fieldset
+  .row
+    .col-md-6
+      .block.block-info
+        .block-content#marquee
+          .heading
+            = '网站顶部跑马灯数据配置 '
+          .inner
+            ul.list-group(style="margin:0;")
+              each val in marqueeList
+                li.list-group-item
+                  .input-group
+                    input.form-control(value=val)
+                    span.input-group-addon
+                      a.img_link.trash(href="javascript:;" title="删除")
+              li.list-group-item(style="overflow:hidden;")
+                span.error-text#err
+                span#add.btn.btn-primary.btn-sm.pull-right +点击添加
+          .heading
+            span#save.btn.btn-primary.btn-block 保存
+    .col-md-6
+      .block.block-success
+        .block-content#createprob
+          .heading
+            = '批量新建题目 '
+            span.error-text#err
+          .inner
+            .form-group.form-inline
+              = '快速新建 '
+              select#cnt.form-control.input-sm
+                - for (var i = 1; i < 10; ++i)
+                  option(value=i)= i
+                - for (var i = 1; i <= 5; ++i)
+                  option(value=i*10 selected=(i == 1) ? true : false)= i*10
+              = ' 道题并授权给 '
+              input#manager.form-control.input-sm(placeholder="user name")
+              = ' 管理 '
+            .form-inline
+              = '并且将这些题目的Source设置为 '
+              input#source.form-control.input-sm(placeholder="source")
+              = ' (选填)'
+          .heading
+            span#submit.btn.btn-primary.btn-block 提交
+      .block.block-danger
+        .block-content#recal
+          .heading
+            = '重新计算所有用户的AC/Submit数 '
+            span.error-text#err
+          .inner
+            span.text-danger 注意：此功能比较消耗cpu，慎用！
+          .heading
+            span#start.btn.btn-primary.btn-block 开始计算
