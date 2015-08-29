@@ -4,4 +4,4 @@ $MONGO<<EOF
 db.runCommand( { logRotate : 1 } )
 exit;
 EOF
-ls /var/log/mongodb/ | grep mongod.log. | xargs rm -rf
+find /var/log/mongodb/ -mtime +1 -name "mongod.log.*" -exec rm -rf {} \;
