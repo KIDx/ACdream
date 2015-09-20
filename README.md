@@ -1,5 +1,7 @@
 # ACdream Online Judge v2.0.0
 
+## 暂不支持 Node.JS 4.0.0+
+
 ## 关于pull request
 
 温馨提示，所有提交都要严格遵循[代码规范](https://github.com/dead-horse/node-style-guide)。

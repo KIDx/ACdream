@@ -18,7 +18,7 @@
     "morgan": "*",
     "cookie-parser" : "*",
     "body-parser": "*",
-    "multer": "*",
+    "multer": "0.1.8",
     "serve-favicon": "*",
     "express-session": "*",
     "mongoose": "*",
