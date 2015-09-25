@@ -10,6 +10,7 @@
     "type" : "git",
     "url" : "https://github.com/KIDx/ACdream"
   },
+  "license": "MIT",
   "dependencies": {
     "express": "4.x",
     "async": "*",
