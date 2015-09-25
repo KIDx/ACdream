@@ -36,7 +36,7 @@ router.get('/', function(req, res) {
 /*
  * 上传头像
  */
-router.post('/upload', function(req, res) {
+router.post('/upload', Comm.MulterUpload.single('img'), function(req, res) {
   var name = req.session.user ? req.session.user.name : '';
   var pre, path, sz, imgType;
   var ret = ERR.SYS;
@@ -45,16 +45,16 @@ router.post('/upload', function(req, res) {
       ret = ERR.INVALID_SESSION;
       throw new Error('invalid session.');
     }
-    if (!req.files || !req.files.img || !req.files.img.mimetype) {
+    if (!req.file || !req.file.mimetype) {
       ret = ERR.ARGS;
       throw new Error('invalid args.');
     }
-    sz = req.files.img.size;
+    sz = req.file.size;
     if (sz > 2*1024*1024) {
       return RP('1');
     }
-    path = req.files.img.path;
-    var tmp = req.files.img.mimetype.split('/');
+    path = req.file.path;
+    var tmp = req.file.mimetype.split('/');
     if (tmp[0] !== 'image' || !Comm.CheckImageType(tmp[1])) {
       ret = ERR.ARGS;
       throw new Error('NOT supported format.');

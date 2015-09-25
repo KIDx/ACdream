@@ -79,7 +79,7 @@ router.get('/', function(req, res){
 /*
  * 上传代码
  */
-router.post('/uploadCode', function(req, res){
+router.post('/uploadCode', Comm.MulterUpload.single('info'), function(req, res){
   var name = req.session.user ? req.session.user.name : '';
   var pid = parseInt(req.query.pid, 10);
   var lang = parseInt(req.body.lang, 10);
@@ -93,13 +93,12 @@ router.post('/uploadCode', function(req, res){
       ret = ERR.INVALID_SESSION;
       throw new Error('invalid session.');
     }
-    if (!lang || lang < 1 || lang >= languages.length ||
-        !pid || !req.files || !req.files.info) {
+    if (!lang || lang < 1 || lang >= languages.length || !pid || !req.file) {
       ret = ERR.ARGS;
       throw new Error('invalid args.');
     }
-    path = req.files.info.path;
-    sz = req.files.info.size;
+    path = req.file.path;
+    sz = req.file.size;
     if (!path || !sz) {
       ret = ERR.ARGS;
       throw new Error('invalid args.');

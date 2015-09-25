@@ -386,7 +386,7 @@ exports.FailProcess = function(err, res, ret) {
 /*
  * MD5加密
  */
-exports.MD5 = function(str) {
+var MD5 = exports.MD5 = function(str) {
   return crypto.createHash('md5').update(str).digest('base64');
 };
 
@@ -396,3 +396,19 @@ exports.MD5 = function(str) {
 exports.CheckImageType = function(type) {
   return (new RegExp('^(jpg|jpeg|png)$', 'i')).test(type);
 };
+
+/*
+ * use to upload file
+ */
+var multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function(req, file, cb){
+    cb(null, 'uploads/');
+  },
+  filename: function(req, file, cb){
+    cb(null, encodeURIComponent(MD5(JSON.stringify(req.session.user)) + "_" + MD5(JSON.stringify(file))));
+  }
+});
+exports.MulterUpload = require('multer')({
+  storage: storage
+});

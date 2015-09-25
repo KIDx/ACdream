@@ -10,6 +10,7 @@ var KEY = require('./key');
 var Settings = require('../settings');
 var root_path = Settings.root_path;
 var data_path = Settings.data_path;
+var Logic = require('../logic');
 var Comm = require('../comm');
 var escapeHtml = Comm.escapeHtml;
 var clearSpace = Comm.clearSpace;
@@ -147,13 +148,13 @@ router.route('/')
 /*
  * 题目图片上传
  */
-router.post('/imgUpload', function(req, res){
+router.post('/imgUpload', Comm.MulterUpload.single('info'), function(req, res){
   res.header('Content-Type', 'text/plain');
-  if (!req.files || !req.files.info || !req.files.info.mimetype) {
+  if (!req.file || !req.file.mimetype) {
     return res.end();   //not allow
   }
-  var path = req.files.info.path;
-  var sz = req.files.info.size;
+  var path = req.file.path;
+  var sz = req.file.size;
   var pid = parseInt(req.query.pid, 10);
   var RP = function(s) {
     fs.unlink(path, function(){
@@ -166,7 +167,7 @@ router.post('/imgUpload', function(req, res){
   if (sz > 2*1024*1024) {
     return RP('1');
   }
-  if (req.files.info.mimetype.split('/')[0] != 'image') {
+  if (req.file.mimetype.split('/')[0] != 'image') {
     return RP('2');
   }
   Problem.watch(pid)
@@ -181,7 +182,7 @@ router.post('/imgUpload', function(req, res){
       }
       var pre = root_path+'public/img/prob/'+pid;
       fs.mkdir(pre, function(){
-        fs.rename(path, pre+'/'+req.files.info.name, function(err){
+        fs.rename(path, pre+'/'+req.file.originalname, function(err){
           if (err) {
             LogErr(err);
             return RP('3');
@@ -204,14 +205,13 @@ router.post('/imgUpload', function(req, res){
 /*
  * 题目数据上传
  */
-router.post('/dataUpload', function(req, res){
+router.post('/dataUpload', Comm.MulterUpload.single('data'), function(req, res){
   res.header('Content-Type', 'text/plain');
-  if (!req.files || !req.files.data) {
+  if (!req.file) {
     return res.end();   //not allow
   }
-  var path = req.files.data.path;
-  var fname = req.files.data.name;
-  var sz = req.files.data.size;
+  var path = req.file.path;
+  var sz = req.file.size;
   var pid = parseInt(req.query.pid, 10);
   var RP = function(s) {
     fs.unlink(path, function(){
@@ -235,7 +235,7 @@ router.post('/dataUpload', function(req, res){
         return RP('3');
       }
       fs.mkdir(data_path+pid, function(){
-        fs.writeFile(data_path+pid+'/'+fname, String(data).replace(/\r/g, ''), function(err){
+        fs.writeFile(data_path+pid+'/'+req.file.originalname, String(data).replace(/\r/g, ''), function(err){
           if (err) {
             LogErr(err);
             return RP('3');

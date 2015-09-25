@@ -46,14 +46,6 @@ app.use(require('body-parser').urlencoded({
   extended: true
 }));
 
-//文件上传
-app.use(require('multer')({
-  dest: './uploads/',
-  rename: function(fieldname, filename) {
-    return filename;
-  }
-}));
-
 //gzip压缩传输
 app.use(require('compression')());
 
