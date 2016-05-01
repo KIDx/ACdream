@@ -1,7 +1,5 @@
 # ACdream Online Judge v2.0.0
 
-## 暂不支持 Node.JS 4.0.0+
-
 ## 关于pull request
 
 温馨提示，所有提交都要严格遵循[代码规范](https://github.com/dead-horse/node-style-guide)。
@@ -32,7 +30,7 @@ http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
 ### 数据库初始化
 ```
 $ cd ACdream
-$ mongorestore -h localhost -d acdream_db --directoryperdb acdream_db -drop
+$ mongorestore -h localhost -d acdream_db -drop
 ```
 
 ### 安装grunt
