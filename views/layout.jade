@@ -45,7 +45,7 @@ html
           a.navbar-brand(href="/" title="ACdream Online Judge")
             img(alt="brand" src="/img/brand.jpg")
         div.collapse.navbar-collapse#bs-navbar-collapse-1
-          if (marquees.length)
+          if (marquees && marquees.length)
             marquee.navbar-text.user-green(style="width:50%" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")= marquees[Math.floor(Math.random()*marquees.length)]
           ul.nav.navbar-nav.navbar-right
             if (user)
