@@ -1,0 +1,2679 @@
+diff --git a/app.js b/app.js
+index 9bece08..948e927 100644
+--- a/app.js
++++ b/app.js
+@@ -38,7 +38,7 @@ if (app.get('env') == 'production') {
+ //服务器配置
+ app.set('port', process.env.PORT || 3000);
+ app.set('views', __dirname + '/views');
+-app.set('view engine', 'jade');
++app.set('view engine', 'pug');
+ 
+ app.use(partials());
+ app.use(require('cookie-parser')(settings.cookie_secret));
+diff --git a/package.json b/package.json
+index f4afa37..34d9f42 100644
+--- a/package.json
++++ b/package.json
+@@ -23,7 +23,7 @@
+     "serve-favicon": "*",
+     "express-session": "*",
+     "mongoose": "*",
+-    "jade": "*",
++    "pug": "2.0.0-alpha6",
+     "express-partials": "*",
+     "verify-code": "*",
+     "socket.io": "*",
+diff --git a/views/D_broadcast.jade b/views/D_broadcast.jade
+deleted file mode 100644
+index 4c3914c..0000000
+--- a/views/D_broadcast.jade
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#dialog_bc.CeWindow(style="top:25%;")
+-  div(style="margin:0;max-height:300px;overflow:auto;")
+-    .bc_box
+-      .jqDrag.bc_header Notice
+-      .bc_content
+-  span.bc_close.jqclose.img_link
+diff --git a/views/D_ce.jade b/views/D_ce.jade
+deleted file mode 100644
+index 0a0ae49..0000000
+--- a/views/D_ce.jade
++++ /dev/null
+@@ -1,3 +0,0 @@
+-#dialog_ce.CeWindow
+-  pre#text(style="margin:0;padding:10px;min-height:100px;max-height:300px;overflow:auto;")
+-  span.infoclose.jqclose.img_link
+diff --git a/views/D_login.jade b/views/D_login.jade
+deleted file mode 100644
+index 0d4115a..0000000
+--- a/views/D_login.jade
++++ /dev/null
+@@ -1,20 +0,0 @@
+-#dialog_lg.jqmSubmit(style="width:385px;height:275px;top:15%;")
+-  .jqDrag.jqtop Login
+-  .jqcontent.container(style="width:385px;height:185px;")
+-    .form-group
+-      label(for="login_username") User Name *
+-      input#login_username.form-control.input-sm(type="text")
+-    .form-group
+-      label(for="login_password") Password *
+-      input#login_password.form-control.input-sm(type="password")
+-    .checkbox
+-      label(title="remember me for a month")
+-        input#remember(type="checkbox")
+-        = 'remember me'
+-  .jqfoot
+-    span.pull-right
+-      a#login_submit.btn.btn-default(href="javascript:;") Login
+-      a.btn.btn-default.loginclose(href="javascript:;") Cancel
+-    small#login_error.error-text
+-  .jqResize.img_link
+-  i.loginclose.jqclose.img_link
+diff --git a/views/D_login_by_token.jade b/views/D_login_by_token.jade
+deleted file mode 100644
+index b2f7dd9..0000000
+--- a/views/D_login_by_token.jade
++++ /dev/null
+@@ -1,17 +0,0 @@
+-mixin D_login_by_token(info)
+-  - var img = '/img/avatar/%3Ddefault%3D/3.jpeg';
+-  if (info.img)
+-    - img = '/img/avatar/'+info.username+'/3.'+info.img;
+-  #dialog_lgbtk.jqmSubmit(style="width:300px;height:210px;top:15%;")
+-    .jqDrag.jqtop Fast Login
+-    .jqcontent.container(style="width:300px;height:135px;padding:0;")
+-      div(style="text-align:center;padding-top:20px;overflow:visible;")
+-        a#fast_login(href="javascript:;" title="PRESS To Login")
+-          img(src=img)
+-      div(style="text-align:center;")
+-        span.user-black(style="font-size:12px") Hello, #{info.username}
+-    .jqfoot
+-      span.pull-right
+-        a.user-gray#switch(href="javascript:;" style="font-size:12px") Switch Account
+-      small#fast_login_err.error-text
+-    i.login_by_token_close.jqclose.img_link
+diff --git a/views/D_logincontest.jade b/views/D_logincontest.jade
+deleted file mode 100644
+index 89f737e..0000000
+--- a/views/D_logincontest.jade
++++ /dev/null
+@@ -1,13 +0,0 @@
+-#dialog_lc.jqmSubmit(style="width:400px;height:190px;top:25%;")
+-  .jqDrag.jqtop Login contest
+-  .jqcontent.container(style="width:390px;height:100px;")
+-    .form-group
+-      label(for="contest_password") Password *
+-      input#contest_password.form-control.input-sm(type="password")
+-  .jqfoot
+-    span.pull-right
+-      a#contest_submit.btn.btn-default(href="javascript:;") Login
+-      a.contestclose.btn.btn-default(href="javascript:;") Cancel
+-    small#contest_error.error-text
+-  .jqResize
+-  i.contestclose.jqclose.img_link
+diff --git a/views/D_settings.jade b/views/D_settings.jade
+deleted file mode 100644
+index 62786ed..0000000
+--- a/views/D_settings.jade
++++ /dev/null
+@@ -1,36 +0,0 @@
+-mixin D_settings(u)
+-  #dialog_st.jqmSubmit(name=u.name style="width:550px;height:540px;top:12%;")
+-    .jqDrag.jqtop Settings
+-    .jqcontent.container(style="width:550px;height:445px;")
+-      .row
+-        .col-sm-6
+-          .form-group
+-            label(for="oldpassword") Old Password *
+-            input#oldpassword.form-control.input-sm(type="password")
+-          .form-group
+-            label(for="newpassword") New Password
+-            input#newpassword.form-control.input-sm(type="password")
+-            small.help-block Leave it blank if not to change password
+-            label(for="password_repeat") Confirm New Password
+-            input#password_repeat.form-control.input-sm(type="password")
+-          .form-group
+-            label(for="set_nick") Nick Name *
+-            input#set_nick.form-control.input-sm(type="text" value=u.nick ? u.nick : "")
+-          .form-group
+-            label(for="set_school") School
+-            input#set_school.form-control.input-sm(type="text" value=u.school ? u.school : "")
+-          .form-group
+-            label(for="set_email") Email
+-            input#set_email.form-control.input-sm(type="text" value=u.email ? u.email : "")
+-        .col-sm-6
+-          label(for="signature") Signature
+-          textarea#signature.form-control.input-sm(style="height:360px;")
+-            if (u.signature)
+-              = u.signature
+-    .jqfoot
+-      span.pull-right
+-        a#set_submit.btn.btn-default(href="javascript:;") Submit
+-        a.setclose.btn.btn-default(href="javascript:;") Cancel
+-      small#set_error.error-text
+-    .jqResize
+-    i.setclose.jqclose.img_link
+diff --git a/views/D_submit.jade b/views/D_submit.jade
+deleted file mode 100644
+index 3825162..0000000
+--- a/views/D_submit.jade
++++ /dev/null
+@@ -1,26 +0,0 @@
+-mixin D_submit(langs)
+-  #dialog_sm.jqmSubmit(style="height:585px;width:500px;top:5%;")
+-    .jqDrag.jqtop Submit your CODE here
+-    .jqcontent.container(style="height:490px;width:500px;")
+-      .row.form-group
+-        .col-sm-6
+-          .input-group.input-group-sm
+-            .input-group-addon Problem
+-            span#pid.form-control.user-green
+-        .col-sm-6
+-          .input-group.input-group-sm
+-            .input-group-addon Language
+-            include lang
+-            +lang(langs, null)
+-      .form-group
+-        label(for="submit_code") Source Code
+-        textarea#submit_code.form-control(style="height:390px;")
+-    .alert.alert-danger(style="position:absolute;margin:0 50px 0 40px;bottom:100px;")
+-      include i64_info
+-    .jqfoot
+-      span.pull-right
+-        a#jqcodesubmit.btn.btn-default(href="javascript:;") Submit
+-        a.submitclose.btn.btn-default(href="javascript:;") Cancel
+-      small#error.error-text
+-    .jqResize
+-    i.submitclose.jqclose.img_link
+diff --git a/views/addcontest.jade b/views/addcontest.jade
+deleted file mode 100644
+index 35102a1..0000000
+--- a/views/addcontest.jade
++++ /dev/null
+@@ -1,153 +0,0 @@
+-- var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", ProbNum = 1;
+-- var str, time, cday, chour, cmin, op, tp;
+-
+-if (contest && clone === 0)
+-  - str = getDate(contest.startTime).split(' ');
+-  - cday = parseInt(contest.len/1440, 10);
+-  - chour = parseInt(contest.len%1440/60, 10);
+-  - cmin = contest.len%1440%60;
+-
+-- if (str && str[1]) time = str[1].split(':');
+-
+-if (contest && clone === 0)
+-  - op = 'Edit';
+-else
+-  - op = 'Add';
+-
+-if (contest && clone === 0 || contest && clone === 1 && user && user.name === 'admin')
+-  - tp = contest.type;
+-else if (clone === 1)
+-  - tp = 1;
+-else
+-  - tp = type;
+-
+-- var probs;
+-if (contest)
+-  - probs = contest.probs;
+-else
+-  - probs = [['', '']];
+-
+-fieldset
+-  #form
+-    .row(style="min-height:460px;")
+-      .col-md-6
+-        .block.block-info
+-          .heading= op+' Contest'
+-          .table-responsive
+-            table.table.table-bordered.thright(style="background:#fbfbfb;min-width:450px;")
+-              tr
+-                th Title
+-                td
+-                  input#Title.form-control.input-sm(type="text" value=(contest && clone == 0 ? contest.title : ""))
+-              tr
+-                th Begin Time
+-                td.form-group-sm.form-inline
+-                  input#datepicker.form-control(type="text" value=(str ? str[0] : "") style="cursor:default!important;")
+-                  = ' '
+-                  input#hour.form-control.width-mini(maxlength="2" type="text" value=(time && time[0] ? time[0] : 0))
+-                  = ' '
+-                  input#min.form-control.width-mini(maxlength="2" type="text" value=(time && time[1] ? time[1] : 0))
+-                  = ' : 00'
+-              tr
+-                th= 'Length'
+-                td.form-group-sm.form-inline
+-                  input#dd.form-control.width-mini(maxlength="2" type="text" value=cday ? cday : 0)
+-                  = ' 天 '
+-                  input#hh.form-control.width-mini(maxlength="2" type="text" value=chour >= 0 ? chour : 5)
+-                  = ' : '
+-                  input#mm.form-control.width-mini(maxlength="2" type="text" value=cmin ? cmin : 0)
+-                  = ' : 00'
+-              if (tp === 2)
+-                tr
+-                  th
+-                  td(style="position:relative;")
+-                    label.user-green.radio-inline(for="private" title="暂无")
+-                      input#private(type="radio" value="1" name="psw" checked=(contest && contest.password ? true : false))
+-                      | private
+-                    label.user-blue.radio-inline(for="public" title="Codeforce的注册模式")
+-                      input#public(type="radio" value="" name="psw" checked=(!contest || !contest.password ? true : false))
+-                      | public
+-                    label.user-black.checkbox-inline(for="open_reg" title="比赛正在进行也不关闭注册" style="margin-left:15px;")
+-                      input#open_reg(type="checkbox" checked=(!contest || contest && contest.open_reg ? true : false))
+-                      | open register
+-                tr
+-                  th= 'Family'
+-                  td
+-                    select#family.form-control.input-sm
+-                      option(value="speed" selected=(family==="speed" ? true : false)) Speed Contest
+-                      option(value="rating" selected=(family==="rating" ? true : false)) Rating Contest
+-                      option(value="training" selected=(family==="training" ? true : false)) Training Contest
+-                      option(value="vip" selected=(family==="vip" ? true : false)) VIP Contest
+-              else
+-                tr
+-                  th= 'Password'
+-                  td.form-group-sm
+-                    input#psw.form-control(type="password" value="")
+-                    span.text-info= 'Leave blank to make it Public.'
+-              tr
+-                th= 'Penalty'
+-                td
+-                  select#penalty.form-control.input-sm
+-                    - for (var i = 2; i <= 6; ++i)
+-                      - var isSelected = false;
+-                      if (contest && contest.penalty === i * 10 || !contest && family === "speed" && i === 4)
+-                        - isSelected = true;
+-                      option(value=i*10 selected=isSelected) #{i*10} 分钟/次
+-              tr
+-                th= 'Description'
+-                td
+-                  textarea#desc.form-control(type="text" rows="5")
+-                    if (contest && clone === 0)
+-                      = contest.description
+-              tr
+-                th= 'Announcement'
+-                td
+-                  textarea#anc.form-control(type="text" rows="5")
+-                    if (contest && clone === 0)
+-                      = contest.msg
+-      .col-md-6
+-        .block.block-info
+-          if (!edit)
+-            .heading 由于该Contest已存在提交，故部分不可编辑
+-          .table-responsive
+-            table#addprob.table.table-bordered.tdcenter(style="background:#fbfbfb;min-width:500px;")
+-              thead
+-                tr.even
+-                  th(style="width:35px;")
+-                    if (edit)
+-                      a#add.img_link.add(title="add" href="javascript:;" style="display:block;")
+-                  th(style="width:80px;") ProbNum
+-                  th(style="width:200px;") Alias
+-                  th(style="width:35px;")
+-                  th(style="text-align:left;") Title
+-              tbody
+-                each p, i in probs
+-                  tr
+-                    td
+-                      if (edit)
+-                        a.img_link.delete(title="delete" href="javascript:;")
+-                    td
+-                      input.probnum.form-control.input-sm(type="text" value=(p[0]) disabled=(edit ? false : true))
+-                    td
+-                      input.alias.form-control.input-sm(type="text" value=(p[1]))
+-                    td.bold.p_index= F[i]
+-                    - var problem = p[0] ? Probs[p[0]] : {title: ''};
+-                    - var canAdd = !problem.hide || (user && (user.name === problem.manager || user.name === 'admin'));
+-                    td(class="title "+(p[0] && canAdd ? "success-text" : "error-text") style="text-align:left;")
+-                      if (!p[0])
+-                        = ''
+-                      else if (canAdd)
+-                        = problem.title
+-                      else
+-                        = 'access denied.'
+-    .row
+-      .col-md-offset-6.col-md-6
+-        a#submit.btn.btn-default(href="javascript:;") Submit
+-        if (contest && clone == 0)
+-          = ' '
+-          a.btn.btn-default(href="/contest?cid="+contest.contestID) Back
+-        = ' '
+-        span#err.error-text
+-script(type="text/javascript").
+-  var cid = '#{contest && clone == 0 ? contest.contestID : ""}';
+-  var c_type = #{tp};
+diff --git a/views/addproblem.jade b/views/addproblem.jade
+deleted file mode 100644
+index ffb39fa..0000000
+--- a/views/addproblem.jade
++++ /dev/null
+@@ -1,18 +0,0 @@
+-fieldset
+-  .block.block-info
+-    .block-content
+-      .heading
+-        if (problem)
+-          = 'EditProblem '
+-          a(href="/problem?pid="+problem.problemID)= problem.problemID
+-        else
+-          = 'AddProblem'
+-      .inner
+-        if (problem)
+-          include editproblem
+-          +editproblem(problem, user, partial, files, imgs)
+-        else
+-          form.form-horizontal(method="post")
+-            button.btn.btn-default.btn-lg(type="submit") 快速新建题目
+-  script(type="text/javascript")
+-    | var _pid = #{problem ? problem.problemID : ""};
+diff --git a/views/addtopic.jade b/views/addtopic.jade
+deleted file mode 100644
+index ae40014..0000000
+--- a/views/addtopic.jade
++++ /dev/null
+@@ -1,30 +0,0 @@
+-fieldset
+-  .block.block-info
+-    .block-content
+-      .heading= title
+-      .inner.form-horizontal
+-        .form-group
+-          label.control-label.col-sm-2(for="topic_title") 标题：
+-          .col-sm-5
+-            input#topic_title.form-control(value=(topic ? topic.title : "") type="text" placeholder="请在此输入标题")
+-        .form-group
+-          label.control-label.col-sm-2 内容：
+-          .col-sm-8
+-            textarea#content
+-              if (topic)
+-                != topic.content
+-        if (!topic)
+-          .form-group
+-            label.control-label.col-sm-2(for="vcode") 验证码：
+-            .col-sm-2
+-              input#vcode.form-control(type="text")
+-            .col-sm-2
+-              #vcimg.vcode(title="点击换一张")
+-                img(src=dataURL)
+-        .form-group
+-          .col-sm-offset-2.col-sm-10
+-            a#submit.btn.btn-default(href="javascript:;") 发布
+-            = ' '
+-            span#err.error-text
+-script(type="text/javascript").
+-  var _tid = #{topic ? topic.id : 0};
+diff --git a/views/admin.jade b/views/admin.jade
+deleted file mode 100644
+index 3139e0d..0000000
+--- a/views/admin.jade
++++ /dev/null
+@@ -1,52 +0,0 @@
+-fieldset
+-  .row
+-    .col-md-6
+-      .block.block-info
+-        .block-content#marquee
+-          .heading
+-            = '网站顶部跑马灯数据配置 '
+-          .inner
+-            ul.list-group(style="margin:0;")
+-              each val in marqueeList
+-                li.list-group-item
+-                  .input-group
+-                    input.form-control(value=val)
+-                    span.input-group-addon
+-                      a.img_link.trash(href="javascript:;" title="删除")
+-              li.list-group-item(style="overflow:hidden;")
+-                span.error-text#err
+-                span#add.btn.btn-primary.btn-sm.pull-right +点击添加
+-          .heading
+-            span#save.btn.btn-primary.btn-block 保存
+-    .col-md-6
+-      .block.block-success
+-        .block-content#createprob
+-          .heading
+-            = '批量新建题目 '
+-            span.error-text#err
+-          .inner
+-            .form-group.form-inline
+-              = '快速新建 '
+-              select#cnt.form-control.input-sm
+-                - for (var i = 1; i < 10; ++i)
+-                  option(value=i)= i
+-                - for (var i = 1; i <= 5; ++i)
+-                  option(value=i*10 selected=(i == 1) ? true : false)= i*10
+-              = ' 道题并授权给 '
+-              input#manager.form-control.input-sm(placeholder="user name")
+-              = ' 管理 '
+-            .form-inline
+-              = '并且将这些题目的Source设置为 '
+-              input#source.form-control.input-sm(placeholder="source")
+-              = ' (选填)'
+-          .heading
+-            span#submit.btn.btn-primary.btn-block 提交
+-      .block.block-danger
+-        .block-content#recal
+-          .heading
+-            = '重新计算所有用户的AC/Submit数 '
+-            span.error-text#err
+-          .inner
+-            span.text-danger 注意：此功能比较消耗cpu，慎用！
+-          .heading
+-            span#start.btn.btn-primary.btn-block 开始计算
+diff --git a/views/avatar.jade b/views/avatar.jade
+deleted file mode 100644
+index b83aa4a..0000000
+--- a/views/avatar.jade
++++ /dev/null
+@@ -1,31 +0,0 @@
+-- var img = 'img/avatar/%3Ddefault%3D/', imgType = 'jpeg';
+-if (user.imgType)
+-  - img = 'img/avatar/'+user.name+'/';
+-  - imgType = user.imgType;
+-fieldset
+-  .block.block-info
+-    .block-content
+-      .heading 修改我的头像
+-      .inner
+-        .form-group
+-          .row
+-            .col-md-offset-3.col-md-3
+-              img.img-250.img-round(src=img+"1."+imgType)
+-              p 250X250
+-            .col-md-2
+-              img.img-150.img-round(src=img+"2."+imgType)
+-              p 150X150
+-            .col-md-4
+-              img.img-75.img-round(src=img+"3."+imgType)
+-              p 75X75
+-              img.img-50.img-round(src=img+"4."+imgType)
+-              p 50X50
+-        .row
+-          .col-md-offset-3.col-md-5
+-            .form-group
+-              include upload
+-              +upload('file', 'img', '/avatar/upload')
+-              span.user-gray 注意：仅支持jpeg, jpg, png格式
+-            button#upload.btn.btn-default 确认上传
+-            = ' '
+-            span#imgerr.error-text
+diff --git a/views/contest.jade b/views/contest.jade
+deleted file mode 100644
+index b19353a..0000000
+--- a/views/contest.jade
++++ /dev/null
+@@ -1,448 +0,0 @@
+-- var F = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", probNum = 0;
+-- var isManager = (user && (user.name == contest.userName || user.name == 'admin'));
+-- var startTime = contest.startTime;
+-- var pending = parseInt((startTime - time)/1000, 10);
+-- var c, s, ps;
+-- var pids = [], alias = [];
+-
+-if (pending > 0)
+-  - c = 'info';
+-  - s = 'Pending';
+-  - ps = '';
+-else if (pending + contest.len*60 > 0)
+-  - c = 'wrong';
+-  - s = 'Running';
+-  - ps = 'progress-bar-danger';
+-else
+-  - c = 'accept';
+-  - s = 'Ended';
+-  - ps = 'progress-bar-success';
+-
+-each p, i in contest.probs
+-  - ++probNum;
+-  - pids.push(p[0]);
+-  - alias.push(p[1]);
+-
+-fieldset#widthfix
+-  .box.box-inner
+-    h3.mc.center(style="color:#3069BE")= contest.title
+-    marquee#marquee.error-text(onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")
+-      != contest.msg
+-    .row
+-      .col-sm-4 Penalty: #{contest.penalty} minutes
+-      .col-sm-4.center
+-        if (contest.type === 2)
+-          - var c1, c2, c3;
+-          - c1 = c2 = c3 = "display:none;";
+-          if (reg_state === 0 || user && user.name === 'admin')
+-            - c1 = '';
+-          else if (reg_state === 1)
+-            - c2 = '';
+-          else if (reg_state === 2)
+-            - c3 = '';
+-          span#reg_completed.user-green(style=c1) Registration Completed
+-          a#register(href="javascript:;" style=c2)= "Register Now !!!"
+-          span#reg_close.user-gray(style=c3 title="已关闭注册") Registration Closed
+-      if (contest.type === 2)
+-        .col-sm-4(style="text-align:right;")
+-          = 'Contestants: '
+-            img(src="/img/user.png")
+-            a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
+-    #progress.progress.cb(style="height:20px;")
+-      .progress-bar.progress-bar-striped.active(class=ps style="width:100%;")
+-    #contest-info.pull-left(style="text-align:right;")!= '&nbsp;'
+-  #thumbnail.box(style="min-height:600px;")
+-    ul.nav.nav-tabs(style="padding-top:5px;")
+-      li(style="padding-left:10px;")
+-        a.tablink(href="#overview")
+-          span Overview
+-      li.hidden
+-        a.tablink(href="#problem")
+-          span Problem
+-      li.hidden
+-        a.tablink(href="#status")
+-          span Status
+-      li.hidden
+-        a.tablink(href="#rank")
+-          span Rank
+-      li.hidden
+-        a.tablink(href="#discuss")
+-          span Discuss
+-          = ' '
+-          sup#discuss_tips.badge(style="display:none;")
+-    div(style="padding:15px 10px;overflow:visible;")
+-      //overviewtab
+-      #overviewtab(style="display:none;")
+-        .mc(style="width:60%;")
+-          .table-responsive
+-            table#overviewtable.table(style="min-width:500px;")
+-              tr
+-                th(width="20%") Current Time:
+-                td#contest_current
+-                th(width="21%") Contest Type:
+-                td
+-                  if (contest.password)
+-                    span.user-green Private
+-                  else
+-                    span.user-blue Public
+-              tr
+-                th Start Time:
+-                td#start_time= getDate(startTime)
+-                th Contest Status:
+-                td#conteststatus(class=c+"-text")= s
+-              tr
+-                th End Time:
+-                td#end_time= getDate(startTime+contest.len*60000)
+-                th Manager:
+-                td
+-                  a(class="user user-"+MC title=MT+" "+contest.userName href="/user/"+contest.userName)
+-                    = contest.userName
+-        .center(style="margin-bottom:15px;")
+-          if (isManager)
+-            a.btn.btn-default.btn-sm(href="/addcontest?cID="+contest.contestID+"&type="+contest.type+(contest.family ? "&family="+contest.family : "")) Edit
+-            = ' '
+-            a#delete.btn.btn-default.btn-sm(href="javascript:;") Delete
+-            = ' '
+-          - var clone_url = "/addcontest?cID=-"+contest.contestID+"&type=1";
+-          - var clone_desc = "To create a DIY Contest with the same problems.";
+-          if (user)
+-            a#clone.btn.btn-default.btn-sm(style="display:none;" href=clone_url title=clone_desc) Clone this contest
+-          else
+-            a#clone.btn.btn-default.btn-sm.checklogin(style="display:none;" href="javascript:;" data-url=clone_url title=clone_desc) Clone this contest
+-          if (!isManager)
+-            #beforecontest.user-gray(style="text-align:center;font-size:1.75em;margin:100px;display:none;")
+-              = 'Before Contest '
+-              span#lefttime
+-        #problemsview.hidden.mc(style="width:75%;")
+-          .block.block-info
+-            .heading Problem List
+-            .table-responsive
+-              table#problems.table.table-bordered(style="min-width:550px;")
+-                thead
+-                  tr.even
+-                    th(style="width:70px;") #
+-                    th.end.hidden(style="width:70px;")
+-                    th Name
+-                    th(style="width:90px;")
+-                    th(style="width:90px;") Solved
+-                tbody
+-                  each p, i in contest.probs
+-                    if (!p[1])
+-                      - p[1] = Pt[p[0]].title;
+-                    if (bAccessDenied)
+-                      - p[1] = "非参赛者无法访问";
+-                    tr(class=i % 2 == 0 ? "odd" : "even")
+-                      td.center.bold.o_index= F[i]
+-                      td.center.end.hidden
+-                        a(target="_blank" href="/problem?pid="+p[0])= p[0]
+-                      td
+-                        if (user && (user.name == 'admin' || user.name == Pt[p[0]].manager))
+-                          a.pull-right.btn.btn-default.btn-xs.toggleHide(href="javascript:;" pid=p[0])= Pt[p[0]].hide ? "显示到题库" : "隐藏"
+-                        a(href="#problem-"+F[i])= p[1]
+-                      td.op_submit
+-                        a.submit.img_link(href="javascript:;" pid=p[0] tname=p[1] title="Submit")
+-                      td.center.o_sol
+-          if(contest.description)
+-            .box.box-inner
+-              p= contest.description
+-      //problemtab
+-      #problemtab(style="display:none;")
+-        .center
+-          ul.pagination
+-            each prob, i in contest.probs
+-              li.problemlink
+-                a(href="#problem-"+F[i])= F[i]
+-        #prob-contain.istyle
+-          .center
+-            h3#problem_title.problem-header
+-              span.user-green
+-              = ' - '
+-              span
+-            div(style="margin-bottom:8px;")
+-              span= 'Time Limit: '
+-              span.limit
+-              = 'MS (Java/Others)'
+-              != '&nbsp;&nbsp;&nbsp;&nbsp;'
+-              span= 'Memory Limit: '
+-              span.limit
+-              = 'KB (Java/Others)'
+-              span.user.user-red.limit
+-            #pids
+-              a#probsubmit.btn.btn-default.btn-sm.submit(href="javascript:;") Submit
+-              = ' '
+-              a.btn.btn-default.btn-sm(href="javascript:;") Status
+-              if (user && user.name == 'admin')
+-                = ' '
+-                a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
+-          #content(style="padding:15px 25px;")
+-          .center.form-group
+-            a#probsubmit2.btn.btn-default.btn-sm.submit(href="javascript:;") Submit
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="javascript:;") Status
+-      //statustab
+-      #statustab(style="display:none;")
+-        .block.block-info
+-          .heading.form-inline
+-            .pull-right
+-              .input-group.input-group-sm
+-                span.input-group-addon name
+-                input#search.form-control(type="text" placeholder="UserName")
+-              = ' '
+-              .input-group.input-group-sm
+-                span.input-group-addon problem
+-                select#pid.form-control
+-                  option(value="nil") All
+-                  each p, i in contest.probs
+-                    option(value=F[i])= F[i]+" - "+p[1]
+-              = ' '
+-              .input-group.input-group-sm
+-                span.input-group-addon verdict
+-                select#result.form-control
+-                  option(value="nil") All
+-                  each p in [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]
+-                    option(class=Col(p) value=p)= Res(p)
+-              = ' '
+-              a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-              = ' '
+-              a#reset.btn.btn-default.btn-sm(href="javascript:;") Reset
+-          .table-responsive
+-            table#statustable.table.table-bordered.tdcenter
+-              thead
+-                tr.even
+-                  th(style="width:7%;") RunID
+-                  th(style="width:14%;") User
+-                  th(style="width:10%;") Problem
+-                  th Verdict
+-                  th(style="width:9%;") Time
+-                  th(style="width:9%;") Memory
+-                  th(style="width:8%;") Lang
+-                  th(style="width:8%;") Length
+-                  th(style="width:15%;") Submit Time
+-              tbody
+-              tfoot
+-                tr.odd
+-                  td(colspan="9")
+-                    #pager
+-                      #list
+-                        ul.pagination.pagination-sm
+-      //ranktab
+-      - var mw = 41 + 181 + 81 + 41 + 61 + 81*probNum;
+-      #ranktab(style="display:none;")
+-        #rankheader(style="width:"+mw+"px;")
+-          table.table.table-bordered.table-rank
+-            thead
+-              include rankheader
+-              +rankheader(probNum, F)
+-        #rankfooter(style="width:"+mw+"px;")
+-          table.table.table-bordered.table-rank(style="margin:0;border:0;")
+-            tfoot
+-              include rankfooter
+-              +rankfooter(probNum, F, true)
+-        if (isManager)
+-          if (contest.type === 2)
+-            .form-inline.form-group
+-              button#calrating.btn.btn-default 统计本场比赛Rating
+-              = ' '
+-              button#resetrating.btn.btn-default 撤销本场比赛Rating
+-            .form-inline.form-group
+-              input#addcontestant_name.form-control(style="width:500px;" type="text" placeholder="多个用户名")
+-              = ' '
+-              button#addcontestant.btn.btn-default 添加参赛者
+-              = ' '
+-          .form-inline.form-group
+-            input#starstr.form-control(style="width:500px;" type="text" placeholder="多个用户名")
+-            = ' '
+-            select#type.form-control
+-              option(value="1") 给他们打星
+-              option(value="2") 取消打星
+-            = ' '
+-            button#star.btn.btn-default 提交
+-            = ' '
+-            small.user-gray PS: 多个用户请用空格隔开
+-            = ' '
+-            span#starerr.error-text
+-          .form-inline.form-group
+-            input#msg_data.form-control(style="width:500px;" type="text" placeholder="在此填写消息内容")
+-            = ' '
+-            button#broadcast.btn.btn-default 广播消息
+-            = ' '
+-            span#msg_err.error-text
+-        .block.block-danger(style="width:"+mw+"px;")
+-          .heading
+-            .pull-right
+-              span#gtime.user-gray= 'The Rank will be updated every 30 seconds '
+-              a#rank_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
+-          #ranktable
+-            table.table.table-bordered.table-rank.tdcenter
+-              thead
+-                include rankheader
+-                +rankheader(probNum, F)
+-              tbody
+-              tfoot
+-                include rankfooter
+-                +rankfooter(probNum, F, false)
+-      //discusstab
+-      #discusstab(style="display:none;")
+-        .block.block-danger
+-          .block-content
+-            .heading
+-              .pull-right
+-                a#discuss_refresh.btn.btn-default.btn-sm(href="javascript:;") 刷新一下
+-            .table-response
+-              table#contest.table-acdream.highlight(style="min-width:500px;")
+-                tbody
+-                  tr.odd
+-                    td.error-text(colspan="3") No Topics are matched.
+-                tfoot
+-                  tr.odd
+-                    td(colspan="3")
+-                      ul#dislist.pagination.pagination-sm
+-        if (user)
+-          .block.block-info
+-            .block-content
+-              .heading
+-                span.user-gray 发表疑问
+-              .inner.form-horizontal
+-                .form-group
+-                  label.control-label.col-sm-2(for="publish_pid") 题号：
+-                  .col-sm-2
+-                    select#publish_pid.form-control
+-                      - for (var i = 0; i < contest.probs.length; i++)
+-                        option(value=F[i])= F[i]
+-                .form-group
+-                  label.control-label.col-sm-2(for="publish_title") 标题：
+-                  .col-sm-5
+-                    input#publish_title.form-control(type="text")
+-                .form-group
+-                  label.control-label.col-sm-2(for="publish_content") 内容：
+-                  .col-sm-5
+-                    textarea#publish_content.form-control(style="height:180px;")
+-                .form-group
+-                  .col-sm-offset-2.col-sm-10
+-                    a#publish.btn.btn-default.btn-sm(style="margin:0;" href="javascript:;") 发表
+-                    = ' '
+-                    span#publish_err.error-text
+-      #loading.mc(style="width:287px;display:none;")
+-        img(src="/img/Loading.gif" alt="Loading...")
+-      #retry.alert.alert-danger.center.mc(style="width:450px;font-size:24px;padding:100px;;margin-top:15px;display:none;")
+-        span
+-        a(href="javascript:;") 重试
+-script(type="text/javascript")
+-  != 'var _pids = '+JSON.stringify(pids)+';'
+-  != 'var _alias = '+JSON.stringify(alias)+';'
+-script(type="text/javascript").
+-  var _prob_num = #{probNum};
+-  var _cid = #{contest.contestID};
+-  var _startTime = #{startTime};
+-  var _duration = #{contest.len * 60};
+-  var _pending = #{pending};
+-  var _status = '#{s}';
+-  var _is_manager = #{isManager ? true : false};
+-if (user && user.name === 'admin')
+-  script(type="text/javascript").
+-    function bindCalRating($p) {
+-      $p.click(function(){
+-        if ($p.hasClass('disabled')) {
+-          return false;
+-        }
+-        if (!confirm('确定要统计本场比赛的Rating吗？')) {
+-          return false;
+-        }
+-        var txt = '统计本场比赛Rating';
+-        $p.addClass('disabled').text('请稍候...');
+-        $.ajax({
+-          type: 'POST',
+-          url: '/rating/cal',
+-          data: {cid: _cid},
+-          dataType: 'text',
+-          error: function() {
+-            $p.text(txt).removeClass('disabled');
+-            ShowMessage('无法连接到服务器！');
+-          }
+-        }).done(function(res){
+-          if (res == '-1' || res == '-2') {
+-            window.location.reload(true);
+-            return ;
+-          }
+-          if (res == '-3') {
+-            ShowMessage('系统错误！');
+-          } else if (res == '-4') {
+-            ShowMessage('比赛还没结束，无法统计rating！');
+-          } else {
+-            GetRanklist();
+-            ShowMessage('成功计算了'+res+'个用户的rating！');
+-          }
+-          $p.text(txt).removeClass('disabled');
+-        });
+-      });
+-    }
+-    
+-    function bindResetRating($p) {
+-      $p.click(function(){
+-        if ($p.hasClass('disabled')) {
+-          return false;
+-        }
+-        if (!confirm('确定要撤销本场比赛的Rating吗？')) {
+-          return false;
+-        }
+-        $p.addClass('disabled').text('请稍候...');
+-        $.ajax({
+-          type: 'POST',
+-          url: '/rating/reset',
+-          data: {cid: _cid},
+-          dataType: 'text',
+-          error: function() {
+-            $p.text('统计rating').removeClass('disabled');
+-            ShowMessage('无法连接到服务器！');
+-          }
+-        }).done(function(res){
+-          if (res == '-1' || res == '-2') {
+-            window.location.reload(true);
+-            return ;
+-          }
+-          if (res == '-3') {
+-            ShowMessage('系统错误！');
+-          } else if (res == '-4') {
+-            ShowMessage('检测到存在参赛者拥有比这场比赛更新的比赛的记录，操作已被服务器拒绝。');
+-          } else {
+-            GetRanklist();
+-            ShowMessage('成功撤销了'+res+'个用户的rating！');
+-          }
+-          $p.text('撤销本场比赛Rating').removeClass('disabled');
+-        });
+-      });
+-    }
+-
+-    function bindAddContestant($p) {
+-      $p.click(function(){
+-        if ($p.hasClass('disabled')) {
+-          return false;
+-        }
+-        var name = $('#addcontestant_name').val();
+-        if (!name) {
+-          ShowMessage('用户名不能为空！');
+-          return false;
+-        }
+-        $p.addClass('disabled');
+-        $.ajax({
+-          type: 'POST',
+-          url: '/contest/addContestant',
+-          data: {
+-            cid: _cid,
+-            str: $('#addcontestant_name').val()
+-          },
+-          dataType: 'json',
+-          error: function() {
+-            $p.removeClass('disabled');
+-            ShowMessage('无法连接到服务器！');
+-          }
+-        }).done(function(res){
+-          var ret = res.ret;
+-          if (ret === 0) {
+-            GetRanklist();
+-          }
+-          $p.removeClass('disabled');
+-          ShowMessage(res.msg);
+-        });
+-      });
+-    }
+diff --git a/views/contestlist.jade b/views/contestlist.jade
+deleted file mode 100644
+index a37f431..0000000
+--- a/views/contestlist.jade
++++ /dev/null
+@@ -1,108 +0,0 @@
+-fieldset
+-  .block.block-info
+-    .heading
+-      .row
+-        .col-sm-2
+-          if (type === 1)
+-            | DIY Contest
+-          else if (type === 2)
+-            case family
+-              when "rating"
+-                | Rating Contest
+-              when "speed"
+-                | Speed Contest
+-              when "training"
+-                | Traning Contest
+-              default
+-                | VIP Contest
+-        .col-sm-10.form-inline
+-          .pull-right
+-            - var url = "/addcontest?type="+type+(family?"&family="+family:"");
+-            if (user)
+-              a.btn.btn-default.btn-sm(href=url) Add Contest
+-            else
+-              a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url=url) Add Contest
+-            = ' '
+-            .input-group.input-group-sm
+-              span.input-group-addon
+-                i.icon_search
+-              input#search.form-control(type="text" value=search ? search : "" placeholder="title or manager")
+-            = ' '
+-            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="/contest/list?type="+type+(family?"&family="+family:"")) Reset
+-    .table-responsive
+-      table#contest.table.table-bordered.tdcenter
+-        thead
+-          tr.even
+-            th(style="width:65px;") #
+-            th Title
+-            th(style="width:180px;") Start Time
+-            th(style="width:100px;") Duration
+-            th(style="width:100px;") Type
+-            th(style="width:125px;")= (type === 2 ? '' : 'Manager')
+-        tbody
+-          if (!contests || contests.length == 0)
+-            tr.odd
+-              td.error-text(colspan="6") No Contests are matched.
+-          else
+-            each p, i in contests
+-              - var c, dd, hh, mm, s;
+-              if (i % 2 == 1)
+-                - c = 'even';
+-              else
+-                - c = 'odd';
+-              - dd = parseInt(p.len/1440, 10); hh = parseInt(p.len%1440/60, 10); mm = p.len%1440%60;
+-              - if (hh < 10) hh = '0'+hh;
+-              - if (mm < 10) mm = '0'+mm;
+-              if (dTime[i] > 0)
+-                - s = '';
+-              else if (dTime[i] + p.len*60000 > 0)
+-                - s = 'progress-bar-danger';
+-              else
+-                - s = 'progress-bar-success';
+-              tr(class=c)
+-                td= p.contestID
+-                td(style="text-align:left;")
+-                  if (type === 1 && p.password && (!user || (user.name !== p.userName && user.name !== 'admin')) && !CS[p.contestID])
+-                    a.cid(href="javascript:;" id=p.contestID)= p.title
+-                  else
+-                    a(href="/contest?cid="+p.contestID)= p.title
+-                  if (type == 2)
+-                    .table-tab
+-                      if (s || user && user.name == 'admin')
+-                        a.standings(href="/contest?cid="+p.contestID+"#rank" title="查看排名") Standings
+-                      else
+-                        if (R[i] === 0)
+-                          span.user.user-green Registration Completed
+-                        else if (R[i] === 1)
+-                          if (!p.open_reg)
+-                            = 'Until Closed: '
+-                            span.user-gray(style="margin-right:20px;")
+-                          a.register(href="javascript:;" id=p.contestID left=leftTime[i] title="点击注册")= "Register >>"
+-                        else
+-                          span.user-gray Registration Closed
+-                td= getDate(p.startTime)
+-                  .progress
+-                    .progress-bar.progress-bar-striped.active(class=s style="width:100%;")
+-                td
+-                  if (dd > 0)
+-                    | #{dd}天
+-                  | #{hh}:#{mm}:00
+-                td
+-                  if (p.password)
+-                    span.user-green Private
+-                  else
+-                    span.user-blue Public
+-                td
+-                  if (type == 2)
+-                    img(src="/img/user.png")
+-                    a(href="/standings?cid="+p.contestID) ×#{p.contestants.length}
+-                  else
+-                    a(class="user user-"+UC[p.userName] title=UT[p.userName] href="/user/"+p.userName)= p.userName
+-        tfoot
+-          tr.odd
+-            td(colspan="6")
+-              #pager
+-                include pager
+-                +pager(page, totalPage)
+diff --git a/views/editproblem.jade b/views/editproblem.jade
+deleted file mode 100644
+index 91d547f..0000000
+--- a/views/editproblem.jade
++++ /dev/null
+@@ -1,126 +0,0 @@
+-mixin editproblem(p, u, partial, f, imgs)
+-  form(method="post")
+-    .row
+-      .col-md-6
+-        .block.block-danger
+-          .block-content
+-            .inner
+-              h4
+-                span.error-text 加题者注意：
+-              h5
+-                | 1、
+-                span.error-text 变量、重要范围
+-                | 必须使用斜体表示，前台CSS样式会突出它们！
+-              h5
+-                | 2、
+-                span.success-text 重要数字，重要句子请加粗凸显！
+-              h5
+-                | 3、
+-                span.success-text 建议先检查你要出的题是否已存在于题库！
+-              h4
+-                | PS：
+-                span.error-text 若数据是原创的，务必找多几份代码进行验证
+-        h4 Use Special Judge ?
+-        div
+-          label.radio-inline
+-            input#spj(type="radio" name="isSpj" value="1" checked=(p.spj ? true : false))
+-            | Yes
+-          label.radio-inline
+-            input#nospj(type="radio" name="isSpj" value="0" checked=(p.spj ? false : true))
+-            | No
+-        h4 Use TC Mode ?
+-        div
+-          label.radio-inline
+-            input#tc(type="radio" name="TC" value="1" checked=(p.TC ? true : false))
+-            | Yes
+-          label.radio-inline
+-            input#notc(type="radio" name="TC" value="0" checked=(p.TC ? false : true))
+-            | No
+-        if(u.name == 'admin' || p.manager == u.name)
+-          h4 Hide ?
+-          div
+-            label.radio-inline
+-              input#hide(type="radio" name="hide" value="1" checked=(p.hide ? true : false))
+-              | Yes
+-            label.radio-inline
+-              input#nohide(type="radio" name="hide" value="0" checked=(p.hide ? false : true))
+-              | No
+-        h4 Title
+-        input.form-control(type="text" name="Title" value=p.title)
+-        h4 Time limit
+-        input.form-control(type="text" name="Timelimit" value=p.timeLimit)= ' MS'
+-        h4 Memory limit
+-        input.form-control(type="text" name="Memorylimit" value=p.memoryLimit)= ' KB'
+-      .col-md-6
+-        include upload
+-        .block.block-warning
+-          .block-content
+-            .heading 图片上传
+-            .inner
+-              +upload('image', 'info', '/addproblem/imgUpload?pid='+problem.problemID)
+-              div
+-                span.user-gray
+-                = '支持jpeg, jpg, png格式 '
+-                span#imgerr.error-text
+-              div
+-                .ibox.user-gray
+-                  = '目前已保存了 '
+-                  span#imgnum.user-green= imgs.length
+-                  = ' 张图片'
+-                #imgdiv.limitbox
+-                  each p in imgs
+-                    .cb(fname=p)
+-                      .ibox= p
+-                      .ibox
+-                        a.imgdel(href="javascript:;") 删除
+-              span.success-text
+-                | 注意：图片大小不得超过1M！
+-                br
+-                | 使用：在编辑器中点击图象，源文件路径填： "/img/prob/#{p.problemID}/"+"文件名"
+-        .block.block-success
+-          .block-content
+-            .heading 数据上传
+-            .inner
+-              +upload('data', 'data', '/addproblem/dataUpload?pid='+p.problemID, true)
+-              div
+-                .ibox.user-gray
+-                  = '目前已保存了 '
+-                  span#datanum.user-green= f.length
+-                  = ' 个数据文件 '
+-                  span#dataerr.error-text
+-                #datadiv.limitbox
+-                  each p in f
+-                    .cb(fname=p)
+-                      .ibox= p
+-                      .ibox
+-                        a.del(href="javascript:;") 删除
+-              span.success-text
+-                | 注意：
+-                br
+-                | 1. 大于50m的文件将会被忽略
+-                br
+-                | 2. 若数据有错请点击删除
+-                br
+-                | 3. 可以上传任何格式文件，但是评测机只认识格式为".in", ".out"的数据文件
+-                br
+-                span.error-text
+-                  | 4. 请务必统一使用："1.in, 1.out, 2.in, 2.out..."命名方式
+-                  br
+-                  | 5. 每个数据文件尽量不超过100组测试
+-    h4 Problem Description
+-    textarea.form-control(name="Description")!= p.description
+-    h4 Input
+-    textarea.form-control(name="Input")!= p.input
+-    h4 Output
+-    textarea.form-control(name="Output")!= p.output
+-    h4 Sample Input
+-    textarea.form-control(rows="10" name="sInput")= p.sampleInput
+-    h4 Sample Output
+-    textarea.form-control(rows="10" name="sOutput")= p.sampleOutput
+-    h4 Hint
+-    textarea.form-control(name="Hint")!= p.hint
+-    .form-group
+-      h4 Source
+-      input.form-control(type="text" name="Source" value=p.source)
+-    button.btn.btn-default.btn-lg(type="submit") submit
+-    input.hide(type="text" name="pid" value=p.problemID)
+diff --git a/views/err.jade b/views/err.jade
+deleted file mode 100644
+index cf02b6d..0000000
+--- a/views/err.jade
++++ /dev/null
+@@ -1,18 +0,0 @@
+-fieldset
+-  .box
+-    div(style="margin:0 auto;min-height:500px;padding-top:100px;font-size:16px;")
+-      .mc(style="width:150px;height:117px;")
+-        img(src="/img/err.png")
+-      div(style="padding-top:20px;text-align:center;")
+-        case ret
+-          when ERR.PAGE_NOT_FOUND
+-            | 页面不存在，请点击
+-            a(href="/") 返回首页
+-          when ERR.ACCESS_DENIED
+-            | 没有权限访问该页面，请点击
+-            a(href="/") 返回首页
+-          when ERR.INVALID_SESSION
+-            | 登录超时，请重新
+-            a.checklogin(href="javascript:;" data-url="/") 登录
+-          when ERR.SYS
+-            | 系统错误，请稍后重试
+diff --git a/views/i64_info.jade b/views/i64_info.jade
+deleted file mode 100644
+index 2bc7c0c..0000000
+--- a/views/i64_info.jade
++++ /dev/null
+@@ -1,2 +0,0 @@
+-| Please do not use the %I64d (or similar) specificator to read or write 64-bit integers in Сpp. It is preferred to use cin, cout streams or the %lld specificator. Press button to submit the solution.
+-button.close(type="button") &times;
+diff --git a/views/index.jade b/views/index.jade
+deleted file mode 100644
+index e3fb71e..0000000
+--- a/views/index.jade
++++ /dev/null
+@@ -1,91 +0,0 @@
+-- var now = (new Date()).getTime();
+-- var oj = ['HDU (杭州电子科技大学)', 'POJ (北京大学)', 'ZOJ (浙江大学)', 'Codeforces', 'BNUOJ (北京师范大学)'];
+-- var oj_url = ['http://acm.hdu.edu.cn/', 'http://poj.org/', 'http://acm.zju.edu.cn/onlinejudge/', 'http://codeforces.com/', 'http://acm.bnu.edu.cn/'];
+-- var blog = ['cxlove', '夏天的风', 'kuangbin', 'xiaodao', 'NotOnlySuccess'];
+-- var blog_url = ['http://blog.csdn.net/ACM_cxlove', 'http://blog.csdn.net/shahdza', 'http://www.cnblogs.com/kuangbin', 'http://www.shuizilong.com/house/', 'http://www.notonlysuccess.com'];
+-
+-fieldset
+-  .row
+-    .col-sm-8
+-      .block.block-danger
+-        .block-content
+-          table.table-acdream
+-            each o in contests
+-              tr
+-                td
+-                  .title
+-                    a(href="/contest?cid="+o.contestID)= o.title
+-                  .footer
+-                    = '时长：' + Math.round(o.len/6)/10 + '小时 / '
+-                    = '参加人数：' + o.contestants.length + ' / '
+-                    = '开始时间：' + getTime(o.startTime)
+-                td.state
+-                  - var pass = now - o.startTime;
+-                  if (pass < 0)
+-                    span.text-primary Pending
+-                  else if (pass < o.len*60000)
+-                    span.wrong-text Running
+-                  else
+-                    span.accept-text Ended
+-      .block.block-warning
+-        .block-content
+-          table.table-acdream.highlight
+-            each o in topics
+-              tr
+-                td.avatar
+-                  - var img;
+-                  if (imgType[o.user])
+-                    - img = '/img/avatar/'+o.user+'/4.'+imgType[o.user];
+-                  else
+-                    - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
+-                  img.img-50.img-round(src=img)
+-                td
+-                  .title
+-                    if (now - o.inDate < 86400000)
+-                      span.label.label-warning 新帖
+-                    = ' '
+-                    if (o.lastReviewer && now - o.lastReviewTime < 28800000)
+-                      span.label.label-danger 热帖
+-                    = ' '
+-                    a(href="/topic?tid="+o.id)= o.title
+-                  .footer
+-                    = '作者：' + o.user
+-                    if (o.lastReviewer)
+-                      = ' / 最新回复：' + o.lastReviewer + ' @ ' + getTime(o.lastReviewTime)
+-                td.state= o.reviewsQty
+-          .heading
+-            a(target="_blank" href="/topic/list") 查看更多讨论
+-    .col-sm-4
+-      .block.block-success
+-        .block-content
+-          .heading
+-            a.pull-right(target="_blank" href="/standings") More
+-            | Top 10
+-          table.table-acdream.info
+-            each o in users
+-              tr
+-                td
+-                  div
+-                    a.user(href="/user/"+o.name title=UT(o.rating) class="user-"+UC(o.rating))= o.name
+-                  .footer
+-                    = '场次：' + o.ratedRecord.length
+-                td.state
+-                  span= o.rating
+-      .block.block-info
+-        .block-content
+-          .heading
+-            a.pull-right(target="_blank" href="/topic?tid=101") More
+-            | Online Judge
+-          table.table-acdream.bigger
+-            each name, i in oj
+-              tr
+-                td
+-                  a(target="_blank" href=oj_url[i])= name
+-      .block.block-info
+-        .block-content
+-          .heading Blog
+-          table.table-acdream.bigger
+-            each name, i in blog
+-              tr
+-                td
+-                  a(target="_blank" href=blog_url[i])= name
+diff --git a/views/lang.jade b/views/lang.jade
+deleted file mode 100644
+index aecee0e..0000000
+--- a/views/lang.jade
++++ /dev/null
+@@ -1,5 +0,0 @@
+-mixin lang(langs)
+-  select#lang.form-control.input-sm
+-    each val, i in langs
+-      if (i > 0)
+-        option(value=i selected=(i == 2 ? true : false))= val
+diff --git a/views/layout.jade b/views/layout.jade
+deleted file mode 100644
+index 910cc88..0000000
+--- a/views/layout.jade
++++ /dev/null
+@@ -1,229 +0,0 @@
+-- var nvgurl = ['/problem/list', '/status', '/ranklist', '/standings', '/contest/list?type=1', '/topic/list', '/topic?tid=100'];
+-- var nvgname = ['ProblemList', 'Status', 'Ranklist', 'Standings', 'DIY Contest', 'Discuss', 'FAQ'];
+-- var families = ['speed', 'rating', 'training', 'vip'];
+-- var familyName = ['Speed Contest', 'Rating Contest', 'Training Contest', 'VIP Contest'];
+-mixin dropdown
+-  li.dropdown
+-    a.dropdown-toggle(href="javascript:;" data-toggle="dropdown")= 'Contest '
+-      span.caret
+-    ul.dropdown-menu(role="menu")
+-      each family, i in families
+-        if (i > 0)
+-          li.divider
+-        li
+-          a(href="/contest/list?type=2&family="+family)= familyName[i]
+-doctype HTML
+-html
+-  head
+-    != '<!--[if lt IE 8]>'
+-    != '<script type="text/javascript">window.location="/notsupported";</script>'
+-    != '<![endif]-->'
+-    meta(charset="utf-8")
+-    meta(http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=edge; chrome=1")
+-    meta(name="description" content="ACdream. Programming competitions and contests, programming community")
+-    meta(name="keywords" content="ACdream OnlineJudge OJ ACM ICPC Contest online judge programming")
+-    meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+-    title#title= title
+-    link(href="/bootstrap/bootstrap.css" rel="stylesheet" type="text/css")
+-    link(href="/css/base.css" rel="stylesheet" type="text/css")
+-    if (key === KEY.PROBLEM || key === KEY.SOURCE_CODE || key === KEY.TOPIC)
+-      link(rel="stylesheet" type="text/css" href="/highlighter/styles/shCoreEclipse.css")
+-    else if (key === KEY.ADD_CONTEST)
+-      link(rel="stylesheet" type="text/css" href="/zd/css/zebra_datepicker.css")
+-    != '<!--[if lt IE 9]>'
+-    != '<script src="/plugins/html5shiv.js"></script>'
+-    != '<script src="/plugins/respond.js"></script>'
+-    != '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+-    != '<![endif]-->'
+-  body
+-    nav.navbar.navbar-default.navbar-static-top.navbar-login.navbar-hover(role="navigation" style="margin:0;")
+-      div.container
+-        div.navbar-header
+-          button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#bs-navbar-collapse-1")
+-            span.sr-only Toggle navigation
+-            span.icon-bar
+-          a.navbar-brand(href="/" title="ACdream Online Judge")
+-            img(alt="brand" src="/img/brand.jpg")
+-        div.collapse.navbar-collapse#bs-navbar-collapse-1
+-          if (marquees && marquees.length)
+-            marquee.navbar-text.user-green(style="width:50%" onmouseout="this.start()" onmouseover="this.stop()" scrollamount="2" scrolldelay="1" behavior="alternate")= marquees[Math.floor(Math.random()*marquees.length)]
+-          ul.nav.navbar-nav.navbar-right
+-            if (user)
+-              li
+-                - var img;
+-                if (user.imgType)
+-                  - img = '/img/avatar/'+user.name+'/4.'+user.imgType;
+-                else
+-                  - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
+-                a(href="/user/"+user.name)
+-                  img(alt="avatar" src=img)
+-                  = user.name
+-              if (user.name === 'admin')
+-                li
+-                  a(href="/admin") 运营工具
+-              if (user.addprob)
+-                li
+-                  a(href="/addproblem") AddProblem
+-              li
+-                a#logout(href="javascript:;") Logout
+-            else
+-              li
+-                a.checklogin(href="javascript:;" data-url=(key === KEY.REGISTER ? "/" : "")) Enter
+-              li
+-                a(href="/register") Register
+-    div(style="width:100%;background:#CFF0FF;")
+-      div.container#preload_logo
+-        .row
+-          .col-md-8
+-            a.logo(href="/" title="ACdream Online Judge" style="opacity:.8;")
+-              img.img-responsive(src="/img/logo.png" alt="ACdream Online Judge" style="margin-top:28px;")
+-          .col-md-4
+-              span.pull-right
+-                img.img-responsive(src="/img/qrcode.jpg" alt="qrcode" title="微信扫一扫关注我")
+-    nav.navbar.navbar-default.navbar-hover.navbar-static-top(role="navigation")
+-      div.container
+-        div.navbar-header
+-          button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#bs-navbar-collapse-2")
+-            span.sr-only Toggle navigation
+-            span.icon-bar
+-            span.icon-bar
+-            span.icon-bar
+-          a.navbar-brand(href="/") Home
+-        div.collapse.navbar-collapse#bs-navbar-collapse-2
+-          ul.nav.navbar-nav
+-            each url, i in nvgurl
+-              li
+-                a(href=url)= nvgname[i]
+-              if (i === 4)
+-                +dropdown
+-          form.navbar-form.navbar-left(role="search" action="/problem")
+-            div.input-group
+-              input.form-control(type="text" placeholder="Problem ID" name="pid")
+-              span.input-group-btn
+-                button.btn.btn-default Go
+-    .container
+-      != body
+-    #footer
+-      .container
+-        h4 ACdream
+-        .row
+-          .col-sm-2
+-            a(target="_blank" href="https://github.com/KIDx/ACdream") Current Version v2.0.0
+-          .col-sm-5
+-            span= 'Copyright © 2013-2014 ACdream Team. All Rights Reserved.'
+-          .col-sm-2
+-            span= 'Loaded in ' + ((new Date()).getTime() - time) + 'ms.'
+-          .col-sm-2
+-            span
+-              a(href="http://www.miitbeian.gov.cn/") 浙ICP备14013846号
+-        div
+-          span= 'Designer and Developer : '
+-            a(target="_blank" href="https://github.com/KIDx/ACdream") KIDx
+-        div
+-          span= 'Server time : '
+-            span#timer
+-    ul#scroll
+-      li
+-        a.up(title="返回顶部")
+-          i
+-      li
+-        a.down(title="转到底部")
+-          i
+-    //- Dialogs
+-    if (!user)
+-      if (loginInfo)
+-        include D_login_by_token
+-        +D_login_by_token(loginInfo)
+-      include D_login
+-    if (key === KEY.USER)
+-      if (user && u && user.name === u.name)
+-        include D_settings
+-        +D_settings(u)
+-    else if (key === KEY.STATUS)
+-      include D_ce
+-    else if (key === KEY.CONTEST_LIST)
+-      if (type !== 2)
+-        include D_logincontest
+-    else if (key === KEY.CONTEST)
+-      include D_ce
+-      include D_broadcast
+-      if (user)
+-        include D_submit
+-        +D_submit(langs)
+-    //- js Placed at the end of the document so the pages load faster
+-    script(type="text/javascript").
+-      var globalMessage = "#{msg ? msg : ''}";
+-      var nextURL = "";
+-      var current_user = "#{user ? user.name : ''}";
+-      var current_time;
+-      var curren_second = #{(new Date()).getTime()};
+-      var contest_type = #{key === KEY.CONTEST_LIST || key === KEY.CONTEST ? type : 1};
+-      var contest_family = "#{key === KEY.CONTEST_LIST || key === KEY.CONTEST ? family : ''}";
+-    script(src="/plugins/jquery-1.8.3.js")
+-    script(src="/plugins/jqdnr.js")
+-    script(src="/bootstrap/bootstrap.js")
+-    script(src="/js/global.js")
+-    mixin highlight
+-      script(src="/highlighter/scripts/shCore_brushCpp_brushJava.js")
+-      script(type="text/javascript") SyntaxHighlighter.defaults['toolbar'] = false; SyntaxHighlighter.all();
+-    case key
+-      when KEY.USER
+-        script(src="/Highcharts-4.0.1/highcharts.js")
+-        script(src="/js/user.js")
+-      when KEY.STATISTIC
+-        script(src="/Highcharts-4.0.1/highcharts.js")
+-        script(src="/Highcharts-4.0.1/main.js")
+-        script(src="/js/statistic.js")
+-      when KEY.PROBLEM_LIST
+-        script(src="/js/problemlist.js")
+-      when KEY.RANKLIST
+-        script(src="/js/ranklist.js")
+-      when KEY.CONTEST_LIST
+-        script(src="/js/contestlist.js")
+-      when KEY.STANDINGS
+-        script(src="/js/standings.js")
+-      when KEY.PROBLEM
+-        +highlight
+-        script(src="/plugins/fileUpload.js")
+-        script(src="/js/problem.js")
+-      when KEY.CONTEST
+-        script(src="/plugins/jquery.hashchange.js")
+-        script(src="/js/updatestatus.js")
+-        if (user && user.name === 'admin')
+-          script(src="/js/singleRejudge.js")
+-        script(src="/socket.io/socket.io.js")
+-        script(src="/js/contest.js")
+-      when KEY.STATUS
+-        script(src="/js/updatestatus.js")
+-        if (user && user.name === 'admin')
+-          script(src="/js/singleRejudge.js")
+-        script(src="/js/status.js")
+-      when KEY.SUBMIT
+-        script(src="/js/submit.js")
+-      when KEY.SOURCE_CODE
+-        +highlight
+-      when KEY.AVATAR
+-        script(src="/plugins/fileUpload.js")
+-        script(src="/js/avatar.js")
+-      when KEY.TOPIC_LIST
+-        script(src="/js/topiclist.js")
+-      when KEY.TOPIC
+-        +highlight
+-        if (user)
+-          script(src="/ckeditor/ckeditor.js")
+-        script(src="/js/topic.js")
+-      when KEY.ADD_CONTEST
+-        script(src="/js/addcontest.js")
+-        script(src="/zd/javascript/zebra_datepicker.js")
+-      when KEY.ADD_PROBLEM
+-      when KEY.EDIT_PROBLEM
+-        script(src="/plugins/fileUpload.js")
+-        script(src="/ckeditor/ckeditor.js")
+-        script(src="/js/addproblem.js")
+-      when KEY.ADD_TOPIC
+-        script(src="/ckeditor/ckeditor.js")
+-        script(src="/js/addtopic.js")
+-      when KEY.REGISTER
+-        script(src="/js/register.js")
+-      when KEY.ADMIN
+-        script(src="/js/admin.js")
+diff --git a/views/notsupported.jade b/views/notsupported.jade
+deleted file mode 100644
+index db5040d..0000000
+--- a/views/notsupported.jade
++++ /dev/null
+@@ -1,10 +0,0 @@
+-doctype html
+-html
+-  head
+-    title NOT SUPPORTED
+-    link(rel="shortcut icon" href="/favicon.ico" mce_href="/favicon.ico" type="image/x-icon")
+-    link(href="/css/style.css" rel="stylesheet" type="text/css")
+-  body
+-    div(style="margin:50px 0;")
+-      div(style="border:1px solid #ddd;border-radius:10px;text-align:center;margin:0 auto;width:900px;background:#fff;padding:50px 20px 80px 20px;")
+-        p(style="font-size:20px;") 抱歉，新版 ACdream 不支持 IE7 或以下版本浏览器
+diff --git a/views/pager.jade b/views/pager.jade
+deleted file mode 100644
+index 72b4370..0000000
+--- a/views/pager.jade
++++ /dev/null
+@@ -1,24 +0,0 @@
+-mixin pager(page, n)
+-  #list
+-    ul.pagination.pagination-sm
+-      - var cp = 5, i = page - 2; if (i <= 0) i = 1;
+-      li(class=page == 1 ? "disabled" : "")
+-        a#1(href="javascript:;")= "<<"
+-      if (i > 1)
+-        li.disabled
+-          a(href="javascript:;") ...
+-      - while (i < page)
+-        li
+-          a(id=i href="javascript:;")= i
+-        - ++i; --cp;
+-      li.active
+-        a(href="javascript:;")= i
+-      - while (i < n && cp > 1)
+-        - ++i; --cp;
+-        li
+-          a(id=i href="javascript:;")= i
+-      if (i < n)
+-        li.disabled
+-          a(href="javascript:;") ...
+-      li(class=(n == 0 || page == n) ? "disabled" : "")
+-        a(id=n href="javascript:;")= ">>"
+diff --git a/views/problem.jade b/views/problem.jade
+deleted file mode 100644
+index b4bed3e..0000000
+--- a/views/problem.jade
++++ /dev/null
+@@ -1,167 +0,0 @@
+-fieldset
+-  mixin submit
+-    if (user)
+-      a.btn.btn-default.btn-sm(href="/submit?pid="+problem.problemID) Submit
+-    else
+-      a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url="/submit?pid="+problem.problemID) Submit
+-    = ' '
+-    a.btn.btn-default.btn-sm(href="/statistic/"+problem.problemID) Statistic
+-  .row
+-    .col-md-8
+-      .block.block-success
+-        .block-content.block-container.istyle
+-          h3.problem-header= problem.title
+-          .prob-info
+-            if (problem.spj == 1)
+-              span.user.user-red(title="答案不唯一，符合题意即可") Special Judge
+-            else if (problem.TC == 1)
+-              span.user.user-red(title="什么是TC模式？详情请参考FAQ") TC 模式
+-            = ' '
+-            span.user-black Time Limit:&nbsp;
+-              = 2*problem.timeLimit
+-              | /
+-              = problem.timeLimit
+-              | MS (Java/Others)
+-            = ' '
+-            span.user-black Memory Limit:&nbsp;
+-              = 2*problem.memoryLimit
+-              | /
+-              = problem.memoryLimit
+-              | KB (Java/Others)
+-          .form-group.form-inline(align="center")
+-            +submit
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="/problem?pid="+(problem.problemID+1)) Next Problem
+-            if (user)
+-              if (user.addprob == 1)
+-                = ' '
+-                a.btn.btn-default.btn-sm(href="/addproblem?pID="+problem.problemID) Edit Problem
+-              if (user.name == 'admin'|| user.name == problem.manager)
+-                = ' '
+-                a#rejudge.btn.btn-default.btn-sm(href="javascript:;") Rejudge
+-          - var S = ['Problem Description', 'Input', 'Output', 'Sample Input', 'Sample Output', 'Hint', 'Source', 'Manager'];
+-          - var q = [problem.description, problem.input, problem.output, problem.sampleInput, problem.sampleOutput, problem.hint, problem.source, problem.manager];
+-          each name, i in S
+-            if (q[i])
+-              h4= name
+-              .prob-content
+-                if (i === 3 || i === 4)
+-                  pre.sample= q[i]
+-                else if (i === 7)
+-                  a#manager(href="/user/"+problem.manager title=UT class="user user-"+UC)= q[i]
+-                  if (user && user.name === 'admin')
+-                    input#manager_input.form-control.input-sm(style="display:none;width:200px;")
+-                    a#edit_btn.img_link.edit(href="javascript:;" title="edit" style="display:inline-block;margin-left:8px;")
+-                else
+-                  != q[i]
+-          .form-inline(align="center")
+-            +submit
+-    .col-md-4
+-      .block.block-info
+-        .block-content
+-          .heading Information
+-          table.table-acdream
+-            tr
+-              td Solved Number
+-              td
+-                a(href="/status?pid="+problem.problemID+"&result=2")= problem.AC
+-            tr
+-              td Submit Number
+-              td
+-                a(href="/status?pid="+problem.problemID)= problem.submit
+-      if (user)
+-        #submit_block.block.block-info
+-          .block-content
+-            .heading Submit
+-            .form-horizontal.block-container.block-mini
+-              .form-group.form-group-sm
+-                label.col-sm-3.control-label Language
+-                .col-sm-9
+-                  include lang
+-                  +lang(langs)
+-              .form-group.form-group-sm
+-                label.col-sm-3.control-label ChooseFile
+-                .col-sm-9
+-                  include upload
+-                  +upload('file', 'info', '/problem/uploadCode?pid='+problem.problemID)
+-              .form-group
+-                .col-sm-offset-3.col-sm-9
+-                  button#submit.btn.btn-default.btn-sm submit
+-                  = ' '
+-                  span#error.error-text
+-              #alert.alert.alert-warning(style="display:none;")
+-                include i64_info
+-      #tag_block.block.block-info
+-        .block-content
+-          .heading Problem Tags
+-          .form-horizontal.block-container.block-mini
+-            if (problem.tags && problem.tags.length)
+-              div
+-                each p in problem.tags.sort(function(a, b){return a-b;})
+-                  .tag-box(title=PT[p])= Tag[p]
+-                    if(pvl == 1)
+-                      span.del(tag=p) ×
+-            if(pvl == 1)
+-              #tag_select.form-group.hidden
+-                label.col-sm-3.control-label AddTag
+-                .col-sm-9
+-                  select.form-control.input-sm
+-                    each p, i in Tag
+-                      option(value=i title=PT[i])= p
+-              div(style="text-align:right;")
+-                a#add-tag(href="javascript:;") Add tag
+-              .alert.alert-success 温馨提示：你可以编辑标签啦~
+-            else
+-              span.user-gray No tag edit access
+-              .alert.alert-success(style="margin:0;") 温馨提示：AC后可以编辑标签哦. ^-^
+-      if (user && (user.name == problem.manager || user.name == 'admin'))
+-        .block.block-info
+-          .block-content
+-            .heading Problem Edit
+-            .form-horizontal.block-container.block-mini
+-              .form-group
+-                label.col-sm-3.control-label Hidden
+-                .col-sm-9
+-                  select#phide.form-control.input-sm
+-                    option(value="1") Yes
+-                    option(value="" selected=problem.hide ? false : true) No
+-script(type="text/javascript")
+-  | var pid = #{problem? problem.problemID : 0};
+-if (user && user.name == 'admin')
+-  script(type="text/javascript").
+-    function bindChange() {
+-      var $input = $('#manager_input');
+-      var $manager = $('#manager');
+-      $input.keyup(function(e){
+-        if (e.keyCode == 13) {
+-          $input.attr('disabled', true);
+-          $.ajax({
+-            type: 'POST',
+-            url: '/problem/setManager',
+-            data: {pid: pid, username: $input.val()},
+-            dataType: 'json',
+-            error: function() {
+-              $input.attr('disabled', false);
+-              ShowMessage('无法连接到服务器！');
+-            }
+-          })
+-          .done(function(res){
+-            var ret = res.ret;
+-            if (ret === 0) {
+-              $manager.text($input.val());
+-            }
+-            ShowMessage(res.msg);
+-            $input.hide();
+-            $manager.show();
+-            $edit_btn.show();
+-            $input.attr('disabled', false);
+-          });
+-        }
+-      });
+-      $edit_btn.click(function(){
+-        $edit_btn.hide();
+-        $manager.hide();
+-        $input.val($manager.text()).show();
+-        $input.focus();
+-      });
+-    }
+diff --git a/views/problemlist.jade b/views/problemlist.jade
+deleted file mode 100644
+index 98d8b9d..0000000
+--- a/views/problemlist.jade
++++ /dev/null
+@@ -1,81 +0,0 @@
+-fieldset
+-  .block.block-info
+-    .heading
+-      .row
+-        .col-sm-6
+-          .btn-group.btn-group-sm
+-            - for (var i = 1; i <= totalPage; i++)
+-              a.btn.btn-default(href="/problem/list?page="+i)= i
+-        .col-sm-6.form-inline
+-          .pull-right
+-            .input-group.input-group-sm
+-              span.input-group-addon
+-                i.icon_search
+-              input#search.form-control(type="text" value=search ? search : "" placeholder="title or tag or source")
+-            = ' '
+-            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="/problem/list") Reset
+-    .table-responsive
+-      table#problemset.table.table-bordered
+-        thead
+-          tr.even
+-            th(style="width:65px;") #
+-            th Title
+-            th(style="width:75px;")
+-            th(style="width:160px;") Source
+-            th(style="width:160px;") Ratio(AC/submit)
+-        tbody
+-          if (!problems || problems.length == 0)
+-            tr.odd
+-              td.error-text.center(colspan="5") No Problems are matched.
+-          else
+-            each p, i in problems
+-              - var c, s;
+-              if (i % 2 == 1)
+-                - c = 'even';
+-              else
+-                - c = 'odd';
+-              case Result[p.problemID]
+-                when 1
+-                  - s = 'WA';
+-                when 2
+-                  - s = 'AC';
+-                default
+-                  - s = '';
+-              tr(class=c)
+-                td(class="center "+s)= p.problemID
+-                td
+-                  if (p.tags && p.tags.length > 0)
+-                    .table-tab.prob-tag
+-                      each t, i in p.tags.sort(function(a, b){return a-b;})
+-                        if (i > 0)
+-                          | ,&nbsp;
+-                        a.tag(href="javascript:;" title=Pt[t])= Tag[t]
+-                  a(href="/problem?pid="+p.problemID)= p.title
+-                  if (user && user.name === 'admin')
+-                    = ' ('
+-                    span.user-gray= p.manager ? p.manager : 'admin'
+-                    = ')'
+-                td(class=s ? s+"-fill" : "")
+-                  if (user)
+-                    a.submit.img_link(href="/submit?pid="+p.problemID title="Submit")
+-                  else
+-                    a.submit.img_link.checklogin(href="javascript:;" data-url="/submit?pid="+p.problemID title="Submit")
+-                td.ellipsis
+-                  a.tag(href="javascript:;" style="font-size:12px;" title=p.source)= p.source
+-                - var res = '0.00';
+-                if (p.submit > 0)
+-                  - res = (p.AC/p.submit*100).toFixed(2);
+-                td.center
+-                  | #{res}% (
+-                  a(href="/status?pid="+p.problemID+"&result=2")= p.AC
+-                  | /
+-                  a(href="/status?pid="+p.problemID)= p.submit
+-                  | )
+-        tfoot
+-          tr
+-            td(colspan="6")
+-              #pager
+-                include pager
+-                +pager(page, totalPage)
+diff --git a/views/rankfooter.jade b/views/rankfooter.jade
+deleted file mode 100644
+index eb70568..0000000
+--- a/views/rankfooter.jade
++++ /dev/null
+@@ -1,10 +0,0 @@
+-mixin rankfooter(probNum, F, isFloat)
+-  tr(style="height:70px;" class=(isFloat ? "" : "odd"))
+-    td(colspan="5" style=(isFloat ? "border:0;" : ""))
+-      if (!isFloat)
+-        ul#ranklist.pagination.pagination-sm
+-    - for(var i = 0; i < probNum; i++)
+-      td.standing_status.footer(data-idx=i)
+-        span.footer-res(style="color:#eee;") -
+-        span.footer-stat
+-        span.footer-percent
+diff --git a/views/rankheader.jade b/views/rankheader.jade
+deleted file mode 100644
+index 76e65c2..0000000
+--- a/views/rankheader.jade
++++ /dev/null
+@@ -1,12 +0,0 @@
+-mixin rankheader(probNum, F)
+-  tr.even
+-    th.rank(style="border-left:0;") #
+-    th.name Name
+-    th.nick Nick
+-    th.solved(title="solved")
+-      span.user-green S
+-    th.penalty(title="penalty(罚时)")
+-      span.user-red P
+-    - for(var i = 0; i < probNum; i++)
+-      th.standing_status
+-        a(href="#problem-"+F[i])= F[i]
+diff --git a/views/ranklist.jade b/views/ranklist.jade
+deleted file mode 100644
+index 9e42199..0000000
+--- a/views/ranklist.jade
++++ /dev/null
+@@ -1,69 +0,0 @@
+-fieldset#ranklist
+-  .block.block-info
+-    .heading
+-      .row
+-        .col-sm-2
+-            | Ranklist
+-        .col-sm-10.form-inline
+-          .pull-right
+-            .input-group.input-group-sm
+-              span.input-group-addon
+-                i.icon_search
+-              input#search.form-control(type="text" value=search ? search : "" placeholder="user or nick")
+-            = ' '
+-            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="/ranklist") Reset
+-    .table-responsive
+-      table#rank.table.table-bordered.tdcenter
+-        thead
+-          tr.even
+-            th(style="width:60px;") Rank
+-            th(style="width:155px;") User
+-            th(style="width:155px;") Nickname
+-            th Signature
+-            th(style="width:70px;") Solved
+-            th(style="width:70px;") Submit
+-            th(style="width:70px;") AC_Ratio
+-        tbody
+-          if (!users || users.length == 0)
+-            tr.odd
+-              td.error-text.center(colspan="7") No Users are matched.
+-          else
+-            - var d = 1;
+-            if (user)
+-              if (user.rank < (page-1)*pageNum+1)
+-                - users.unshift(user);
+-                - d = 0;
+-              else if (user.rank > (page-1)*pageNum+users.length)
+-                - users.push(user);
+-            each p, i in users
+-              - var c, h = '';
+-              if (i % 2 == 1)
+-                - c = 'even';
+-              else
+-                - c = 'odd';
+-              if (user && user.name == p.name)
+-                - h = ' highlight';
+-              - p.ratio = p.submit ? Math.round(p.solved*10000/p.submit)/100. : 0
+-              tr(class=c+h)
+-                td= p.rank ? p.rank : (page-1)*pageNum+i+d
+-                td
+-                  a(class="user user-"+UC[p.name] href="/user/"+p.name title=UT[p.name]+" "+p.name)= p.name
+-                td
+-                  span.user.user-gray= p.nick
+-                td.ellipsis
+-                  if (p.signature)
+-                    p.user-gray.ellipsis.mc(title=p.signature)= p.signature
+-                td
+-                  a(href="/status?name="+p.name+"&result=2")= p.solved
+-                td
+-                  a(href="/status?name="+p.name)= p.submit
+-                td
+-                  span.user-gray= p.ratio+'%'
+-        tfoot
+-          tr.odd
+-            td(colspan="7")
+-              #pager
+-                include pager
+-                +pager(page, totalPage)
+diff --git a/views/register.jade b/views/register.jade
+deleted file mode 100644
+index 095295d..0000000
+--- a/views/register.jade
++++ /dev/null
+@@ -1,37 +0,0 @@
+-fieldset
+-  .block.block-info
+-    #register.block-content
+-      .heading Register
+-      .inner
+-        .row
+-          .col-md-6
+-            .form-group
+-              label(for="reg_username") User Name *
+-              input#reg_username.form-control.input-sm(type="text")
+-            .form-group
+-              label(for="reg_password") Password *
+-              input#reg_password.form-control.input-sm(type="password")
+-            .form-group
+-              label(for="password_repeat") Repeat *
+-              input#password_repeat.form-control.input-sm(type="password")
+-            .form-group
+-              label(for="reg_nick") Nick Name *
+-              input#reg_nick.form-control.input-sm(type="text")
+-            .form-group
+-              label(for="reg_vcode") Verify Code *
+-              input#reg_vcode.form-control.input-sm(type="text")
+-            #vcode.vcode(title="点击换一张")
+-          .col-md-6
+-            .form-group
+-              label(for="reg_school") School
+-              input#reg_school.form-control.input-sm(type="text")
+-            .form-group
+-              label(for="reg_email") Email
+-              input#reg_email.form-control.input-sm(type="text")
+-            .form-group
+-              label(for="signature") Signature
+-              textarea#signature.form-control.input-sm(style="height:200px;")
+-      .heading
+-        a#reg_submit.btn.btn-default(href="javascript:;") Submit
+-        = ' '
+-        span#reg_error.error-text
+diff --git a/views/sourcecode.jade b/views/sourcecode.jade
+deleted file mode 100644
+index e3780d9..0000000
+--- a/views/sourcecode.jade
++++ /dev/null
+@@ -1,22 +0,0 @@
+-fieldset
+-  .block.block-danger
+-    .block-content
+-      .inner(style="background:#fff;")
+-        - var lang;
+-        case solution.language
+-          when 2
+-            - lang = 'cpp';
+-          when 1
+-            - lang = 'c';
+-          default
+-            - lang = 'java';
+-        pre(class="brush: "+lang)
+-          | /*
+-          | * this code is made by #{solution.userName}
+-          | * Problem: #{solution.problemID}
+-          | * Verdict: #{Res(solution.result)}
+-          | * Submission Date: #{getDate(solution.inDate)}
+-          | * Time: #{solution.time}MS
+-          | * Memory: #{solution.memory}KB
+-          | */
+-          = "\n"+solution.code
+diff --git a/views/standings.jade b/views/standings.jade
+deleted file mode 100644
+index df7c7ae..0000000
+--- a/views/standings.jade
++++ /dev/null
+@@ -1,73 +0,0 @@
+-fieldset#standings(cid=cid ? cid : "")
+-  .block.block-info
+-    .heading
+-      .row
+-        .col-sm-3
+-          if (cid)
+-            | Contestants of Contest
+-            = ' '+cid
+-          else
+-            | Standings
+-        .col-sm-9.form-inline
+-          .pull-right
+-            .input-group.input-group-sm
+-              span.input-group-addon
+-                i.icon_search
+-              input#search.form-control(type="text" value=search ? search : "" placeholder="user or nick")
+-            = ' '
+-            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="/standings"+(cid ? "?cid="+cid : "")) Reset
+-    .table-responsive
+-      table#rank.table.table-bordered.tdcenter
+-        thead
+-          tr.even
+-            th(style="width:60px;") Rank
+-            th(style="width:155px;") User
+-            th(style="width:155px;") Nickname
+-            th Signature
+-            th(style="width:35px;")
+-              span(title="Number of participations") #
+-            th(style="width:70px;")
+-              span(title="Rating") =
+-        tbody
+-          if (!users || users.length == 0)
+-            tr.odd
+-              td.error-text.center(colspan="6") No Users are matched.
+-          else
+-            - var d = 1;
+-            if (user)
+-              if (user.rank < (page-1)*pageNum+1)
+-                - users.unshift(user);
+-                - d = 0;
+-              else if (user.rank > (page-1)*pageNum+users.length)
+-                - users.push(user);
+-            each p, i in users
+-              - var c, h = '';
+-              if (i % 2 == 1)
+-                - c = 'even';
+-              else
+-                - c = 'odd';
+-              if (user && user.name == p.name)
+-                - h = ' highlight';
+-              tr(class=c+" "+h)
+-                td= p.rank ? p.rank : (page-1)*pageNum+i+d
+-                td
+-                  a(class="user user-"+UC[p.name] href="/user/"+p.name title=UT[p.name]+" "+p.name)= p.name
+-                td
+-                  span.user-gray= p.nick
+-                td.ellipsis
+-                  if (p.signature)
+-                    p.user-gray.ellipsis.mc(title=p.signature)= p.signature
+-                td= p.ratedRecord.length
+-                td
+-                  if (p.lastRatedContest)
+-                    = p.rating
+-                  else
+-                    span.user.user-gray -
+-        tfoot
+-          tr.odd
+-            td(colspan="6")
+-              #pager
+-                include pager
+-                +pager(page, totalPage)
+diff --git a/views/statistic.jade b/views/statistic.jade
+deleted file mode 100644
+index 9b7c122..0000000
+--- a/views/statistic.jade
++++ /dev/null
+@@ -1,95 +0,0 @@
+-- var _id = [0, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14];
+-- var names = ['', 'AC', 'WA', 'PE', 'TLE', 'MLE', 'OLE', 'CE', 'RE'];
+-- var data = [];
+-
+-fieldset
+-  .row
+-    .col-md-4
+-      .block.block-info
+-        .heading Problem Statistic
+-        .table-responsive
+-          table#static.table.table-bordered.tdcenter.tdmini
+-            thead
+-              tr.even
+-                th Verdict
+-                th Amount
+-            tbody
+-              each p, i in _id
+-                - var c;
+-                if (i == 0 || i % 2 == 1)
+-                  - c = 'odd';
+-                else
+-                  - c = 'even';
+-                - var v = 0;
+-                - if (calResult[p]) v = calResult[p];
+-                - var title = Res(p);
+-                if (p > 0 && p < 10)
+-                  - data.push({name: names[i], title: title, y: v});
+-                if (i == 1)
+-                  tr.even
+-                    th(colspan="2")
+-                      #chart(style="height:400px;")
+-                tr(class=c)
+-                  td
+-                    if (i == 0)
+-                      | Total Submissions
+-                    else
+-                      = title
+-                  td
+-                    a(href="/status?pid="+pid+(_id[i] > 0 ? "&result="+_id[i] : ""))= v
+-    .col-md-8
+-      .block.block-info
+-        .heading
+-          .row
+-            .col-sm-2
+-              a(href="/problem?pid="+pid)= 'Problem '+pid
+-            .col-sm-10.form-inline
+-              .pull-right
+-                #filter.input-group.input-group-sm
+-                  span.input-group-addon Lang.
+-                  select#lang.form-control
+-                    each l, i in langs
+-                      option(value=(i > 0 ? i : "") selected=(lang == i ? true : false))= l
+-        .table-responsive
+-            table#statistic.table.table-bordered.tdcenter
+-              thead
+-                tr.even
+-                  th(width="6%") Rank
+-                  th(width="20%") Author
+-                  th(data-key=0 class=(sort_key ? "sort" : "sort-current") title="sorted by exec time.") Exe. Time
+-                  th(data-key=1 class=(sort_key === 1 ? "sort-current" : "sort") title="sorted by exec memory.") Exe. Memory
+-                  th(data-key=2 class=(sort_key === 2 ? "sort-current" : "sort") title="sorted by code length.") Code Len.
+-                  th Lang.
+-                  th(width="22%") Date
+-              tbody
+-                if (!sols || sols.length == 0)
+-                  tr.odd
+-                    td.error-text.center(colspan="7") No Status are matched.
+-                else
+-                  each p, i in sols
+-                    - var c;
+-                    if (i % 2 == 1)
+-                      - c = 'even';
+-                    else
+-                      - c = 'odd';
+-                    - if (user && user.name == p._id) c += ' highlight';
+-                    tr(class=c)
+-                      td= (page-1)*pageNum + i + 1
+-                      td
+-                        a(title=UT[p._id] class="user user-"+UC[p._id] href="/user/"+p._id)= p._id
+-                      td= p.time+' MS'
+-                      td= p.memory+' KB'
+-                      td= p.length+' B'
+-                      td
+-                        a(href="/sourcecode/"+p.runID)= langs[p.language]
+-                      td= getDate(p.inDate)
+-              tfoot
+-                tr.odd
+-                  td(colspan="9")
+-                    #pager
+-                      include pager
+-                      +pager(page, totalPage)
+-script(type="text/javascript")
+-  | var pid = #{pid};
+-  | var sort = #{sort_key};
+-  != 'var stat_data = '+JSON.stringify(data)+';'
+diff --git a/views/status.jade b/views/status.jade
+deleted file mode 100644
+index 55c1d42..0000000
+--- a/views/status.jade
++++ /dev/null
+@@ -1,93 +0,0 @@
+-fieldset
+-  .block.block-info
+-    .heading
+-      .row
+-        .col-sm-2 Status
+-        .col-sm-10.form-inline
+-          .pull-right
+-            .input-group.input-group-sm
+-              span.input-group-addon name
+-              input#name.form-control(type="text" value=name ? name : "" placeholder="UserName")
+-            = ' '
+-            .input-group.input-group-sm
+-              span.input-group-addon pid
+-              input#pid.form-control(type="text" value=pid ? pid : "" placeholder="ProblemID")
+-            = ' '
+-            .input-group.input-group-sm
+-              span.input-group-addon lang
+-              select#lang.form-control
+-                each name, i in langs
+-                  option(value=i selected=(lang == i ? true : false))= name
+-            = ' '
+-            .input-group.input-group-sm
+-              span.input-group-addon verdict
+-              select#result.form-control
+-                option(value="") All
+-                each p in [0, 1, 2, 6, 3, 4, 5, 7, 8, 9, 13, 14]
+-                  option(class=Col(p) value=p selected=result == p ? true : false)= Res(p)
+-            = ' '
+-            a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-            = ' '
+-            a.btn.btn-default.btn-sm(href="/status") Reset
+-    .table-responsive
+-      table#statustable.table.table-bordered.tdcenter
+-        thead
+-          tr.even
+-            th(style="width:7%;") RunID
+-            th(style="width:14%;") User
+-            th(style="width:10%;") Problem
+-            th Verdict
+-            th(style="width:9%;") Time
+-            th(style="width:9%;") Memory
+-            th(style="width:8%;") Lang
+-            th(style="width:8%;") Length
+-            th(style="width:15%;") Submit Time
+-        tbody
+-          if (!sols || sols.length == 0)
+-            tr.odd
+-              td.error-text.center(colspan="9") No Status are matched.
+-          else
+-            each p, i in sols
+-              - var c, v, vc = '', time, memory, len;
+-              if (user && user.name == p.userName)
+-                - c = 'highlight';
+-              else if (i % 2 == 1)
+-                - c = 'even';
+-              else
+-                - c = 'odd';
+-              if (p.result < 2)
+-                - vc = 'unknow';
+-              if ((p.cID != -1 || P[p.problemID].hide) && (!user || (user.name != p.userName && user.name != 'admin' && user.name != P[p.problemID].manager)))
+-                - time = memory = len = '<span class="user user-gray">---</span>';
+-              else
+-                - time = p.time+' MS'; memory = p.memory+' KB'; len = p.code.length+' B';
+-              if (p.result == 0)
+-                - time = '<img src="img/pending.gif" style="width:16px;height:16px;">';
+-              else if (p.result == 1)
+-                - time = '<img src="img/running.gif" style="width:16px;height:16px;">';
+-              if (p.result == 8 && user && (user.name == p.userName || user.name == 'admin'))
+-                - v = '<a href="javascript:;" title="more information" rid="'+p.runID+'" class="CE special-text">Compilation Error</a>';
+-              else
+-                - v = R[i];
+-              tr(class=c)
+-                td= p.runID
+-                td
+-                  a(class="user user-"+UC[p.userName] title=UT[p.userName]+" "+p.userName href="/user/"+p.userName)= p.userName
+-                td
+-                  a(href="/problem?pid="+p.problemID)= p.problemID
+-                td(class="bold "+vc+" "+C[i] rid=p.runID)!= v
+-                  if (user && user.name == 'admin' && p.result > 2)
+-                    div(style="position:relative;")
+-                      a.rejudge.img_link(href="javascript:;" title="rejudge")
+-                td!= time
+-                td!= memory
+-                td
+-                  a(href="/sourcecode/"+p.runID)= langs[p.language] ? langs[p.language] : ''
+-                td!= len
+-                td!= getDate(p.inDate)
+-        tfoot
+-          tr.odd
+-            td(colspan="9")
+-              #pager
+-                include pager
+-                +pager(page, totalPage)
+diff --git a/views/submit.jade b/views/submit.jade
+deleted file mode 100644
+index 698d9a0..0000000
+--- a/views/submit.jade
++++ /dev/null
+@@ -1,27 +0,0 @@
+-fieldset
+-  .block.block-success
+-    .block-content
+-      .heading Submit
+-      .block-container.form-horizontal
+-        .form-group.form-group-sm
+-          label.col-sm-2.control-label(for="pid") Problem
+-          .col-sm-10.form-inline
+-            input#pid.form-control(type="search" value=id)
+-            = ' '
+-            span#error.error-text
+-        .form-group.form-group-sm
+-          label.col-sm-2.control-label(for="lang") Language
+-          .col-sm-10.form-inline
+-            include lang
+-            +lang(langs, null)
+-        .form-group
+-          label.col-sm-2.control-label(for="code") Source Code
+-          .col-sm-7
+-            textarea#code.form-control(rows="25")
+-        #alert.form-group(style="display:none;")
+-          .col-sm-offset-2.col-sm-7
+-            .alert.alert-warning(style="margin-bottom:0;")
+-              include i64_info
+-        .form-group
+-          .col-sm-offset-2.col-sm-7
+-            a#submit.btn.btn-default(href="javascript:;") Submit
+diff --git a/views/topic.jade b/views/topic.jade
+deleted file mode 100644
+index 86752c7..0000000
+--- a/views/topic.jade
++++ /dev/null
+@@ -1,110 +0,0 @@
+-- var imgsrc;
+-- var minID = 0;
+-
+-mixin GetImageSrc(user)
+-  - imgsrc = IT[user] ? '/img/avatar/'+user+'/2.'+IT[user] : '/img/avatar/%3Ddefault%3D/2.jpeg';
+-
+-mixin Actions(p)
+-  if (user)
+-    span.actions.pull-right
+-      if (user.name === 'admin' || user.name === p.user)
+-        a.img_link.edit.edit-btn(data-id=p.id href="javascript:;" title="编辑")
+-        a.img_link.trash.trash-btn(data-id=p.id href="javascript:;" title="删除")
+-      if (user.name !== p.user)
+-        a.img_link.reply.reply-btn(data-id=p.id data-fa=(p.fa === -1 ? p.id : p.fa) data-at=p.user href="javascript:;" title="回复")
+-
+-mixin Reply(p, idx)
+-  +GetImageSrc(p.user)
+-  .reply_box(style=(idx == 0 ? "border-top:0;" : ""))
+-    .rl
+-      img.img-60.img-round(alt="avatar" src=imgsrc)
+-    .rr
+-      .head(id=p.id)
+-        a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
+-        = ' '
+-        span.user-gray= '@' + p.at + ' ' + p.inDate
+-        +Actions(p)
+-      .content
+-        != p.content
+-
+-mixin Row(p)
+-  +GetImageSrc(p.user)
+-  tr
+-    td.cl
+-      div
+-        a(href="/user/"+p.user title=UT[p.user] class="user user-"+UC[p.user])= p.user
+-      div
+-        img.img-80.img-round(alt="avatar" src=imgsrc)
+-    td.cr
+-      .head(id=(p.title ? "" : p.id))
+-        - var op = '';
+-          if (p.top)
+-            span.label.label-warning 置顶
+-          = ' '
+-          if (p.title)
+-            span.title= p.title
+-          = ' '
+-        span.user-gray= (p.title ? '发表' : '评论') + '于' + p.inDate
+-        if (!p.title)
+-          +Actions(p)
+-      .content
+-        != p.content
+-      if (p.title)
+-        .pull-right
+-          if (user)
+-            button.btn.btn-primary#add_reply + Add Reply
+-          else
+-            button.btn.btn-primary.checklogin + Add Reply
+-      else if (sub[p.id] && sub[p.id].length)
+-        .replies
+-          each c, i in sub[p.id]
+-            +Reply(c, i)
+-
+-fieldset
+-  .block.block-info
+-    .heading
+-      a(href="/topic/list") 讨论主页
+-      = ' >> '
+-      | 话题详情
+-      span.actions.pull-right
+-        if (user && (user.name === topic.user || user.name === 'admin'))
+-          a.img_link.edit(title="编辑" href="/addtopic?tid="+topic.id)
+-        if (user && user.name === 'admin')
+-          if (topic.top)
+-            a#toggle_top.img_link.put_down(href="javascript:;" title="取消置顶")
+-          else
+-            a#toggle_top.img_link.put_up(href="javascript:;" title="置顶")
+-    .block-content
+-      .table-responsive
+-        table#comment.table.table-topic
+-          +Row(topic)
+-          if (user)
+-            +GetImageSrc(user.name)
+-            tr#to_reply(style="display:none;")
+-              td.cl
+-                div
+-                  a(href="/user/"+user.name title=UT[user.name] class="user user-"+UC[user.name])= user.name
+-                div
+-                  img.img-80.img-round(alt="avatar" src=imgsrc)
+-              td.cr
+-                .form-group
+-                  textarea#content.form-control
+-                button#reply.btn.btn-default 提交回复
+-                = ' '
+-                span#err.error-text
+-          if (comments && comments.length)
+-            - minID = comments[comments.length - 1].id;
+-            each p in comments
+-              +Row(p)
+-        .heading.center
+-          if (haveMore)
+-            span#processing(style="display:none;")
+-              img(src="/img/waitting.gif")
+-              = ' '
+-              span.user-gray 获取中...
+-            a#get_more(href="javascript:;") 更多评论
+-          else
+-            span.user-gray 没有更多评论
+-  script(type="text/javascript")
+-    | var _tid = #{topic.id};
+-    | var _min_id = #{minID};
+diff --git a/views/topiclist.jade b/views/topiclist.jade
+deleted file mode 100644
+index 1bee0df..0000000
+--- a/views/topiclist.jade
++++ /dev/null
+@@ -1,64 +0,0 @@
+-- var now = (new Date()).getTime();
+-fieldset
+-  .block.block-info
+-    .block-content
+-      .heading
+-        .row
+-          .col-sm-2
+-            | TopicList
+-          .col-sm-10.form-inline
+-            .pull-right
+-              if (user)
+-                a.btn.btn-default.btn-sm(href="/addtopic") 发布话题
+-              else
+-                a.btn.btn-default.btn-sm.checklogin(href="javascript:;" data-url="/addtopic") 发布话题
+-              = ' '
+-              .input-group.input-group-sm
+-                span.input-group-addon
+-                  i.icon_search
+-                input#search.form-control(type="text" value=(search ? search : "") placeholder="title or author")
+-              = ' '
+-              a#fil.btn.btn-default.btn-sm(href="javascript:;") Filter
+-              = ' '
+-              a.btn.btn-default.btn-sm(href="/topic/list") Reset
+-      .table-responsive
+-        table.table-acdream.highlight
+-          tbody
+-            if (!topics || topics.length == 0)
+-              tr.odd
+-                td.error-text(colspan="3") No Topics are matched.
+-            else
+-              each p, i in topics
+-                - var img;
+-                if (I[p.user])
+-                  - img = '/img/avatar/'+p.user+'/4.'+I[p.user];
+-                else
+-                  - img = '/img/avatar/%3Ddefault%3D/4.jpeg';
+-                tr
+-                  td.avatar
+-                    img.img-50.img-round(title=p.user alt=p.user src=img)
+-                  td
+-                    .title
+-                      if (p.top)
+-                        span.label.label-warning 置顶
+-                      = ' '
+-                      if (now - p.inDate < 86400000)
+-                        span.label.label-warning 新帖
+-                      = ' '
+-                      if (p.lastReviewer && now - p.lastReviewTime < 28800000)
+-                        span.label.label-danger 热帖
+-                      = ' '
+-                      a(href="/topic?tid="+p.id)= p.title
+-                    .footer
+-                      = '作者：'
+-                      a(href="/user/"+p.user)= p.user
+-                      if (p.lastReviewer)
+-                        = ' / 最新回复：'
+-                        a(href="/topic?tid="+p.id+"#"+p.lastComment)= p.lastReviewer + ' @ ' + getDate(p.lastReviewTime)
+-                  td.state= p.reviewsQty
+-              tfoot
+-                tr.odd
+-                  td(colspan="4")
+-                    #pager
+-                      include pager
+-                      +pager(page, totalPage)
+diff --git a/views/upload.jade b/views/upload.jade
+deleted file mode 100644
+index 8546e0b..0000000
+--- a/views/upload.jade
++++ /dev/null
+@@ -1,6 +0,0 @@
+-mixin upload(id, name, url, multi)
+-  .upload-control.input-group.input-group-sm
+-    .input-group-btn
+-      span.btn.btn-default.btn-sm 选择文件
+-        input.form-control(id=id type="file" name=name data-url=url multiple=(multi ? true : false))
+-    span.upload_info.form-control 未选择文件
+diff --git a/views/user.jade b/views/user.jade
+deleted file mode 100644
+index e058c58..0000000
+--- a/views/user.jade
++++ /dev/null
+@@ -1,99 +0,0 @@
+-- var img = '/img/avatar/%3Ddefault%3D/1.jpeg';
+-if (u.imgType)
+-  - img = '/img/avatar/'+u.name+'/1.'+u.imgType;
+-fieldset
+-  .block.block-info
+-    .block-content
+-      .inner(style="padding:0 15px;")
+-        .row
+-          .col-md-8
+-            - var ut = UT(u.rating), uc = UC(u.rating);
+-            div(style="font-size:24px;margin-top:5px;")
+-              span(class="user user-"+uc title=ut+" "+u.name)= ut+' '+u.name
+-            if (user && user.name == 'admin')
+-              .form-inline
+-                a#addprob.btn.btn-default(href="javascript:;")
+-                  if(u.addprob == 1)
+-                    | 回收
+-                  else
+-                    | 赋予
+-                  = ' '+u.name+' 加题权限'
+-                = ' '
+-                a#restore.btn.btn-default(href="javascript:;") 将 #{u.name} 的密码恢复默认
+-            div
+-              span.user-gray(title="nick name")= u.nick
+-            ul.user-info
+-              if(u.signature)
+-                li(style="word-break:break-all;")
+-                  img.icon(src="/img/sig.png")
+-                  | Signature: #{u.signature}
+-              if (user && user.name == u.name)
+-                li
+-                  img.icon(src="/img/settings.png")
+-                  a#set(href="javascript:;") Change settings
+-              if (u.name != 'admin')
+-                li
+-                  img.icon(src="/img/rank.png")
+-                  = 'Rank: '
+-                  span.user.user-green= u.rank
+-              if (u.lastRatedContest)
+-                li
+-                  img.icon(src="/img/rating.png")
+-                  = 'Rating: '
+-                  span(class="user user-"+uc)= u.rating
+-              li
+-                img.icon(src="/img/yes.png")
+-                = 'Solved: '
+-                a(href="/status?name="+u.name+"&result=2")= u.solved
+-              li
+-                img.icon(src="/img/submit.png")
+-                = 'Submissions: '
+-                a(href="/status?name="+u.name)= u.submit
+-              if(u.email)
+-                li
+-                  img.icon(src="/img/mail.png")
+-                  | Email: #{u.email}
+-              if(u.school)
+-                li
+-                  img.icon(src="/img/school.png")
+-                  | School: #{u.school}
+-              li
+-                img.icon(src="/img/add.png")
+-                = 'AddProblem: '
+-                if(u.addprob)
+-                  span.user.user-green YES
+-                else
+-                  span.error-text NO
+-              li Last Visit: #{getTime(u.visTime)}
+-              li Registered: #{getTime(u.regTime)}
+-          .col-md-4
+-            span.pull-right(style="margin:20px 15px 0 0;")
+-              img.img-250.img-round(alt="avatar" src=img)
+-              if (user && user.name === u.name)
+-                div
+-                  a(href="/avatar") Change Avatar
+-  .block.block-danger
+-    .block-content
+-      .inner(style="padding:0px 8px;")
+-        #chart
+-  mixin box(name, ary, info, flg)
+-    .block(class=flg ? "block-success" : "block-warning")
+-      .block-content
+-        .heading
+-          = 'List of '
+-          span.success-text= name
+-          = ' problems'
+-        .inner.prob_list
+-          if (ary.length == 0)
+-            span(class=flg ? "error-text" : "success-text")= info
+-          else
+-            each pid in ary 
+-              a.pid(href="/problem?pid="+pid)= pid
+-  +box("solved", A, "No problems has been solved :(", true)
+-  +box("unsolved", B, "No unsolved problems :)")
+-  if (u.name === 'admin')
+-    +box("hidden", H, "No hidden problems :)")
+-script(type="text/javascript")
+-  != 'var _username = "'+u.name+'";'
+-  != 'var _min_rating = ' + minRating + ';'
+-  != 'var _rated_record = ' + JSON.stringify(u.ratedRecord) + ';'

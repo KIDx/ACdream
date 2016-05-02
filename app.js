@@ -38,7 +38,7 @@ if (app.get('env') == 'production') {
 //服务器配置
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(partials());
 app.use(require('cookie-parser')(settings.cookie_secret));

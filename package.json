@@ -23,7 +23,7 @@
     "serve-favicon": "*",
     "express-session": "*",
     "mongoose": "*",
-    "jade": "*",
+    "pug": "2.0.0-alpha6",
     "express-partials": "*",
     "verify-code": "*",
     "socket.io": "*",
