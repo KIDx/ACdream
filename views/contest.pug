@@ -46,8 +46,8 @@ fieldset#widthfix
       if (contest.type === 2)
         .col-sm-4(style="text-align:right;")
           = 'Contestants: '
-            img(src="/img/user.png")
-            a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
+          img(src="/img/user.png")
+          a#contestants(target="_blank" href="/standings?cid="+contest.contestID) ×#{contest.contestants.length}
     #progress.progress.cb(style="height:20px;")
       .progress-bar.progress-bar-striped.active(class=ps style="width:100%;")
     #contest-info.pull-left(style="text-align:right;")!= '&nbsp;'
