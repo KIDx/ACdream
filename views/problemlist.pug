@@ -48,8 +48,8 @@ fieldset
                 td
                   if (p.tags && p.tags.length > 0)
                     .table-tab.prob-tag
-                      each t, i in p.tags.sort(function(a, b){return a-b;})
-                        if (i > 0)
+                      each t, idx in p.tags.sort(function(a, b){return a-b;})
+                        if (idx > 0)
                           | ,&nbsp;
                         a.tag(href="javascript:;" title=Pt[t])= Tag[t]
                   a(href="/problem?pid="+p.problemID)= p.title
