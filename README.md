@@ -1,8 +1,12 @@
 # ACdream Online Judge v2.0.0
 
+## 温馨提示
+
+该项目已不再维护，需要复用请自行研究。
+
 ## 关于pull request
 
-温馨提示，所有提交都要严格遵循[代码规范](https://github.com/dead-horse/node-style-guide)。
+所有提交都要严格遵循[代码规范](https://github.com/dead-horse/node-style-guide)。
 
 ## ubuntu下快速搭建开发环境
 
