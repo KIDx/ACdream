@@ -51,5 +51,5 @@ $ grunt
 $ node app.js
 ```
 
-###License
+### License
 https://github.com/KIDx/ACdream/blob/master/license
